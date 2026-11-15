@@ -46,7 +46,7 @@ export function LocaleSwitcher({ tone = "light" }: Props) {
           disabled={isPending}
           data-testid="locale-switcher"
           className={cn(
-            "gap-1.75 px-3 text-caption font-semibold tracking-wide shadow-none lg:h-9.5",
+            "gap-1.75 px-3 text-caption font-semibold tracking-[0.04em] shadow-none lg:h-9.5",
             tone === "light"
               ? "border-n200 bg-white text-navy hover:border-input"
               : "border-white/22 bg-white/7 text-white hover:border-white/22 hover:bg-white/16",
