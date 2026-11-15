@@ -1,7 +1,9 @@
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { RULES, runRules, scanText } from "../../../scripts/lib/qa-rules";
+import { RULES, runRules, scanText, structuralHits } from "../../../scripts/lib/qa-rules";
 
 function rule(id: string) {
   const r = RULES.find((x) => x.id === id);
@@ -31,6 +33,23 @@ describe("qa:static rules", () => {
     expect(scanText(r, "src/lib/a.ts", "await prisma.recommendation.update({})")).toHaveLength(1);
     expect(scanText(r, "src/lib/a.ts", "await tx.auditLog.deleteMany()")).toHaveLength(1);
     expect(scanText(r, "src/lib/a.ts", "await prisma.auditLog.create({})")).toHaveLength(0);
+  });
+
+  it("BR-09 flags raw SQL mutations of the ledgers", () => {
+    const r = rule("BR-09/ledger-raw-sql");
+    expect(scanText(r, "src/lib/a.ts", 'sql`UPDATE "Recommendation" SET note = 1`')).toHaveLength(
+      1,
+    );
+    expect(scanText(r, "src/lib/a.ts", 'DELETE FROM "AuditLog" WHERE id = 1')).toHaveLength(1);
+    expect(scanText(r, "src/lib/a.ts", 'TRUNCATE TABLE "AuditLog"')).toHaveLength(1);
+    expect(scanText(r, "src/lib/a.ts", 'INSERT INTO "AuditLog" VALUES (1)')).toHaveLength(0);
+  });
+
+  it("BR-12 flags non-sample rule / score seeds", () => {
+    const r = rule("BR-12/seed-sample-only");
+    expect(scanText(r, "prisma/seed/sampleRules.ts", "isSample: false,")).toHaveLength(1);
+    expect(scanText(r, "prisma/seed/sampleRules.ts", 'status: "PUBLISHED",')).toHaveLength(1);
+    expect(scanText(r, "prisma/seed/sampleRules.ts", 'status: "DRAFT",')).toHaveLength(0);
   });
 
   it("BR-12 flags visa code literals but not format regexes", () => {
@@ -71,6 +90,15 @@ describe("qa:static rules", () => {
     expect(scanText(r, "messages/ko.json", '"cta": "지원하기"')).toHaveLength(1);
     expect(scanText(r, "messages/en.json", '"cta": "Apply now"')).toHaveLength(1);
     expect(scanText(r, "messages/ko.json", '"cta": "면접 신청"')).toHaveLength(0);
+  });
+
+  it("S-49 flags sample seed files without the SAMPLE header", () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "qa-seed-"));
+    mkdirSync(path.join(dir, "prisma", "seed"), { recursive: true });
+    writeFileSync(path.join(dir, "prisma", "seed", "sampleRules.ts"), "export const x = 1;\n");
+    writeFileSync(path.join(dir, "prisma", "seed", "sampleScoreTable.ts"), "// SAMPLE — ok\n");
+    const ids = structuralHits(dir).map((h) => `${h.rule.id} ${h.file}`);
+    expect(ids).toEqual(["S-49/sample-seed-header prisma/seed/sampleRules.ts"]);
   });
 
   it("the current repository has 0 error hits", () => {

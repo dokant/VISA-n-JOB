@@ -78,6 +78,23 @@ export const RULES: Rule[] = [
     pattern: /\b(recommendation|auditLog)\.(update|updateMany|delete|deleteMany|upsert)\s*\(/i,
   },
   {
+    id: "BR-09/ledger-raw-sql",
+    severity: "error",
+    description: "No raw SQL UPDATE / DELETE / TRUNCATE on Recommendation / AuditLog (BR-09)",
+    roots: ["src"],
+    fileFilter: CODE,
+    pattern: /(UPDATE|DELETE\s+FROM|TRUNCATE)\s+(TABLE\s+)?"?(Recommendation|AuditLog)\b/i,
+  },
+  {
+    id: "BR-12/seed-sample-only",
+    severity: "error",
+    description:
+      "Seeds insert rules / score tables only as SAMPLE + DRAFT (BR-12, R-007, STANDARD 4.9)",
+    roots: ["prisma/seed"],
+    fileFilter: CODE,
+    pattern: /isSample:\s*false|status:\s*["'`](PUBLISHED|RETIRED)["'`]/,
+  },
+  {
     id: "BR-12/visa-code-literal",
     severity: "error",
     description: "No visa code string literals in src (BR-12, STANDARD 4.9-1)",
@@ -224,6 +241,9 @@ function structuralRule(id: string, description: string): Rule {
   return { id, severity: "error", description, roots: ["src"], pattern: /(?!)/ };
 }
 
+/** Seed files that hold dummy legal structures only (STANDARD 4.9). */
+export const SAMPLE_SEED_FILES = ["prisma/seed/sampleRules.ts", "prisma/seed/sampleScoreTable.ts"];
+
 /** Structural checks that are not line patterns. */
 export function structuralHits(rootDir: string): Hit[] {
   const hits: Hit[] = [];
@@ -245,6 +265,18 @@ export function structuralHits(rootDir: string): Hit[] {
   ];
   for (const [rel, rule] of forbiddenPaths) {
     if (existsSync(path.join(rootDir, rel))) hits.push({ rule, file: rel, line: 0, text: "" });
+  }
+  const sampleHeader = structuralRule(
+    "S-49/sample-seed-header",
+    "Sample seed files must start with a `// SAMPLE` comment (BR-12, R-007)",
+  );
+  for (const rel of SAMPLE_SEED_FILES) {
+    const abs = path.join(rootDir, rel);
+    if (!existsSync(abs)) continue;
+    const first = readFileSync(abs, "utf8").split(/\r?\n/)[0] ?? "";
+    if (!/^\/\/ SAMPLE\b/.test(first)) {
+      hits.push({ rule: sampleHeader, file: rel, line: 1, text: first.trim() });
+    }
   }
   return hits;
 }

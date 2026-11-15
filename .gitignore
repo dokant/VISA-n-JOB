@@ -32,6 +32,7 @@ npm-debug.log*
 
 # local embedded Postgres data (P0b, PG_DATA_DIR default)
 /.pgdata/
+/.pgdata-test/
 *.pgdata/
 
 # private uploads (never under public/)

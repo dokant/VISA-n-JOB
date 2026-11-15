@@ -17,9 +17,18 @@
     "test:e2e": "playwright test",
     "i18n:check": "tsx scripts/i18n-check.ts",
     "qa:static": "tsx scripts/qa-static.ts",
+    "db:start": "tsx scripts/db.ts start",
+    "db:stop": "tsx scripts/db.ts stop",
+    "db:status": "tsx scripts/db.ts status",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed/index.ts",
+    "db:reset": "tsx scripts/db.ts reset",
+    "db:studio": "prisma studio",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.2",

@@ -22,21 +22,45 @@ pnpm dev                 # http://localhost:3000 → /ko 로 이동
 
 ## 명령어
 
-| 명령                        | 내용                                                                                          |
-| --------------------------- | --------------------------------------------------------------------------------------------- |
-| `pnpm dev`                  | 개발 서버                                                                                     |
-| `pnpm build` / `pnpm start` | 프로덕션 빌드 / 실행                                                                          |
-| `pnpm lint`                 | ESLint                                                                                        |
-| `pnpm typecheck`            | `tsc --noEmit`                                                                                |
-| `pnpm test`                 | Vitest 단위 테스트 (`tests/unit`)                                                             |
-| `pnpm test:coverage`        | Vitest + v8 커버리지 (`coverage/`)                                                            |
-| `pnpm test:e2e`             | Playwright E2E (`tests/e2e`, 프로덕션 빌드 서버 대상, 데스크톱 + 375px 모바일)                |
-| `pnpm i18n:check`           | `messages/*.json` 키를 ko 기준으로 비교, `_review` 표시 검사. 누락 시 비0 종료                |
-| `pnpm qa:static`            | BR 정적 점검(주민·여권번호 필드, 직접 연락 링크, 원장 수정, 비자 코드 리터럴, 하드코딩 색 등) |
-| `pnpm format`               | Prettier                                                                                      |
-| `pnpm db:*`                 | 임베디드 Postgres·Prisma (P0b에서 추가)                                                       |
+| 명령                                      | 내용                                                                                          |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                | 개발 서버                                                                                     |
+| `pnpm build` / `pnpm start`               | 프로덕션 빌드 / 실행                                                                          |
+| `pnpm lint`                               | ESLint                                                                                        |
+| `pnpm typecheck`                          | `tsc --noEmit`                                                                                |
+| `pnpm test`                               | Vitest 단위 테스트 (`tests/unit`)                                                             |
+| `pnpm test:coverage`                      | Vitest + v8 커버리지 (`coverage/`)                                                            |
+| `pnpm test:e2e`                           | Playwright E2E (`tests/e2e`, 프로덕션 빌드 서버 대상, 데스크톱 + 375px 모바일)                |
+| `pnpm i18n:check`                         | `messages/*.json` 키를 ko 기준으로 비교, `_review` 표시 검사. 누락 시 비0 종료                |
+| `pnpm qa:static`                          | BR 정적 점검(주민·여권번호 필드, 직접 연락 링크, 원장 수정, 비자 코드 리터럴, 하드코딩 색 등) |
+| `pnpm format`                             | Prettier                                                                                      |
+| `pnpm db:start` / `db:stop` / `db:status` | 로컬 임베디드 Postgres 기동·중지·상태 (아래 "데이터베이스")                                   |
+| `pnpm db:migrate`                         | `prisma migrate dev` (마이그레이션 적용, 스키마 변경 시 새 마이그레이션 생성)                 |
+| `pnpm db:deploy`                          | `prisma migrate deploy` (생성 없이 적용만)                                                    |
+| `pnpm db:seed`                            | 참조 데이터 시드 (기존 행은 덮어쓰지 않음)                                                    |
+| `pnpm db:reset`                           | 로컬 DB 삭제·재생성 → 마이그레이션 → 시드 (로컬 임베디드 DB만 허용)                           |
+| `pnpm db:studio`                          | Prisma Studio (데이터 열람)                                                                   |
 
 커밋 시 Husky pre-commit 훅이 `lint-staged`(ESLint --fix + Prettier)를 실행한다.
+
+## 데이터베이스 (임베디드 PostgreSQL, Q-02)
+
+Docker나 별도 설치 없이 npm `embedded-postgres`(PostgreSQL 17)가 받은 바이너리로 로컬 서버를 띄운다.
+
+```bash
+cp .env.example .env     # DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54320/visanjob (로컬 전용)
+pnpm db:start            # 최초 1회 initdb(.pgdata/) 후 127.0.0.1:54320에서 백그라운드 기동, DB visanjob 생성
+pnpm db:migrate          # prisma/migrations 적용 (원장 트리거 포함)
+pnpm db:seed             # 시·도/시·군·구, KSIC 대분류, 비자 유형, 샘플 규칙·점수표
+pnpm db:stop             # 중지 (데이터는 .pgdata/에 남음)
+```
+
+- 데이터 디렉터리: `PG_DATA_DIR`(기본 `./.pgdata`, git 제외). 경로 공백·권한 문제로 initdb가 실패하면 `PG_DATA_DIR=%LOCALAPPDATA%/visanjob/pgdata`.
+- 관리자 권한 셸에서는 Postgres가 기동을 거부한다. 일반 권한 셸에서 실행한다.
+- `pnpm db:reset`은 DB를 지우고 다시 만든다. `DATABASE_URL`이 127.0.0.1/localhost의 54320(개발)·54329(테스트) 포트가 아니면 거부한다(A-9).
+- **원장 테이블**(`Recommendation`, `AuditLog`)은 DB 트리거가 UPDATE·DELETE·TRUNCATE를 막는다(BR-09). 데이터 정리는 행 삭제가 아니라 `db:reset`(DB 재생성)으로 한다.
+- 시드 데이터: 비자 유형은 WO §7.4 트랙 표(운영 매핑, 관리자 수정 가능). 규칙·점수표는 `SAMPLE` 더미(`isSample=true`, `DRAFT`, BR-12). 시·군·구·인구감소지역은 에이전트 초안이라 전 행 `isSample`·`needsReview` 표시 — 운영자가 공식 목록과 대조해야 한다(PC-6). `SEED_ADMIN_EMAIL`·`SEED_ADMIN_PASSWORD`가 있으면 개발용 관리자 계정을 만든다.
+- 테스트: `pnpm test`가 별도 클러스터(127.0.0.1:54329, `PG_TEST_DATA_DIR`, 기본 `./.pgdata-test`)를 띄우고 실행마다 새 DB를 만들어 마이그레이션·시드 후 끝나면 DB를 지운다. 개발 DB와 무관.
 
 ## 디렉터리
 
@@ -44,14 +68,15 @@ pnpm dev                 # http://localhost:3000 → /ko 로 이동
 
 ```
 messages/            번역 (ko 원본, 모든 파일 첫 키 "_review": "native review required")
-scripts/             i18n-check.ts, qa-static.ts (+ lib/)
+prisma/              schema.prisma, migrations/, seed/
+scripts/             db.ts, i18n-check.ts, qa-static.ts (+ lib/)
 src/app/[locale]/    다국어 페이지 (next-intl, /admin·/api 제외)
 src/components/      ui/(shadcn), common/(LocaleSwitcher 등)
 src/config/          site.config.ts, flags.ts
 src/i18n/            routing.ts, request.ts, navigation.ts, locales.ts
-src/lib/             utils.ts, fonts.ts
+src/lib/             utils.ts, fonts.ts, db.ts (Prisma 싱글턴)
 src/fonts/           Pretendard woff2 + OFL.txt
-tests/unit, tests/e2e
+tests/unit, tests/e2e, tests/setup (Vitest 테스트 DB)
 ```
 
 ## 설정

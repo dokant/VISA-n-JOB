@@ -1,0 +1,654 @@
+// Visa&Job data model — docs/WORK_ORDER.md §5 + PRD §3 additional tables (P0b).
+//
+// Rules (CLAUDE.md, STANDARD 4.3 / 4.7):
+// - Model and field names follow WO §5. Encrypted values end in `Enc`, lookup HMACs end in `Hash`.
+// - BR-13: 주민·외국인등록·여권 번호 필드 없음 (Phase 3 전까지).
+// - BR-09: Recommendation and AuditLog are append-only. UPDATE / DELETE / TRUNCATE are rejected by
+//   DB triggers (migration `ledger_triggers`); app code never calls update/delete/upsert on them.
+// - BR-12: visa rules and score tables hold no real legal values in this repo; seeds are SAMPLE/DRAFT.
+//
+// Additions to WO §5 are marked `[+]` with the decision that motivates them.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums (WO §5) ────────────────────────────────────────────────────────────
+
+enum Role {
+  SEEKER
+  EMPLOYER
+  AGENCY
+  STAFF_PLACEMENT
+  STAFF_VISA
+  ADMIN
+}
+
+enum SeekerTrack {
+  JOB_MATCH
+  FUTURE_POOL
+  CONSULT_ONLY
+}
+
+enum SeekerGrade {
+  B
+  A
+  S
+}
+
+enum JobSearchStatus {
+  IMMEDIATE
+  WITHIN_1M
+  EMPLOYED_OPEN
+  NOT_SEARCHING
+}
+
+enum SeekerStatus {
+  ACTIVE
+  INACTIVE
+  EMPLOYED
+  BLOCKED
+}
+
+enum LeadGrade {
+  C
+  B
+  A
+  ARCHIVED
+  DO_NOT_CONTACT
+}
+
+enum PostingStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum RuleStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum Outcome {
+  GREEN
+  YELLOW
+  RED
+}
+
+// ─── Enums [+] ────────────────────────────────────────────────────────────────
+
+/// [+] SC-10: shift / night work answer (Step 5). "UNKNOWN" = 모름 (SC-02).
+enum ShiftOk {
+  YES
+  NO
+  CONDITIONAL
+  UNKNOWN
+}
+
+/// [+] PRD §3 Region: 시·도 / 시·군·구.
+enum RegionLevel {
+  SIDO
+  SIGUNGU
+}
+
+/// [+] PC-4 StaffTask kinds (notification jobs, consults, scrivener work).
+enum StaffTaskType {
+  PROFILE_COMPLETION_NOTICE // R-105 "프로필 완성" 알림 작업
+  CONSULT // WO §7.4 D-2/D-10 상담 자동 생성, Step 6 wantsConsult, 비자 부적합 상담 신청
+  VISA_REVIEW // WO §7.4 E-7 계열 needsVisaReview
+  STAY_EXPIRY // R-213 체류 만료 D-90/60/30 행정사 업무
+  STATUS_CHECK // R-213 30일 상태 확인
+  INTEREST_FOLLOWUP // R-203 / R-207 면접 신청·요청 담당자 알림
+  LEAD_REVIEW // R-124 / R-125 진단·구인 의뢰 검증 큐
+  OTHER
+}
+
+/// [+] PC-4
+enum StaffTaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+// ─── Accounts ─────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  role          Role
+  phoneEnc      String?
+  phoneHash     String?   @unique // 조회용 HMAC
+  email         String?   @unique
+  password      String? // argon2 hash (staff / employer)
+  totpSecret    String? // staff 2FA (R-118)
+  /// [+] R-118: set when the staff member finished TOTP enrolment
+  totpEnabledAt DateTime?
+  /// [+] staff display name for admin screens (internal only)
+  displayName   String?
+  /// [+] employer account → company (R-123)
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
+  locale        String    @default("ko")
+  /// [+]
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  /// [+]
+  updatedAt     DateTime  @updatedAt
+
+  seeker          SeekerProfile?
+  consents        Consent[]
+  callLogs        CallLog[]
+  recommendations Recommendation[]
+
+  @@index([role])
+}
+
+/// Wizard fields are nullable so quick signup and step-by-step saves work (PC-3).
+/// Profile completeness is judged by `completedStep`, never by NOT NULL constraints.
+model SeekerProfile {
+  id                    String           @id @default(cuid())
+  userId                String           @unique
+  user                  User             @relation(fields: [userId], references: [id])
+  /// [+] random public id for blind serialization (WO §7.5) — never the DB id
+  publicId              String           @unique @default(uuid())
+  // 기본
+  legalNameEnc          String? // PC-3 nullable
+  messengerType         String? // KAKAO|ZALO|WHATSAPP|TELEGRAM|WECHAT|VIBER|NONE
+  messengerIdEnc        String?
+  emailEnc              String?
+  birthYear             Int? // 내부 전용
+  gender                String? // 내부 전용(숙소 배정), 선택
+  nationality           String? // ISO 3166-1 alpha-2, PC-3 nullable
+  sido                  String // Region.code (SIDO) — collected by quick signup
+  sigungu               String? // Region.code (SIGUNGU)
+  // 체류
+  visaCode              String // VisaType.code — collected by quick signup
+  visaSubType           String?
+  stayExpiry            DateTime?
+  entryYear             Int?
+  hasArc                Boolean? // 번호는 수집하지 않음 (BR-13), PC-3 nullable
+  pendingApplication    Boolean          @default(false)
+  /// [+] Step 2 visaConfirm checkbox time
+  visaConfirmedAt       DateTime?
+  // 학력
+  educationLevel        String?
+  major                 String?
+  schoolNameEnc         String?
+  graduationDate        DateTime?
+  // 언어
+  topikLevel            Int? // 0=없음, 1~6
+  kiipStage             Int? // 0~5, 이수 단계
+  koreanSpeaking        Int? // 1~4 자가평가, PC-3 nullable
+  otherLanguages        Json?
+  // 역량
+  skills                String[]
+  licenses              String[]
+  // 희망
+  desiredIndustries     String[] // Industry.code
+  desiredRegions        String[] // Region.code (SIDO), "ANY" 허용
+  needDormitory         Boolean? // PC-3 nullable
+  shiftOk               ShiftOk? // SC-10 enum, PC-3 nullable
+  desiredPayMin         Int?
+  availableFrom         DateTime?
+  jobSearchStatus       JobSearchStatus? // PC-3 nullable
+  groupApply            Boolean          @default(false)
+  groupFriendCode       String?
+  // 비자 목표
+  nextVisaGoal          String? // 예: E-7-4, F-2-R, F-5, UNKNOWN
+  wantsConsult          Boolean          @default(false)
+  /// [+] Step 6 consultTime (다중 선택)
+  consultTime           String[]
+  // 운영 판정
+  track                 SeekerTrack
+  grade                 SeekerGrade      @default(B)
+  /// [+] WO §7.4 E-7 계열 → true (from VisaType.needsVisaReview)
+  needsVisaReview       Boolean          @default(false)
+  verifiedVisa          Boolean          @default(false)
+  verifiedKorean        Boolean          @default(false)
+  consultedAt           DateTime?
+  convertibleVisa       String? // 행정사 판정
+  convertibleAt         DateTime? // 전환 가능 예상 시점
+  status                SeekerStatus     @default(ACTIVE)
+  lastActiveConfirmedAt DateTime         @default(now())
+  /// [+] R-213 last 30-day status-check send time (14-day no-reply window)
+  statusCheckSentAt     DateTime?
+  /// [+] /me/stay 체류 만료 알림 수신 설정
+  stayAlertOptIn        Boolean          @default(false)
+  noShowCount           Int              @default(0)
+  // 유입
+  referralCode          String           @unique
+  referredByCode        String?
+  sourceChannel         String? // QR_xxx, FB_VN, UNIV_xxx, LEGACY_CLIENT 등
+  isQuickSignup         Boolean          @default(false)
+  completedStep         Int              @default(0)
+  experiences           WorkExperience[]
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  interestRequests InterestRequest[]
+  recommendations  Recommendation[]
+  visaCases        VisaCase[]
+  staffTasks       StaffTask[]
+
+  @@index([grade, track, status])
+  @@index([visaCode])
+  @@index([sido])
+}
+
+model WorkExperience {
+  id              String        @id @default(cuid())
+  seekerId        String
+  seeker          SeekerProfile @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+  country         String // KR 또는 본국
+  industryCode    String
+  role            String
+  months          Int
+  employerNameEnc String? // 내부 전용
+
+  @@index([seekerId])
+}
+
+model Consent {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  type        String // PRIVACY_REQUIRED|BLIND_PROFILE|MARKETING|NOTICE|THIRD_PARTY_INTERVIEW|EMPLOYER_TERMS|...
+  version     String
+  locale      String
+  agreedAt    DateTime   @default(now())
+  revokedAt   DateTime?
+  ipHash      String?
+  /// [+] R-211: THIRD_PARTY_INTERVIEW is given per interview (건별 동의)
+  interviewId String?
+  interview   Interview? @relation(fields: [interviewId], references: [id])
+
+  @@index([userId, type])
+}
+
+// ─── Companies and leads ──────────────────────────────────────────────────────
+
+model Company {
+  id                String    @id @default(cuid())
+  nameEnc           String
+  bizRegNoEnc       String?
+  bizRegNoHash      String?   @unique
+  industryCode      String
+  sido              String
+  sigungu           String?
+  employeeCount     Int?
+  verified          Boolean   @default(false)
+  /// [+] R-218 who / when verified (AuditLog COMPANY_VERIFY as well)
+  verifiedBy        String?
+  verifiedAt        DateTime?
+  contractSignedAt  DateTime? // 구인 서비스 계약
+  /// [+] R-208 agreed terms version
+  contractVersion   String?
+  visaMandateAgreed Boolean   @default(false)
+  /// [+]
+  createdAt         DateTime  @default(now())
+  /// [+]
+  updatedAt         DateTime  @updatedAt
+
+  users            User[]
+  leads            JobLead[]
+  postings         JobPosting[]
+  interestRequests InterestRequest[]
+  recommendations  Recommendation[]
+  visaCases        VisaCase[]
+  staffTasks       StaffTask[]
+}
+
+model JobLead {
+  id               String       @id @default(cuid())
+  source           String // WORK24_API|AGENT|MANUAL + [+] DIAGNOSIS (R-124) | REQUEST (R-125)
+  sourceRef        String       @unique
+  companyName      String
+  bizRegNo         String?
+  industryCode     String?
+  sido             String
+  sigungu          String?
+  title            String
+  payMin           Int?
+  payMax           Int?
+  postedAt         DateTime?
+  closesAt         DateTime?
+  depopulationArea Boolean      @default(false)
+  grade            LeadGrade    @default(C)
+  foreignIntent    Boolean?
+  nextActionAt     DateTime?
+  companyId        String?
+  company          Company?     @relation(fields: [companyId], references: [id])
+  rawJson          Json
+  /// [+] R-124 무료 채용 진단 입력·결과 (outcome, needsReview, answers)
+  diagnosisJson    Json?
+  /// [+] R-125 구인 의뢰서 상세 (pii-guard 통과 값만)
+  requestJson      Json?
+  /// [+] R-125
+  requestedAt      DateTime?
+  /// [+] R-124 / R-125 기업 담당자 연락처 (암호화, 직원 전용)
+  contactNameEnc   String?
+  contactPhoneEnc  String?
+  contactPhoneHash String?
+  contactEmailEnc  String?
+  /// [+] R-116 30일 미접촉 판정
+  lastContactedAt  DateTime?
+  createdAt        DateTime     @default(now())
+  /// [+]
+  updatedAt        DateTime     @updatedAt
+  archivedAt       DateTime?
+  callLogs         CallLog[]
+  postings         JobPosting[]
+  staffTasks       StaffTask[]
+
+  @@index([grade])
+  @@index([sido, industryCode])
+}
+
+model CallLog {
+  id      String   @id @default(cuid())
+  leadId  String
+  lead    JobLead  @relation(fields: [leadId], references: [id])
+  staffId String
+  staff   User     @relation(fields: [staffId], references: [id])
+  outcome String // NO_ANSWER|NO_INTENT|INTERESTED|REQUEST_RECEIVED|DNC
+  note    String?
+  at      DateTime @default(now())
+
+  @@index([leadId])
+}
+
+model JobPosting {
+  id            String        @id @default(cuid())
+  companyId     String
+  company       Company       @relation(fields: [companyId], references: [id])
+  leadId        String?
+  lead          JobLead?      @relation(fields: [leadId], references: [id])
+  blindTitle    String
+  industryCode  String
+  sido          String
+  sigungu       String?
+  role          String
+  payMin        Int
+  payMax        Int?
+  overtimeNote  String?
+  dormitory     String // NONE|FREE|PAID
+  meals         String?
+  shift         String?
+  headcount     Int
+  eligibleVisas String[]
+  status        PostingStatus @default(DRAFT)
+  verifiedBy    String?
+  verifiedAt    DateTime?
+  publishedAt   DateTime?
+  /// [+]
+  closedAt      DateTime?
+  /// [+]
+  createdAt     DateTime      @default(now())
+  /// [+]
+  updatedAt     DateTime      @updatedAt
+
+  interestRequests InterestRequest[]
+  recommendations  Recommendation[]
+
+  @@index([status])
+}
+
+// ─── Matching ─────────────────────────────────────────────────────────────────
+
+/// 구직자 "면접 신청" (initiator=SEEKER) / 기업 "면접 요청" (initiator=EMPLOYER) 접수
+model InterestRequest {
+  id        String        @id @default(cuid())
+  initiator String // SEEKER|EMPLOYER
+  seekerId  String
+  seeker    SeekerProfile @relation(fields: [seekerId], references: [id])
+  postingId String?
+  posting   JobPosting?   @relation(fields: [postingId], references: [id])
+  companyId String?
+  company   Company?      @relation(fields: [companyId], references: [id])
+  status    String        @default("RECEIVED")
+  createdAt DateTime      @default(now())
+
+  @@index([seekerId])
+  @@index([companyId, createdAt])
+}
+
+/// 수정·삭제 불가 원장 (BR-09). UPDATE/DELETE/TRUNCATE are blocked by DB triggers.
+/// Relations use Restrict on both delete and update so no cascade can touch a ledger row.
+model Recommendation {
+  id            String        @id @default(cuid())
+  seekerId      String
+  seeker        SeekerProfile @relation(fields: [seekerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  companyId     String
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  postingId     String?
+  posting       JobPosting?   @relation(fields: [postingId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  staffId       String
+  staff         User          @relation(fields: [staffId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  recommendedAt DateTime      @default(now())
+  note          String?
+
+  interviews Interview[]
+  placement  Placement?
+
+  @@index([seekerId])
+  @@index([companyId])
+}
+
+model Interview {
+  id               String         @id @default(cuid())
+  recommendationId String
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  scheduledAt      DateTime
+  place            String
+  interpreter      String?
+  attended         Boolean?
+  result           String? // HIRED|REJECTED|PENDING|NO_SHOW
+  introConfirmFile String? // 소개 확인서 서명본 (private storage key, R-210)
+  /// [+]
+  createdAt        DateTime       @default(now())
+  consents         Consent[]
+
+  @@index([scheduledAt])
+}
+
+model Placement {
+  id               String         @id @default(cuid())
+  recommendationId String         @unique
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  contractDate     DateTime
+  monthlyWage      Int
+  feeAmount        Int
+  feeStatus        String
+}
+
+/// 체류 사건. 고유식별정보(외국인등록번호·여권번호) 필드 없음 (BR-13, R-216).
+model VisaCase {
+  id              String        @id @default(cuid())
+  seekerId        String
+  seeker          SeekerProfile @relation(fields: [seekerId], references: [id])
+  companyId       String?
+  company         Company?      @relation(fields: [companyId], references: [id])
+  caseType        String // CHANGE|EXTEND|REPORT|OTHER
+  targetVisa      String?
+  status          String
+  mandateSignedAt DateTime?
+  fee             Int?
+  createdAt       DateTime      @default(now())
+}
+
+// ─── Rule DB (BR-11, BR-12) ───────────────────────────────────────────────────
+
+model VisaRule {
+  id           String     @id @default(cuid())
+  visaCode     String
+  industryCode String?
+  conditions   Json
+  outcome      Outcome
+  messageKey   String
+  version      Int
+  status       RuleStatus @default(DRAFT)
+  isSample     Boolean    @default(true)
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  /// [+]
+  createdAt    DateTime   @default(now())
+
+  @@index([visaCode, status])
+}
+
+model ScoreTable {
+  id         String     @id @default(cuid())
+  name       String // E-7-4
+  version    Int
+  items      Json // 항목·구간·배점 (행정사 입력)
+  passScore  Int?
+  status     RuleStatus @default(DRAFT)
+  isSample   Boolean    @default(true)
+  /// [+] R-215 게시 시 검수자 기록
+  reviewedBy String?
+  reviewedAt DateTime?
+  /// [+]
+  createdAt  DateTime   @default(now())
+
+  @@index([name, status])
+}
+
+// ─── Agency (Phase 3 portal; model kept per WO §5) ────────────────────────────
+
+model AgencyRequest {
+  id        String   @id @default(cuid())
+  agencyId  String
+  summary   String
+  visaCode  String?
+  status    String   @default("RECEIVED")
+  createdAt DateTime @default(now())
+}
+
+// ─── Audit (BR-15) ────────────────────────────────────────────────────────────
+
+/// 수정·삭제 불가 (BR-09 취지, R-006). `meta` must never hold plaintext PII.
+model AuditLog {
+  id       String   @id @default(cuid())
+  actorId  String // user id or "SYSTEM"
+  action   String // AuditAction (STANDARD 4.8)
+  entity   String
+  entityId String
+  meta     Json?
+  at       DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([action, at])
+}
+
+// ─── PRD §3 additional tables [+] ─────────────────────────────────────────────
+
+/// [+] WO §7.4 track mapping as data (admin-editable). No visa→track constants in code (R-108).
+model VisaType {
+  code                        String       @id // e.g. F-4, E-7, OTHER, UNKNOWN, NONE
+  nameKey                     String // messages key for the display name
+  /// null = registration not possible (BR-08)
+  defaultTrack                SeekerTrack?
+  /// false → server refuses registration completion and guides to consult (BR-08, SC-02)
+  registrable                 Boolean
+  /// true → create a CONSULT StaffTask on registration (WO §7.4 D-10)
+  autoConsult                 Boolean      @default(false)
+  /// true → SeekerProfile.needsVisaReview (WO §7.4 E-7 계열)
+  needsVisaReview             Boolean      @default(false)
+  /// Track condition (SC-05): if graduation is within N months, use graduationWindowTrack.
+  graduationWindowMonths      Int?
+  graduationWindowTrack       SeekerTrack?
+  graduationWindowAutoConsult Boolean      @default(false)
+  /// requires graduationDate in the wizard (WO §7.3 Step 3: D-2·D-10 필수)
+  requiresGraduationDate      Boolean      @default(false)
+  sortOrder                   Int          @default(0)
+  active                      Boolean      @default(true)
+  note                        String? // operator memo (WO §7.4 안내 요약)
+  createdAt                   DateTime     @default(now())
+  updatedAt                   DateTime     @updatedAt
+}
+
+/// [+] KSIC 대분류 (A~U)
+model Industry {
+  code      String   @id // KSIC section letter
+  nameKo    String
+  nameKey   String // messages key
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// [+] 시·도 / 시·군·구 + 인구감소지역. Agent draft (PC-6): every seeded row is isSample + needsReview
+/// until an operator checks it against the official list; admins may edit.
+model Region {
+  code             String      @id // SIDO: "SEOUL"…; SIGUNGU: "<SIDO>:<한글명>"
+  level            RegionLevel
+  parentCode       String?
+  parent           Region?     @relation("RegionTree", fields: [parentCode], references: [code])
+  children         Region[]    @relation("RegionTree")
+  nameKo           String
+  nameKey          String? // messages key (SIDO only)
+  depopulationArea Boolean     @default(false)
+  isSample         Boolean     @default(true)
+  needsReview      Boolean     @default(true)
+  sortOrder        Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([parentCode])
+}
+
+/// [+] R-104 phone OTP. The code is stored only as a hash.
+model OtpChallenge {
+  id         String    @id @default(cuid())
+  phoneHash  String
+  codeHash   String
+  purpose    String    @default("SIGNUP") // SIGNUP|LOGIN
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  lockedAt   DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phoneHash, createdAt])
+}
+
+/// [+] R-129 rate limiting in Postgres (no Redis). key = "<scope>:<subject hash>".
+model RateLimitBucket {
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@id([key, windowStart])
+}
+
+/// [+] PC-4 알림·상담·행정사 업무
+model StaffTask {
+  id           String          @id @default(cuid())
+  type         StaffTaskType
+  status       StaffTaskStatus @default(OPEN)
+  assigneeRole Role?
+  assigneeId   String?
+  seekerId     String?
+  seeker       SeekerProfile?  @relation(fields: [seekerId], references: [id])
+  companyId    String?
+  company      Company?        @relation(fields: [companyId], references: [id])
+  leadId       String?
+  lead         JobLead?        @relation(fields: [leadId], references: [id])
+  dueAt        DateTime?
+  /// dedupe key for scheduled jobs (e.g. "STAY_EXPIRY:<seekerId>:D-90")
+  dedupeKey    String?         @unique
+  payload      Json? // no plaintext PII
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  completedAt  DateTime?
+
+  @@index([status, type])
+  @@index([assigneeRole, status])
+}

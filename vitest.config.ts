@@ -10,7 +10,10 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
-    // DB-backed globalSetup (embedded Postgres on port 54329) is added in P0b.
+    // P0b: embedded Postgres test cluster on 127.0.0.1:54329, fresh database per run (migrate + seed).
+    globalSetup: ["tests/setup/global-db.ts"],
+    hookTimeout: 120_000,
+    testTimeout: 30_000,
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
