@@ -1,0 +1,27 @@
+{
+  "_review": "native review required",
+  "meta": {
+    "siteName": "Visa&Job",
+    "home": {
+      "title": "Visa&Job — 外国人求职与签证咨询",
+      "description": "确认您的签证可以从事的工作，并通过 Visa&Job 对接经过核实的工作机会。"
+    }
+  },
+  "common": {
+    "localeSwitcher": {
+      "label": "选择语言"
+    },
+    "notFound": {
+      "title": "找不到页面",
+      "description": "请重新确认网址。",
+      "cta": "返回首页"
+    }
+  },
+  "public": {
+    "home": {
+      "brand": "Visa&Job",
+      "title": "网站正在准备中",
+      "description": "签证诊断和求职登记即将开放。"
+    }
+  }
+}

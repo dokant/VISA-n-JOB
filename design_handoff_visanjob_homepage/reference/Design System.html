@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VISANJOB — Design System</title>
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/site.css" />
+<link rel="stylesheet" href="assets/css/site2.css" />
+<style>
+  body { background: #fff; }
+  .ds { display: grid; grid-template-columns: 232px 1fr; align-items: start; }
+  .ds__side {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--n200); padding: 28px 20px 40px;
+    background: var(--n50);
+  }
+  .ds__side h1 { font-size: 15px; letter-spacing: -0.01em; color: var(--navy); }
+  .ds__side p { font-size: 11px; color: var(--n400); margin-top: 5px; letter-spacing: 0.06em; }
+  .ds__nav { display: grid; gap: 1px; margin-top: 24px; }
+  .ds__nav a {
+    font-size: 12.5px; padding: 7px 10px; border-radius: 7px; color: var(--n700);
+    display: flex; justify-content: space-between; gap: 8px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .ds__nav a:hover { background: #fff; color: var(--navy); }
+  .ds__nav a code { font-size: 9.5px; color: var(--n400); }
+  .ds__main { padding: 44px clamp(22px, 4vw, 60px) 100px; min-width: 0; }
+  .ds__hero { max-width: 720px; margin-bottom: 56px; }
+  .ds__hero h2 { font-size: clamp(28px, 3vw, 40px); letter-spacing: -0.032em; color: var(--navy); line-height: 1.16; }
+  .ds__hero p { margin-top: 14px; font-size: 15px; line-height: 1.7; color: var(--n500); max-width: 60ch; }
+  .ds-sec { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .ds-sec__head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--n200); margin-bottom: 26px; }
+  .ds-sec__head h3 { font-size: 20px; letter-spacing: -0.028em; color: var(--navy); }
+  .ds-sec__head span { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--n400); font-weight: 700; }
+  .ds-grid { display: grid; gap: 16px; }
+  .ds-lbl { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n400); font-weight: 700; margin-bottom: 8px; }
+  .swatch { border-radius: 12px; overflow: hidden; border: 1px solid var(--n200); }
+  .swatch__chip { height: 74px; }
+  .swatch__meta { padding: 9px 11px; background: #fff; }
+  .swatch__meta b { display: block; font-size: 12px; color: var(--navy); letter-spacing: -0.01em; }
+  .swatch__meta code { font-size: 10.5px; color: var(--n400); font-family: Inter, monospace; }
+  .type-row { display: grid; grid-template-columns: 132px 1fr; gap: 20px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--n100); }
+  .type-row > code { font-size: 10.5px; color: var(--n400); font-family: Inter, monospace; line-height: 1.6; }
+  .ds-comp { border: 1px solid var(--n200); border-radius: 14px; padding: 20px; background: #fff; display: grid; gap: 14px; align-content: start; }
+  .ds-comp > .ds-lbl { margin: 0; }
+  .spacer-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+  .sp { background: rgba(47,107,255,0.1); border: 1px solid rgba(47,107,255,0.24); border-radius: 3px; }
+  .sp span { display: block; font-size: 9px; color: #1f4fc4; font-family: Inter, monospace; padding: 2px 4px; }
+  .radius-demo { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .radius-demo > div { aspect-ratio: 1; background: var(--n50); border: 1px solid var(--n200); display: grid; place-items: center; font-size: 10px; color: var(--n500); font-family: Inter, monospace; }
+  .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  .icon-cell { display: grid; place-items: center; gap: 7px; padding: 14px 6px; border: 1px solid var(--n100); border-radius: 10px; color: var(--navy); }
+  .icon-cell span { font-size: 8.5px; color: var(--n400); font-family: Inter, monospace; letter-spacing: 0.02em; }
+  .dark-demo { background: var(--navy-deep); border-radius: 14px; padding: 22px; display: grid; gap: 14px; }
+  .note { font-size: 12px; line-height: 1.65; color: var(--n500); background: var(--n50); border: 1px solid var(--n200); border-radius: 10px; padding: 12px 14px; }
+  .note b { color: var(--navy); }
+  @media (max-width: 900px) {
+    .ds { grid-template-columns: 1fr; }
+    .ds__side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--n200); }
+    .ds__nav { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="gBrand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2F6BFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.4 3.6 8.5S14.4 18.1 12 20.5C9.6 18.1 8.4 15.1 8.4 12S9.6 5.9 12 3.5z"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V10l5 3V10l5 3V7l8 4v9z"/><path d="M3 20h18"/></symbol>
+  <symbol id="i-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2.5"/><circle cx="5" cy="17" r="2.5"/><circle cx="19" cy="17" r="2.5"/><path d="M12 8v4M12 12L6.4 14.8M12 12l5.6 2.8"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l7 2.6v5.6c0 4.3-2.9 7.4-7 9.4-4.1-2-7-5.1-7-9.4V5.8z"/><path d="M9 12l2.2 2.2L15.4 10"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5c0 4-3.8 7.2-8.5 7.2-1 0-2-.15-2.9-.4L4.5 20l1.3-3.5C4.4 15.2 3.5 13.4 3.5 11.5c0-4 3.8-7.2 8.5-7.2s8.5 3.2 8.5 7.2z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h7l5 5v12H6z"/><path d="M13 3.5v5h5M9 13h6M9 16.5h4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></symbol>
+  <symbol id="i-handshake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5l3.5-3 3 1.5 2.5-1.5 2.5 1.5 3-1.5 3.5 3"/><path d="M3 10.5l4 4M21 10.5l-4 4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 5.4c0-.9 1-1.4 1.7-1l8.3 5.2c.7.4.7 1.4 0 1.8L10.2 19c-.7.4-1.7-.1-1.7-1z"/></symbol>
+</svg>
+
+<div class="ds">
+  <aside class="ds__side">
+    <a class="logo" href="index.html" style="color:var(--navy)">
+      <svg class="logo__mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill="currentColor" opacity="0.08"/>
+        <path d="M6 18.5c0-5.2 4.5-9.4 10-9.4s10 4.2 10 9.4" fill="none" stroke="url(#gBrand)" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M10 18.5v5.2M16 18.5v6.2M22 18.5v5.2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="16" cy="9" r="1.9" fill="#22D3EE"/>
+      </svg>
+      <span class="logo__word" style="font-size:15px">VISANJOB<span>DS</span></span>
+    </a>
+    <p>DESIGN SYSTEM · V1.0</p>
+    <nav class="ds__nav">
+      <a href="#foundation">Foundation <code>00</code></a>
+      <a href="#color">Color <code>01</code></a>
+      <a href="#type">Typography <code>02</code></a>
+      <a href="#space">Spacing &amp; Radius <code>03</code></a>
+      <a href="#elev">Elevation <code>04</code></a>
+      <a href="#icons">Icons <code>05</code></a>
+      <a href="#buttons">Buttons <code>06</code></a>
+      <a href="#badges">Badges &amp; Chips <code>07</code></a>
+      <a href="#forms">Inputs <code>08</code></a>
+      <a href="#cards">Cards <code>09</code></a>
+      <a href="#motion">Motion <code>10</code></a>
+      <a href="#a11y">Accessibility <code>11</code></a>
+    </nav>
+    <p style="margin-top:26px"><a href="index.html" style="font-size:12px; color:var(--blue); font-weight:600">← 홈페이지로</a></p>
+  </aside>
+
+  <main class="ds__main">
+    <header class="ds__hero">
+      <span class="eyebrow">VISANJOB · Design system</span>
+      <h2 style="margin-top:14px">글로벌 채용의 신뢰를 만드는<br>하나의 규칙</h2>
+      <p>딥 네이비의 신뢰, 일렉트릭 블루에서 시안으로 이어지는 기술적 정확성, 그리고 선라이즈 오렌지의 인간적인 온기. 이 세 축이 VISANJOB의 모든 화면을 결정합니다. 8pt 간격, 16px 기본 라운드, 1.5px 라인 아이콘을 공통 규칙으로 사용합니다.</p>
+    </header>
+
+    <!-- 00 -->
+    <section class="ds-sec" id="foundation">
+      <div class="ds-sec__head"><h3>Foundation</h3><span>00 · principles</span></div>
+      <div class="ds-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="ds-comp"><span class="ds-lbl">Trust first</span><p class="t-body" style="font-size:13px">법적 정확성이 디자인보다 앞선다. 등록번호·자격·면책 문구는 항상 노출한다.</p></div>
+        <div class="ds-comp"><span class="ds-lbl">Global, not foreign</span><p class="t-body" style="font-size:13px">번역이 아니라 현지화. 베트남어가 30% 길어져도 레이아웃이 버텨야 한다.</p></div>
+        <div class="ds-comp"><span class="ds-lbl">Human speed</span><p class="t-body" style="font-size:13px">빠르되 차갑지 않게. 숫자 뒤에 사람의 목소리를 둔다.</p></div>
+      </div>
+      <div class="note" style="margin-top:16px"><b>Typography source:</b> Korean — Pretendard Variable (jsDelivr). Latin display — Inter. Multilingual fallback — Noto Sans (Thai installed; Khmer/Myanmar/Devanagari via system fallback). Uzbek Cyrillic and Vietnamese use the Latin stack with extended diacritics.</div>
+    </section>
+
+    <!-- 01 -->
+    <section class="ds-sec" id="color">
+      <div class="ds-sec__head"><h3>Color</h3><span>01 · tokens</span></div>
+      <div class="ds-lbl">Brand</div>
+      <div class="ds-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
+        <div class="swatch"><div class="swatch__chip" style="background:#0B1B3F"></div><div class="swatch__meta"><b>Navy — trust</b><code>#0B1B3F</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:#06122B"></div><div class="swatch__meta"><b>Navy deep</b><code>#06122B</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:#2F6BFF"></div><div class="swatch__meta"><b>Electric blue</b><code>#2F6BFF</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:#22D3EE"></div><div class="swatch__meta"><b>Cyan</b><code>#22D3EE</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:#FF8A3D"></div><div class="swatch__meta"><b>Sunrise orange</b><code>#FF8A3D</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:linear-gradient(100deg,#2F6BFF,#22D3EE)"></div><div class="swatch__meta"><b>Gradient</b><code>100deg blue→cyan</code></div></div>
+      </div>
+      <div class="ds-lbl" style="margin-top:22px">Neutrals</div>
+      <div class="ds-grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))">
+        <div class="swatch"><div class="swatch__chip" style="height:52px; background:#F7F8FA"></div><div class="swatch__meta"><b>n50</b><code>#F7F8FA</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="height:52px; background:#E5E7EB"></div><div class="swatch__meta"><b>n200</b><code>#E5E7EB</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="height:52px; background:#6B7280"></div><div class="swatch__meta"><b>n500</b><code>#6B7280</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="height:52px; background:#111827"></div><div class="swatch__meta"><b>ink</b><code>#111827</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="height:52px; background:#fff"></div><div class="swatch__meta"><b>white</b><code>#FFFFFF</code></div></div>
+      </div>
+      <div class="note" style="margin-top:16px"><b>Usage ratio:</b> 70% neutral, 20% navy, 8% blue→cyan gradient, 2% orange. Orange is reserved for partner/worker-facing CTAs only — never for primary employer actions. Body copy on white uses <code>#6B7280</code> (4.9:1) and headings <code>#0B1B3F</code> (13.6:1), both WCAG AA.</div>
+    </section>
+
+    <!-- 02 -->
+    <section class="ds-sec" id="type">
+      <div class="ds-sec__head"><h3>Typography</h3><span>02 · scale</span></div>
+      <div class="type-row"><code>Display / 72–80 / 700<br>-0.042em</code><div class="t-display">가장 확실한 다리</div></div>
+      <div class="type-row"><code>H1 / 56 / 700<br>-0.032em</code><div class="t-h1">글로벌 인재와 산업을 잇다</div></div>
+      <div class="type-row"><code>H2 / 40 / 700<br>-0.03em</code><div class="t-h2">상담에서 사후관리까지</div></div>
+      <div class="type-row"><code>H3 / 28 / 600<br>-0.022em</code><div class="t-h3">비자 유형별로 다릅니다</div></div>
+      <div class="type-row"><code>Lead / 18 / 28<br>#6B7280</code><div class="t-lead">비자 적합성 검토부터 매칭·입국·정착까지 한 곳에서 지원합니다. 평균 소요 기간은 5.8주입니다.</div></div>
+      <div class="type-row"><code>Body / 17 / 28</code><div class="t-body">현장 인력 부족, 비자 리스크, 정착률까지. 채용의 전 과정을 한 계약으로 맡기세요. 모든 인력은 본사에서 1차 검증합니다.</div></div>
+      <div class="type-row"><code>Caption / 13 / 20</code><div class="t-cap">유료직업소개소 등록번호 제 2026-0000호 · 고용노동부</div></div>
+      <div class="type-row"><code>Mono / 13<br>tabular-nums</code><div class="t-mono" style="font-size:15px">₩ 6,240,000 · 94.2% · 2026.12.24</div></div>
+      <div class="note" style="margin-top:16px"><b>Korean line-breaking:</b> all Korean paragraphs use <code>word-break: keep-all</code> with <code>text-wrap: pretty</code> so particles never orphan. Latin/Vietnamese headings use <code>text-wrap: balance</code>.</div>
+    </section>
+
+    <!-- 03 -->
+    <section class="ds-sec" id="space">
+      <div class="ds-sec__head"><h3>Spacing &amp; Radius</h3><span>03 · 8pt grid</span></div>
+      <div class="ds-lbl">Spacing scale</div>
+      <div class="spacer-row">
+        <div class="sp" style="width:4px;height:26px"><span>4</span></div>
+        <div class="sp" style="width:8px;height:26px"><span>8</span></div>
+        <div class="sp" style="width:12px;height:26px"><span>12</span></div>
+        <div class="sp" style="width:16px;height:26px"><span>16</span></div>
+        <div class="sp" style="width:24px;height:26px"><span>24</span></div>
+        <div class="sp" style="width:32px;height:26px"><span>32</span></div>
+        <div class="sp" style="width:40px;height:26px"><span>40</span></div>
+        <div class="sp" style="width:56px;height:26px"><span>56</span></div>
+        <div class="sp" style="width:72px;height:26px"><span>72</span></div>
+        <div class="sp" style="width:96px;height:26px"><span>96</span></div>
+        <div class="sp" style="width:128px;height:26px"><span>128</span></div>
+      </div>
+      <div class="ds-lbl" style="margin-top:22px">Radius</div>
+      <div class="radius-demo">
+        <div style="border-radius:8px">8</div><div style="border-radius:10px">10</div>
+        <div style="border-radius:16px">16</div><div style="border-radius:22px">22</div>
+        <div style="border-radius:28px">28</div><div style="border-radius:999px">pill</div>
+      </div>
+      <div class="note" style="margin-top:16px"><b>Grid:</b> 12 columns, 1320px max width, gutter <code>clamp(20px, 4.4vw, 64px)</code>. Section rhythm <code>clamp(64px, 8vw, 132px)</code>. Cards are 16px radius; large panels 22–28px; buttons are always pill.</div>
+    </section>
+
+    <!-- 04 -->
+    <section class="ds-sec" id="elev">
+      <div class="ds-sec__head"><h3>Elevation</h3><span>04 · shadows</span></div>
+      <div class="ds-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="ds-comp" style="box-shadow:var(--shadow-1)"><span class="ds-lbl">shadow-1 · resting card</span><code style="font-size:10px;color:var(--n400)">0 1px 2px / 0 10px 26px -14px</code></div>
+        <div class="ds-comp" style="box-shadow:var(--shadow-2)"><span class="ds-lbl">shadow-2 · hover / menu</span><code style="font-size:10px;color:var(--n400)">0 2px 6px / 0 28px 60px -26px</code></div>
+        <div class="ds-comp" style="box-shadow:var(--shadow-3)"><span class="ds-lbl">shadow-3 · modal / tooltip</span><code style="font-size:10px;color:var(--n400)">0 40px 110px -40px</code></div>
+      </div>
+    </section>
+
+    <!-- 05 -->
+    <section class="ds-sec" id="icons">
+      <div class="ds-sec__head"><h3>Icons</h3><span>05 · 1.5px line</span></div>
+      <div class="icon-grid">
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-factory"/></svg><span>factory</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-network"/></svg><span>network</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-user"/></svg><span>user</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-shield"/></svg><span>shield</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-chat"/></svg><span>chat</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-doc"/></svg><span>doc</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-search"/></svg><span>search</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-pin"/></svg><span>pin</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-clock"/></svg><span>clock</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-check"/></svg><span>check</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-handshake"/></svg><span>handshake</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-globe"/></svg><span>globe</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-arrow"/></svg><span>arrow</span></div>
+        <div class="icon-cell"><svg width="24" height="24"><use href="#i-play"/></svg><span>play</span></div>
+      </div>
+      <div class="note" style="margin-top:16px">24px canvas, 1.5px stroke, round caps and joins, no fills except play/status dots. All icons live in a single SVG sprite at the top of each page and are referenced with <code>&lt;use&gt;</code>.</div>
+    </section>
+
+    <!-- 06 -->
+    <section class="ds-sec" id="buttons">
+      <div class="ds-sec__head"><h3>Buttons</h3><span>06 · variants</span></div>
+      <div class="ds-grid" style="grid-template-columns:1fr 1fr">
+        <div class="ds-comp">
+          <span class="ds-lbl">Light surface</span>
+          <div class="cluster">
+            <button class="btn btn--primary">인력 요청 <svg class="icon icon--arrow" width="16" height="16"><use href="#i-arrow"/></svg></button>
+            <button class="btn btn--ink">상담 신청</button>
+            <button class="btn btn--orange">파트너 신청</button>
+            <button class="btn btn--outline">자세히 보기</button>
+            <button class="btn btn--ghost">전체 글 보기 <svg class="icon" width="15" height="15"><use href="#i-arrow"/></svg></button>
+          </div>
+          <div class="cluster">
+            <button class="btn btn--primary btn--sm">Small 42</button>
+            <button class="btn btn--primary">Default 52</button>
+            <button class="btn btn--primary btn--lg">Large 60</button>
+            <button class="btn btn--primary" disabled>Disabled</button>
+          </div>
+        </div>
+        <div class="ds-comp dark-demo">
+          <span class="ds-lbl" style="color:rgba(255,255,255,0.5)">Dark surface</span>
+          <div class="cluster">
+            <button class="btn btn--primary">인력 요청 <svg class="icon icon--arrow" width="16" height="16"><use href="#i-arrow"/></svg></button>
+            <button class="btn btn--glass">브랜드 필름</button>
+            <button class="btn btn--orange">파트너 신청</button>
+          </div>
+          <p style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">Primary CTAs carry a magnetic pointer-follow of ±7px on desktop and revert on leave. Press state scales to 0.975.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 -->
+    <section class="ds-sec" id="badges">
+      <div class="ds-sec__head"><h3>Badges &amp; Chips</h3><span>07 · status</span></div>
+      <div class="ds-grid" style="grid-template-columns:1fr 1fr">
+        <div class="ds-comp">
+          <span class="ds-lbl">Badges</span>
+          <div class="cluster">
+            <span class="badge">neutral</span>
+            <span class="badge badge--blue"><span class="dot"></span>blue</span>
+            <span class="badge badge--cyan"><span class="dot"></span>cyan</span>
+            <span class="badge badge--orange">orange</span>
+            <span class="badge badge--outline">outline</span>
+          </div>
+          <span class="ds-lbl" style="margin-top:6px">On dark</span>
+          <div class="cluster">
+            <span class="badge badge--dark">BRAND FILM</span>
+            <span class="badge badge--dark"><span class="dot"></span>실시간</span>
+          </div>
+        </div>
+        <div class="ds-comp">
+          <span class="ds-lbl">Filter chips &amp; visa tabs</span>
+          <div class="chips">
+            <button class="chip" aria-pressed="true">E-9 비전문취업</button>
+            <button class="chip" aria-pressed="false">E-7 특정활동</button>
+            <button class="chip" aria-pressed="false">H-2 방문취업</button>
+          </div>
+          <div class="cluster" style="gap:7px">
+            <button class="vchip" aria-selected="true"><span class="code">E-7</span>특정활동</button>
+            <button class="vchip" aria-selected="false"><span class="code">F-2</span>거주</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 -->
+    <section class="ds-sec" id="forms">
+      <div class="ds-sec__head"><h3>Inputs</h3><span>08 · fields</span></div>
+      <div class="ds-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="ds-comp">
+          <div class="field"><label for="f1">업종</label><input class="input" id="f1" value="제조 · 정밀가공" /></div>
+          <div class="field"><label for="f2">지역</label><select class="select" id="f2"><option>경기 · 인천</option><option>부산 · 울산</option></select></div>
+        </div>
+        <div class="ds-comp">
+          <div class="field"><label for="f3">필요 인원 <output>8명</output></label><input class="range" type="range" id="f3" value="8" min="1" max="50" style="--fill:14%" /></div>
+          <div class="field"><label>체류 자격</label><div class="chips"><button class="chip" aria-pressed="true">E-9</button><button class="chip" aria-pressed="false">E-7</button><button class="chip" aria-pressed="false">H-2</button></div></div>
+        </div>
+        <div class="ds-comp">
+          <span class="ds-lbl">Focus state</span>
+          <input class="input" value="visanjob" style="border-color:#2F6BFF; box-shadow:0 0 0 4px rgba(47,107,255,0.13)" />
+          <span class="ds-lbl">Error</span>
+          <input class="input" value="000-00-0000" style="border-color:#DC2626; box-shadow:0 0 0 4px rgba(220,38,38,0.1)" />
+          <span class="field__hint" style="color:#B91C1C">사업자등록번호 형식을 확인해 주세요.</span>
+        </div>
+      </div>
+      <div class="note" style="margin-top:16px"><b>Touch targets:</b> inputs are 48px, mobile search buttons 56px, job rows ≥56px. Focus is a 4px blue glow at 13% plus a 1px solid border — visible on white and on navy.</div>
+    </section>
+
+    <!-- 09 -->
+    <section class="ds-sec" id="cards">
+      <div class="ds-sec__head"><h3>Cards</h3><span>09 · compositions</span></div>
+      <div class="ds-grid" style="grid-template-columns:1fr 1fr">
+        <div class="ds-comp" style="padding:0; border:0; background:none">
+          <div class="acard is-active" style="min-height:320px">
+            <div class="acard__art acard__art--b"><div class="lines"></div></div>
+            <div class="acard__top"><span class="acard__icon"><svg width="24" height="24"><use href="#i-factory"/></svg></span><span class="acard__num">01 / EMPLOYER</span></div>
+            <div class="acard__kicker">For Employers</div>
+            <h3 class="acard__title">기업을 위한 채용<span>Manufacturing · Construction</span></h3>
+            <p class="acard__desc">현장 인력 부족부터 정착률까지 한 계약으로.</p>
+            <div class="acard__meta"><div><strong>1,240개</strong><span>협력 기업</span></div><span class="acard__go"><svg width="15" height="15"><use href="#i-arrow"/></svg></span></div>
+          </div>
+        </div>
+        <div class="ds-comp" style="align-content:start">
+          <span class="ds-lbl">Talent card</span>
+          <article class="tcard" style="width:100%">
+            <div class="tcard__top">
+              <span class="tcard__av">VN<i>VN</i></span>
+              <div class="tcard__id"><strong>CNC 선반 오퍼레이터</strong><span>베트남 · 4년 경력</span></div>
+            </div>
+            <div class="tcard__rows">
+              <div class="tcard__row"><span>비자</span><b>E-9</b></div>
+              <div class="tcard__row"><span>한국어</span><b>EPS 2급</b></div>
+              <div class="tcard__row"><span>보유 기술</span><b>CNC · 도면 해독</b></div>
+            </div>
+            <div class="tcard__foot"><span class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><span class="tcard__anon">VERIFIED · VN-2418</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="ds-sec" id="motion">
+      <div class="ds-sec__head"><h3>Motion</h3><span>10 · timing</span></div>
+      <div class="ds-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="ds-comp"><span class="ds-lbl">Easing &amp; duration</span>
+          <ul class="aud__list" style="gap:10px">
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span><b>ease-out</b> <code>cubic-bezier(.16,1,.3,1)</code> — reveals, lifts</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span><b>ease</b> <code>cubic-bezier(.22,.61,.36,1)</code> — color, opacity</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span><b>Reveal</b> 620ms opacity + 780ms translateY(18px)</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span><b>Card lift</b> 550ms, −6px, shadow-2</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span><b>Stagger</b> 60–80ms between siblings</span></li>
+          </ul>
+        </div>
+        <div class="ds-comp"><span class="ds-lbl">Reduced motion</span>
+          <p class="t-body" style="font-size:13px">Under <code>prefers-reduced-motion: reduce</code>: all reveals render at final state, counters jump to their value, the hero beams/glow/grain, marquees, map link dashes and floating-chat ping stop entirely. Scroll-driven sections (the employer rail) show every step as active instead of tracking scroll. No information is conveyed by motion alone.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="ds-sec" id="a11y">
+      <div class="ds-sec__head"><h3>Accessibility</h3><span>11 · contract</span></div>
+      <div class="ds-grid" style="grid-template-columns:1fr 1fr">
+        <div class="ds-comp"><span class="ds-lbl">Contrast (measured)</span>
+          <ul class="aud__list">
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>#0B1B3F on #FFFFFF — 13.6:1 (AAA)</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>#6B7280 on #FFFFFF — 4.9:1 (AA)</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>#FFFFFF on #2F6BFF — 3.6:1 (AA large / 15px 600)</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>rgba(255,255,255,.66) on #06122B — 8.1:1 (AA)</span></li>
+          </ul>
+        </div>
+        <div class="ds-comp"><span class="ds-lbl">Behaviour</span>
+          <ul class="aud__list">
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>Skip link, landmark regions, one H1 per page</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>Audience cards: role=button, aria-pressed, Enter/Space</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>Visa tabs: role=tablist + aria-selected, live region on panel</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>Video modal: focus trap entry/return, Esc, spacebar play</span></li>
+            <li><svg width="15" height="15"><use href="#i-check"/></svg><span>Map regions keyboard-focusable with text tooltips</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

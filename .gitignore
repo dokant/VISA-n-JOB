@@ -1,0 +1,45 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+/playwright-report
+/test-results
+/blob-report
+/playwright/.cache
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+
+# debug
+npm-debug.log*
+.pnpm-debug.log*
+
+# env files (N-06): secrets stay local, only the example is committed
+.env*
+!.env.example
+
+# local embedded Postgres data (P0b, PG_DATA_DIR default)
+/.pgdata/
+*.pgdata/
+
+# private uploads (never under public/)
+/storage/
+
+# lighthouse reports
+/lighthouse-reports/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

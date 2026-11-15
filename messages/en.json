@@ -1,0 +1,27 @@
+{
+  "_review": "native review required",
+  "meta": {
+    "siteName": "Visa&Job",
+    "home": {
+      "title": "Visa&Job — Jobs and visa consulting for foreign residents",
+      "description": "Check which jobs your visa allows and get connected to verified jobs through Visa&Job."
+    }
+  },
+  "common": {
+    "localeSwitcher": {
+      "label": "Choose language"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "Please check the address again.",
+      "cta": "Go to home"
+    }
+  },
+  "public": {
+    "home": {
+      "brand": "Visa&Job",
+      "title": "Our website is being prepared",
+      "description": "Visa check and job seeker registration will open soon."
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "_review": "native review required",
+  "meta": {
+    "siteName": "Visa&Job",
+    "home": {
+      "title": "Visa&Job — Chet elliklar uchun ish va viza maslahati",
+      "description": "Vizangiz bilan qanday ish qilish mumkinligini bilib oling va Visa&Job orqali tekshirilgan ish oʻrinlariga ulaning."
+    }
+  },
+  "common": {
+    "localeSwitcher": {
+      "label": "Tilni tanlang"
+    },
+    "notFound": {
+      "title": "Sahifa topilmadi",
+      "description": "Iltimos, manzilni qayta tekshiring.",
+      "cta": "Bosh sahifaga"
+    }
+  },
+  "public": {
+    "home": {
+      "brand": "Visa&Job",
+      "title": "Sayt tayyorlanmoqda",
+      "description": "Tez orada viza tekshiruvi va ish izlovchilarni roʻyxatga olish boshlanadi."
+    }
+  }
+}
