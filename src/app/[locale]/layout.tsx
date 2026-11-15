@@ -5,7 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { routing } from "@/i18n/routing";
-import { notoSans, notoSansSC } from "@/lib/fonts";
+import { inter, notoSansSC, pretendard } from "@/lib/fonts";
 
 type Props = {
   children: ReactNode;
@@ -33,13 +33,19 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
   setRequestLocale(locale);
 
-  const fontClasses = [notoSans.variable, locale === "zh" ? notoSansSC.variable : ""]
+  // STANDARD 2.3.2/2.3.3: the stack order per locale is set in globals.css (html:lang(..)).
+  // Noto Sans SC is attached only for zh.
+  const fontClasses = [
+    pretendard.variable,
+    inter.variable,
+    locale === "zh" ? notoSansSC.variable : "",
+  ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <html lang={locale} className={fontClasses}>
-      <body className="min-h-dvh antialiased">
+      <body className="min-h-dvh">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

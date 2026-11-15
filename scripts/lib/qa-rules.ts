@@ -35,7 +35,9 @@ const CODE_OR_PRISMA = /\.(ts|tsx|js|jsx|mjs|cjs|prisma|sql)$/;
  */
 export const OPERATOR_CONTACT_ALLOWLIST: RegExp[] = [
   /^src\/config\/site\.config\.ts$/,
-  /^src\/components\/public\/site-footer\.tsx$/,
+  /^src\/components\/common\/site-footer\.tsx$/,
+  /^src\/components\/common\/site-nav\.tsx$/,
+  /^src\/components\/home\/final-cta\.tsx$/,
   /^src\/components\/seeker\/referral-share\.tsx$/,
 ];
 
@@ -120,10 +122,10 @@ export const RULES: Rule[] = [
   {
     id: "S-02/hardcoded-color",
     severity: "error",
-    description: "No hard-coded colors outside globals.css (STANDARD 2.1)",
+    description: "No hard-coded colors outside globals.css / brand.css (STANDARD v2 2.1.4, S-02)",
     roots: ["src"],
     fileFilter: /\.(ts|tsx|css)$/,
-    allow: [/^src\/app\/globals\.css$/],
+    allow: [/^src\/app\/globals\.css$/, /^src\/app\/brand\.css$/],
     skipComments: true,
     pattern:
       /#[0-9a-fA-F]{3,8}\b(?![-\w])|rgba?\(|\b(text|bg|border|ring|fill|stroke|from|to|via)-(red|green|yellow|blue|slate|gray|zinc|neutral|stone|amber|orange|lime|emerald|teal|cyan|sky|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}\b/,
@@ -131,11 +133,20 @@ export const RULES: Rule[] = [
   {
     id: "S-06/arbitrary-spacing",
     severity: "error",
-    description: "No arbitrary spacing/radius values and only shadow-sm/md/lg (STANDARD 2.3)",
+    description:
+      "No arbitrary spacing/radius values; shadows only from the STANDARD v2 2.5 list (S-06)",
     roots: ["src"],
     fileFilter: /\.(tsx|ts)$/,
     pattern:
-      /\b(p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|gap|gap-x|gap-y|space-x|space-y|rounded|rounded-[trblse]{1,2})-\[|\bshadow-(xs|xl|2xl|inner|\[)/,
+      /\b(p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|gap|gap-x|gap-y|space-x|space-y|rounded|rounded-[trblse]{1,2})-\[|\bshadow-(sm|md|lg|xs|xl|2xl|inner|\[)(?![-\w])/,
+  },
+  {
+    id: "S-03/font-cdn",
+    severity: "error",
+    description: "Fonts load via next/font only; no CDN <link>/@import (STANDARD v2 2.3.3, S-03)",
+    roots: ["src"],
+    fileFilter: /\.(ts|tsx|css)$/,
+    pattern: /jsdelivr|fonts\.googleapis|@import url\(.?https/,
   },
   {
     id: "S-36/any",

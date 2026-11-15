@@ -1,10 +1,10 @@
 {
   "_review": "native review required",
   "meta": {
-    "siteName": "Visa&Job",
+    "siteName": "VISA n JOB",
     "home": {
-      "title": "Visa&Job — Jobs and visa consulting for foreign residents",
-      "description": "Check which jobs your visa allows and get connected to verified jobs through Visa&Job."
+      "title": "VISA n JOB — Jobs and visa consulting for foreign residents",
+      "description": "Check which jobs your visa allows and get connected to verified jobs through VISA n JOB."
     }
   },
   "common": {
@@ -19,7 +19,6 @@
   },
   "public": {
     "home": {
-      "brand": "Visa&Job",
       "title": "Our website is being prepared",
       "description": "Visa check and job seeker registration will open soon."
     }

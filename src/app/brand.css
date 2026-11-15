@@ -1,0 +1,37 @@
+/*
+ * STANDARD v2 §2.1.3 / §3.8 / §4.3 — handoff decorative recipes (class prefix `vj-`).
+ * Hex values are allowed here and in globals.css only (S-02).
+ * P0a: section surfaces and the gradient-text recipe. Film plate, card art, map and mesh
+ * recipes are added with the home sections (P1a).
+ */
+@layer components {
+  /* Dark section surfaces (not tokens; 2.1.5 dark-surface text rules apply to all of them) */
+  .vj-surface-hero {
+    background-color: #050d24;
+    color: var(--white);
+  }
+  .vj-surface-map {
+    background-color: #071531;
+    color: var(--white);
+  }
+  .vj-surface-final {
+    background-color: #050d22;
+    color: var(--white);
+  }
+  .vj-surface-footer {
+    background-color: #040a1a;
+    color: var(--white);
+  }
+  .vj-surface-visa-panel {
+    background-image: linear-gradient(165deg, #0b1b3f, #071531);
+    color: var(--white);
+  }
+
+  /* Gradient emphasis phrase: dark surfaces only (2.1.3) */
+  .vj-grad-text {
+    background-image: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

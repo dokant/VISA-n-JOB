@@ -60,7 +60,7 @@ test.describe("R-014 locale switcher", () => {
     await page.goto("/ko");
     await page.getByTestId("locale-switcher").click();
     for (const locale of LOCALES) {
-      await expect(page.getByTestId(`locale-option-${locale}`)).toHaveText(AUTONYMS[locale]);
+      await expect(page.getByTestId(`locale-option-${locale}`)).toContainText(AUTONYMS[locale]);
     }
     await page.getByTestId("locale-option-vi").click();
     await expect(page).toHaveURL(/\/vi$/);

@@ -1,11 +1,139 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./brand.css";
+
+/*
+ * STANDARD v2 §2 — design tokens.
+ * Source tokens use the design handoff names (2.1) -> shadcn semantic variables (2.2.1)
+ * -> Tailwind utilities via @theme (2.2.2). Accessibility corrections (2.8 B-01..B-11) are applied.
+ * Hex values live only in this file and brand.css (S-02).
+ */
 
 /* Dark mode is out of scope for Phase 0~2 (STANDARD 2.1). Variant kept so shadcn `dark:` classes compile. */
 @custom-variant dark (&:is(.dark *));
 
+/* ---------- 2.1 source tokens + 2.2.1 shadcn semantic variables ---------- */
+:root {
+  /* 2.1.1 brand */
+  --navy: #0b1b3f;
+  --navy-deep: #06122b;
+  --navy-soft: #122a5c;
+  --navy-ink: #0a1836;
+  --blue: #2f6bff; /* non-text only: focus ring, gradient start (B-03) */
+  --blue-600: #245ae0; /* blue text / links on white (B-03) */
+  --blue-700: #1f4fc4; /* blue text on tints */
+  --cyan: #22d3ee; /* never as text on light surfaces */
+  --cyan-ink: #0d7285;
+  --orange: #ff8a3d; /* seeker CTA background only */
+  --orange-hover: #ff9a56;
+  --orange-ink: #351703;
+  --orange-text: #a84b0d;
+
+  /* 2.1.1 neutrals */
+  --n50: #f7f8fa;
+  --n100: #f1f3f6;
+  --n200: #e5e7eb;
+  --n400: #9aa2af; /* decorative only, never text (B-01) */
+  --n500: #6b7280;
+  --n700: #3f4859;
+  --ink: #111827;
+  --white: #ffffff;
+  --error: #dc2626;
+  --error-text: #b91c1c;
+
+  /* 2.1.2 tints (opaque composites on white) */
+  --tint-blue: #eaf0ff;
+  --tint-blue-soft: #eef3ff;
+  --tint-cyan: #e0f9fd;
+  --tint-orange: #ffefe4;
+
+  /* 2.1.3 gradients */
+  --grad: linear-gradient(100deg, #2f6bff 0%, #22d3ee 100%); /* non-text only */
+  --grad-cta: linear-gradient(100deg, #245ae0 0%, #0e7490 100%); /* white-text buttons (B-02) */
+  --grad-text: linear-gradient(
+    96deg,
+    #7ea6ff 0%,
+    #22d3ee 58%,
+    #a8f0fb 100%
+  ); /* dark surfaces only */
+  --grad-soft: linear-gradient(135deg, rgba(47, 107, 255, 0.12), rgba(34, 211, 238, 0.12));
+
+  /* 2.1.4 outcome / status colors */
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --success-subtle: #f0fdf4;
+  --success-subtle-foreground: #166534;
+  --warning: #a16207;
+  --warning-subtle: #fefce8;
+  --warning-subtle-foreground: #854d0e;
+  --danger: var(--error-text);
+  --danger-subtle: #fef2f2;
+  --danger-subtle-foreground: #991b1b;
+
+  /* 2.5 radii (handoff names) */
+  --r-xs: 8px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* 2.7 motion */
+  --dur: 0.45s;
+
+  /* 2.4 layout */
+  --maxw: 1320px;
+  --gutter: clamp(20px, 4.4vw, 64px);
+
+  /* 2.2.1 shadcn semantic variables */
+  --background: var(--white);
+  --foreground: var(--ink);
+  --card: var(--white);
+  --card-foreground: var(--ink);
+  --popover: var(--white);
+  --popover-foreground: var(--navy);
+  --primary: var(--navy);
+  --primary-foreground: var(--white);
+  --secondary: var(--n100);
+  --secondary-foreground: var(--navy);
+  --muted: var(--n50);
+  --muted-foreground: var(--n500);
+  --accent: var(--tint-blue-soft);
+  --accent-foreground: var(--blue-700); /* B-03 (handoff #2F6BFF on tint = 4.05:1) */
+  --destructive: var(--error-text);
+  --destructive-foreground: var(--white);
+  --border: var(--n200);
+  --input: #868e9c; /* B-09 (handoff --n200 = 1.24:1) */
+  --ring: var(--blue);
+  --radius: 16px;
+
+  /* 2.3.2 font stacks. --font-pretendard / --font-inter / --font-noto-sans-sc come from next/font (src/lib/fonts.ts). */
+  --font-system-fallback:
+    system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
+  --app-font-sans:
+    var(--font-pretendard, "Pretendard"), var(--font-inter, "Inter"), var(--font-system-fallback);
+}
+
+/* 2.3.2: ko (default above) = Pretendard first. en, vi, ru, uz = Inter first. zh = Noto Sans SC first. */
+html:lang(en),
+html:lang(vi),
+html:lang(ru),
+html:lang(uz) {
+  --app-font-sans:
+    var(--font-inter, "Inter"), var(--font-pretendard, "Pretendard"), var(--font-system-fallback);
+}
+
+html:lang(zh) {
+  --app-font-sans:
+    var(--font-noto-sans-sc, "Noto Sans SC"), var(--font-inter, "Inter"),
+    var(--font-pretendard, "Pretendard"), var(--font-system-fallback);
+}
+
+/* ---------- 2.2.2 Tailwind theme ---------- */
+
+/* Colors reference runtime variables (inline). Tailwind's default palette is removed (2.2.2 recommendation). */
 @theme inline {
-  --font-sans: var(--app-font-sans);
+  --color-*: initial;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -27,7 +155,34 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Project tokens (STANDARD 2.1) */
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-ink: var(--navy-ink);
+  --color-brand-blue: var(--blue);
+  --color-brand-blue-600: var(--blue-600);
+  --color-brand-blue-700: var(--blue-700);
+  --color-brand-cyan: var(--cyan);
+  --color-brand-cyan-ink: var(--cyan-ink);
+  --color-brand-orange: var(--orange);
+  --color-brand-orange-hover: var(--orange-hover);
+  --color-brand-orange-ink: var(--orange-ink);
+  --color-brand-orange-text: var(--orange-text);
+  --color-n50: var(--n50);
+  --color-n100: var(--n100);
+  --color-n200: var(--n200);
+  --color-n400: var(--n400);
+  --color-n500: var(--n500);
+  --color-n700: var(--n700);
+  --color-ink: var(--ink);
+  --color-white: var(--white);
+  --color-tint-blue: var(--tint-blue);
+  --color-tint-blue-soft: var(--tint-blue-soft);
+  --color-tint-cyan: var(--tint-cyan);
+  --color-tint-orange: var(--tint-orange);
+  --color-error: var(--error);
+  --color-error-text: var(--error-text);
+
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-subtle: var(--success-subtle);
@@ -38,103 +193,205 @@
   --color-danger: var(--danger);
   --color-danger-subtle: var(--danger-subtle);
   --color-danger-subtle-foreground: var(--danger-subtle-foreground);
-  --color-review: var(--review);
-  --color-review-foreground: var(--review-foreground);
-  --color-blind: var(--blind);
-  --color-blind-foreground: var(--blind-foreground);
-  --color-grade-s: var(--grade-s);
-  --color-grade-s-foreground: var(--grade-s-foreground);
-  --color-grade-a: var(--grade-a);
-  --color-grade-a-foreground: var(--grade-a-foreground);
-  --color-grade-b: var(--grade-b);
-  --color-grade-b-foreground: var(--grade-b-foreground);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--app-font-sans);
+
+  /* 2.5 radius scale (fixed values; the old calc() derivations are removed) */
+  --radius-*: initial;
+  --radius-2xs: 4px;
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  --container-site: var(--maxw);
+  --spacing-gutter: var(--gutter);
 }
 
-/* STANDARD 2.1 — values are hex (source of truth). */
-:root {
-  --radius: 0.5rem;
+/* Values that change per breakpoint / locale stay referenced at use site (non-inline). */
+@theme {
+  /* 2.5 shadows: only these exist (S-06). Tailwind shadow-sm/md/lg/xl are removed. */
+  --shadow-*: initial;
+  --shadow-1: 0 1px 2px rgba(11, 27, 63, 0.05), 0 10px 26px -14px rgba(11, 27, 63, 0.16);
+  --shadow-2: 0 2px 6px rgba(11, 27, 63, 0.06), 0 28px 60px -26px rgba(11, 27, 63, 0.3);
+  --shadow-3: 0 40px 110px -40px rgba(11, 27, 63, 0.45);
+  --shadow-glow: 0 18px 44px -14px rgba(47, 107, 255, 0.55);
+  --shadow-cta: 0 12px 30px -12px rgba(47, 107, 255, 0.7);
+  --shadow-ink: 0 12px 30px -14px rgba(11, 27, 63, 0.7);
+  --shadow-orange: 0 12px 32px -14px rgba(255, 138, 61, 0.8);
+  --shadow-tab: 0 2px 8px rgba(11, 27, 63, 0.09);
 
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #1e3a8a;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-  --accent: #e0e7ff;
-  --accent-foreground: #1e3a8a;
-  --destructive: #b91c1c;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #64748b;
-  --ring: #2563eb;
+  /* 2.7 motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  --success: #15803d;
-  --success-foreground: #ffffff;
-  --success-subtle: #f0fdf4;
-  --success-subtle-foreground: #166534;
-  --warning: #a16207;
-  --warning-subtle: #fefce8;
-  --warning-subtle-foreground: #854d0e;
-  --danger: #b91c1c;
-  --danger-subtle: #fef2f2;
-  --danger-subtle-foreground: #991b1b;
-  --review: #fff7ed;
-  --review-foreground: #9a3412;
-  --blind: #e0e7ff;
-  --blind-foreground: #3730a3;
-  --grade-s: #1e3a8a;
-  --grade-s-foreground: #ffffff;
-  --grade-a: #dbeafe;
-  --grade-a-foreground: #1e40af;
-  --grade-b: #f1f5f9;
-  --grade-b-foreground: #334155;
+  /* 3.1 glass button blur */
+  --blur-glass: 14px;
 
-  /* STANDARD 2.2 font stacks. --font-noto-sans / --font-noto-sans-sc come from next/font (src/lib/fonts.ts).
-     Pretendard: listed by family name; self-hosted file pending (see README "Fonts"). */
-  --font-system-fallback:
-    system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
-  --app-font-sans: "Pretendard", var(--font-noto-sans, "Noto Sans"), var(--font-system-fallback);
+  /* 2.4 section rhythm (overridden at <=760px below) */
+  --spacing-section: clamp(64px, 8vw, 132px);
+  --spacing-section-tight: clamp(48px, 5.5vw, 88px);
+
+  /* 2.6 breakpoints: handoff max-width edges converted to mobile-first min-width */
+  --breakpoint-xs: 25.0625rem; /* 401px */
+  --breakpoint-md: 47.5625rem; /* 761px */
+  --breakpoint-lg: 64.0625rem; /* 1025px */
+  --breakpoint-xl: 73.8125rem; /* 1181px */
+
+  /* 2.3.4 type scale. Tailwind's default text-xs..9xl are removed (S-05). */
+  --text-*: initial;
+  --text-display: clamp(38px, 5.9vw, 80px);
+  --text-display--line-height: 1.06;
+  --text-display--letter-spacing: -0.042em;
+  --text-display--font-weight: 700;
+  --text-h1: clamp(32px, 4vw, 56px);
+  --text-h1--line-height: 1.14;
+  --text-h1--letter-spacing: -0.032em;
+  --text-h1--font-weight: 700;
+  --text-h2: clamp(27px, 3.2vw, 42px);
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.03em;
+  --text-h2--font-weight: 700;
+  --text-h3: clamp(20px, 1.8vw, 27px);
+  --text-h3--line-height: 1.35;
+  --text-h3--letter-spacing: -0.022em;
+  --text-h3--font-weight: 600;
+  --text-lead: clamp(16px, 1.25vw, 19px);
+  --text-lead--line-height: 1.7;
+  --text-lead--letter-spacing: -0.012em;
+  --text-lead--font-weight: 400;
+  --text-body: 17px;
+  --text-body--line-height: 1.72;
+  --text-body--font-weight: 400;
+  /* 16px: input text (B-08) and lg buttons (3.1). Not a named row in 2.3.4; see report. */
+  --text-control: 16px;
+  --text-control--line-height: 1.5;
+  --text-ui: 15px;
+  --text-ui--line-height: 1.4;
+  --text-ui--letter-spacing: -0.012em;
+  --text-ui--font-weight: 600;
+  --text-dense: 13.5px;
+  --text-dense--line-height: 1.6;
+  --text-dense--font-weight: 400;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.5;
+  --text-caption--letter-spacing: 0.01em;
+  --text-caption--font-weight: 400;
+  --text-meta: 12.5px;
+  --text-meta--line-height: 1.5;
+  --text-meta--font-weight: 500;
+  --text-label: 12px;
+  --text-label--line-height: 1.5;
+  --text-label--letter-spacing: 0.02em;
+  --text-label--font-weight: 600;
+  --text-eyebrow: 11.5px; /* minimum allowed size (B-07) */
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.16em;
+  --text-eyebrow--font-weight: 600;
+  --text-metric: clamp(34px, 3.6vw, 50px);
+  --text-metric--line-height: 1;
+  --text-metric--letter-spacing: -0.04em;
+  --text-metric--font-weight: 700;
 }
 
-/* ko, en: Pretendard first (default above). vi, ru, uz: Noto Sans first. zh: Noto Sans SC first. */
-html:lang(vi),
-html:lang(ru),
-html:lang(uz) {
-  --app-font-sans: var(--font-noto-sans, "Noto Sans"), "Pretendard", var(--font-system-fallback);
-}
-
-html:lang(zh) {
-  --app-font-sans:
-    var(--font-noto-sans-sc, "Noto Sans SC"), var(--font-noto-sans, "Noto Sans"), "Pretendard",
-    var(--font-system-fallback);
-}
-
+/* ---------- base ---------- */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  :root {
+    scroll-padding-top: 70px; /* 2.7 smooth anchors: offset for the sticky nav */
   }
+
+  /* 2.3.4 responsive token values */
+  @media (max-width: 760px) {
+    :root {
+      --text-body: 16px;
+      --spacing-section: 56px;
+    }
+  }
+  @media (max-width: 400px) {
+    :root {
+      --text-display: 34px;
+    }
+  }
+
+  /* 2.3.4 Vietnamese: tall stacked diacritics need >= 1.2 line height on large headings */
+  html:lang(vi) {
+    --text-display--line-height: 1.2;
+    --text-h1--line-height: 1.2;
+    --text-h2--line-height: 1.2;
+  }
+
+  *,
+  ::after,
+  ::before {
+    @apply border-border;
+  }
+
   html {
     @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-size: 1rem;
-    line-height: 1.625;
+    font-size: var(--text-body);
+    line-height: 1.65;
+    font-feature-settings:
+      "ss01" on,
+      "cv11" on;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+    overflow-wrap: anywhere; /* 2.3.4: all locales, long words never overflow */
+    word-break: normal;
   }
+
+  /* 2.3.4 Korean typesetting: keep-all only for ko (zh would overflow). */
+  :lang(ko) {
+    word-break: keep-all;
+  }
+  [lang]:not(:lang(ko)) {
+    word-break: normal;
+  }
+  :lang(ko) p {
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  /* B-08: input text >= 16px (iOS zoom) */
   input,
   select,
   textarea {
-    font-size: 1rem;
+    font-size: var(--text-control);
+  }
+
+  ::selection {
+    background: var(--navy);
+    color: var(--white);
+  }
+
+  /* 2.8 focus: 2px blue outline, 3px offset. Utilities (e.g. rounded-full) keep their own radius. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* 2.7 reduced motion: everything settles to its final state */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::after,
+    ::before {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

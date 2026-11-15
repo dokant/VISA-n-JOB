@@ -22,7 +22,7 @@ describe("qa:static rules", () => {
     expect(scanText(r, "src/components/employer/card.tsx", 'href="tel:0101234"')).toHaveLength(1);
     expect(scanText(r, "src/components/seeker/x.tsx", "https://t.me/someone")).toHaveLength(1);
     expect(
-      scanText(r, "src/components/public/site-footer.tsx", 'href="mailto:a@b.c"'),
+      scanText(r, "src/components/common/site-footer.tsx", 'href="mailto:a@b.c"'),
     ).toHaveLength(0);
   });
 
@@ -47,7 +47,23 @@ describe("qa:static rules", () => {
     expect(scanText(color, "src/c.tsx", 'className="text-primary"')).toHaveLength(0);
     expect(scanText(spacing, "src/c.tsx", 'className="p-[13px]"')).toHaveLength(1);
     expect(scanText(spacing, "src/c.tsx", 'className="shadow-xl"')).toHaveLength(1);
-    expect(scanText(spacing, "src/c.tsx", 'className="p-4 shadow-sm"')).toHaveLength(0);
+    expect(scanText(spacing, "src/c.tsx", 'className="p-4 shadow-sm"')).toHaveLength(1);
+    expect(
+      scanText(spacing, "src/c.tsx", 'className="p-6.5 shadow-1 hover:shadow-2"'),
+    ).toHaveLength(0);
+    expect(scanText(spacing, "src/c.tsx", 'className="shadow-ink shadow-cta"')).toHaveLength(0);
+    expect(scanText(color, "src/app/brand.css", ".vj-x { background: #050d24; }")).toHaveLength(0);
+    expect(scanText(color, "src/c.tsx", 'className="bg-brand-orange"')).toHaveLength(0);
+  });
+
+  it("S-03 flags font CDN loading", () => {
+    const r = rule("S-03/font-cdn");
+    expect(
+      scanText(r, "src/app/x.css", '@import url("https://cdn.jsdelivr.net/gh/orioncactus/x.css");'),
+    ).toHaveLength(1);
+    expect(
+      scanText(r, "src/lib/fonts.ts", 'import localFont from "next/font/local";'),
+    ).toHaveLength(0);
   });
 
   it("S-23 flags forbidden CTA phrases in messages", () => {

@@ -1,10 +1,10 @@
 {
   "_review": "native review required",
   "meta": {
-    "siteName": "Visa&Job",
+    "siteName": "VISA n JOB",
     "home": {
-      "title": "Visa&Job — Việc làm và tư vấn visa cho người nước ngoài",
-      "description": "Kiểm tra công việc phù hợp với visa của bạn và được kết nối với việc làm đã xác minh thông qua Visa&Job."
+      "title": "VISA n JOB — Việc làm và tư vấn visa cho người nước ngoài",
+      "description": "Kiểm tra công việc phù hợp với visa của bạn và được kết nối với việc làm đã xác minh thông qua VISA n JOB."
     }
   },
   "common": {
@@ -19,7 +19,6 @@
   },
   "public": {
     "home": {
-      "brand": "Visa&Job",
       "title": "Trang web đang được chuẩn bị",
       "description": "Kiểm tra visa và đăng ký tìm việc sẽ sớm bắt đầu."
     }

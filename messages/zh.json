@@ -1,10 +1,10 @@
 {
   "_review": "native review required",
   "meta": {
-    "siteName": "Visa&Job",
+    "siteName": "VISA n JOB",
     "home": {
-      "title": "Visa&Job — 外国人求职与签证咨询",
-      "description": "确认您的签证可以从事的工作，并通过 Visa&Job 对接经过核实的工作机会。"
+      "title": "VISA n JOB — 外国人求职与签证咨询",
+      "description": "确认您的签证可以从事的工作，并通过 VISA n JOB 对接经过核实的工作机会。"
     }
   },
   "common": {
@@ -19,7 +19,6 @@
   },
   "public": {
     "home": {
-      "brand": "Visa&Job",
       "title": "网站正在准备中",
       "description": "签证诊断和求职登记即将开放。"
     }

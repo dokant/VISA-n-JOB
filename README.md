@@ -50,6 +50,7 @@ src/components/      ui/(shadcn), common/(LocaleSwitcher 등)
 src/config/          site.config.ts, flags.ts
 src/i18n/            routing.ts, request.ts, navigation.ts, locales.ts
 src/lib/             utils.ts, fonts.ts
+src/fonts/           Pretendard woff2 + OFL.txt
 tests/unit, tests/e2e
 ```
 
@@ -57,13 +58,17 @@ tests/unit, tests/e2e
 
 - **기능 플래그** (`src/config/flags.ts`, WO §16): `FEATURE_DEMAND_MAP`, `FEATURE_PUBLIC_JOBS`, `FEATURE_REFERRAL_REWARD`, `FEATURE_EMPLOYER_CANDIDATES`.
   기본 false. 환경변수 값이 정확히 `true`일 때만 켜진다. 운영자 법무 확인 후에만 켠다.
-- **사무소 정보** (`src/config/site.config.ts`): 사무소명·행정사 등록번호·직업소개사업 등록번호·대표자·주소. `SITE_*` 환경변수, 없으면 `[... 미정]` 플레이스홀더.
+- **운영 주체 정보** (`src/config/site.config.ts`): 브랜드 표기(VISA n JOB / 비자앤잡), 코리아비자행정사사무소(사업자등록번호·행정사 등록번호), 비자앤잡 유료직업소개소(직업소개사업 등록번호), 대표자·주소·대표전화. 기본값은 `.workflow/SITE_INFO.md`, `SITE_*` 환경변수가 있으면 우선. 휴대전화는 `SITE_OPERATOR_MOBILE`(내부용, 공개 화면 미표시), 입금계좌는 저장소에 두지 않는다. 실적 지표(`metrics`)는 운영자 입력 전까지 빈 목록(PC-7).
 - **비밀 정보**: `.env`(git 제외)에만 둔다. `.env.example`만 커밋한다.
 
 ## 글꼴
 
-`src/lib/fonts.ts`: Noto Sans, Noto Sans SC(zh만)를 `next/font/google`로 빌드 시 받아 자체 호스팅한다(빌드에 인터넷 필요).
-Pretendard(`next/font/local`, `src/fonts/`)는 woff2 파일이 아직 없어 글꼴 스택에 이름만 있다(설치된 경우에만 사용).
+`src/lib/fonts.ts`(STANDARD 2.3):
+
+- Pretendard 1.3.9 — `next/font/local`, `src/fonts/Pretendard-{Regular,Medium,SemiBold,Bold}.subset.woff2`.
+  공식 npm `pretendard@1.3.9` `dist/web/static/woff2-subset`(KS X 1001 한글 2,350자 전부 포함, 2,780자) 파일을 복사했다. 라이선스 SIL OFL 1.1(`src/fonts/OFL.txt`). npm 패키지는 의존성으로 두지 않는다.
+- Inter(latin, latin-ext, vietnamese, cyrillic, cyrillic-ext)·Noto Sans SC(zh만) — `next/font/google`, 빌드 시 받아 자체 호스팅(빌드에 인터넷 필요).
+- 로케일별 1순위: ko=Pretendard, en·vi·ru·uz=Inter, zh=Noto Sans SC (`src/app/globals.css`).
 
 ## 번역
 
