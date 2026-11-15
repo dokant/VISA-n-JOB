@@ -1,0 +1,229 @@
+/**
+ * R-012: contact pattern detection / masking (WO §11 PII 가드, BR-14).
+ * Each category has positive cases (must be detected) and negative cases (must not be).
+ */
+import { describe, expect, it } from "vitest";
+
+import {
+  ContactInfoError,
+  type ContactType,
+  assertNoContacts,
+  detectContacts,
+  hasContacts,
+  maskContacts,
+} from "@/lib/pii-guard";
+
+/** [input, expected type of the (single) detected span] */
+const POSITIVE: Record<string, [string, ContactType][]> = {
+  "domestic phone": [
+    ["010-1234-5678", "PHONE_LOCAL"],
+    ["01012345678", "PHONE_LOCAL"],
+    ["010 1234 5678", "PHONE_LOCAL"],
+    ["010.1234.5678", "PHONE_LOCAL"],
+    ["010-1234 5678번으로 문자 주세요", "PHONE_LOCAL"],
+    ["0 1 0 1 2 3 4 5 6 7 8", "PHONE_LOCAL"],
+    ["연락처010-123-4567", "PHONE_LOCAL"],
+    ["02-123-4567", "PHONE_LOCAL"],
+    ["(02) 1234-5678", "PHONE_LOCAL"],
+    ["031-123-4567", "PHONE_LOCAL"],
+    ["070-1234-5678", "PHONE_LOCAL"],
+    ["대표번호 1588-1234", "PHONE_LOCAL"],
+    ["10-1234-5678", "PHONE_LOCAL"],
+    ["공일공-1234-5678", "PHONE_LOCAL"],
+    ["영일영 일이삼사 오육칠팔", "PHONE_LOCAL"],
+    ["０１０－１２３４－５６７８", "PHONE_LOCAL"],
+    ["(우) 06236 / 02-123-4567", "PHONE_LOCAL"],
+  ],
+  "international phone": [
+    ["+82 10-1234-5678", "PHONE_INTL"],
+    ["+82-10-1234-5678", "PHONE_INTL"],
+    ["+84 912 345 678", "PHONE_INTL"],
+    ["(+84) 912-345-678", "PHONE_INTL"],
+    ["+7 912 345-67-89", "PHONE_INTL"],
+    ["+998 90 123 45 67", "PHONE_INTL"],
+    ["+86 138 0013 8000", "PHONE_INTL"],
+    ["0084 912 345 678", "PHONE_INTL"],
+    ["82 10 1234 5678", "PHONE_INTL"],
+    ["84 912 345 678", "PHONE_INTL"],
+    ["＋８２ １０ １２３４ ５６７８", "PHONE_INTL"],
+  ],
+  email: [
+    ["hong@naver.com", "EMAIL"],
+    ["hong.gd@gmail.co.kr", "EMAIL"],
+    ["hong @ naver . com", "EMAIL"],
+    ["메일 hong@naver 로", "EMAIL"],
+    ["hong(at)gmail(dot)com", "EMAIL"],
+    ["hong [at] gmail [dot] com", "EMAIL"],
+    ["hong at gmail dot com", "EMAIL"],
+    ["hong 골뱅이 naver 점 com", "EMAIL"],
+    ["hong앳naver닷com", "EMAIL"],
+    ["hong＠gmail.com", "EMAIL"],
+  ],
+  url: [
+    ["https://example.com/a", "URL"],
+    ["http://bit.ly/abc", "URL"],
+    ["hxxps://evil.example.org", "URL"],
+    ["www.example.co.kr", "URL"],
+    ["www . example . com", "URL"],
+    ["example.com", "URL"],
+    ["open.kakao.com/o/abc", "URL"],
+    ["t.me/hong", "URL"],
+    ["zalo.me/0912345678", "URL"],
+    ["wa.me/84912345678", "URL"],
+    ["example(dot)com", "URL"],
+    ["회사 홈페이지 visa-job.kr 참고", "URL"],
+  ],
+  "@handle": [
+    ["@hong_gd", "HANDLE"],
+    ["연락은 @hongjob 으로", "HANDLE"],
+    ["인스타 @hong.job99", "HANDLE"],
+  ],
+  "messenger id": [
+    ["카톡 아이디 hong123", "MESSENGER_ID"],
+    ["카톡: hong_123", "MESSENGER_ID"],
+    ["카톡아이디는 hongjob입니다", "MESSENGER_ID"],
+    ["카카오톡 ID hong123", "MESSENGER_ID"],
+    ["kakao id: hong.gd", "MESSENGER_ID"],
+    ["KakaoTalk hong123", "MESSENGER_ID"],
+    ["katalk hong77", "MESSENGER_ID"],
+    ["zalo 0912 345 678", "MESSENGER_ID"],
+    ["Zalo: hong123", "MESSENGER_ID"],
+    ["잘로 hong123", "MESSENGER_ID"],
+    ["telegram @hongjob", "MESSENGER_ID"],
+    ["텔레그램 hongjob", "MESSENGER_ID"],
+    ["wechat: hong_wx", "MESSENGER_ID"],
+    ["微信 hongwx", "MESSENGER_ID"],
+    ["위챗 hongwx", "MESSENGER_ID"],
+    ["viber 84912345678", "MESSENGER_ID"],
+    ["whatsapp +84 912 345 678", "MESSENGER_ID"],
+    ["WhatsApp: hong99", "MESSENGER_ID"],
+    ["왓츠앱 hong99", "MESSENGER_ID"],
+    ["телеграм hongjob", "MESSENGER_ID"],
+    ["아이디 hong123", "MESSENGER_ID"],
+    ["ID: hong123", "MESSENGER_ID"],
+    ["hong123 (카톡)", "MESSENGER_ID"],
+    ["hong123 [zalo id]", "MESSENGER_ID"],
+  ],
+};
+
+/** Ordinary job / profile text that must not be flagged. */
+const NEGATIVE: Record<string, string[]> = {
+  "pay amounts": [
+    "월 2,500,000원",
+    "월급 250만원",
+    "연봉 3,000만원~3,500만원",
+    "2,500,000-3,000,000원",
+    "시급 10,030원",
+    "주휴수당 포함 월 2,800,000원",
+    "월 300 - 350 만원",
+    "1500-2000만원",
+    "연봉 36000000원",
+  ],
+  dates: [
+    "2026-11-16",
+    "2026.11.16",
+    "2026/11/16",
+    "2026년 11월 16일",
+    "모집 기간 2026.11.16 ~ 2026.12.31",
+    "2025년 3월~2026년 2월",
+    "2026-11-16 09:00",
+  ],
+  times: [
+    "근무시간 09:00-18:00",
+    "08:30~17:30",
+    "근무 0830 - 1730, 휴게 1200 - 1300",
+    "주 5일 근무, 1일 8시간",
+    "잔업 월 40시간",
+  ],
+  "head counts and sizes": [
+    "채용 인원 3명",
+    "인원 10 명",
+    "기숙사 2인 1실",
+    "사업장 규모 50~299인",
+    "제조업(C) 10-29인",
+    "만 19세 ~ 45세",
+    "경력 1~3년",
+  ],
+  "visa codes": ["E-7-4 비자", "F-2-R 가능", "D-10, E-9, H-2", "E-9 → E-7-4 전환"],
+  "postal codes and addresses": [
+    "우편번호 06236",
+    "서울 강남구 테헤란로 123",
+    "1층 2호",
+    "(우) 06236 서울특별시",
+  ],
+  "messenger words without an id": [
+    "카톡으로 연락 주세요",
+    "카톡 상담 가능",
+    "카카오 페이 지급",
+    "zalo 사용 가능",
+    "telegram 가능",
+    "라인 작업, 생산 라인 2개",
+    "아이디어가 좋은 분",
+  ],
+  "other text": [
+    "Node.js 경험",
+    "settings 변경",
+    "연락 주세요 at 5pm. Thanks",
+    "4대보험 가입",
+    "TOPIK 3급 이상",
+    "3.5배",
+    "No. 1 기업",
+    "",
+  ],
+};
+
+describe("R-012 pii-guard", () => {
+  for (const [category, cases] of Object.entries(POSITIVE)) {
+    it(`R-012 positive: ${category} (${cases.length})`, () => {
+      for (const [text, type] of cases) {
+        const found = detectContacts(text);
+        expect(found, text).toHaveLength(1);
+        expect(found[0].type, text).toBe(type);
+        expect(hasContacts(text), text).toBe(true);
+        expect(maskContacts(text), text).toContain("***");
+      }
+    });
+  }
+
+  for (const [category, cases] of Object.entries(NEGATIVE)) {
+    it(`R-012 negative: ${category} (${cases.length})`, () => {
+      for (const text of cases) {
+        expect(detectContacts(text), text).toEqual([]);
+        expect(maskContacts(text)).toBe(text);
+        expect(() => assertNoContacts(text)).not.toThrow();
+      }
+    });
+  }
+
+  it("finds several contacts in one text with correct offsets and masks only them", () => {
+    const text = "급여 월 2,500,000원. 전화 010-1234-5678 또는 hong@naver.com, 카톡 hongjob";
+    const found = detectContacts(text);
+    expect(found.map((f) => f.type)).toEqual(["PHONE_LOCAL", "EMAIL", "MESSENGER_ID"]);
+    for (const f of found) expect(text.slice(f.start, f.end)).toBe(f.value);
+    expect(maskContacts(text)).toBe("급여 월 2,500,000원. 전화 *** 또는 ***, ***");
+    expect(maskContacts(text, "[삭제]")).toContain("[삭제]");
+  });
+
+  it("an e-mail is reported once, not also as URL / handle", () => {
+    const found = detectContacts("문의: hong@naver.com");
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({ type: "EMAIL", value: "hong@naver.com" });
+  });
+
+  it("assertNoContacts throws a 422 CONTACT_INFO_DETECTED error with the types found", () => {
+    try {
+      assertNoContacts("010-1234-5678 / https://example.com", "detail");
+      expect.unreachable();
+    } catch (e) {
+      expect(e).toBeInstanceOf(ContactInfoError);
+      const err = e as ContactInfoError;
+      expect(err.status).toBe(422);
+      expect(err.code).toBe("CONTACT_INFO_DETECTED");
+      expect(err.field).toBe("detail");
+      expect(err.types.sort()).toEqual(["PHONE_LOCAL", "URL"]);
+      expect(err.toBody().error.code).toBe("CONTACT_INFO_DETECTED");
+      expect(err.message).not.toContain("1234");
+    }
+    expect(() => assertNoContacts("hong@naver.com")).toThrow(/contact information is not allowed:/);
+  });
+});

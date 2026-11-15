@@ -43,7 +43,22 @@ function prismaCli(): string {
   return path.join(path.dirname(req.resolve("prisma/package.json")), "build", "index.js");
 }
 
+/**
+ * embedded-postgres registers `async-exit-hook`, whose `beforeExit` handler calls `process.exit(0)`.
+ * That overwrote the `process.exitCode = 1` Vitest sets for failed tests or unmet coverage
+ * thresholds, so `pnpm test` / `test:coverage` exited 0 on failure. Keep a non-zero exitCode.
+ */
+function preserveFailureExitCode(): void {
+  const originalExit = process.exit.bind(process);
+  process.exit = ((code?: number | string | null) => {
+    const pending = process.exitCode;
+    const keep = (code === undefined || code === null || Number(code) === 0) && pending;
+    return originalExit(keep ? pending : (code ?? undefined));
+  }) as typeof process.exit;
+}
+
 export default async function setup(project: TestProject): Promise<() => Promise<void>> {
+  preserveFailureExitCode();
   loadDotEnv(ROOT);
   const dataDir = resolveDataDir(process.env.PG_TEST_DATA_DIR, path.join(ROOT, ".pgdata-test"));
   const base: PgConfig = {
