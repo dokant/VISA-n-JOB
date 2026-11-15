@@ -552,7 +552,7 @@ model AuditLog {
 model VisaType {
   code                        String       @id // e.g. F-4, E-7, OTHER, UNKNOWN, NONE
   nameKey                     String // messages key for the display name
-  /// null = registration not possible (BR-08)
+  /// null = no default track. Registration completion is decided ONLY by `registrable` (STANDARD 4.9, BR-08)
   defaultTrack                SeekerTrack?
   /// false → server refuses registration completion and guides to consult (BR-08, SC-02)
   registrable                 Boolean
@@ -586,7 +586,7 @@ model Industry {
 /// [+] 시·도 / 시·군·구 + 인구감소지역. Agent draft (PC-6): every seeded row is isSample + needsReview
 /// until an operator checks it against the official list; admins may edit.
 model Region {
-  code             String      @id // SIDO: "SEOUL"…; SIGUNGU: "<SIDO>:<한글명>"
+  code             String      @id // UPPER_SNAKE. SIDO: "SEOUL"…; SIGUNGU: "GYEONGBUK_UISEONG_GUN" (한글명은 nameKo로 매칭)
   level            RegionLevel
   parentCode       String?
   parent           Region?     @relation("RegionTree", fields: [parentCode], references: [code])

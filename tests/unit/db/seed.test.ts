@@ -9,6 +9,7 @@ import type { SeekerTrack } from "@prisma/client";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { runSeed } from "../../../prisma/seed/index";
+import { SIDO, sigunguCode } from "../../../prisma/seed/regions";
 import { testPrisma } from "./helpers";
 
 const prisma = testPrisma();
@@ -103,6 +104,28 @@ describe("R-007 seed", () => {
     expect(sigungu.every((s) => s.parentCode && sidoCodes.has(s.parentCode))).toBe(true);
     expect(sido.some((s) => s.depopulationArea)).toBe(false);
     expect(sigungu.filter((s) => s.depopulationArea).length).toBeGreaterThan(0);
+  });
+
+  it("STANDARD 4.3: region codes are UPPER_SNAKE, unique, 시·군·구 = {SIDO}_{로마자}_{GU|GUN|SI}", async () => {
+    // Pure check on the seed source: every name maps, no collisions (0), format holds.
+    const codes = SIDO.flatMap((s) => [s.code, ...s.sigungu.map((n) => sigunguCode(s.code, n))]);
+    expect(new Set(codes).size).toBe(codes.length);
+    expect(codes.every((c) => /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/.test(c))).toBe(true);
+    expect(sigunguCode("GYEONGBUK", "의성군")).toBe("GYEONGBUK_UISEONG_GUN");
+    expect(sigunguCode("SEOUL", "중구")).toBe("SEOUL_JUNG_GU");
+    expect(sigunguCode("GYEONGGI", "남양주시")).toBe("GYEONGGI_NAMYANGJU_SI");
+    expect(() => sigunguCode("SEOUL", "없는구")).toThrow(/no romanization/);
+    expect(() => sigunguCode("SEOUL", "중동")).toThrow(/no romanization/);
+
+    // DB: same codes, and Korean names are matched through nameKo (not the code).
+    const rows = await prisma.region.findMany({ where: { level: "SIGUNGU" } });
+    expect(rows.every((r) => /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)+$/.test(r.code))).toBe(true);
+    expect(rows.some((r) => r.code.includes(":"))).toBe(false);
+    const uiseong = await prisma.region.findFirstOrThrow({
+      where: { parentCode: "GYEONGBUK", nameKo: "의성군" },
+    });
+    expect(uiseong.code).toBe("GYEONGBUK_UISEONG_GUN");
+    expect(uiseong.depopulationArea).toBe(true);
   });
 
   it("seed is idempotent and never overwrites existing rows", async () => {
