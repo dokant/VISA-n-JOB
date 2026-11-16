@@ -49,9 +49,10 @@ test.describe("R-014 locale routing", () => {
 
   test("/admin is not localized by the middleware", async ({ page }) => {
     const response = await page.goto("/admin");
-    expect(new URL(page.url()).pathname).toBe("/admin");
-    // Admin pages arrive in P1b; for now the path must simply not be redirected to /ko/admin.
-    expect(response?.status()).toBe(404);
+    // P1b: no staff session → the Korean-only staff login, never /ko/admin (R-118, WO §12).
+    expect(new URL(page.url()).pathname).toBe("/admin/login");
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   });
 });
 

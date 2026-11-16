@@ -45,6 +45,18 @@
     "employerCandidates": {
       "title": "查看候选人",
       "description": "仅限已核实并签约的企业。"
+    },
+    "seekerLogin": {
+      "title": "求职者登录",
+      "description": "使用发送到手机的验证码登录 VISA n JOB。"
+    },
+    "employerLogin": {
+      "title": "企业登录",
+      "description": "使用电子邮箱和密码登录 VISA n JOB 企业账户。"
+    },
+    "employerSignup": {
+      "title": "企业注册",
+      "description": "创建 VISA n JOB 企业账户。"
     }
   },
   "common": {
@@ -117,6 +129,12 @@
       "s": "协会和团体、维修及其他个人服务业",
       "t": "家庭雇佣活动及未分类的自用生产活动",
       "u": "国际及外国机构"
+    },
+    "otp": {
+      "sms": "您的 VISA n JOB 验证码是 {code}。请勿告诉他人。"
+    },
+    "form": {
+      "required": "（必填）"
     }
   },
   "nav": {
@@ -595,6 +613,111 @@
           "body": "变更条款时，将提前公告生效日期和变更内容。"
         }
       }
+    }
+  },
+  "errors": {
+    "field": {
+      "required": "请填写此项。",
+      "invalidPhone": "请检查手机号码。",
+      "invalidCode": "请输入 6 位验证码。",
+      "invalidEmail": "请检查电子邮箱地址。",
+      "invalidBizRegNo": "请输入 10 位营业执照号码。",
+      "passwordTooShort": "密码至少需要 {min} 个字符。",
+      "passwordTooLong": "密码太长。",
+      "passwordMismatch": "两次输入的密码不一致。",
+      "tooLong": "输入内容太长。"
+    },
+    "auth": {
+      "invalidCredentials": "电子邮箱或密码不正确。",
+      "rateLimited": "尝试次数过多，请稍后再试。",
+      "otpInvalid": "验证码不正确。",
+      "otpExpired": "验证码已过期，请重新获取。",
+      "otpLocked": "验证码输错次数过多，已暂时锁定。请稍后再试。",
+      "noAccount": "没有使用此号码的账户。请先完成快速登记。",
+      "invalidPhone": "请检查手机号码。",
+      "resendTooSoon": "{seconds} 秒后可重新获取验证码。",
+      "hourlyLimit": "验证码请求过多，请稍后再试。",
+      "locked": "验证码输错次数过多，已暂时锁定。请稍后再试。",
+      "bizRegNoTaken": "此营业执照号码已注册。",
+      "emailTaken": "此电子邮箱已注册。",
+      "invalidReference": "请重新选择行业和地区。",
+      "invalidBizRegNo": "请输入 10 位营业执照号码。",
+      "validation": "请检查输入的内容。",
+      "unknown": "出现问题，请重试。"
+    }
+  },
+  "seeker": {
+    "login": {
+      "eyebrow": "求职者",
+      "title": "使用手机号码登录",
+      "lead": "使用发送到您手机的验证码登录。",
+      "phone": {
+        "label": "手机号码",
+        "placeholder": "010-0000-0000",
+        "help": "如不是韩国号码，请以 + 和国家代码开头输入。"
+      },
+      "code": {
+        "label": "验证码",
+        "help": "请输入短信中的 6 位数字。"
+      },
+      "sendCode": "获取验证码",
+      "sending": "正在发送…",
+      "codeSent": "验证码已发送。",
+      "resend": "重新获取验证码",
+      "resendIn": "{seconds} 秒后可重新获取",
+      "changePhone": "更换号码",
+      "submit": "登录",
+      "submitting": "正在确认…"
+    }
+  },
+  "employer": {
+    "login": {
+      "eyebrow": "企业",
+      "title": "企业登录",
+      "lead": "使用注册时的电子邮箱和密码登录。",
+      "email": {
+        "label": "电子邮箱"
+      },
+      "password": {
+        "label": "密码"
+      },
+      "submit": "登录",
+      "submitting": "正在确认…",
+      "toSignup": "还没有账户？",
+      "toSignupLink": "企业注册"
+    },
+    "signup": {
+      "eyebrow": "企业",
+      "title": "企业注册",
+      "lead": "请填写公司信息和登录信息。",
+      "companyName": {
+        "label": "公司名称"
+      },
+      "bizRegNo": {
+        "label": "营业执照号码",
+        "placeholder": "10 位数字",
+        "help": "加密保存。每个营业执照号码只能注册一次。"
+      },
+      "industryCode": {
+        "label": "行业"
+      },
+      "sido": {
+        "label": "公司所在地（道/市）"
+      },
+      "email": {
+        "label": "电子邮箱"
+      },
+      "password": {
+        "label": "密码",
+        "help": "至少 {min} 个字符。"
+      },
+      "passwordConfirm": {
+        "label": "确认密码"
+      },
+      "submit": "注册",
+      "submitting": "正在注册…",
+      "toLogin": "已有账户？",
+      "toLoginLink": "企业登录"
     }
   }
 }

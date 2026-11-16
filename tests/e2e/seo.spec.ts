@@ -54,9 +54,14 @@ test.describe("R-130 SEO", () => {
   });
 
   test("/admin is noindex (header) and not localized", async ({ request }) => {
+    // P1b: without a staff session /admin redirects to the (non-localized) staff login (R-118).
     const res = await request.get("/admin", { maxRedirects: 0 });
-    expect(res.status()).toBe(404);
+    expect(res.status()).toBe(307);
+    expect(new URL(res.headers()["location"]).pathname).toBe("/admin/login");
     expect(res.headers()["x-robots-tag"]).toContain("noindex");
+    const login = await request.get("/admin/login");
+    expect(login.status()).toBe(200);
+    expect(login.headers()["x-robots-tag"]).toContain("noindex");
   });
 
   test("/employer/candidates is noindex (meta + header)", async ({ page }) => {

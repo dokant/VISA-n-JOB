@@ -45,6 +45,18 @@
     "employerCandidates": {
       "title": "Nomzodlarni koʻrish",
       "description": "Faqat tekshirilgan va shartnoma tuzgan kompaniyalar uchun."
+    },
+    "seekerLogin": {
+      "title": "Ish izlovchi sifatida kirish",
+      "description": "Telefoningizga yuborilgan kod bilan VISA n JOBʼga kiring."
+    },
+    "employerLogin": {
+      "title": "Kompaniya sifatida kirish",
+      "description": "VISA n JOB kompaniya hisobiga e-pochta va parol bilan kiring."
+    },
+    "employerSignup": {
+      "title": "Kompaniyani roʻyxatdan oʻtkazish",
+      "description": "VISA n JOB kompaniya hisobini yarating."
     }
   },
   "common": {
@@ -117,6 +129,12 @@
       "s": "Jamoat tashkilotlari, taʼmirlash va boshqa shaxsiy xizmatlar",
       "t": "Uy xoʻjaliklarida yollash va oʻz isteʼmoli uchun ishlab chiqarish",
       "u": "Xalqaro va xorijiy tashkilotlar"
+    },
+    "otp": {
+      "sms": "VISA n JOB tasdiqlash kodingiz: {code}. Uni hech kimga aytmang."
+    },
+    "form": {
+      "required": "(majburiy)"
     }
   },
   "nav": {
@@ -595,6 +613,111 @@
           "body": "Shartlar oʻzgarganda kuchga kirish sanasi va oʻzgarishlar oldindan eʼlon qilinadi."
         }
       }
+    }
+  },
+  "errors": {
+    "field": {
+      "required": "Iltimos, maydonni toʻldiring.",
+      "invalidPhone": "Telefon raqamini tekshiring.",
+      "invalidCode": "6 xonali kodni kiriting.",
+      "invalidEmail": "E-pochta manzilini tekshiring.",
+      "invalidBizRegNo": "10 xonali korxona roʻyxat raqamini kiriting.",
+      "passwordTooShort": "Parol kamida {min} belgidan iborat boʻlishi kerak.",
+      "passwordTooLong": "Parol juda uzun.",
+      "passwordMismatch": "Parollar bir xil emas.",
+      "tooLong": "Matn juda uzun."
+    },
+    "auth": {
+      "invalidCredentials": "E-pochta yoki parol notoʻgʻri.",
+      "rateLimited": "Urinishlar juda koʻp. Keyinroq qayta urinib koʻring.",
+      "otpInvalid": "Kod notoʻgʻri.",
+      "otpExpired": "Kodning muddati tugadi. Yangi kod oling.",
+      "otpLocked": "Kod koʻp marta notoʻgʻri kiritildi, kirish vaqtincha bloklandi. Keyinroq urinib koʻring.",
+      "noAccount": "Bu raqam bilan hisob yoʻq. Avval tezkor roʻyxatdan oʻting.",
+      "invalidPhone": "Telefon raqamini tekshiring.",
+      "resendTooSoon": "Yangi kodni {seconds} soniyadan keyin olishingiz mumkin.",
+      "hourlyLimit": "Kod soʻrovlari juda koʻp. Keyinroq urinib koʻring.",
+      "locked": "Kod koʻp marta notoʻgʻri kiritildi, kirish vaqtincha bloklandi. Keyinroq urinib koʻring.",
+      "bizRegNoTaken": "Bu korxona roʻyxat raqami allaqachon roʻyxatdan oʻtgan.",
+      "emailTaken": "Bu e-pochta allaqachon roʻyxatdan oʻtgan.",
+      "invalidReference": "Soha va hududni qaytadan tanlang.",
+      "invalidBizRegNo": "10 xonali korxona roʻyxat raqamini kiriting.",
+      "validation": "Kiritilgan maʼlumotlarni tekshiring.",
+      "unknown": "Xatolik yuz berdi. Qayta urinib koʻring."
+    }
+  },
+  "seeker": {
+    "login": {
+      "eyebrow": "Ish izlovchilar",
+      "title": "Telefon raqami bilan kirish",
+      "lead": "Telefoningizga yuboriladigan kod bilan kiring.",
+      "phone": {
+        "label": "Telefon raqami",
+        "placeholder": "010-0000-0000",
+        "help": "Koreya raqami boʻlmasa, + va mamlakat kodidan boshlang."
+      },
+      "code": {
+        "label": "Tasdiqlash kodi",
+        "help": "SMSdagi 6 xonali kodni kiriting."
+      },
+      "sendCode": "Kod olish",
+      "sending": "Yuborilmoqda…",
+      "codeSent": "Sizga kod yubordik.",
+      "resend": "Yangi kod olish",
+      "resendIn": "Yangi kodni {seconds} soniyadan keyin olishingiz mumkin",
+      "changePhone": "Raqamni oʻzgartirish",
+      "submit": "Kirish",
+      "submitting": "Tekshirilmoqda…"
+    }
+  },
+  "employer": {
+    "login": {
+      "eyebrow": "Kompaniyalar",
+      "title": "Kompaniya sifatida kirish",
+      "lead": "Roʻyxatdan oʻtgan e-pochta va parol bilan kiring.",
+      "email": {
+        "label": "E-pochta"
+      },
+      "password": {
+        "label": "Parol"
+      },
+      "submit": "Kirish",
+      "submitting": "Tekshirilmoqda…",
+      "toSignup": "Hali hisobingiz yoʻqmi?",
+      "toSignupLink": "Kompaniyani roʻyxatdan oʻtkazish"
+    },
+    "signup": {
+      "eyebrow": "Kompaniyalar",
+      "title": "Kompaniyani roʻyxatdan oʻtkazish",
+      "lead": "Kompaniya maʼlumotlari va kirish maʼlumotlarini kiriting.",
+      "companyName": {
+        "label": "Kompaniya nomi"
+      },
+      "bizRegNo": {
+        "label": "Korxona roʻyxat raqami",
+        "placeholder": "10 ta raqam",
+        "help": "Shifrlangan holda saqlanadi. Bitta raqam bilan faqat bir marta roʻyxatdan oʻtish mumkin."
+      },
+      "industryCode": {
+        "label": "Soha"
+      },
+      "sido": {
+        "label": "Kompaniya joylashuvi (viloyat/shahar)"
+      },
+      "email": {
+        "label": "E-pochta"
+      },
+      "password": {
+        "label": "Parol",
+        "help": "Kamida {min} belgi."
+      },
+      "passwordConfirm": {
+        "label": "Parolni tasdiqlang"
+      },
+      "submit": "Roʻyxatdan oʻtish",
+      "submitting": "Roʻyxatdan oʻtkazilmoqda…",
+      "toLogin": "Hisobingiz bormi?",
+      "toLoginLink": "Kompaniya sifatida kirish"
     }
   }
 }

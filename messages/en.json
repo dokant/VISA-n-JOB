@@ -45,6 +45,18 @@
     "employerCandidates": {
       "title": "Candidates",
       "description": "Only for verified companies with a contract."
+    },
+    "seekerLogin": {
+      "title": "Job seeker sign-in",
+      "description": "Sign in to VISA n JOB with a code sent to your phone."
+    },
+    "employerLogin": {
+      "title": "Company sign-in",
+      "description": "Sign in to your VISA n JOB company account with e-mail and password."
+    },
+    "employerSignup": {
+      "title": "Company sign-up",
+      "description": "Create a VISA n JOB company account."
     }
   },
   "common": {
@@ -117,6 +129,12 @@
       "s": "Membership organizations, repair and other personal services",
       "t": "Activities of households as employers and undifferentiated production",
       "u": "Activities of extraterritorial organizations"
+    },
+    "otp": {
+      "sms": "Your VISA n JOB verification code is {code}. Do not share it with anyone."
+    },
+    "form": {
+      "required": "(required)"
     }
   },
   "nav": {
@@ -595,6 +613,111 @@
           "body": "When the terms change, we announce the effective date and the changes in advance."
         }
       }
+    }
+  },
+  "errors": {
+    "field": {
+      "required": "Please fill in this field.",
+      "invalidPhone": "Please check the phone number.",
+      "invalidCode": "Enter the 6-digit code.",
+      "invalidEmail": "Please check the e-mail address.",
+      "invalidBizRegNo": "Enter the 10-digit business registration number.",
+      "passwordTooShort": "The password must be at least {min} characters.",
+      "passwordTooLong": "The password is too long.",
+      "passwordMismatch": "The passwords do not match.",
+      "tooLong": "This is too long."
+    },
+    "auth": {
+      "invalidCredentials": "The e-mail or password is not correct.",
+      "rateLimited": "Too many attempts. Please try again later.",
+      "otpInvalid": "The code is not correct.",
+      "otpExpired": "The code has expired. Please request a new one.",
+      "otpLocked": "Too many wrong codes, so sign-in is locked. Please try again later.",
+      "noAccount": "No account uses this number. Please complete the quick registration first.",
+      "invalidPhone": "Please check the phone number.",
+      "resendTooSoon": "You can request a new code in {seconds} seconds.",
+      "hourlyLimit": "Too many code requests. Please try again later.",
+      "locked": "Too many wrong codes, so sign-in is locked. Please try again later.",
+      "bizRegNoTaken": "This business registration number is already registered.",
+      "emailTaken": "This e-mail is already registered.",
+      "invalidReference": "Please choose the industry and region again.",
+      "invalidBizRegNo": "Enter the 10-digit business registration number.",
+      "validation": "Please check what you entered.",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
+  "seeker": {
+    "login": {
+      "eyebrow": "Job seekers",
+      "title": "Sign in with your phone number",
+      "lead": "Sign in with the code we send to your phone.",
+      "phone": {
+        "label": "Phone number",
+        "placeholder": "010-0000-0000",
+        "help": "For a non-Korean number, start with + and the country code."
+      },
+      "code": {
+        "label": "Verification code",
+        "help": "Enter the 6-digit code from the text message."
+      },
+      "sendCode": "Get a code",
+      "sending": "Sending…",
+      "codeSent": "We sent you a code.",
+      "resend": "Get a new code",
+      "resendIn": "You can get a new code in {seconds} seconds",
+      "changePhone": "Change number",
+      "submit": "Sign in",
+      "submitting": "Checking…"
+    }
+  },
+  "employer": {
+    "login": {
+      "eyebrow": "Companies",
+      "title": "Company sign-in",
+      "lead": "Sign in with the e-mail and password you registered.",
+      "email": {
+        "label": "E-mail"
+      },
+      "password": {
+        "label": "Password"
+      },
+      "submit": "Sign in",
+      "submitting": "Checking…",
+      "toSignup": "No account yet?",
+      "toSignupLink": "Company sign-up"
+    },
+    "signup": {
+      "eyebrow": "Companies",
+      "title": "Company sign-up",
+      "lead": "Enter your company details and sign-in details.",
+      "companyName": {
+        "label": "Company name"
+      },
+      "bizRegNo": {
+        "label": "Business registration number",
+        "placeholder": "10 digits",
+        "help": "Stored encrypted. Each business registration number can sign up only once."
+      },
+      "industryCode": {
+        "label": "Industry"
+      },
+      "sido": {
+        "label": "Company location (province/city)"
+      },
+      "email": {
+        "label": "E-mail"
+      },
+      "password": {
+        "label": "Password",
+        "help": "At least {min} characters."
+      },
+      "passwordConfirm": {
+        "label": "Confirm password"
+      },
+      "submit": "Sign up",
+      "submitting": "Signing up…",
+      "toLogin": "Already have an account?",
+      "toLoginLink": "Company sign-in"
     }
   }
 }

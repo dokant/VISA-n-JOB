@@ -1,0 +1,90 @@
+/**
+ * Auth.js v5 (next-auth 5.0.0-beta.32, pinned) — full Node.js configuration (PLAN P1b-1).
+ *
+ * Three Credentials providers:
+ *   seeker-otp        phone + OTP code        (R-104)
+ *   employer-password e-mail + password       (R-123)
+ *   staff-password    e-mail + password       (R-118) → twoFactorVerified=false until TOTP
+ * The TOTP step upgrades the session with `unstable_update({ totpProof })`; the JWT callback accepts
+ * only a valid server-made proof (see authCredentials.ts), so the client cannot skip 2FA.
+ *
+ * Failures throw `AuthCodeError` (a CredentialsSignin subclass); its `code` is the AuthFailureCode
+ * the login forms translate (errors.auth.*). The middleware uses the Edge-safe `authConfig` only.
+ */
+import NextAuth, { CredentialsSignin } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+
+import {
+  type AuthFailureCode,
+  type AuthResult,
+  authorizeEmployerPassword,
+  authorizeSeekerOtp,
+  authorizeStaffPassword,
+  verifyTotpProof,
+} from "@/lib/authCredentials";
+import { authConfig } from "@/lib/authConfig";
+import { clientIp } from "@/lib/rateLimit";
+import { employerLoginSchema, seekerOtpVerifySchema, staffLoginSchema } from "@/schemas/auth/auth";
+
+export class AuthCodeError extends CredentialsSignin {
+  constructor(code: AuthFailureCode) {
+    super();
+    this.code = code;
+  }
+}
+
+function unwrap(result: AuthResult) {
+  if (!result.ok) throw new AuthCodeError(result.code);
+  return result.user;
+}
+
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
+  ...authConfig,
+  providers: [
+    Credentials({
+      id: "seeker-otp",
+      credentials: { phone: {}, code: {} },
+      async authorize(credentials, request) {
+        const parsed = seekerOtpVerifySchema.safeParse(credentials);
+        if (!parsed.success) throw new AuthCodeError("INVALID_CREDENTIALS");
+        return unwrap(await authorizeSeekerOtp({ ...parsed.data, ip: clientIp(request.headers) }));
+      },
+    }),
+    Credentials({
+      id: "employer-password",
+      credentials: { email: {}, password: {} },
+      async authorize(credentials, request) {
+        const parsed = employerLoginSchema.safeParse(credentials);
+        if (!parsed.success) throw new AuthCodeError("INVALID_CREDENTIALS");
+        return unwrap(
+          await authorizeEmployerPassword({ ...parsed.data, ip: clientIp(request.headers) }),
+        );
+      },
+    }),
+    Credentials({
+      id: "staff-password",
+      credentials: { email: {}, password: {} },
+      async authorize(credentials, request) {
+        const parsed = staffLoginSchema.safeParse(credentials);
+        if (!parsed.success) throw new AuthCodeError("INVALID_CREDENTIALS");
+        return unwrap(
+          await authorizeStaffPassword({ ...parsed.data, ip: clientIp(request.headers) }),
+        );
+      },
+    }),
+  ],
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt(params) {
+      const token = await authConfig.callbacks.jwt(params);
+      if (params.trigger === "update" && token.sub) {
+        const proof = (params.session as { totpProof?: unknown } | undefined)?.totpProof;
+        if (verifyTotpProof(proof, token.sub)) {
+          token.twoFactorVerified = true;
+          token.totpEnrolled = true;
+        }
+      }
+      return token;
+    },
+  },
+});

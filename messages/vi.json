@@ -45,6 +45,18 @@
     "employerCandidates": {
       "title": "Xem ứng viên",
       "description": "Chỉ dành cho doanh nghiệp đã xác minh và ký hợp đồng."
+    },
+    "seekerLogin": {
+      "title": "Đăng nhập người tìm việc",
+      "description": "Đăng nhập VISA n JOB bằng mã gửi đến điện thoại của bạn."
+    },
+    "employerLogin": {
+      "title": "Đăng nhập doanh nghiệp",
+      "description": "Đăng nhập tài khoản doanh nghiệp VISA n JOB bằng email và mật khẩu."
+    },
+    "employerSignup": {
+      "title": "Đăng ký doanh nghiệp",
+      "description": "Tạo tài khoản doanh nghiệp VISA n JOB."
     }
   },
   "common": {
@@ -117,6 +129,12 @@
       "s": "Hiệp hội, sửa chữa và dịch vụ cá nhân khác",
       "t": "Hoạt động làm thuê trong hộ gia đình và sản xuất tự tiêu dùng",
       "u": "Tổ chức quốc tế và cơ quan nước ngoài"
+    },
+    "otp": {
+      "sms": "Mã xác minh VISA n JOB của bạn là {code}. Không chia sẻ mã này với người khác."
+    },
+    "form": {
+      "required": "(bắt buộc)"
     }
   },
   "nav": {
@@ -595,6 +613,111 @@
           "body": "Khi thay đổi điều khoản, chúng tôi thông báo trước ngày có hiệu lực và nội dung thay đổi."
         }
       }
+    }
+  },
+  "errors": {
+    "field": {
+      "required": "Vui lòng nhập thông tin.",
+      "invalidPhone": "Vui lòng kiểm tra số điện thoại.",
+      "invalidCode": "Nhập mã gồm 6 chữ số.",
+      "invalidEmail": "Vui lòng kiểm tra địa chỉ email.",
+      "invalidBizRegNo": "Nhập số đăng ký kinh doanh gồm 10 chữ số.",
+      "passwordTooShort": "Mật khẩu phải có ít nhất {min} ký tự.",
+      "passwordTooLong": "Mật khẩu quá dài.",
+      "passwordMismatch": "Hai mật khẩu không khớp.",
+      "tooLong": "Nội dung quá dài."
+    },
+    "auth": {
+      "invalidCredentials": "Email hoặc mật khẩu không đúng.",
+      "rateLimited": "Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.",
+      "otpInvalid": "Mã xác minh không đúng.",
+      "otpExpired": "Mã đã hết hạn. Vui lòng nhận mã mới.",
+      "otpLocked": "Bạn đã nhập sai mã nhiều lần nên tạm bị khóa. Vui lòng thử lại sau.",
+      "noAccount": "Không có tài khoản nào dùng số này. Vui lòng đăng ký nhanh trước.",
+      "invalidPhone": "Vui lòng kiểm tra số điện thoại.",
+      "resendTooSoon": "Bạn có thể nhận mã mới sau {seconds} giây.",
+      "hourlyLimit": "Bạn đã yêu cầu mã quá nhiều lần. Vui lòng thử lại sau.",
+      "locked": "Bạn đã nhập sai mã nhiều lần nên tạm bị khóa. Vui lòng thử lại sau.",
+      "bizRegNoTaken": "Số đăng ký kinh doanh này đã được đăng ký.",
+      "emailTaken": "Email này đã được đăng ký.",
+      "invalidReference": "Vui lòng chọn lại ngành nghề và khu vực.",
+      "invalidBizRegNo": "Nhập số đăng ký kinh doanh gồm 10 chữ số.",
+      "validation": "Vui lòng kiểm tra thông tin đã nhập.",
+      "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
+    }
+  },
+  "seeker": {
+    "login": {
+      "eyebrow": "Người tìm việc",
+      "title": "Đăng nhập bằng số điện thoại",
+      "lead": "Đăng nhập bằng mã chúng tôi gửi đến điện thoại của bạn.",
+      "phone": {
+        "label": "Số điện thoại",
+        "placeholder": "010-0000-0000",
+        "help": "Nếu không phải số Hàn Quốc, hãy bắt đầu bằng + và mã quốc gia."
+      },
+      "code": {
+        "label": "Mã xác minh",
+        "help": "Nhập mã 6 chữ số trong tin nhắn."
+      },
+      "sendCode": "Nhận mã",
+      "sending": "Đang gửi…",
+      "codeSent": "Chúng tôi đã gửi mã cho bạn.",
+      "resend": "Nhận mã mới",
+      "resendIn": "Bạn có thể nhận mã mới sau {seconds} giây",
+      "changePhone": "Đổi số",
+      "submit": "Đăng nhập",
+      "submitting": "Đang kiểm tra…"
+    }
+  },
+  "employer": {
+    "login": {
+      "eyebrow": "Doanh nghiệp",
+      "title": "Đăng nhập doanh nghiệp",
+      "lead": "Đăng nhập bằng email và mật khẩu đã đăng ký.",
+      "email": {
+        "label": "Email"
+      },
+      "password": {
+        "label": "Mật khẩu"
+      },
+      "submit": "Đăng nhập",
+      "submitting": "Đang kiểm tra…",
+      "toSignup": "Chưa có tài khoản?",
+      "toSignupLink": "Đăng ký doanh nghiệp"
+    },
+    "signup": {
+      "eyebrow": "Doanh nghiệp",
+      "title": "Đăng ký doanh nghiệp",
+      "lead": "Nhập thông tin công ty và thông tin đăng nhập.",
+      "companyName": {
+        "label": "Tên công ty"
+      },
+      "bizRegNo": {
+        "label": "Số đăng ký kinh doanh",
+        "placeholder": "10 chữ số",
+        "help": "Được lưu ở dạng mã hóa. Mỗi số đăng ký kinh doanh chỉ đăng ký được một lần."
+      },
+      "industryCode": {
+        "label": "Ngành nghề"
+      },
+      "sido": {
+        "label": "Địa điểm công ty (tỉnh/thành phố)"
+      },
+      "email": {
+        "label": "Email"
+      },
+      "password": {
+        "label": "Mật khẩu",
+        "help": "Ít nhất {min} ký tự."
+      },
+      "passwordConfirm": {
+        "label": "Xác nhận mật khẩu"
+      },
+      "submit": "Đăng ký",
+      "submitting": "Đang đăng ký…",
+      "toLogin": "Đã có tài khoản?",
+      "toLoginLink": "Đăng nhập doanh nghiệp"
     }
   }
 }
