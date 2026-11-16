@@ -317,12 +317,15 @@ model JobLead {
   id               String       @id @default(cuid())
   source           String // WORK24_API|AGENT|MANUAL + [+] DIAGNOSIS (R-124) | REQUEST (R-125)
   sourceRef        String       @unique
-  companyName      String
+  /// [~] P1d: nullable. A 무료 채용 진단 lead (R-124) is saved without a company name (anonymous visitor,
+  /// no contact asked); a fake placeholder name would look like real data in the lead kanban.
+  companyName      String?
   bizRegNo         String?
   industryCode     String?
   sido             String
   sigungu          String?
-  title            String
+  /// [~] P1d: nullable for the same reason (a diagnosis lead has no posting title).
+  title            String?
   payMin           Int?
   payMax           Int?
   postedAt         DateTime?
@@ -357,6 +360,9 @@ model JobLead {
 
   @@index([grade])
   @@index([sido, industryCode])
+  /// [+] P1d R-116 archive job / P1d R-125 company lead lookup
+  @@index([grade, lastContactedAt])
+  @@index([companyId])
 }
 
 model CallLog {

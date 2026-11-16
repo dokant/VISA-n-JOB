@@ -28,9 +28,14 @@ const STYLE: Record<Outcome, { icon: typeof CircleCheck; card: string; icon_: st
   },
 };
 
+type VisaRef = { code: string; nameKey: string; isStatusCode: boolean };
+
 type Props = {
   outcome: Outcome;
-  visa: { code: string; nameKey: string; isStatusCode: boolean };
+  /** One visa (비자 진단) … */
+  visa?: VisaRef;
+  /** … or several visas with the same outcome and message (무료 채용 진단, R-124). */
+  visas?: readonly VisaRef[];
   /** Rule messageKey (or the needs-review key). */
   messageKey: string;
   className?: string;
@@ -40,11 +45,13 @@ type Props = {
  * STANDARD v2 3.2 / 3.4 OutcomeCard. Order: ① icon + label ② VisaLabel ③ rule message
  * ④ "참고용, 행정사 확인 필요" (always — there is no prop to hide it, BR-11) ⑤ "상담 신청".
  * Color is never the only signal: icon + text label always.
+ * The 무료 채용 진단 (R-124) shows one card per outcome + message with every visa of that group in ②.
  */
-export function OutcomeCard({ outcome, visa, messageKey, className }: Props) {
+export function OutcomeCard({ outcome, visa, visas, messageKey, className }: Props) {
   const t = useTranslations();
   const style = STYLE[outcome];
   const Icon = style.icon;
+  const list = visas ?? (visa ? [visa] : []);
 
   return (
     <article
@@ -58,12 +65,27 @@ export function OutcomeCard({ outcome, visa, messageKey, className }: Props) {
         </span>
         <h3 className="text-h3 text-navy">{t(`visa.outcome.${outcome}`)}</h3>
       </div>
-      <VisaLabel
-        code={visa.code}
-        nameKey={visa.nameKey}
-        showCode={visa.isStatusCode}
-        className="text-dense text-navy"
-      />
+      {list.length === 1 ? (
+        <VisaLabel
+          code={list[0].code}
+          nameKey={list[0].nameKey}
+          showCode={list[0].isStatusCode}
+          className="text-dense text-navy"
+        />
+      ) : (
+        <ul className="flex flex-wrap gap-x-4 gap-y-2" data-testid="outcome-visas">
+          {list.map((v) => (
+            <li key={v.code}>
+              <VisaLabel
+                code={v.code}
+                nameKey={v.nameKey}
+                showCode={v.isStatusCode}
+                className="text-dense text-navy"
+              />
+            </li>
+          ))}
+        </ul>
+      )}
       <p className="text-dense">{t(messageKey)}</p>
       <p className="text-caption font-semibold" data-testid="reference-disclaimer">
         {t(REFERENCE_DISCLAIMER_KEY)}

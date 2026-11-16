@@ -85,6 +85,14 @@
     "seekerRecommended": {
       "title": "Recommended jobs",
       "description": "Jobs that fit your visa and preferences."
+    },
+    "employerDiagnosis": {
+      "title": "Free hiring check",
+      "description": "Enter your industry, location and staff numbers to see, for reference, which visas you may hire under the rules published by our administrative scrivener."
+    },
+    "employerRequest": {
+      "title": "Hiring request",
+      "description": "Tell VISA n JOB the staff you need and the working conditions."
     }
   },
   "common": {
@@ -664,7 +672,11 @@
       "invalidValue": "Please check the selected value.",
       "invalidMonth": "Please choose both the year and the month.",
       "invalidDate": "Please check the date.",
-      "invalidReferralCode": "Please check the referral code."
+      "invalidReferralCode": "Please check the referral code.",
+      "invalidNumber": "Please check the number.",
+      "duplicateVisa": "This visa is already in the list.",
+      "payRange": "The maximum pay is lower than the minimum pay.",
+      "contactInfo": "Phone numbers, e-mail addresses, links and messenger IDs are not allowed here. VISA n JOB will contact you separately."
     },
     "auth": {
       "invalidCredentials": "The e-mail or password is not correct.",
@@ -689,6 +701,14 @@
       "invalidReference": "Please choose your visa and region again.",
       "noProfile": "We could not find your registration. Please sign in again.",
       "validation": "Please check what you entered."
+    },
+    "employer": {
+      "validation": "Please check what you entered.",
+      "contactInfo": "Not submitted: a free-text field contains contact details. Please correct the marked fields.",
+      "invalidReference": "Please choose the industry and location again.",
+      "rateLimited": "Too many requests. Please try again later.",
+      "unauthenticated": "Please sign in again.",
+      "unknown": "Something went wrong. Please try again."
     }
   },
   "seeker": {
@@ -1258,6 +1278,162 @@
       "submitting": "Signing up…",
       "toLogin": "Already have an account?",
       "toLoginLink": "Company sign-in"
+    },
+    "diagnosis": {
+      "eyebrow": "Free hiring check",
+      "title": "Visas your company may hire",
+      "lead": "Enter your industry, location and staff numbers. We show a reference result based on the rules published by our administrative scrivener.",
+      "notice": "The result is for reference only and must be confirmed by an administrative scrivener. Your answers are saved by VISA n JOB to prepare a consultation.",
+      "industryCode": {
+        "label": "Industry"
+      },
+      "sido": {
+        "label": "Workplace province/city"
+      },
+      "sigungu": {
+        "label": "Workplace city/county/district",
+        "placeholder": "Choose the province/city first"
+      },
+      "regularEmployees": {
+        "label": "Regular employees",
+        "help": "Enter a number of people."
+      },
+      "insuredDomestic": {
+        "label": "Korean employees with employment insurance",
+        "help": "Enter a number of people."
+      },
+      "foreignWorkers": {
+        "label": "Foreign staff you employ now",
+        "help": "Enter your current foreign staff by visa. Leave it empty if there are none.",
+        "visa": "Visa",
+        "count": "People",
+        "add": "Add a visa",
+        "remove": "Remove this row",
+        "row": "Visa {n}"
+      },
+      "submit": "See the free hiring check result",
+      "submitting": "Checking…",
+      "result": {
+        "title": "Result",
+        "needsReview": "Visas without a matching published rule are shown as 'Needs review'. An administrative scrivener must confirm them.",
+        "saved": "Your answers are saved. Request a consultation and VISA n JOB will guide you from here.",
+        "next": "Next steps",
+        "request": "Hiring request",
+        "again": "Check again"
+      }
+    },
+    "request": {
+      "eyebrow": "Hiring request",
+      "title": "Hiring request form",
+      "lead": "Tell us the staff you need and the working conditions. A VISA n JOB staff member will check it and contact you.",
+      "notice": "Only VISA n JOB staff can see the contact person's details. They are never shown to job seekers. Contact details, links and messenger IDs are not allowed in free-text fields.",
+      "progress": "{current}/{total} · {name}",
+      "steps": {
+        "company": "Company",
+        "job": "Job conditions",
+        "living": "Living conditions and preferences"
+      },
+      "companyName": {
+        "label": "Company name",
+        "help": "Stored encrypted."
+      },
+      "sido": {
+        "label": "Workplace province/city"
+      },
+      "sigungu": {
+        "label": "Workplace city/county/district",
+        "placeholder": "Choose the province/city first"
+      },
+      "employeeCount": {
+        "label": "Regular employees"
+      },
+      "contactName": {
+        "label": "Contact person"
+      },
+      "contactPhone": {
+        "label": "Contact person's mobile number",
+        "help": "Used only for our confirmation call. Stored encrypted."
+      },
+      "contactEmail": {
+        "label": "Contact person's e-mail"
+      },
+      "role": {
+        "label": "Job",
+        "placeholder": "e.g. welding, packing, kitchen help"
+      },
+      "pay": {
+        "label": "Monthly pay (before tax, KRW)",
+        "min": "Minimum",
+        "max": "Maximum (optional)"
+      },
+      "workHours": {
+        "label": "Working hours",
+        "placeholder": "e.g. 08:30–17:30, 5 days a week"
+      },
+      "overtime": {
+        "label": "Overtime",
+        "option": {
+          "NONE": "None",
+          "SOMETIMES": "Sometimes",
+          "REGULAR": "Often",
+          "UNKNOWN": "Not sure"
+        }
+      },
+      "headcount": {
+        "label": "Number of hires"
+      },
+      "startTiming": {
+        "label": "When to hire",
+        "option": {
+          "IMMEDIATE": "Right away",
+          "WITHIN_1M": "Within 1 month",
+          "WITHIN_3M": "Within 3 months",
+          "UNDECIDED": "Not decided"
+        }
+      },
+      "dormitory": {
+        "label": "Housing",
+        "option": {
+          "PROVIDED": "Provided",
+          "ALLOWANCE": "Housing support",
+          "NONE": "None"
+        }
+      },
+      "meals": {
+        "label": "Meals",
+        "option": {
+          "PROVIDED": "Provided",
+          "PARTIAL": "Partly provided",
+          "NONE": "None"
+        }
+      },
+      "preferences": {
+        "label": "Preferences",
+        "help": "For example Korean level, experience, shift work."
+      },
+      "detail": {
+        "label": "Other requests"
+      },
+      "prev": "Back",
+      "next": "Next",
+      "submit": "Submit hiring request",
+      "submitting": "Submitting…",
+      "done": {
+        "title": "We received your hiring request",
+        "body": "A staff member will verify it and contact you. You can follow the status in the list below.",
+        "again": "New hiring request"
+      },
+      "list": {
+        "title": "My hiring requests",
+        "empty": "You have not submitted a hiring request yet.",
+        "requestedAt": "Received {date}",
+        "untitled": "No job title",
+        "status": {
+          "reviewing": "Awaiting verification",
+          "verified": "Verified",
+          "closed": "Closed"
+        }
+      }
     }
   }
 }

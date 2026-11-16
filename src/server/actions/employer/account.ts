@@ -68,7 +68,8 @@ export async function signUpEmployer(
   }
   const code = await signInEmployerOrCode(parsed.data.email, parsed.data.password);
   if (code) return { ok: false, code };
-  redirect(`/${toLocale(input.locale)}`);
+  // P1d: a new employer lands on the 구인 의뢰 page (R-125).
+  redirect(`/${toLocale(input.locale)}/employer/request`);
 }
 
 /** /[locale]/employer/login (R-123). */
@@ -80,6 +81,6 @@ export async function signInEmployer(
   if (!parsed.success) return { ok: false, code: "INVALID_CREDENTIALS" };
   const code = await signInEmployerOrCode(parsed.data.email, parsed.data.password);
   if (code) return { ok: false, code };
-  // P1d / P2b replace the fallback with the employer area (진단·구인 의뢰·후보 열람).
-  redirect(`/${toLocale(input.locale)}${safeNextPath(input.next, "")}`);
+  // P1d: the employer area is the 구인 의뢰 page (R-125); P2b may add 후보 열람.
+  redirect(`/${toLocale(input.locale)}${safeNextPath(input.next, "/employer/request")}`);
 }

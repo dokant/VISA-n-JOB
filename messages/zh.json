@@ -85,6 +85,14 @@
     "seekerRecommended": {
       "title": "推荐工作",
       "description": "符合您签证和意向的工作。"
+    },
+    "employerDiagnosis": {
+      "title": "免费招聘诊断",
+      "description": "输入行业、地区和人数，即可参考查看按行政书士公布的标准可招聘的签证。"
+    },
+    "employerRequest": {
+      "title": "招聘委托",
+      "description": "请告诉 VISA n JOB 所需人员和工作条件。"
     }
   },
   "common": {
@@ -664,7 +672,11 @@
       "invalidValue": "请检查所选内容。",
       "invalidMonth": "请选择年份和月份。",
       "invalidDate": "请检查日期。",
-      "invalidReferralCode": "请检查推荐码。"
+      "invalidReferralCode": "请检查推荐码。",
+      "invalidNumber": "请检查数字。",
+      "duplicateVisa": "该签证已在列表中。",
+      "payRange": "最高工资低于最低工资。",
+      "contactInfo": "不能填写电话、邮箱、链接或聊天软件账号。VISA n JOB 会另行联系您。"
     },
     "auth": {
       "invalidCredentials": "电子邮箱或密码不正确。",
@@ -689,6 +701,14 @@
       "invalidReference": "请重新选择签证和地区。",
       "noProfile": "找不到登记信息。请重新登录。",
       "validation": "请检查输入的内容。"
+    },
+    "employer": {
+      "validation": "请检查填写的内容。",
+      "contactInfo": "自由填写栏中含有联系方式，未能提交。请修改标出的栏目。",
+      "invalidReference": "请重新选择行业和地区。",
+      "rateLimited": "请求过多，请稍后再试。",
+      "unauthenticated": "请重新登录。",
+      "unknown": "出现问题，请重试。"
     }
   },
   "seeker": {
@@ -1258,6 +1278,162 @@
       "submitting": "正在注册…",
       "toLogin": "已有账户？",
       "toLoginLink": "企业登录"
+    },
+    "diagnosis": {
+      "eyebrow": "免费招聘诊断",
+      "title": "贵公司可招聘的签证",
+      "lead": "输入行业、地区和人数后，我们会按行政书士公布的标准显示参考结果。",
+      "notice": "结果仅供参考，需经行政书士确认。您填写的内容将由 VISA n JOB 保存，用于准备咨询。",
+      "industryCode": {
+        "label": "行业"
+      },
+      "sido": {
+        "label": "工作地所在省/市"
+      },
+      "sigungu": {
+        "label": "工作地所在市/郡/区",
+        "placeholder": "请先选择省/市"
+      },
+      "regularEmployees": {
+        "label": "常用职工人数",
+        "help": "请填写人数。"
+      },
+      "insuredDomestic": {
+        "label": "参加雇佣保险的韩国籍职工人数",
+        "help": "请填写人数。"
+      },
+      "foreignWorkers": {
+        "label": "目前雇用的外国人",
+        "help": "请按签证填写目前在职的外国人。没有请留空。",
+        "visa": "签证",
+        "count": "人数",
+        "add": "添加签证",
+        "remove": "删除此行",
+        "row": "第 {n} 个签证"
+      },
+      "submit": "查看免费招聘诊断结果",
+      "submitting": "正在确认…",
+      "result": {
+        "title": "诊断结果",
+        "needsReview": "没有相符公布标准的签证显示为“需要确认”，需经行政书士确认。",
+        "saved": "诊断内容已保存。申请咨询后，VISA n JOB 会继续为您说明。",
+        "next": "下一步",
+        "request": "招聘委托",
+        "again": "重新诊断"
+      }
+    },
+    "request": {
+      "eyebrow": "招聘委托",
+      "title": "招聘委托书",
+      "lead": "请告诉我们所需人员和工作条件。VISA n JOB 负责人确认后会与您联系。",
+      "notice": "负责人联系方式只有 VISA n JOB 员工可以查看，不会向求职者公开。自由填写栏中不能填写联系方式、链接或聊天软件账号。",
+      "progress": "{current}/{total} · {name}",
+      "steps": {
+        "company": "公司信息",
+        "job": "工作条件",
+        "living": "生活条件和希望条件"
+      },
+      "companyName": {
+        "label": "公司名称",
+        "help": "加密保存。"
+      },
+      "sido": {
+        "label": "工作地所在省/市"
+      },
+      "sigungu": {
+        "label": "工作地所在市/郡/区",
+        "placeholder": "请先选择省/市"
+      },
+      "employeeCount": {
+        "label": "常用职工人数"
+      },
+      "contactName": {
+        "label": "负责人姓名"
+      },
+      "contactPhone": {
+        "label": "负责人手机号码",
+        "help": "仅用于确认电话，加密保存。"
+      },
+      "contactEmail": {
+        "label": "负责人邮箱"
+      },
+      "role": {
+        "label": "职务",
+        "placeholder": "例如：焊接、包装、厨房帮工"
+      },
+      "pay": {
+        "label": "月工资（税前，韩元）",
+        "min": "最低",
+        "max": "最高（可选）"
+      },
+      "workHours": {
+        "label": "工作时间",
+        "placeholder": "例如：08:30–17:30，每周 5 天"
+      },
+      "overtime": {
+        "label": "加班",
+        "option": {
+          "NONE": "没有",
+          "SOMETIMES": "偶尔",
+          "REGULAR": "经常",
+          "UNKNOWN": "不清楚"
+        }
+      },
+      "headcount": {
+        "label": "招聘人数"
+      },
+      "startTiming": {
+        "label": "招聘时间",
+        "option": {
+          "IMMEDIATE": "马上",
+          "WITHIN_1M": "1 个月内",
+          "WITHIN_3M": "3 个月内",
+          "UNDECIDED": "未定"
+        }
+      },
+      "dormitory": {
+        "label": "住宿",
+        "option": {
+          "PROVIDED": "提供",
+          "ALLOWANCE": "住房补助",
+          "NONE": "不提供"
+        }
+      },
+      "meals": {
+        "label": "餐食",
+        "option": {
+          "PROVIDED": "提供",
+          "PARTIAL": "部分提供",
+          "NONE": "不提供"
+        }
+      },
+      "preferences": {
+        "label": "希望条件",
+        "help": "例如韩语水平、经验、轮班等。"
+      },
+      "detail": {
+        "label": "其他要求"
+      },
+      "prev": "上一步",
+      "next": "下一步",
+      "submit": "提交招聘委托",
+      "submitting": "正在提交…",
+      "done": {
+        "title": "已收到招聘委托",
+        "body": "负责人核实后会与您联系。可在下方列表查看进度。",
+        "again": "新的招聘委托"
+      },
+      "list": {
+        "title": "我的招聘委托",
+        "empty": "您还没有提交招聘委托。",
+        "requestedAt": "受理日 {date}",
+        "untitled": "未填写职务",
+        "status": {
+          "reviewing": "等待核实",
+          "verified": "已核实",
+          "closed": "已结束"
+        }
+      }
     }
   }
 }

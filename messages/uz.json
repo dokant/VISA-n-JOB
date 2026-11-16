@@ -85,6 +85,14 @@
     "seekerRecommended": {
       "title": "Tavsiya etilgan ishlar",
       "description": "Vizangiz va istaklaringizga mos ishlar."
+    },
+    "employerDiagnosis": {
+      "title": "Bepul ishga olish tekshiruvi",
+      "description": "Soha, hudud va xodimlar sonini kiriting — ma'muriy maslahatchi e'lon qilgan mezonlar bo'yicha qaysi vizalar bilan ishga olish mumkinligini ma'lumot uchun ko'rsatamiz."
+    },
+    "employerRequest": {
+      "title": "Ishga olish so'rovi",
+      "description": "VISA n JOB ga kerakli xodimlar va ish sharoitlarini ayting."
     }
   },
   "common": {
@@ -664,7 +672,11 @@
       "invalidValue": "Tanlangan qiymatni tekshiring.",
       "invalidMonth": "Yil va oyni tanlang.",
       "invalidDate": "Sanani tekshiring.",
-      "invalidReferralCode": "Tavsiya kodini tekshiring."
+      "invalidReferralCode": "Tavsiya kodini tekshiring.",
+      "invalidNumber": "Raqamni tekshiring.",
+      "duplicateVisa": "Bu viza ro'yxatda bor.",
+      "payRange": "Eng yuqori maosh eng pastidan kam.",
+      "contactInfo": "Telefon, e-mail, havola va messenjer ID yozib bo'lmaydi. VISA n JOB siz bilan alohida bog'lanadi."
     },
     "auth": {
       "invalidCredentials": "E-pochta yoki parol notoʻgʻri.",
@@ -689,6 +701,14 @@
       "invalidReference": "Viza va hududni qayta tanlang.",
       "noProfile": "Roʻyxat maʼlumoti topilmadi. Qayta kiring.",
       "validation": "Kiritilgan maʼlumotni tekshiring."
+    },
+    "employer": {
+      "validation": "Kiritilgan ma'lumotni tekshiring.",
+      "contactInfo": "Erkin matn maydonida aloqa ma'lumoti bor, shuning uchun qabul qilinmadi. Belgilangan maydonlarni tuzating.",
+      "invalidReference": "Soha va hududni qayta tanlang.",
+      "rateLimited": "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring.",
+      "unauthenticated": "Qayta kiring.",
+      "unknown": "Xatolik yuz berdi. Qayta urinib ko'ring."
     }
   },
   "seeker": {
@@ -1258,6 +1278,162 @@
       "submitting": "Roʻyxatdan oʻtkazilmoqda…",
       "toLogin": "Hisobingiz bormi?",
       "toLoginLink": "Kompaniya sifatida kirish"
+    },
+    "diagnosis": {
+      "eyebrow": "Bepul ishga olish tekshiruvi",
+      "title": "Kompaniyangiz ishga olishi mumkin bo'lgan vizalar",
+      "lead": "Soha, hudud va xodimlar sonini kiriting. Ma'muriy maslahatchi e'lon qilgan mezonlar bo'yicha ma'lumot uchun natijani ko'rsatamiz.",
+      "notice": "Natija faqat ma'lumot uchun, ma'muriy maslahatchi tasdig'i kerak. Kiritgan ma'lumotlaringiz maslahatga tayyorlanish uchun VISA n JOB da saqlanadi.",
+      "industryCode": {
+        "label": "Soha"
+      },
+      "sido": {
+        "label": "Ish joyi viloyati/shahri"
+      },
+      "sigungu": {
+        "label": "Ish joyi shahri/tumani",
+        "placeholder": "Avval viloyat/shaharni tanlang"
+      },
+      "regularEmployees": {
+        "label": "Doimiy xodimlar soni",
+        "help": "Odamlar sonini kiriting."
+      },
+      "insuredDomestic": {
+        "label": "Bandlik sug'urtasiga ega koreys xodimlar soni",
+        "help": "Odamlar sonini kiriting."
+      },
+      "foreignWorkers": {
+        "label": "Hozir ishlayotgan chet elliklar",
+        "help": "Hozirgi chet ellik xodimlarni viza bo'yicha yozing. Bo'lmasa, bo'sh qoldiring.",
+        "visa": "Viza",
+        "count": "Odam",
+        "add": "Viza qo'shish",
+        "remove": "Bu qatorni o'chirish",
+        "row": "{n}-viza"
+      },
+      "submit": "Bepul ishga olish tekshiruvi natijasini ko'rish",
+      "submitting": "Tekshirilmoqda…",
+      "result": {
+        "title": "Natija",
+        "needsReview": "Mos e'lon qilingan mezoni bo'lmagan vizalar «Tekshirish kerak» deb ko'rsatiladi. Ma'muriy maslahatchi tasdig'i kerak.",
+        "saved": "Ma'lumotlar saqlandi. Maslahatga ariza bersangiz, VISA n JOB davom ettiradi.",
+        "next": "Keyingi qadamlar",
+        "request": "Ishga olish so'rovi",
+        "again": "Qayta tekshirish"
+      }
+    },
+    "request": {
+      "eyebrow": "Ishga olish so'rovi",
+      "title": "Ishga olish so'rovi shakli",
+      "lead": "Kerakli xodimlar va ish sharoitlarini ayting. VISA n JOB xodimi tekshirib, siz bilan bog'lanadi.",
+      "notice": "Mas'ul shaxs aloqa ma'lumotlarini faqat VISA n JOB xodimlari ko'radi. Ish izlovchilarga ko'rsatilmaydi. Erkin matn maydonlariga aloqa ma'lumoti, havola va messenjer ID yozib bo'lmaydi.",
+      "progress": "{current}/{total} · {name}",
+      "steps": {
+        "company": "Kompaniya",
+        "job": "Ish sharoitlari",
+        "living": "Turmush sharoitlari va istaklar"
+      },
+      "companyName": {
+        "label": "Kompaniya nomi",
+        "help": "Shifrlangan holda saqlanadi."
+      },
+      "sido": {
+        "label": "Ish joyi viloyati/shahri"
+      },
+      "sigungu": {
+        "label": "Ish joyi shahri/tumani",
+        "placeholder": "Avval viloyat/shaharni tanlang"
+      },
+      "employeeCount": {
+        "label": "Doimiy xodimlar soni"
+      },
+      "contactName": {
+        "label": "Mas'ul shaxs ismi"
+      },
+      "contactPhone": {
+        "label": "Mas'ul shaxs mobil raqami",
+        "help": "Faqat tasdiqlash qo'ng'irog'i uchun. Shifrlangan holda saqlanadi."
+      },
+      "contactEmail": {
+        "label": "Mas'ul shaxs e-maili"
+      },
+      "role": {
+        "label": "Lavozim",
+        "placeholder": "Masalan: payvandlash, qadoqlash, oshxona yordamchisi"
+      },
+      "pay": {
+        "label": "Oylik maosh (soliqdan oldin, von)",
+        "min": "Eng kam",
+        "max": "Eng ko'p (ixtiyoriy)"
+      },
+      "workHours": {
+        "label": "Ish vaqti",
+        "placeholder": "Masalan: 08:30–17:30, haftasiga 5 kun"
+      },
+      "overtime": {
+        "label": "Qo'shimcha ish",
+        "option": {
+          "NONE": "Yo'q",
+          "SOMETIMES": "Ba'zan",
+          "REGULAR": "Tez-tez",
+          "UNKNOWN": "Bilmayman"
+        }
+      },
+      "headcount": {
+        "label": "Nechta odam kerak"
+      },
+      "startTiming": {
+        "label": "Qachon ishga olish",
+        "option": {
+          "IMMEDIATE": "Darhol",
+          "WITHIN_1M": "1 oy ichida",
+          "WITHIN_3M": "3 oy ichida",
+          "UNDECIDED": "Hal qilinmagan"
+        }
+      },
+      "dormitory": {
+        "label": "Turar joy",
+        "option": {
+          "PROVIDED": "Beriladi",
+          "ALLOWANCE": "Uy-joy yordami",
+          "NONE": "Yo'q"
+        }
+      },
+      "meals": {
+        "label": "Ovqat",
+        "option": {
+          "PROVIDED": "Beriladi",
+          "PARTIAL": "Qisman beriladi",
+          "NONE": "Yo'q"
+        }
+      },
+      "preferences": {
+        "label": "Istaklar",
+        "help": "Masalan: koreys tili darajasi, tajriba, smenali ish."
+      },
+      "detail": {
+        "label": "Boshqa so'rovlar"
+      },
+      "prev": "Orqaga",
+      "next": "Keyingi",
+      "submit": "Ishga olish so'rovini yuborish",
+      "submitting": "Yuborilmoqda…",
+      "done": {
+        "title": "Ishga olish so'rovingiz qabul qilindi",
+        "body": "Xodim tekshirib, siz bilan bog'lanadi. Holatini quyidagi ro'yxatda ko'rishingiz mumkin.",
+        "again": "Yangi ishga olish so'rovi"
+      },
+      "list": {
+        "title": "Mening ishga olish so'rovlarim",
+        "empty": "Hali ishga olish so'rovi yubormagansiz.",
+        "requestedAt": "Qabul qilingan sana {date}",
+        "untitled": "Lavozim ko'rsatilmagan",
+        "status": {
+          "reviewing": "Tekshiruv kutilmoqda",
+          "verified": "Tekshirilgan",
+          "closed": "Yopilgan"
+        }
+      }
     }
   }
 }

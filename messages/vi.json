@@ -85,6 +85,14 @@
     "seekerRecommended": {
       "title": "Việc làm đề xuất",
       "description": "Việc làm phù hợp với visa và mong muốn của bạn."
+    },
+    "employerDiagnosis": {
+      "title": "Kiểm tra tuyển dụng miễn phí",
+      "description": "Nhập ngành, khu vực và số lao động để xem, mang tính tham khảo, các loại visa doanh nghiệp có thể tuyển theo tiêu chí do hành chính sư công bố."
+    },
+    "employerRequest": {
+      "title": "Yêu cầu tuyển dụng",
+      "description": "Hãy cho VISA n JOB biết nhân lực cần tuyển và điều kiện làm việc."
     }
   },
   "common": {
@@ -664,7 +672,11 @@
       "invalidValue": "Vui lòng kiểm tra lại lựa chọn.",
       "invalidMonth": "Vui lòng chọn cả năm và tháng.",
       "invalidDate": "Vui lòng kiểm tra lại ngày.",
-      "invalidReferralCode": "Vui lòng kiểm tra lại mã giới thiệu."
+      "invalidReferralCode": "Vui lòng kiểm tra lại mã giới thiệu.",
+      "invalidNumber": "Vui lòng kiểm tra lại con số.",
+      "duplicateVisa": "Visa này đã có trong danh sách.",
+      "payRange": "Mức lương cao nhất thấp hơn mức thấp nhất.",
+      "contactInfo": "Không được ghi số điện thoại, email, đường link hay ID mạng xã hội. VISA n JOB sẽ liên hệ riêng."
     },
     "auth": {
       "invalidCredentials": "Email hoặc mật khẩu không đúng.",
@@ -689,6 +701,14 @@
       "invalidReference": "Vui lòng chọn lại visa và khu vực.",
       "noProfile": "Không tìm thấy thông tin đăng ký. Vui lòng đăng nhập lại.",
       "validation": "Vui lòng kiểm tra lại nội dung đã nhập."
+    },
+    "employer": {
+      "validation": "Vui lòng kiểm tra nội dung đã nhập.",
+      "contactInfo": "Chưa gửi được vì ô nhập tự do có thông tin liên lạc. Vui lòng sửa các ô được đánh dấu.",
+      "invalidReference": "Vui lòng chọn lại ngành và khu vực.",
+      "rateLimited": "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+      "unauthenticated": "Vui lòng đăng nhập lại.",
+      "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
     }
   },
   "seeker": {
@@ -1258,6 +1278,162 @@
       "submitting": "Đang đăng ký…",
       "toLogin": "Đã có tài khoản?",
       "toLoginLink": "Đăng nhập doanh nghiệp"
+    },
+    "diagnosis": {
+      "eyebrow": "Kiểm tra tuyển dụng miễn phí",
+      "title": "Các visa doanh nghiệp có thể tuyển",
+      "lead": "Nhập ngành, khu vực và số lao động. Chúng tôi hiển thị kết quả tham khảo theo tiêu chí do hành chính sư công bố.",
+      "notice": "Kết quả chỉ mang tính tham khảo, cần hành chính sư xác nhận. Nội dung bạn nhập được VISA n JOB lưu lại để chuẩn bị tư vấn.",
+      "industryCode": {
+        "label": "Ngành"
+      },
+      "sido": {
+        "label": "Tỉnh/thành phố nơi làm việc"
+      },
+      "sigungu": {
+        "label": "Quận/huyện/thành phố nơi làm việc",
+        "placeholder": "Hãy chọn tỉnh/thành phố trước"
+      },
+      "regularEmployees": {
+        "label": "Số lao động thường xuyên",
+        "help": "Nhập số người."
+      },
+      "insuredDomestic": {
+        "label": "Số lao động người Hàn có bảo hiểm việc làm",
+        "help": "Nhập số người."
+      },
+      "foreignWorkers": {
+        "label": "Lao động nước ngoài hiện có",
+        "help": "Ghi số lao động nước ngoài hiện tại theo từng loại visa. Nếu không có, hãy để trống.",
+        "visa": "Visa",
+        "count": "Số người",
+        "add": "Thêm visa",
+        "remove": "Xoá dòng này",
+        "row": "Visa thứ {n}"
+      },
+      "submit": "Xem kết quả kiểm tra tuyển dụng miễn phí",
+      "submitting": "Đang kiểm tra…",
+      "result": {
+        "title": "Kết quả",
+        "needsReview": "Visa chưa có tiêu chí phù hợp được hiển thị là 'Cần xác nhận'. Cần hành chính sư xác nhận.",
+        "saved": "Đã lưu nội dung kiểm tra. Hãy đăng ký tư vấn, VISA n JOB sẽ hướng dẫn tiếp.",
+        "next": "Bước tiếp theo",
+        "request": "Yêu cầu tuyển dụng",
+        "again": "Kiểm tra lại"
+      }
+    },
+    "request": {
+      "eyebrow": "Yêu cầu tuyển dụng",
+      "title": "Phiếu yêu cầu tuyển dụng",
+      "lead": "Hãy cho chúng tôi biết nhân lực cần tuyển và điều kiện làm việc. Nhân viên VISA n JOB sẽ kiểm tra rồi liên hệ.",
+      "notice": "Chỉ nhân viên VISA n JOB xem được thông tin người phụ trách. Thông tin này không được công khai cho người tìm việc. Không được ghi thông tin liên lạc, đường link hay ID mạng xã hội trong ô nhập tự do.",
+      "progress": "{current}/{total} · {name}",
+      "steps": {
+        "company": "Thông tin công ty",
+        "job": "Điều kiện công việc",
+        "living": "Điều kiện sinh hoạt và mong muốn"
+      },
+      "companyName": {
+        "label": "Tên công ty",
+        "help": "Được mã hoá khi lưu."
+      },
+      "sido": {
+        "label": "Tỉnh/thành phố nơi làm việc"
+      },
+      "sigungu": {
+        "label": "Quận/huyện/thành phố nơi làm việc",
+        "placeholder": "Hãy chọn tỉnh/thành phố trước"
+      },
+      "employeeCount": {
+        "label": "Số lao động thường xuyên"
+      },
+      "contactName": {
+        "label": "Tên người phụ trách"
+      },
+      "contactPhone": {
+        "label": "Số điện thoại di động của người phụ trách",
+        "help": "Chỉ dùng cho cuộc gọi xác nhận. Được mã hoá khi lưu."
+      },
+      "contactEmail": {
+        "label": "Email của người phụ trách"
+      },
+      "role": {
+        "label": "Công việc",
+        "placeholder": "Ví dụ: hàn, đóng gói, phụ bếp"
+      },
+      "pay": {
+        "label": "Lương tháng (trước thuế, won)",
+        "min": "Thấp nhất",
+        "max": "Cao nhất (không bắt buộc)"
+      },
+      "workHours": {
+        "label": "Giờ làm việc",
+        "placeholder": "Ví dụ: 08:30–17:30, 5 ngày/tuần"
+      },
+      "overtime": {
+        "label": "Làm thêm giờ",
+        "option": {
+          "NONE": "Không có",
+          "SOMETIMES": "Thỉnh thoảng",
+          "REGULAR": "Thường xuyên",
+          "UNKNOWN": "Không rõ"
+        }
+      },
+      "headcount": {
+        "label": "Số người cần tuyển"
+      },
+      "startTiming": {
+        "label": "Thời điểm tuyển",
+        "option": {
+          "IMMEDIATE": "Ngay",
+          "WITHIN_1M": "Trong 1 tháng",
+          "WITHIN_3M": "Trong 3 tháng",
+          "UNDECIDED": "Chưa quyết định"
+        }
+      },
+      "dormitory": {
+        "label": "Chỗ ở",
+        "option": {
+          "PROVIDED": "Có cung cấp",
+          "ALLOWANCE": "Hỗ trợ tiền nhà",
+          "NONE": "Không có"
+        }
+      },
+      "meals": {
+        "label": "Bữa ăn",
+        "option": {
+          "PROVIDED": "Có cung cấp",
+          "PARTIAL": "Cung cấp một phần",
+          "NONE": "Không có"
+        }
+      },
+      "preferences": {
+        "label": "Điều kiện mong muốn",
+        "help": "Ví dụ: trình độ tiếng Hàn, kinh nghiệm, làm ca."
+      },
+      "detail": {
+        "label": "Yêu cầu khác"
+      },
+      "prev": "Quay lại",
+      "next": "Tiếp",
+      "submit": "Gửi yêu cầu tuyển dụng",
+      "submitting": "Đang gửi…",
+      "done": {
+        "title": "Đã nhận yêu cầu tuyển dụng",
+        "body": "Nhân viên sẽ xác minh rồi liên hệ với bạn. Bạn có thể xem tình trạng trong danh sách bên dưới.",
+        "again": "Yêu cầu tuyển dụng mới"
+      },
+      "list": {
+        "title": "Yêu cầu tuyển dụng của tôi",
+        "empty": "Bạn chưa gửi yêu cầu tuyển dụng nào.",
+        "requestedAt": "Ngày nhận {date}",
+        "untitled": "Chưa ghi công việc",
+        "status": {
+          "reviewing": "Chờ xác minh",
+          "verified": "Đã xác minh",
+          "closed": "Đã kết thúc"
+        }
+      }
     }
   }
 }

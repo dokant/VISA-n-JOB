@@ -51,6 +51,15 @@ export const RATE_LIMITS = {
   loginPerIp: { limit: 30, windowSec: 900 },
   totpVerifyPerUser: { limit: 5, windowSec: 900 },
   signupPerIp: { limit: 10, windowSec: 3_600 },
+  // P1d (R-129 수집 API, R-124, R-125). 운영 수치: 운영자가 조정한다.
+  /** R-114: batches per API key (the collector agent's identity). */
+  ingestPerKey: { limit: 60, windowSec: 60 },
+  /** R-114: every call per client address (also before the key check), when the address is known. */
+  ingestPerIp: { limit: 120, windowSec: 60 },
+  /** R-124: public diagnosis submissions per client address (each one saves a lead). */
+  diagnosisPerIp: { limit: 20, windowSec: 3_600 },
+  /** R-125: job requests per company per day. */
+  jobRequestPerCompany: { limit: 20, windowSec: 86_400 },
 } as const;
 
 /** R-118 / R-123: password rules for staff and employer accounts. */
@@ -103,3 +112,24 @@ export const GRADUATION_YEARS_BACK = 30;
 
 /** WO §7.7 / R-213: stay expiry reminders (days before expiry) shown on /seeker/me/stay. */
 export const STAY_ALERT_DAYS = [90, 60, 30] as const;
+
+// ─── Leads and employer intake (P1d: R-114, R-116, R-124, R-125) ─────────────────────────────
+
+/** R-114 / WO §8.1: at most this many leads in one ingest batch. */
+export const INGEST_MAX_BATCH = 200;
+
+/** R-116 / WO §8.2: a C lead without contact for this many days is archived. */
+export const LEAD_ARCHIVE_NO_CONTACT_DAYS = 30;
+
+/** R-116: leads handled per archive run (the job loops until none are left). */
+export const LEAD_ARCHIVE_BATCH = 500;
+
+/** R-116: pg-boss cron for the archive job, in LEAD_JOB_TIMEZONE (daily 03:15). */
+export const LEAD_ARCHIVE_CRON = "15 3 * * *";
+export const LEAD_JOB_TIMEZONE = "Asia/Seoul";
+
+/** R-124 / WO §9.1: rows of "현재 외국인 고용 현황(비자별 인원)". */
+export const DIAGNOSIS_FOREIGN_ROWS_MAX = 10;
+
+/** R-125: the 구인 의뢰 page lists the company's latest requests, at most this many. */
+export const JOB_REQUEST_LIST_MAX = 20;

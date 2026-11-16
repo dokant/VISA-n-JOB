@@ -145,7 +145,8 @@ test.describe("R-123 employer signup / login", () => {
     const digits = uniqueBizRegNo();
     const email = uniqueEmail("e2e-employer");
     await fillSignup(page, digits, email);
-    await expect(page).toHaveURL(/\/ko$/);
+    // P1d: a new employer lands on the 구인 의뢰 page (R-125)
+    await expect(page).toHaveURL(/\/ko\/employer\/request$/);
     expect(await companyCountByBizRegNo(digits)).toBe(1);
 
     await context.clearCookies();
@@ -165,7 +166,7 @@ test.describe("R-123 employer signup / login", () => {
     );
     await page.locator('input[name="password"]').fill("employer-pass-123");
     await page.getByRole("button", { name: msg("ko", "employer.login.submit") }).click();
-    await expect(page).toHaveURL(/\/ko$/);
+    await expect(page).toHaveURL(/\/ko\/employer\/request$/);
   });
 
   test("client validation shows field errors in the page language", async ({ page }) => {

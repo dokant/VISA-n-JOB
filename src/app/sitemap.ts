@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/privacy",
     "/terms",
     "/visa-check",
+    "/employer/diagnosis",
     "/guide",
     ...listGuideSlugs().map((slug) => `/guide/${slug}`),
     ...(isFeatureEnabled("FEATURE_DEMAND_MAP") ? ["/demand"] : []),
