@@ -76,7 +76,7 @@ const POSITIVE: Record<string, [string, ContactType][]> = {
   "@handle": [
     ["@hong_gd", "HANDLE"],
     ["연락은 @hongjob 으로", "HANDLE"],
-    ["인스타 @hong.job99", "HANDLE"],
+    ["SNS @hong_job99", "HANDLE"],
   ],
   "messenger id": [
     ["카톡 아이디 hong123", "MESSENGER_ID"],
@@ -103,6 +103,32 @@ const POSITIVE: Record<string, [string, ContactType][]> = {
     ["ID: hong123", "MESSENGER_ID"],
     ["hong123 (카톡)", "MESSENGER_ID"],
     ["hong123 [zalo id]", "MESSENGER_ID"],
+    // P0c QA P-5: spaced letters, other SNS / messengers
+    ["카 톡 abc123", "MESSENGER_ID"],
+    ["k a k a o abc123", "MESSENGER_ID"],
+    ["instagram hong.job", "MESSENGER_ID"],
+    ["인스타 @hong.job99", "MESSENGER_ID"],
+    ["fb: hong.job", "MESSENGER_ID"],
+    ["skype: hong.gd", "MESSENGER_ID"],
+    ["discord hong#1234", "MESSENGER_ID"],
+    ["line id hong123", "MESSENGER_ID"],
+    ["line id: hong123", "MESSENGER_ID"],
+    ["라인 아이디 hong123", "MESSENGER_ID"],
+  ],
+  // P0c QA P-2 ~ P-4
+  "spelled-out contacts": [
+    ["naver dot com", "URL"],
+    ["hong 점 naver 점 com", "URL"],
+    ["대표번호 15881234", "PHONE_LOCAL"],
+    ["전화: 16441234", "PHONE_LOCAL"],
+    ["공1공-1234-5678", "PHONE_LOCAL"],
+    ["o1o-1234-5678", "PHONE_LOCAL"],
+    ["O1O 1234 5678", "PHONE_LOCAL"],
+    ["010-I234-5678", "PHONE_LOCAL"],
+    ["01O-l234-5678", "PHONE_LOCAL"],
+    ["제로원제로 1234 5678", "PHONE_LOCAL"],
+    ["zero one zero 1234 5678", "PHONE_LOCAL"],
+    ["전화번호는 공일공에 일이삼사 오육칠팔", "PHONE_LOCAL"],
   ],
 };
 
@@ -159,6 +185,18 @@ const NEGATIVE: Record<string, string[]> = {
     "telegram 가능",
     "라인 작업, 생산 라인 2개",
     "아이디어가 좋은 분",
+    "kakaopay 결제",
+    "생산 line 작업",
+    "line work 경험",
+    "Zalo: Nguyễn Văn An",
+  ],
+  "look-alike letters and numbers without a phone keyword": [
+    "주문번호 15881234",
+    "Node 18 사용",
+    "IoT 장비 10년",
+    "No. 1 기업, Lot 2026",
+    "영업 1년, 공정 2개",
+    "TOPIK 1급 l 2급",
   ],
   "other text": [
     "Node.js 경험",
@@ -202,6 +240,21 @@ describe("R-012 pii-guard", () => {
     for (const f of found) expect(text.slice(f.start, f.end)).toBe(f.value);
     expect(maskContacts(text)).toBe("급여 월 2,500,000원. 전화 *** 또는 ***, ***");
     expect(maskContacts(text, "[삭제]")).toContain("[삭제]");
+  });
+
+  it("P0c QA P-1: a Vietnamese name after 'Zalo:' is kept whole, only the number is masked", () => {
+    const text = "Liên hệ Zalo: Nguyễn 0912-345-678";
+    const found = detectContacts(text);
+    expect(found.map((f) => f.type)).toEqual(["PHONE_LOCAL"]);
+    expect(maskContacts(text)).toBe("Liên hệ Zalo: Nguyễn ***");
+    // a real id right after the keyword is still an id
+    expect(maskContacts("Liên hệ Zalo: nguyen99 nhé")).toBe("Liên hệ *** nhé");
+  });
+
+  it("P0c QA P-4: look-alike characters keep the original text in the reported value", () => {
+    const [m] = detectContacts("문의 o1o-I234-5678 주세요");
+    expect(m).toMatchObject({ type: "PHONE_LOCAL", value: "o1o-I234-5678" });
+    expect(maskContacts("문의 o1o-I234-5678 주세요")).toBe("문의 *** 주세요");
   });
 
   it("an e-mail is reported once, not also as URL / handle", () => {

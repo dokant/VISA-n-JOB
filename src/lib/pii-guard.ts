@@ -59,10 +59,56 @@ const KOREAN_DIGITS: Readonly<Record<string, string>> = {
   구: "9",
 };
 // "공일공 1234 5678" / "영일영-일이삼사-오육칠팔": mobile numbers spelled with Korean digit words.
+// P0c QA P-4: particles between the groups ("공일공에 일이삼사 오육칠팔") are allowed.
+const KSEP = `(?:${SEP}|[에은는])`;
 const KOREAN_SPELLED_MOBILE = new RegExp(
-  `[공영]${SEP}{0,3}일${SEP}{0,3}[공영일육칠팔구](?:${SEP}{0,3}[0-9공영일이삼사오육칠팔구]){7,8}(?![0-9])`,
+  `[공영]${KSEP}{0,3}일${KSEP}{0,3}[공영일육칠팔구](?:${KSEP}{0,3}[0-9공영일이삼사오육칠팔구]){7,8}(?![0-9])`,
   "g",
 );
+// P0c QA P-4: "제로원제로 1234 5678" / "zero one zero 1234 5678" — the 010 prefix spelled out.
+const SPELLED_PREFIX_MOBILE = new RegExp(
+  `(?:제로|zero)${SEP}{0,2}(?:원|one)${SEP}{0,2}(?:제로|zero)(?:${SEP}{0,3}\\d){7,8}(?!\\d)`,
+  "gi",
+);
+// P0c QA P-3: a representative number without separators ("15881234") counts only after a phone
+// keyword, so plain 8-digit amounts and codes stay negative.
+const PHONE_KEYWORD_REPRESENTATIVE =
+  /(?:대표\s*번호|전화(?:\s*번호)?|연락처|문의|tel|phone|hotline)\s*[:：.]?\s*(\d{8})(?!\d)/gi;
+
+/**
+ * P0c QA P-4: look-alike characters inside a digit run ("o1o-I234-5678", "공1공-1234-5678") are read
+ * as digits. A character is replaced only when a digit is directly next to it (or next to another
+ * replaced character that touches a digit), one character for one character so offsets stay valid.
+ */
+const LOOKALIKE_DIGITS: Readonly<Record<string, string>> = {
+  o: "0",
+  O: "0",
+  공: "0",
+  영: "0",
+  I: "1",
+  l: "1",
+};
+function normalizeLookalikeDigits(text: string): string {
+  const chars = [...text];
+  if (chars.length !== text.length) {
+    // astral characters would shift offsets — fall back to the text as it is
+    return text;
+  }
+  const isDigit = (c: string | undefined) => c !== undefined && c >= "0" && c <= "9";
+  const out = chars.slice();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < out.length; i++) {
+      const sub = LOOKALIKE_DIGITS[out[i]];
+      if (sub && (isDigit(out[i - 1]) || isDigit(out[i + 1]))) {
+        out[i] = sub;
+        changed = true;
+      }
+    }
+  }
+  return out.join("");
+}
 const DOMESTIC_MOBILE = /^01[016789]\d{7,8}$/;
 const DOMESTIC_LANDLINE = /^0(?:2\d{7,8}|[3-6][1-5]\d{7,8}|70\d{8}|50\d{8,9})$/;
 const DOMESTIC_GENERIC = /^0[1-9]\d{8,9}$/; // 10–11 digits starting with a single 0
@@ -139,7 +185,21 @@ function findPhonesInRun(run: string, offset: number, out: ContactMatch[]): void
 }
 
 function findPhones(text: string, out: ContactMatch[]): void {
-  for (const m of text.matchAll(DIGIT_RUN)) findPhonesInRun(m[0], m.index, out);
+  const lookalike = normalizeLookalikeDigits(text);
+  for (const m of lookalike.matchAll(DIGIT_RUN)) {
+    const found: ContactMatch[] = [];
+    findPhonesInRun(m[0], m.index, found);
+    // report the original characters ("o1o-…"), not the normalised digits
+    for (const f of found) out.push({ ...f, value: text.slice(f.start, f.end) });
+  }
+  for (const m of text.matchAll(SPELLED_PREFIX_MOBILE)) {
+    out.push({ type: "PHONE_LOCAL", value: m[0], start: m.index, end: m.index + m[0].length });
+  }
+  for (const m of text.matchAll(PHONE_KEYWORD_REPRESENTATIVE)) {
+    if (!REPRESENTATIVE.test(m[1])) continue;
+    const start = m.index + m[0].length - m[1].length;
+    out.push({ type: "PHONE_LOCAL", value: m[1], start, end: start + m[1].length });
+  }
   for (const m of text.matchAll(KOREAN_SPELLED_MOBILE)) {
     const digits = [...m[0]].map((c) => KOREAN_DIGITS[c] ?? c).join("");
     if (DOMESTIC_MOBILE.test(digits.replace(/\D/g, ""))) {
@@ -176,6 +236,11 @@ const URL_PATTERNS: RegExp[] = [
     `(?<![A-Za-z0-9@._-])(?:[A-Za-z0-9-]+\\.)+${TLD}(?![A-Za-z0-9-])(?:\\/[^\\s<>"']*)?`,
     "gi",
   ),
+  // P0c QA P-2: "naver dot com", "hong 점 naver 점 com" — a well-known mail host spelled out
+  new RegExp(
+    `(?<![A-Za-z0-9@._-])${MAIL_HOSTS}\\s*(?:\\(dot\\)|\\[dot\\]|\\{dot\\}|\\bdot\\b|점|닷)\\s*${TLD}\\b`,
+    "gi",
+  ),
   // example(dot)com / example 점 com
   new RegExp(
     `(?<![A-Za-z0-9@._-])[A-Za-z0-9-]{2,}\\s*(?:\\(dot\\)|\\[dot\\]|\\{dot\\}|\\s점\\s|\\s닷\\s)\\s*${TLD}\\b`,
@@ -186,23 +251,32 @@ const URL_PATTERNS: RegExp[] = [
 // @handle: ASCII id with at least one letter, not part of an e-mail local@domain.
 const HANDLE = /(?<![A-Za-z0-9._%+-])@(?=[A-Za-z0-9_.]*[A-Za-z])[A-Za-z0-9_.]{3,}/g;
 
+// P0c QA P-5: letters spaced out ("k a k a o") and other SNS / messengers. "line" counts only
+// together with "id" — "생산 라인", "line work" are ordinary job text.
 const LATIN_MESSENGERS = [
-  "kakao\\s*talk",
-  "kakao",
+  "k\\s*a\\s*k\\s*a\\s*o\\s*t\\s*a\\s*l\\s*k",
+  "k\\s*a\\s*k\\s*a\\s*o",
   "katalk",
   "ka\\s*talk",
-  "zalo",
+  "z\\s*a\\s*l\\s*o",
   "telegram",
   "wechat",
   "we\\s*chat",
   "weixin",
   "viber",
   "whats\\s*app",
+  "instagram",
+  "insta",
+  "facebook",
+  "fb",
+  "skype",
+  "discord",
+  "line\\s*id",
 ].join("|");
 const OTHER_MESSENGERS = [
-  "카카오\\s*톡",
-  "카카오",
-  "카톡",
+  "카\\s*카\\s*오\\s*톡",
+  "카\\s*카\\s*오",
+  "카\\s*톡",
   "잘로",
   "텔레그램",
   "위챗",
@@ -210,16 +284,24 @@ const OTHER_MESSENGERS = [
   "바이버",
   "왓츠\\s*앱",
   "왓챕",
+  "인스타그램",
+  "인스타",
+  "페이스북",
+  "스카이프",
+  "디스코드",
   "телеграм",
   "вайбер",
   "ватсап",
   "아이디",
 ].join("|");
-// Latin names must not be the tail of another word ("settings", "zalora" are fine to skip).
-const MESSENGER_KEYWORDS = `(?<![A-Za-z])(?:${LATIN_MESSENGERS})|${OTHER_MESSENGERS}`;
+// Latin names must be whole words ("settings", "zalora", "kakaopay" are not keywords).
+const MESSENGER_KEYWORDS = `(?<![A-Za-z])(?:${LATIN_MESSENGERS})(?![A-Za-z])|${OTHER_MESSENGERS}`;
 
 // An id token: ASCII with at least one letter, or a long digit string (phone-like ids).
-const ID_TOKEN = "(?:(?=[A-Za-z0-9_.\\-]*[A-Za-z])[A-Za-z0-9_.\\-]{3,}|\\d[\\d\\s\\-]{6,}\\d)";
+// P0c QA P-1: a token must end at a word end. In "Zalo: Nguyễn" the name is not the id "Nguy" — a
+// token followed by a Latin letter with diacritics (or a combining mark) is not an id.
+const ID_END = "(?![A-Za-z0-9_.\\-\\u00C0-\\u024F\\u0300-\\u036F\\u1E00-\\u1EFF])";
+const ID_TOKEN = `(?:(?=[A-Za-z0-9_.\\-]*[A-Za-z])[A-Za-z0-9_.\\-]{3,}${ID_END}|\\d[\\d\\s\\-]{6,}\\d)`;
 
 const MESSENGER_PATTERNS: RegExp[] = [
   // 카톡 아이디: hong123 / kakao id - hong_gd / zalo 0912 345 678 / 텔레그램 @hong
