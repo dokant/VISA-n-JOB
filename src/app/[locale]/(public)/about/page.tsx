@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { ExpertReviewMark } from "@/components/legal/expert-review-mark";
 import { PageShell } from "@/components/public/page-shell";
 import { RegistrationInfo } from "@/components/public/registration-info";
 import { getSiteConfig } from "@/config/site.config";
@@ -29,7 +30,12 @@ export default async function AboutPage({ params }: Props) {
   ];
 
   return (
-    <PageShell eyebrow={t("eyebrow")} title={t("title")} lead={t("lead")}>
+    <PageShell
+      eyebrow={t("eyebrow")}
+      title={t("title")}
+      lead={t("lead")}
+      afterHeader={<ExpertReviewMark />}
+    >
       <div className="grid gap-14">
         <section aria-labelledby="about-principles" className="grid gap-5">
           <h2 id="about-principles" className="text-h2 text-navy">

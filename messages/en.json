@@ -446,25 +446,25 @@
       "pending": "Checking…",
       "invalid": "Please choose a visa.",
       "error": "We could not load the result. Please try again later."
-    }
-  },
-  "score": {
-    "form": {
-      "submit": "Calculate score",
-      "pending": "Calculating…",
-      "choose": "Please choose"
     },
-    "result": {
-      "title": "Result",
-      "total": "Total score",
-      "outOf": "out of {max} points",
-      "points": "{points} points",
-      "pointsOf": "{points} / {max} points",
-      "passScore": "Reference score {score} points",
-      "items": "Score by item",
-      "shortfalls": "Items below maximum",
-      "shortfallGap": "{gap} points short",
-      "noShortfalls": "No items below the maximum."
+    "score": {
+      "form": {
+        "submit": "Calculate score",
+        "pending": "Calculating…",
+        "choose": "Please choose"
+      },
+      "result": {
+        "title": "Result",
+        "total": "Total score",
+        "outOf": "out of {max} points",
+        "points": "{points} points",
+        "pointsOf": "{points} / {max} points",
+        "passScore": "Reference score {score} points",
+        "items": "Score by item",
+        "shortfalls": "Items below maximum",
+        "shortfallGap": "{gap} points short",
+        "noShortfalls": "No items below the maximum."
+      }
     }
   },
   "visaType": {
@@ -505,7 +505,7 @@
       "name": "Short-term employment"
     },
     "g1": {
-      "name": "Miscellaneous (G-1)"
+      "name": "Miscellaneous"
     },
     "other": {
       "name": "Other visa"

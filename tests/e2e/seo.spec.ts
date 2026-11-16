@@ -66,16 +66,23 @@ test.describe("R-130 SEO", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   });
 
-  test("R-131 guide: reviewedBy, updatedAt, FAQPage and BreadcrumbList", async ({ page }) => {
-    for (const locale of LOCALES) {
-      const res = await page.goto(`/${locale}/guide/how-to-use`);
+  // One test per locale (run 1 O-1: six sequential page loads in one test hit the 30s limit under
+  // parallel load). Only server-rendered output is checked, so DOMContentLoaded is enough.
+  for (const locale of LOCALES) {
+    test(`R-131 guide /${locale}: reviewedBy, updatedAt, FAQPage and BreadcrumbList`, async ({
+      page,
+    }) => {
+      const res = await page.goto(`/${locale}/guide/how-to-use`, { waitUntil: "domcontentloaded" });
       expect(res?.status()).toBe(200);
       await expect(page.getByTestId("guide-meta")).toContainText("2026");
       const jsonld = await page.locator('script[type="application/ld+json"]').allTextContents();
       const types = jsonld.map((j) => (JSON.parse(j) as { "@type": string })["@type"]);
       expect(types).toEqual(expect.arrayContaining(["FAQPage", "BreadcrumbList"]));
-    }
-    const res = await page.goto("/ko/cases");
+    });
+  }
+
+  test("R-131 /cases skeleton renders", async ({ page }) => {
+    const res = await page.goto("/ko/cases", { waitUntil: "domcontentloaded" });
     expect(res?.status()).toBe(200);
   });
 });

@@ -23,7 +23,7 @@ type Props = { items: ScoreFormItem[] };
  * localized on the server); the score is computed only on the server by e74.ts.
  */
 export function ScoreForm({ items }: Props) {
-  const t = useTranslations("score.form");
+  const t = useTranslations("visa.score.form");
   const id = useId();
   const [state, formAction, pending] = useActionState(scoreE74Action, {
     status: "idle",

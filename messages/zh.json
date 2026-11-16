@@ -446,25 +446,25 @@
       "pending": "确认中…",
       "invalid": "请选择签证。",
       "error": "无法加载诊断结果，请稍后重试。"
-    }
-  },
-  "score": {
-    "form": {
-      "submit": "计算分数",
-      "pending": "计算中…",
-      "choose": "请选择"
     },
-    "result": {
-      "title": "计算结果",
-      "total": "总分",
-      "outOf": "满分 {max} 分",
-      "points": "{points} 分",
-      "pointsOf": "{points} / {max} 分",
-      "passScore": "基准分数 {score} 分",
-      "items": "各项分数",
-      "shortfalls": "不足项目",
-      "shortfallGap": "差 {gap} 分",
-      "noShortfalls": "没有不足项目。"
+    "score": {
+      "form": {
+        "submit": "计算分数",
+        "pending": "计算中…",
+        "choose": "请选择"
+      },
+      "result": {
+        "title": "计算结果",
+        "total": "总分",
+        "outOf": "满分 {max} 分",
+        "points": "{points} 分",
+        "pointsOf": "{points} / {max} 分",
+        "passScore": "基准分数 {score} 分",
+        "items": "各项分数",
+        "shortfalls": "不足项目",
+        "shortfallGap": "差 {gap} 分",
+        "noShortfalls": "没有不足项目。"
+      }
     }
   },
   "visaType": {
@@ -505,7 +505,7 @@
       "name": "短期就业"
     },
     "g1": {
-      "name": "其他（G-1）"
+      "name": "其他"
     },
     "other": {
       "name": "其他签证"

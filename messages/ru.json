@@ -446,25 +446,25 @@
       "pending": "Проверяем…",
       "invalid": "Выберите визу.",
       "error": "Не удалось загрузить результат. Попробуйте позже."
-    }
-  },
-  "score": {
-    "form": {
-      "submit": "Рассчитать баллы",
-      "pending": "Рассчитываем…",
-      "choose": "Выберите"
     },
-    "result": {
-      "title": "Результат",
-      "total": "Общий балл",
-      "outOf": "из {max} баллов",
-      "points": "{points} балл.",
-      "pointsOf": "{points} / {max} балл.",
-      "passScore": "Ориентир {score} балл.",
-      "items": "Баллы по пунктам",
-      "shortfalls": "Пункты с недобором",
-      "shortfallGap": "не хватает {gap} балл.",
-      "noShortfalls": "Пунктов с недобором нет."
+    "score": {
+      "form": {
+        "submit": "Рассчитать баллы",
+        "pending": "Рассчитываем…",
+        "choose": "Выберите"
+      },
+      "result": {
+        "title": "Результат",
+        "total": "Общий балл",
+        "outOf": "из {max} баллов",
+        "points": "{points} балл.",
+        "pointsOf": "{points} / {max} балл.",
+        "passScore": "Ориентир {score} балл.",
+        "items": "Баллы по пунктам",
+        "shortfalls": "Пункты с недобором",
+        "shortfallGap": "не хватает {gap} балл.",
+        "noShortfalls": "Пунктов с недобором нет."
+      }
     }
   },
   "visaType": {
@@ -505,7 +505,7 @@
       "name": "Краткосрочная работа"
     },
     "g1": {
-      "name": "Прочее (G-1)"
+      "name": "Прочее"
     },
     "other": {
       "name": "Другая виза"

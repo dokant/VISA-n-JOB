@@ -3,6 +3,7 @@ import { BadgeCheck, Building2 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ComingSoon } from "@/components/common/coming-soon";
+import { ExpertReviewMark } from "@/components/legal/expert-review-mark";
 import { PageShell } from "@/components/public/page-shell";
 import { RegistrationInfo } from "@/components/public/registration-info";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -25,7 +26,12 @@ export default async function FeesPage({ params }: Props) {
   const tc = await getTranslations("common");
 
   return (
-    <PageShell eyebrow={t("eyebrow")} title={t("title")} lead={t("lead")}>
+    <PageShell
+      eyebrow={t("eyebrow")}
+      title={t("title")}
+      lead={t("lead")}
+      afterHeader={<ExpertReviewMark />}
+    >
       <div className="grid gap-14">
         <div className="grid gap-4 md:grid-cols-2">
           <section className="grid content-start gap-3 rounded-lg border border-border bg-white p-6.5 shadow-1">

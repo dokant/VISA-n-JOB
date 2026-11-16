@@ -73,8 +73,8 @@ export async function SiteFooter({ flags }: Props) {
       data-testid="site-footer"
     >
       <div className="mx-auto max-w-site px-gutter">
-        <div className="grid grid-cols-1 gap-8.5 pb-11.5 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr]">
-          <div className="grid content-start gap-4 xs:col-span-2 lg:col-span-1">
+        <div className="grid grid-cols-2 gap-6.5 pb-11.5 md:grid-cols-3 md:gap-7.5 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr] lg:gap-8.5">
+          <div className="col-span-2 grid content-start gap-4 md:col-span-3 lg:col-span-1">
             <Link href="/" className="w-fit rounded-2xs" aria-label={site.brand.wordmark}>
               <Logo tone="dark" withTagline />
             </Link>
@@ -101,7 +101,7 @@ export async function SiteFooter({ flags }: Props) {
             </nav>
           ))}
 
-          <div className="xs:col-span-2 lg:col-span-3 xl:col-span-1">
+          <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <h2 className="mb-3.5 text-eyebrow font-bold tracking-[0.14em] text-white/60 uppercase">
               {t("columns.registration")}
             </h2>
@@ -167,7 +167,7 @@ export async function SiteFooter({ flags }: Props) {
                 href="/"
                 locale={locale}
                 lang={locale}
-                className="inline-flex h-8.5 items-center rounded-full border border-white/16 px-3 text-caption text-white/72 hover:border-white/40 hover:text-white"
+                className="inline-flex h-11 items-center rounded-full border border-white/16 px-3 lg:h-8.5 text-caption text-white/72 hover:border-white/40 hover:text-white"
               >
                 {localeNames[locale]}
               </Link>

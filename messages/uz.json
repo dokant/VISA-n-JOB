@@ -446,25 +446,25 @@
       "pending": "Tekshirilmoqda…",
       "invalid": "Vizani tanlang.",
       "error": "Natijani yuklab boʻlmadi. Keyinroq qayta urinib koʻring."
-    }
-  },
-  "score": {
-    "form": {
-      "submit": "Ballni hisoblash",
-      "pending": "Hisoblanmoqda…",
-      "choose": "Tanlang"
     },
-    "result": {
-      "title": "Natija",
-      "total": "Umumiy ball",
-      "outOf": "maksimal {max} ball",
-      "points": "{points} ball",
-      "pointsOf": "{points} / {max} ball",
-      "passScore": "Moʻljal ball {score}",
-      "items": "Bandlar boʻyicha ball",
-      "shortfalls": "Yetishmayotgan bandlar",
-      "shortfallGap": "{gap} ball yetishmaydi",
-      "noShortfalls": "Yetishmayotgan band yoʻq."
+    "score": {
+      "form": {
+        "submit": "Ballni hisoblash",
+        "pending": "Hisoblanmoqda…",
+        "choose": "Tanlang"
+      },
+      "result": {
+        "title": "Natija",
+        "total": "Umumiy ball",
+        "outOf": "maksimal {max} ball",
+        "points": "{points} ball",
+        "pointsOf": "{points} / {max} ball",
+        "passScore": "Moʻljal ball {score}",
+        "items": "Bandlar boʻyicha ball",
+        "shortfalls": "Yetishmayotgan bandlar",
+        "shortfallGap": "{gap} ball yetishmaydi",
+        "noShortfalls": "Yetishmayotgan band yoʻq."
+      }
     }
   },
   "visaType": {
@@ -505,7 +505,7 @@
       "name": "Qisqa muddatli ish"
     },
     "g1": {
-      "name": "Boshqa (G-1)"
+      "name": "Boshqa"
     },
     "other": {
       "name": "Boshqa viza"

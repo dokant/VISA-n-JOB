@@ -19,7 +19,7 @@ type Props = {
  * VisaCheckForm / OutcomeCard / VisaLabel, ScoreForm / ScoreResult). Everything else stays on the
  * server so the page payload stays small (R-103).
  */
-const CLIENT_NAMESPACES = ["common", "nav", "visa", "visaType", "score"] as const;
+const CLIENT_NAMESPACES = ["common", "nav", "visa", "visaType"] as const;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

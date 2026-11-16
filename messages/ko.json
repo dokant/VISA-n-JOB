@@ -446,25 +446,25 @@
       "pending": "확인 중…",
       "invalid": "비자를 선택해 주세요.",
       "error": "진단을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
-    }
-  },
-  "score": {
-    "form": {
-      "submit": "점수 계산",
-      "pending": "계산 중…",
-      "choose": "선택하세요"
     },
-    "result": {
-      "title": "계산 결과",
-      "total": "총점",
-      "outOf": "만점 {max}점",
-      "points": "{points}점",
-      "pointsOf": "{points} / {max}점",
-      "passScore": "기준 점수 {score}점",
-      "items": "항목별 점수",
-      "shortfalls": "부족 항목",
-      "shortfallGap": "{gap}점 부족",
-      "noShortfalls": "부족 항목이 없습니다."
+    "score": {
+      "form": {
+        "submit": "점수 계산",
+        "pending": "계산 중…",
+        "choose": "선택하세요"
+      },
+      "result": {
+        "title": "계산 결과",
+        "total": "총점",
+        "outOf": "만점 {max}점",
+        "points": "{points}점",
+        "pointsOf": "{points} / {max}점",
+        "passScore": "기준 점수 {score}점",
+        "items": "항목별 점수",
+        "shortfalls": "부족 항목",
+        "shortfallGap": "{gap}점 부족",
+        "noShortfalls": "부족 항목이 없습니다."
+      }
     }
   },
   "visaType": {
@@ -505,7 +505,7 @@
       "name": "단기취업"
     },
     "g1": {
-      "name": "기타(G-1)"
+      "name": "기타"
     },
     "other": {
       "name": "그 밖의 비자"

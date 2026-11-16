@@ -12,6 +12,9 @@ process.env.E2E_DEMAND_URL = demandURL;
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
+  // Capped (P1a run 1 O-1, run 2): the default of half the logical cores (9 on an 18-thread dev box)
+  // exhausted browser resources (Target crashed / ERR_INSUFFICIENT_RESOURCES). Override: E2E_WORKERS.
+  workers: Number(process.env.E2E_WORKERS ?? 4),
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",

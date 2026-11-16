@@ -125,9 +125,12 @@ html:lang(uz) {
     var(--font-system-fallback);
 }
 
+/* STANDARD 2.3.2 (v2.4): Noto Sans SC loads after hydration (fontsZh.ts), so Chinese system fonts
+   must come before Noto Sans KR — Han characters never render with Korean glyph shapes. */
 html:lang(zh) {
   --app-font-sans:
-    var(--font-noto-sans-sc, "Noto Sans SC"), var(--font-inter, "Inter"),
+    var(--font-noto-sans-sc, "Noto Sans SC"), var(--font-inter, "Inter"), "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     var(--font-noto-sans-kr, "Noto Sans KR"), var(--font-system-fallback);
 }
 

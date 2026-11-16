@@ -446,25 +446,25 @@
       "pending": "Đang kiểm tra…",
       "invalid": "Vui lòng chọn visa.",
       "error": "Không thể tải kết quả. Vui lòng thử lại sau."
-    }
-  },
-  "score": {
-    "form": {
-      "submit": "Tính điểm",
-      "pending": "Đang tính…",
-      "choose": "Vui lòng chọn"
     },
-    "result": {
-      "title": "Kết quả",
-      "total": "Tổng điểm",
-      "outOf": "trên tối đa {max} điểm",
-      "points": "{points} điểm",
-      "pointsOf": "{points} / {max} điểm",
-      "passScore": "Điểm chuẩn {score} điểm",
-      "items": "Điểm theo hạng mục",
-      "shortfalls": "Hạng mục còn thiếu",
-      "shortfallGap": "Thiếu {gap} điểm",
-      "noShortfalls": "Không có hạng mục còn thiếu."
+    "score": {
+      "form": {
+        "submit": "Tính điểm",
+        "pending": "Đang tính…",
+        "choose": "Vui lòng chọn"
+      },
+      "result": {
+        "title": "Kết quả",
+        "total": "Tổng điểm",
+        "outOf": "trên tối đa {max} điểm",
+        "points": "{points} điểm",
+        "pointsOf": "{points} / {max} điểm",
+        "passScore": "Điểm chuẩn {score} điểm",
+        "items": "Điểm theo hạng mục",
+        "shortfalls": "Hạng mục còn thiếu",
+        "shortfallGap": "Thiếu {gap} điểm",
+        "noShortfalls": "Không có hạng mục còn thiếu."
+      }
     }
   },
   "visaType": {
@@ -505,7 +505,7 @@
       "name": "Lao động ngắn hạn"
     },
     "g1": {
-      "name": "Khác (G-1)"
+      "name": "Khác"
     },
     "other": {
       "name": "Visa khác"

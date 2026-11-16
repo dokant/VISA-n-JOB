@@ -1,3 +1,5 @@
+// TEMPORARY placeholder (P1a). P2b에서 교체·삭제: P2b가 `[locale]/employer/candidates`(검증 기업 전용
+// 후보 열람, R-205)를 만들면 이 `(public)` 경로와 같은 URL로 충돌하므로 이 파일을 지우거나 옮길 것.
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
