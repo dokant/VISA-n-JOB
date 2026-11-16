@@ -3,24 +3,598 @@
   "meta": {
     "siteName": "VISA n JOB",
     "home": {
-      "title": "VISA n JOB — Chet elliklar uchun ish va viza maslahati",
-      "description": "Vizangiz bilan qanday ish qilish mumkinligini bilib oling va VISA n JOB orqali tekshirilgan ish oʻrinlariga ulaning."
+      "title": "VISA n JOB — Koreyadagi chet elliklar uchun ish, ishga olish va viza maslahati",
+      "description": "Vizangiz bilan qaysi ishlarni qilish mumkinligini tekshiring va VISA n JOB orqali tekshirilgan ishlarga ulaning."
+    },
+    "about": {
+      "title": "Biz haqimizda",
+      "description": "VISA n JOB ni boshqaruvchi pullik bandlik agentligi va maʼmuriy agent idorasining roʻyxat maʼlumotlari."
+    },
+    "fees": {
+      "title": "Toʻlovlar",
+      "description": "Ish izlovchilar uchun bepul. Kompaniyalar uchun toʻlov maʼlumoti va roʻyxat maʼlumotlari."
+    },
+    "privacy": {
+      "title": "Maxfiylik siyosati",
+      "description": "VISA n JOB maxfiylik siyosati loyihasi."
+    },
+    "terms": {
+      "title": "Foydalanish shartlari",
+      "description": "VISA n JOB foydalanish shartlari loyihasi."
+    },
+    "visaCheck": {
+      "title": "Viza tekshiruvi",
+      "description": "Viza, hudud va sohani tanlab, maʼlumot uchun natijani koʻring. Maʼmuriy agent tasdigʻi kerak."
+    },
+    "score": {
+      "title": "E-7-4 ball kalkulyatori",
+      "description": "Maʼmuriy agent eʼlon qilgan ball jadvali boʻyicha maʼlumot uchun ballni hisoblaydi."
+    },
+    "demand": {
+      "title": "Talab xaritasi",
+      "description": "Ochiq ish eʼlonlari asosida tahlil qilingan hudud va sohalar boʻyicha ishchi talabi."
+    },
+    "guide": {
+      "title": "Viza maʼlumot markazi",
+      "description": "VISA n JOB dan foydalanish yoʻriqnomasi va koʻp beriladigan savollar."
+    },
+    "cases": {
+      "title": "Holatlar",
+      "description": "Yashash maqomini oʻzgartirish holatlari shaxsni aniqlab boʻlmaydigan shaklda taqdim etiladi."
+    },
+    "employerCandidates": {
+      "title": "Nomzodlarni koʻrish",
+      "description": "Faqat tekshirilgan va shartnoma tuzgan kompaniyalar uchun."
     }
   },
   "common": {
     "localeSwitcher": {
-      "label": "Tilni tanlang"
+      "label": "Tilni tanlash"
     },
     "notFound": {
       "title": "Sahifa topilmadi",
       "description": "Iltimos, manzilni qayta tekshiring.",
       "cta": "Bosh sahifaga"
+    },
+    "skipToContent": "Asosiy mazmunga oʻtish",
+    "disclaimer": {
+      "reference": "Faqat maʼlumot uchun, maʼmuriy agent tasdigʻi kerak"
+    },
+    "noSeekerFee": "Ish izlovchilar uchun bepul",
+    "contactViaOperator": "Kompaniyalar bilan aloqa faqat VISA n JOB orqali",
+    "expertReview": {
+      "label": "[Mutaxassis tekshiruvi talab qilinadi]",
+      "draftNote": "Bu hujjat loyiha. Mutaxassis tekshiruvidan soʻng tasdiqlanadi."
+    },
+    "consult": "Maslahatga ariza",
+    "comingSoon": {
+      "title": "Tayyorlanmoqda",
+      "description": "Bu xizmat tayyorlanmoqda. Savollaringiz boʻlsa, maslahatga ariza qoldiring."
+    },
+    "select": {
+      "placeholder": "Tanlang",
+      "all": "Hammasi"
+    },
+    "industryUnknown": "Soha belgilanmagan",
+    "region": {
+      "seoul": "Seul",
+      "busan": "Pusan",
+      "daegu": "Tegu",
+      "incheon": "Inchxon",
+      "gwangju": "Kvanju",
+      "daejeon": "Tejon",
+      "ulsan": "Ulsan",
+      "sejong": "Sejong",
+      "gyeonggi": "Kyonggi viloyati",
+      "gangwon": "Kangvon viloyati",
+      "chungbuk": "Shimoliy Chxunchxon viloyati",
+      "chungnam": "Janubiy Chxunchxon viloyati",
+      "jeonbuk": "Chonbuk viloyati",
+      "jeonnam": "Janubiy Cholla viloyati",
+      "gyeongbuk": "Shimoliy Kyonsan viloyati",
+      "gyeongnam": "Janubiy Kyonsan viloyati",
+      "jeju": "Chejudo viloyati"
+    },
+    "industry": {
+      "a": "Qishloq, oʻrmon va baliq xoʻjaligi",
+      "b": "Togʻ-kon sanoati",
+      "c": "Ishlab chiqarish",
+      "d": "Elektr, gaz, bugʻ va konditsioner taʼminoti",
+      "e": "Suv taʼminoti, oqova suv, chiqindilarni qayta ishlash",
+      "f": "Qurilish",
+      "g": "Ulgurji va chakana savdo",
+      "h": "Transport va omborxona",
+      "i": "Mehmonxona va umumiy ovqatlanish",
+      "j": "Axborot va aloqa",
+      "k": "Moliya va sugʻurta",
+      "l": "Koʻchmas mulk",
+      "m": "Kasbiy, ilmiy va texnik xizmatlar",
+      "n": "Obyektlarni boshqarish, biznesni qoʻllab-quvvatlash va ijara",
+      "o": "Davlat boshqaruvi, mudofaa va ijtimoiy taʼminot",
+      "p": "Taʼlim",
+      "q": "Sogʻliqni saqlash va ijtimoiy xizmatlar",
+      "r": "Sanʼat, sport va dam olish",
+      "s": "Jamoat tashkilotlari, taʼmirlash va boshqa shaxsiy xizmatlar",
+      "t": "Uy xoʻjaliklarida yollash va oʻz isteʼmoli uchun ishlab chiqarish",
+      "u": "Xalqaro va xorijiy tashkilotlar"
     }
+  },
+  "nav": {
+    "mainLabel": "Asosiy menyu",
+    "home": "Bosh sahifaga",
+    "seeker": "Ish izlovchilar",
+    "seekerSub": "Tezkor roʻyxat",
+    "employer": "Kompaniyalar",
+    "employerSub": "Bepul ishga olish tahlili",
+    "visaCheck": "Viza tekshiruvi",
+    "visaCheckSub": "Maʼlumot uchun",
+    "jobs": "Ishlar",
+    "jobsSub": "Tavsiya etilgan ishlar",
+    "demand": "Talab xaritasi",
+    "demandSub": "Hudud · soha",
+    "about": "Biz haqimizda",
+    "aboutSub": "Roʻyxat maʼlumoti",
+    "fees": "Toʻlovlar",
+    "feesSub": "Ish izlovchilar uchun bepul",
+    "cta": "Bepul ishga olish tahlili",
+    "openMenu": "Menyuni ochish",
+    "closeMenu": "Menyuni yopish",
+    "menuTitle": "Menyu"
+  },
+  "footer": {
+    "mission": "VISA n JOB chet ellik ish izlovchilar va kompaniyalarning soʻrovlarini qabul qiladi, tekshiradi va bogʻlaydi.",
+    "columns": {
+      "services": "Xizmatlar",
+      "people": "Ish izlovchilar · Kompaniyalar",
+      "company": "Kompaniya",
+      "registration": "Roʻyxat maʼlumoti"
+    },
+    "links": {
+      "visaCheck": "Viza tekshiruvi",
+      "score": "E-7-4 ball kalkulyatori",
+      "demand": "Talab xaritasi",
+      "jobs": "Tavsiya etilgan ishlar",
+      "quickRegister": "Tezkor roʻyxatdan oʻtish",
+      "register": "Toʻliq roʻyxatdan oʻtish",
+      "diagnosis": "Bepul ishga olish tahlili",
+      "request": "Ishchi soʻrovi",
+      "about": "Biz haqimizda",
+      "fees": "Toʻlovlar",
+      "privacy": "Maxfiylik siyosati",
+      "terms": "Foydalanish shartlari"
+    },
+    "labels": {
+      "jobPlacement": "Pullik bandlik agentligi",
+      "adminOffice": "Maʼmuriy agent idorasi",
+      "representative": "Rahbar",
+      "jobPlacementRegNo": "Bandlik agentligi roʻyxat raqami",
+      "adminScrivenerRegNo": "Maʼmuriy agent roʻyxat raqami",
+      "businessRegNo": "Korxona roʻyxat raqami",
+      "address": "Manzil",
+      "phone": "Asosiy telefon",
+      "email": "Elektron pochta"
+    },
+    "copyright": "© {year} {brand}. All rights reserved.",
+    "languages": "Tillar"
   },
   "public": {
     "home": {
-      "title": "Sayt tayyorlanmoqda",
-      "description": "Tez orada viza tekshiruvi va ish izlovchilarni roʻyxatga olish boshlanadi."
+      "hero": {
+        "badge": "Chet elliklarni ishga olishni huquqiy xavflar bilan birga rejalashtiramiz",
+        "titleLine1": "Jahon iqtidorlarini Koreya sanoati bilan",
+        "titleLine2": "bogʻlovchi",
+        "titleEmphasis": "eng ishonchli koʻprik",
+        "subLatin": "Trusted global workforce solutions, from Seoul to every region.",
+        "sub": "Viza tekshiruvidan roʻyxatdan oʻtish va tekshirilgan ishlarga ulanishgacha VISA n JOB siz bilan.",
+        "primaryCta": "Bepul ishga olish tahlili",
+        "secondaryCta": "Viza tekshiruvi",
+        "licenseLabel": "LICENSED AGENCY",
+        "licenseValue": "Pullik bandlik agentligi {regNo}",
+        "scroll": "SCROLL",
+        "expertReviewNote": "[Mutaxassis tekshiruvi talab qilinadi] Bosh ekrandagi orttirma yoki kafolat maʼnosidagi iboralar reklama talablariga muvofiqligi boʻyicha tekshirilishi kerak.",
+        "stats": {
+          "regNo": {
+            "label": "Licensed",
+            "sub": "Bandlik agentligi roʻyxat raqami"
+          },
+          "noFee": {
+            "label": "Job seekers",
+            "sub": "Ish izlovchilardan vositachilik haqi olinmaydi"
+          },
+          "languages": {
+            "label": "Languages",
+            "value": "6 til",
+            "sub": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha"
+          },
+          "office": {
+            "label": "Visa office",
+            "sub": "Hamkor maʼmuriy agent idorasi"
+          }
+        }
+      },
+      "audience": {
+        "eyebrow": "Choose your path",
+        "title": "Siz kimsiz?",
+        "lead": "Kompaniya, ish izlovchi yoki hamkor agentlik — tanlang, quyidagi koʻrsatmalar siz uchun oʻzgaradi.",
+        "tabsLabel": "Foydalanuvchi turini tanlash",
+        "employer": {
+          "tab": "Kompaniyalar",
+          "num": "01 / EMPLOYER",
+          "kicker": "For employers",
+          "title": "Kompaniyalar uchun ishga olish",
+          "subtitle": "Ishlab chiqarish · Qurilish · Qishloq xoʻjaligi · Xizmatlar",
+          "desc": "Avval chet ellikni ishga olish mumkinligini tekshiring, soʻng ishchi soʻrovini qoldiring.",
+          "action": "Bepul tahlil",
+          "panel": {
+            "title": "Kompaniyalar hozir tekshirishi kerak boʻlgan narsalar",
+            "body": "Bepul ishga olish tahlili bilan imkoniyatni avval tekshiring. Ishchi soʻrovini VISA n JOB xodimi koʻrib chiqadi.",
+            "bullets": {
+              "b1": "Viza turi boʻyicha ishga olish imkoniyatini oldindan tekshirish",
+              "b2": "Tekshirilgan ish izlovchilarni yashirin tavsiya qilish",
+              "b3": "Suhbat jadvalini VISA n JOB kelishtiradi"
+            },
+            "cta": "Bepul ishga olish tahlili",
+            "secondary": "Ishchi soʻrovi"
+          }
+        },
+        "seeker": {
+          "tab": "Ish izlovchilar",
+          "num": "02 / JOB SEEKER",
+          "kicker": "For job seekers",
+          "title": "Ish izlovchilar uchun",
+          "subtitle": "6 tilda yoʻriqnoma",
+          "desc": "Vizangiz bilan mumkin boʻlgan ishlarni tekshiring va tezkor roʻyxatdan boshlang.",
+          "action": "Tezkor roʻyxat",
+          "panel": {
+            "title": "Vizangizga mos ish toping",
+            "body": "Viza, hudud va sohani tanlab, vizangiz bilan mumkin boʻlgan ishlarni avval tekshiring.",
+            "bullets": {
+              "b1": "Viza tekshiruvi bilan imkoniyatni oldindan bilish",
+              "b2": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha",
+              "b3": "Ish izlovchilar uchun bepul"
+            },
+            "cta": "Tezkor roʻyxatdan oʻtish",
+            "secondary": "Viza tekshiruvi"
+          }
+        },
+        "agency": {
+          "tab": "Hamkor agentlik",
+          "num": "03 / AGENCY",
+          "kicker": "For agencies",
+          "title": "Hamkor agentliklar",
+          "subtitle": "Tayyorlanmoqda",
+          "desc": "Hamkor agentliklar uchun xizmat tayyorlanmoqda.",
+          "action": "Maslahatga ariza",
+          "panel": {
+            "title": "Hamkor agentliklar xizmati tayyorlanmoqda",
+            "body": "Hamkor agentliklar uchun xizmat hali ochilmagan. Maslahatga ariza qoldiring, sizga tushuntirib beramiz.",
+            "badge": "Tayyorlanmoqda",
+            "cta": "Maslahatga ariza"
+          }
+        }
+      },
+      "metrics": {
+        "eyebrow": "Licensed operators",
+        "title": "Roʻyxatdan oʻtgan tashkilotlar bevosita boshqaradi",
+        "lead": "VISA n JOB ni roʻyxatdan oʻtgan pullik bandlik agentligi va maʼmuriy agent idorasi birgalikda boshqaradi.",
+        "titleWithMetrics": "Raqamlarda natijalar",
+        "license": {
+          "jobPlacement": "Rasmiy pullik bandlik agentligi",
+          "adminOffice": "Maʼmuriy agent idorasi",
+          "regNo": "Roʻyxat raqami {regNo}"
+        }
+      },
+      "visaWidget": {
+        "hello": "Salom! Bu VISA n JOB",
+        "title": "Vizangiz bilan mumkin boʻlgan ishni",
+        "titleLine2": "avval shu yerda tekshiring",
+        "lead": "Viza, hudud va sohani tanlang — maʼlumot uchun natija darhol chiqadi. Ona tilingizda yoʻriqnoma va hujjatlar boʻyicha yordam ham olasiz.",
+        "feesLink": "Toʻlovlarni koʻrish",
+        "languagesLabel": "Xizmat tillari",
+        "card": {
+          "title": "Vizam bilan tekshirish",
+          "badge": "Maʼlumot uchun",
+          "more": "Batafsil viza tekshiruvi"
+        }
+      },
+      "demandPreview": {
+        "eyebrow": "Demand map",
+        "title": "Hudud va sohalar boʻyicha ishchi talabi",
+        "lead": "Oxirgi 30 kunlik ochiq ish eʼlonlari viloyat va sohalar boʻyicha guruhlangan.",
+        "mapLabel": "Viloyatlar boʻyicha ishchi talabi xaritasi",
+        "more": "Talab xaritasini batafsil koʻrish"
+      },
+      "finalCta": {
+        "eyebrow": "Start here",
+        "title": "Hoziroq boshlang",
+        "lead": "Ish izlovchilar tezkor roʻyxatdan, kompaniyalar bepul ishga olish tahlilidan boshlaydi. VISA n JOB siz bilan oʻzi bogʻlanadi.",
+        "seeker": {
+          "kicker": "For job seekers",
+          "title": "Tezkor roʻyxatdan oʻtish",
+          "body": "Faqat til, viza va hududni tanlab roʻyxatdan oʻtishni boshlashingiz mumkin.",
+          "cta": "Tezkor roʻyxatdan oʻtish",
+          "secondary": "Viza tekshiruvi"
+        },
+        "employer": {
+          "kicker": "For employers",
+          "title": "Bepul ishga olish tahlili",
+          "body": "Soha, ishchilar soni va viza turini ayting — VISA n JOB xodimi koʻrib chiqadi.",
+          "cta": "Bepul ishga olish tahlili",
+          "secondary": "Ishchi soʻrovi",
+          "phone": "Asosiy telefon {phone}"
+        },
+        "feesLink": "Toʻlovlar"
+      }
+    },
+    "about": {
+      "eyebrow": "About",
+      "title": "Biz haqimizda",
+      "lead": "VISA n JOB chet ellik ish izlovchilar va kompaniyalar soʻrovlarini qabul qiladigan, tekshiradigan va bogʻlaydigan yopiq vositachilik xizmatidir.",
+      "principles": {
+        "title": "Ish tamoyillari",
+        "p1": "Ish izlovchilar va kompaniyalar bir-biri bilan bevosita bogʻlanmaydi. Barcha aloqani VISA n JOB olib boradi.",
+        "p2": "Ish izlovchilar uchun bepul",
+        "p3": "Kompaniyalar faqat yashirin maʼlumotni koʻradi.",
+        "p4": "Viza tekshiruvi va ballar faqat maʼlumot uchun, maʼmuriy agent tasdigʻi kerak."
+      },
+      "operators": {
+        "title": "Boshqaruvchilar"
+      },
+      "contact": {
+        "title": "Maslahatga ariza",
+        "body": "Maslahat uchun asosiy telefonga qoʻngʻiroq qiling. Xodim sizga yoʻl-yoʻriq beradi."
+      }
+    },
+    "fees": {
+      "eyebrow": "Fees",
+      "title": "Toʻlovlar",
+      "lead": "VISA n JOB ish izlovchilardan vositachilik haqi olmaydi.",
+      "seeker": {
+        "title": "Ish izlovchilar",
+        "body": "Roʻyxatdan oʻtish, viza tekshiruvi va suhbatga ariza ish izlovchilar uchun bepul."
+      },
+      "employer": {
+        "title": "Kompaniyalar",
+        "body": "Kompaniyalar uchun toʻlov jadvali boshqaruvchi tasdiqlagandan soʻng shu sahifada eʼlon qilinadi. Hozircha maslahatga ariza qoldiring."
+      },
+      "registration": {
+        "title": "Roʻyxat maʼlumotlari"
+      }
+    },
+    "visaCheck": {
+      "eyebrow": "Visa check",
+      "title": "Viza tekshiruvi",
+      "lead": "Viza, hudud va sohani tanlab, maʼmuriy agent eʼlon qilgan mezonlar boʻyicha maʼlumot uchun natijani koʻring.",
+      "scoreLink": "E-7-4 ball kalkulyatori"
+    },
+    "score": {
+      "eyebrow": "E-7-4",
+      "title": "E-7-4 ball kalkulyatori",
+      "lead": "Maʼmuriy agent eʼlon qilgan ball jadvali boʻyicha maʼlumot uchun ballni hisoblaydi.",
+      "comingSoon": {
+        "title": "Ball kalkulyatori tayyorlanmoqda",
+        "description": "Maʼmuriy agent ball jadvalini eʼlon qilgach hisoblash mumkin boʻladi. Hozircha maslahatga ariza qoldiring."
+      }
+    },
+    "demand": {
+      "eyebrow": "Demand map",
+      "title": "Talab xaritasi",
+      "lead": "Oxirgi 30 kunlik ochiq ish eʼlonlari asosidagi ishchi talabi, viloyat va sohalar boʻyicha guruhlangan.",
+      "notice": "Bu VISA n JOB ochiq ish eʼlonlari asosida tahlil qilgan hudud va sohalar boʻyicha ishchi talabi. Bu tasdiqlangan alohida ishga olish haqidagi maʼlumot emas.",
+      "windowNote": "Oxirgi {days} kun boʻyicha. {min} tadan kam holat boʻlgan katakchalar maʼlumot yetarli emas deb koʻrsatiladi.",
+      "table": {
+        "caption": "Viloyat × soha boʻyicha ishchi talabi",
+        "sido": "Viloyat",
+        "industry": "Soha",
+        "count": "Ishchi talabi (oxirgi 30 kun)",
+        "pay": "Taklif qilingan maosh (mediana oraligʻi)",
+        "insufficient": "Maʼlumot yetarli emas",
+        "noPay": "Maosh maʼlumoti yetarli emas",
+        "countValue": "{count} ta",
+        "payBand": "{min} – {max}",
+        "empty": "Hozircha koʻrsatiladigan talab yoʻq. Barcha hududlarda maʼlumot yetarli emas."
+      },
+      "filter": {
+        "title": "Qiziqqan hudud va soha",
+        "sido": "Viloyat",
+        "industry": "Soha",
+        "any": "Hammasi"
+      },
+      "buttons": {
+        "alert": "Shu hudud va soha boʻyicha ish xabarnomalarini olish",
+        "visaCheck": "Vizam mos kelishini tekshirish"
+      }
+    },
+    "guide": {
+      "breadcrumbHome": "Bosh sahifa",
+      "breadcrumbGuide": "Viza maʼlumot markazi",
+      "reviewedBy": "Tekshiruvchi",
+      "updatedAt": "Yangilangan",
+      "faqTitle": "Koʻp beriladigan savollar"
+    },
+    "cases": {
+      "eyebrow": "Cases",
+      "title": "Holatlar",
+      "lead": "Yashash maqomini oʻzgartirish holatlarini shaxsni aniqlab boʻlmaydigan shaklda taqdim etamiz.",
+      "emptyTitle": "Holatlar tayyorlanmoqda",
+      "emptyBody": "Faqat tekshirilgan holatlar eʼlon qilinadi."
+    }
+  },
+  "visa": {
+    "outcome": {
+      "GREEN": "Ehtimoli yuqori",
+      "YELLOW": "Tekshirish kerak",
+      "RED": "Qiyin"
+    },
+    "outcomeReviewNote": "[Mutaxassis tekshiruvi talab qilinadi] Natija yorliqlari taklif etilgan iboralardir.",
+    "result": {
+      "title": "Natija",
+      "needsReview": "Kiritilgan maʼlumot eʼlon qilingan mezonlarga mos kelmadi, shuning uchun maʼmuriy agent tasdigʻi kerak."
+    },
+    "rule": {
+      "sample": {
+        "placeholder": "Bu namuna qoida, haqiqiy mezon emas."
+      }
+    },
+    "form": {
+      "visa": "Viza",
+      "sido": "Hudud (viloyat)",
+      "industry": "Soha",
+      "optional": "ixtiyoriy",
+      "any": "Tanlanmagan",
+      "submit": "Natijani koʻrish",
+      "pending": "Tekshirilmoqda…",
+      "invalid": "Vizani tanlang.",
+      "error": "Natijani yuklab boʻlmadi. Keyinroq qayta urinib koʻring."
+    }
+  },
+  "score": {
+    "form": {
+      "submit": "Ballni hisoblash",
+      "pending": "Hisoblanmoqda…",
+      "choose": "Tanlang"
+    },
+    "result": {
+      "title": "Natija",
+      "total": "Umumiy ball",
+      "outOf": "maksimal {max} ball",
+      "points": "{points} ball",
+      "pointsOf": "{points} / {max} ball",
+      "passScore": "Moʻljal ball {score}",
+      "items": "Bandlar boʻyicha ball",
+      "shortfalls": "Yetishmayotgan bandlar",
+      "shortfallGap": "{gap} ball yetishmaydi",
+      "noShortfalls": "Yetishmayotgan band yoʻq."
+    }
+  },
+  "visaType": {
+    "f2": {
+      "name": "Yashash"
+    },
+    "f4": {
+      "name": "Xorijdagi koreyslar"
+    },
+    "f5": {
+      "name": "Doimiy yashash"
+    },
+    "f6": {
+      "name": "Nikoh migratsiyasi"
+    },
+    "h2": {
+      "name": "Tashrif bilan ishlash"
+    },
+    "d10": {
+      "name": "Ish izlash"
+    },
+    "d2": {
+      "name": "Oʻqish"
+    },
+    "d4": {
+      "name": "Umumiy oʻquv"
+    },
+    "e7": {
+      "name": "Maxsus faoliyat"
+    },
+    "e9": {
+      "name": "Malakasiz mehnat"
+    },
+    "e10": {
+      "name": "Dengizchi sifatida ishlash"
+    },
+    "c4": {
+      "name": "Qisqa muddatli ish"
+    },
+    "g1": {
+      "name": "Boshqa (G-1)"
+    },
+    "other": {
+      "name": "Boshqa viza"
+    },
+    "b1": {
+      "name": "Vizasiz kirish"
+    },
+    "b2": {
+      "name": "Turizm, tranzit"
+    },
+    "c3": {
+      "name": "Qisqa muddatli tashrif"
+    },
+    "none": {
+      "name": "Viza yoʻq"
+    },
+    "unknown": {
+      "name": "Bilmayman"
+    }
+  },
+  "legal": {
+    "draftDate": "Loyiha sanasi {date}",
+    "koreanOriginal": "Koreyscha asl matn",
+    "translation": "Tarjima",
+    "privacy": {
+      "title": "Maxfiylik siyosati",
+      "sections": {
+        "s1": {
+          "title": "1. Ishlov berish maqsadi",
+          "body": "VISA n JOB ish izlovchini roʻyxatga olish, viza tekshiruvi, maslahat va ishchi soʻrovlari uchun zarur boʻlgan minimal shaxsiy maʼlumotlarga ishlov beradi."
+        },
+        "s2": {
+          "title": "2. Ishlov beriladigan maʼlumotlar",
+          "body": "Faqat har bir ekranda koʻrsatilgan maʼlumotlarga ishlov beriladi: telefon raqami, ism, fuqarolik, viza turi, istalgan hudud va soha. Roʻyxatdan oʻtishda chet ellik roʻyxat raqami va pasport raqami yigʻilmaydi."
+        },
+        "s3": {
+          "title": "3. Saqlash muddati",
+          "body": "Maqsadga erishilgach yoki rozilik qaytarib olingach, maʼlumotlar darhol yoʻq qilinadi. Qonun saqlashni talab qilsa, shu muddat davomida saqlanadi."
+        },
+        "s4": {
+          "title": "4. Uchinchi shaxslarga berish",
+          "body": "Kompaniyalarga faqat yashirin maʼlumot beriladi. Haqiqiy ism faqat suhbatga roziligingizdan soʻng tegishli kompaniyaga beriladi, aloqa maʼlumotlari kompaniyalarga berilmaydi."
+        },
+        "s5": {
+          "title": "5. Xavfsizlik choralari",
+          "body": "Shaxsni aniqlovchi maʼlumotlar shifrlangan holda saqlanadi va xodimlarning koʻrishi qayd etiladi."
+        },
+        "s6": {
+          "title": "6. Maʼlumot egasining huquqlari",
+          "body": "Istalgan vaqtda koʻrish, tuzatish, oʻchirish, ishlov berishni toʻxtatish va rozilikni qaytarib olishni soʻrashingiz mumkin."
+        },
+        "s7": {
+          "title": "7. Murojaat",
+          "body": "Shaxsiy maʼlumotlar boʻyicha savollar uchun asosiy telefonga murojaat qiling."
+        }
+      }
+    },
+    "terms": {
+      "title": "Foydalanish shartlari",
+      "sections": {
+        "s1": {
+          "title": "1-modda. Maqsad",
+          "body": "Ushbu shartlar VISA n JOB taqdim etadigan ish vositachiligi va viza tekshiruvi xizmatlaridan foydalanish shartlarini belgilaydi."
+        },
+        "s2": {
+          "title": "2-modda. Xizmatlar",
+          "body": "VISA n JOB ish izlovchini roʻyxatga olish, maʼlumot uchun viza tekshiruvi, ishchi soʻrovlarini qabul qilish, yashirin tavsiya va suhbatni tashkil etishni taqdim etadi."
+        },
+        "s3": {
+          "title": "3-modda. Bevosita aloqa taqiqlanadi",
+          "body": "Ish izlovchilar va kompaniyalar oʻrtasidagi aloqa faqat VISA n JOB orqali amalga oshiriladi. Xizmat ichida aloqa maʼlumotlari almashilmaydi."
+        },
+        "s4": {
+          "title": "4-modda. Toʻlovlar",
+          "body": "Ish izlovchilar uchun bepul. Kompaniyalar uchun toʻlov toʻlovlar sahifasi va shartnomaga muvofiq."
+        },
+        "s5": {
+          "title": "5-modda. Natijalarning xususiyati",
+          "body": "Viza tekshiruvi va ball natijalari faqat maʼlumot uchun boʻlib, maʼmuriy agent tasdigʻini talab qiladi. Natija yashash maqomi albatta berilishini anglatmaydi."
+        },
+        "s6": {
+          "title": "6-modda. Foydalanuvchi majburiyatlari",
+          "body": "Foydalanuvchi yolgʻon maʼlumot kiritmaydi va boshqa shaxsning maʼlumotlaridan foydalanmaydi."
+        },
+        "s7": {
+          "title": "7-modda. Shartlarni oʻzgartirish",
+          "body": "Shartlar oʻzgarganda kuchga kirish sanasi va oʻzgarishlar oldindan eʼlon qilinadi."
+        }
+      }
     }
   }
 }

@@ -3,8 +3,48 @@
   "meta": {
     "siteName": "VISA n JOB",
     "home": {
-      "title": "VISA n JOB — Việc làm và tư vấn visa cho người nước ngoài",
-      "description": "Kiểm tra công việc phù hợp với visa của bạn và được kết nối với việc làm đã xác minh thông qua VISA n JOB."
+      "title": "VISA n JOB — Việc làm, tuyển dụng và tư vấn visa cho người nước ngoài tại Hàn Quốc",
+      "description": "Kiểm tra công việc visa của bạn cho phép và kết nối với việc làm đã được xác minh qua VISA n JOB."
+    },
+    "about": {
+      "title": "Giới thiệu",
+      "description": "Thông tin đăng ký của văn phòng giới thiệu việc làm có thu phí và văn phòng hành chính sĩ vận hành VISA n JOB."
+    },
+    "fees": {
+      "title": "Phí dịch vụ",
+      "description": "Người tìm việc không mất phí. Thông tin phí cho doanh nghiệp và thông tin đăng ký."
+    },
+    "privacy": {
+      "title": "Chính sách bảo mật",
+      "description": "Bản dự thảo chính sách bảo mật của VISA n JOB."
+    },
+    "terms": {
+      "title": "Điều khoản sử dụng",
+      "description": "Bản dự thảo điều khoản sử dụng của VISA n JOB."
+    },
+    "visaCheck": {
+      "title": "Kiểm tra visa",
+      "description": "Chọn visa, khu vực và ngành nghề để xem kết quả tham khảo. Cần hành chính sĩ xác nhận."
+    },
+    "score": {
+      "title": "Công cụ tính điểm E-7-4",
+      "description": "Tính điểm tham khảo theo bảng điểm do hành chính sĩ công bố."
+    },
+    "demand": {
+      "title": "Bản đồ nhu cầu",
+      "description": "Nhu cầu tuyển dụng theo khu vực và ngành nghề, phân tích từ thông tin tuyển dụng công khai."
+    },
+    "guide": {
+      "title": "Trung tâm thông tin visa",
+      "description": "Hướng dẫn sử dụng VISA n JOB và câu hỏi thường gặp."
+    },
+    "cases": {
+      "title": "Trường hợp",
+      "description": "Các trường hợp chuyển đổi tư cách lưu trú sẽ được giới thiệu ở dạng ẩn danh."
+    },
+    "employerCandidates": {
+      "title": "Xem ứng viên",
+      "description": "Chỉ dành cho doanh nghiệp đã xác minh và ký hợp đồng."
     }
   },
   "common": {
@@ -15,12 +55,546 @@
       "title": "Không tìm thấy trang",
       "description": "Vui lòng kiểm tra lại địa chỉ.",
       "cta": "Về trang chủ"
+    },
+    "skipToContent": "Chuyển đến nội dung chính",
+    "disclaimer": {
+      "reference": "Chỉ để tham khảo, cần hành chính sĩ xác nhận"
+    },
+    "noSeekerFee": "Người tìm việc không mất phí",
+    "contactViaOperator": "Mọi liên lạc với doanh nghiệp chỉ thông qua VISA n JOB",
+    "expertReview": {
+      "label": "[Cần chuyên gia xem xét]",
+      "draftNote": "Đây là bản dự thảo. Văn bản sẽ được hoàn thiện sau khi chuyên gia xem xét."
+    },
+    "consult": "Yêu cầu tư vấn",
+    "comingSoon": {
+      "title": "Đang chuẩn bị",
+      "description": "Dịch vụ này đang được chuẩn bị. Nếu có thắc mắc, vui lòng gửi yêu cầu tư vấn."
+    },
+    "select": {
+      "placeholder": "Vui lòng chọn",
+      "all": "Tất cả"
+    },
+    "industryUnknown": "Chưa phân loại ngành",
+    "region": {
+      "seoul": "Seoul",
+      "busan": "Busan",
+      "daegu": "Daegu",
+      "incheon": "Incheon",
+      "gwangju": "Gwangju",
+      "daejeon": "Daejeon",
+      "ulsan": "Ulsan",
+      "sejong": "Sejong",
+      "gyeonggi": "Tỉnh Gyeonggi",
+      "gangwon": "Tỉnh Gangwon",
+      "chungbuk": "Tỉnh Chungcheong Bắc",
+      "chungnam": "Tỉnh Chungcheong Nam",
+      "jeonbuk": "Tỉnh Jeonbuk",
+      "jeonnam": "Tỉnh Jeolla Nam",
+      "gyeongbuk": "Tỉnh Gyeongsang Bắc",
+      "gyeongnam": "Tỉnh Gyeongsang Nam",
+      "jeju": "Tỉnh Jeju"
+    },
+    "industry": {
+      "a": "Nông, lâm nghiệp và thủy sản",
+      "b": "Khai khoáng",
+      "c": "Sản xuất, chế tạo",
+      "d": "Cung cấp điện, khí đốt, hơi nước và điều hòa không khí",
+      "e": "Cấp nước, xử lý nước thải, chất thải và tái chế",
+      "f": "Xây dựng",
+      "g": "Bán buôn và bán lẻ",
+      "h": "Vận tải và kho bãi",
+      "i": "Lưu trú và ăn uống",
+      "j": "Thông tin và truyền thông",
+      "k": "Tài chính và bảo hiểm",
+      "l": "Bất động sản",
+      "m": "Dịch vụ chuyên môn, khoa học và kỹ thuật",
+      "n": "Quản lý cơ sở, hỗ trợ kinh doanh và cho thuê",
+      "o": "Hành chính công, quốc phòng và an sinh xã hội",
+      "p": "Giáo dục",
+      "q": "Y tế và trợ giúp xã hội",
+      "r": "Nghệ thuật, thể thao và giải trí",
+      "s": "Hiệp hội, sửa chữa và dịch vụ cá nhân khác",
+      "t": "Hoạt động làm thuê trong hộ gia đình và sản xuất tự tiêu dùng",
+      "u": "Tổ chức quốc tế và cơ quan nước ngoài"
     }
+  },
+  "nav": {
+    "mainLabel": "Menu chính",
+    "home": "Về trang chủ",
+    "seeker": "Người tìm việc",
+    "seekerSub": "Đăng ký nhanh",
+    "employer": "Doanh nghiệp",
+    "employerSub": "Chẩn đoán tuyển dụng miễn phí",
+    "visaCheck": "Kiểm tra visa",
+    "visaCheckSub": "Tham khảo",
+    "jobs": "Việc làm",
+    "jobsSub": "Việc làm đề xuất",
+    "demand": "Bản đồ nhu cầu",
+    "demandSub": "Khu vực · ngành",
+    "about": "Giới thiệu",
+    "aboutSub": "Thông tin đăng ký",
+    "fees": "Phí",
+    "feesSub": "Miễn phí cho người tìm việc",
+    "cta": "Chẩn đoán tuyển dụng miễn phí",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "menuTitle": "Menu"
+  },
+  "footer": {
+    "mission": "VISA n JOB tiếp nhận, xác minh và kết nối yêu cầu của người tìm việc nước ngoài và doanh nghiệp.",
+    "columns": {
+      "services": "Dịch vụ",
+      "people": "Người tìm việc · Doanh nghiệp",
+      "company": "Công ty",
+      "registration": "Thông tin đăng ký"
+    },
+    "links": {
+      "visaCheck": "Kiểm tra visa",
+      "score": "Công cụ tính điểm E-7-4",
+      "demand": "Bản đồ nhu cầu",
+      "jobs": "Việc làm đề xuất",
+      "quickRegister": "Đăng ký nhanh",
+      "register": "Đăng ký đầy đủ",
+      "diagnosis": "Chẩn đoán tuyển dụng miễn phí",
+      "request": "Yêu cầu tuyển dụng",
+      "about": "Giới thiệu",
+      "fees": "Phí dịch vụ",
+      "privacy": "Chính sách bảo mật",
+      "terms": "Điều khoản sử dụng"
+    },
+    "labels": {
+      "jobPlacement": "Văn phòng giới thiệu việc làm có thu phí",
+      "adminOffice": "Văn phòng hành chính sĩ",
+      "representative": "Người đại diện",
+      "jobPlacementRegNo": "Số đăng ký giới thiệu việc làm",
+      "adminScrivenerRegNo": "Số đăng ký hành chính sĩ",
+      "businessRegNo": "Số đăng ký kinh doanh",
+      "address": "Địa chỉ",
+      "phone": "Điện thoại chính",
+      "email": "Email"
+    },
+    "copyright": "© {year} {brand}. All rights reserved.",
+    "languages": "Ngôn ngữ"
   },
   "public": {
     "home": {
-      "title": "Trang web đang được chuẩn bị",
-      "description": "Kiểm tra visa và đăng ký tìm việc sẽ sớm bắt đầu."
+      "hero": {
+        "badge": "Cùng thiết kế việc tuyển dụng người nước ngoài, kể cả rủi ro pháp lý",
+        "titleLine1": "Kết nối nhân tài toàn cầu",
+        "titleLine2": "với công nghiệp Hàn Quốc —",
+        "titleEmphasis": "cây cầu đáng tin cậy nhất",
+        "subLatin": "Trusted global workforce solutions, from Seoul to every region.",
+        "sub": "Từ kiểm tra visa đến đăng ký tìm việc và kết nối việc làm đã xác minh, VISA n JOB luôn đồng hành.",
+        "primaryCta": "Chẩn đoán tuyển dụng miễn phí",
+        "secondaryCta": "Kiểm tra visa",
+        "licenseLabel": "LICENSED AGENCY",
+        "licenseValue": "Văn phòng giới thiệu việc làm có thu phí {regNo}",
+        "scroll": "SCROLL",
+        "expertReviewNote": "[Cần chuyên gia xem xét] Cách diễn đạt so sánh nhất hoặc mang tính bảo đảm ở phần đầu trang cần được xem xét về tính phù hợp quảng cáo.",
+        "stats": {
+          "regNo": {
+            "label": "Licensed",
+            "sub": "Số đăng ký giới thiệu việc làm"
+          },
+          "noFee": {
+            "label": "Job seekers",
+            "sub": "Không thu phí giới thiệu từ người tìm việc"
+          },
+          "languages": {
+            "label": "Languages",
+            "value": "6 ngôn ngữ",
+            "sub": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha"
+          },
+          "office": {
+            "label": "Visa office",
+            "sub": "Liên kết văn phòng hành chính sĩ"
+          }
+        }
+      },
+      "audience": {
+        "eyebrow": "Choose your path",
+        "title": "Bạn là ai?",
+        "lead": "Doanh nghiệp, người tìm việc hay văn phòng đối tác — hãy chọn, hướng dẫn bên dưới sẽ thay đổi theo bạn.",
+        "tabsLabel": "Chọn loại người dùng",
+        "employer": {
+          "tab": "Doanh nghiệp",
+          "num": "01 / EMPLOYER",
+          "kicker": "For employers",
+          "title": "Tuyển dụng cho doanh nghiệp",
+          "subtitle": "Sản xuất · Xây dựng · Nông nghiệp · Dịch vụ",
+          "desc": "Trước tiên hãy kiểm tra khả năng tuyển người nước ngoài, sau đó gửi yêu cầu tuyển dụng.",
+          "action": "Chẩn đoán miễn phí",
+          "panel": {
+            "title": "Những điều doanh nghiệp nên kiểm tra ngay",
+            "body": "Hãy kiểm tra khả năng tuyển dụng bằng chẩn đoán tuyển dụng miễn phí. Nhân viên VISA n JOB sẽ xem xét yêu cầu tuyển dụng.",
+            "bullets": {
+              "b1": "Kiểm tra trước khả năng tuyển dụng theo loại visa",
+              "b2": "Đề xuất ẩn danh người tìm việc đã được xác minh",
+              "b3": "VISA n JOB sắp xếp lịch phỏng vấn"
+            },
+            "cta": "Chẩn đoán tuyển dụng miễn phí",
+            "secondary": "Yêu cầu tuyển dụng"
+          }
+        },
+        "seeker": {
+          "tab": "Người tìm việc",
+          "num": "02 / JOB SEEKER",
+          "kicker": "For job seekers",
+          "title": "Hướng dẫn cho người tìm việc",
+          "subtitle": "Hỗ trợ 6 ngôn ngữ",
+          "desc": "Kiểm tra công việc visa của bạn cho phép và bắt đầu bằng đăng ký nhanh.",
+          "action": "Đăng ký nhanh",
+          "panel": {
+            "title": "Tìm việc phù hợp với visa của bạn",
+            "body": "Chọn visa, khu vực và ngành nghề để kiểm tra trước những công việc visa của bạn cho phép.",
+            "bullets": {
+              "b1": "Kiểm tra trước khả năng bằng công cụ kiểm tra visa",
+              "b2": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha",
+              "b3": "Người tìm việc không mất phí"
+            },
+            "cta": "Đăng ký nhanh",
+            "secondary": "Kiểm tra visa"
+          }
+        },
+        "agency": {
+          "tab": "Văn phòng đối tác",
+          "num": "03 / AGENCY",
+          "kicker": "For agencies",
+          "title": "Văn phòng đối tác",
+          "subtitle": "Đang chuẩn bị",
+          "desc": "Dịch vụ dành cho văn phòng đối tác đang được chuẩn bị.",
+          "action": "Yêu cầu tư vấn",
+          "panel": {
+            "title": "Dịch vụ cho văn phòng đối tác đang được chuẩn bị",
+            "body": "Dịch vụ dành riêng cho văn phòng đối tác chưa mở. Hãy gửi yêu cầu tư vấn, chúng tôi sẽ hướng dẫn bạn.",
+            "badge": "Đang chuẩn bị",
+            "cta": "Yêu cầu tư vấn"
+          }
+        }
+      },
+      "metrics": {
+        "eyebrow": "Licensed operators",
+        "title": "Do các tổ chức đã đăng ký trực tiếp vận hành",
+        "lead": "VISA n JOB được vận hành bởi văn phòng giới thiệu việc làm có thu phí đã đăng ký cùng văn phòng hành chính sĩ.",
+        "titleWithMetrics": "Kết quả bằng con số",
+        "license": {
+          "jobPlacement": "Văn phòng giới thiệu việc làm có thu phí chính thức",
+          "adminOffice": "Văn phòng hành chính sĩ",
+          "regNo": "Số đăng ký {regNo}"
+        }
+      },
+      "visaWidget": {
+        "hello": "Xin chào! Đây là VISA n JOB",
+        "title": "Công việc visa của bạn cho phép —",
+        "titleLine2": "hãy kiểm tra trước tại đây",
+        "lead": "Chọn visa, khu vực và ngành nghề để xem ngay kết quả tham khảo. Bạn cũng được hướng dẫn bằng tiếng mẹ đẻ và giúp đỡ về giấy tờ.",
+        "feesLink": "Xem phí dịch vụ",
+        "languagesLabel": "Ngôn ngữ hỗ trợ",
+        "card": {
+          "title": "Kiểm tra với visa của tôi",
+          "badge": "Tham khảo",
+          "more": "Kiểm tra visa chi tiết"
+        }
+      },
+      "demandPreview": {
+        "eyebrow": "Demand map",
+        "title": "Nhu cầu tuyển dụng theo khu vực và ngành",
+        "lead": "Thông tin tuyển dụng công khai trong 30 ngày gần nhất, được nhóm theo tỉnh/thành và ngành nghề.",
+        "mapLabel": "Bản đồ nhu cầu tuyển dụng theo tỉnh/thành",
+        "more": "Xem bản đồ nhu cầu chi tiết"
+      },
+      "finalCta": {
+        "eyebrow": "Start here",
+        "title": "Bắt đầu ngay",
+        "lead": "Người tìm việc bắt đầu bằng đăng ký nhanh, doanh nghiệp bắt đầu bằng chẩn đoán tuyển dụng miễn phí. VISA n JOB sẽ trực tiếp liên hệ.",
+        "seeker": {
+          "kicker": "For job seekers",
+          "title": "Đăng ký nhanh",
+          "body": "Chỉ cần chọn ngôn ngữ, visa và khu vực là có thể bắt đầu đăng ký.",
+          "cta": "Đăng ký nhanh",
+          "secondary": "Kiểm tra visa"
+        },
+        "employer": {
+          "kicker": "For employers",
+          "title": "Chẩn đoán tuyển dụng miễn phí",
+          "body": "Hãy cho biết ngành nghề, số người và loại visa, nhân viên VISA n JOB sẽ xem xét.",
+          "cta": "Chẩn đoán tuyển dụng miễn phí",
+          "secondary": "Yêu cầu tuyển dụng",
+          "phone": "Điện thoại chính {phone}"
+        },
+        "feesLink": "Phí dịch vụ"
+      }
+    },
+    "about": {
+      "eyebrow": "About",
+      "title": "Giới thiệu",
+      "lead": "VISA n JOB là dịch vụ môi giới khép kín, tiếp nhận, xác minh và kết nối yêu cầu của người tìm việc nước ngoài và doanh nghiệp.",
+      "principles": {
+        "title": "Nguyên tắc vận hành",
+        "p1": "Người tìm việc và doanh nghiệp không liên hệ trực tiếp với nhau. VISA n JOB phụ trách mọi liên lạc.",
+        "p2": "Người tìm việc không mất phí",
+        "p3": "Doanh nghiệp chỉ thấy thông tin ẩn danh.",
+        "p4": "Kết quả kiểm tra visa và điểm số chỉ để tham khảo, cần hành chính sĩ xác nhận."
+      },
+      "operators": {
+        "title": "Đơn vị vận hành"
+      },
+      "contact": {
+        "title": "Yêu cầu tư vấn",
+        "body": "Vui lòng gọi điện thoại chính để yêu cầu tư vấn. Nhân viên sẽ hướng dẫn bạn."
+      }
+    },
+    "fees": {
+      "eyebrow": "Fees",
+      "title": "Phí dịch vụ",
+      "lead": "VISA n JOB không thu phí giới thiệu từ người tìm việc.",
+      "seeker": {
+        "title": "Người tìm việc",
+        "body": "Đăng ký, kiểm tra visa và yêu cầu phỏng vấn đều không mất phí đối với người tìm việc."
+      },
+      "employer": {
+        "title": "Doanh nghiệp",
+        "body": "Bảng phí giới thiệu cho doanh nghiệp sẽ được đăng trên trang này sau khi đơn vị vận hành xác nhận. Hiện tại vui lòng gửi yêu cầu tư vấn."
+      },
+      "registration": {
+        "title": "Thông tin đăng ký"
+      }
+    },
+    "visaCheck": {
+      "eyebrow": "Visa check",
+      "title": "Kiểm tra visa",
+      "lead": "Chọn visa, khu vực và ngành nghề để xem kết quả tham khảo theo tiêu chí do hành chính sĩ công bố.",
+      "scoreLink": "Công cụ tính điểm E-7-4"
+    },
+    "score": {
+      "eyebrow": "E-7-4",
+      "title": "Công cụ tính điểm E-7-4",
+      "lead": "Tính điểm tham khảo theo bảng điểm do hành chính sĩ công bố.",
+      "comingSoon": {
+        "title": "Công cụ tính điểm đang được chuẩn bị",
+        "description": "Có thể tính điểm sau khi hành chính sĩ công bố bảng điểm. Hiện tại vui lòng gửi yêu cầu tư vấn."
+      }
+    },
+    "demand": {
+      "eyebrow": "Demand map",
+      "title": "Bản đồ nhu cầu",
+      "lead": "Nhu cầu tuyển dụng từ thông tin tuyển dụng công khai trong 30 ngày gần nhất, nhóm theo tỉnh/thành và ngành nghề.",
+      "notice": "Đây là nhu cầu tuyển dụng theo khu vực và ngành nghề do VISA n JOB phân tích dựa trên thông tin tuyển dụng công khai. Đây không phải là thông tin tuyển dụng cá nhân đã được xác nhận.",
+      "windowNote": "Dựa trên {days} ngày gần nhất. Ô có dưới {min} trường hợp được hiển thị là thiếu dữ liệu.",
+      "table": {
+        "caption": "Nhu cầu tuyển dụng theo tỉnh/thành × ngành",
+        "sido": "Tỉnh/thành",
+        "industry": "Ngành nghề",
+        "count": "Nhu cầu tuyển dụng (30 ngày gần nhất)",
+        "pay": "Mức lương đề xuất (khoảng trung vị)",
+        "insufficient": "Thiếu dữ liệu",
+        "noPay": "Thiếu dữ liệu lương",
+        "countValue": "{count} trường hợp",
+        "payBand": "{min} – {max}",
+        "empty": "Chưa có nhu cầu nào để hiển thị. Tất cả khu vực đều thiếu dữ liệu."
+      },
+      "filter": {
+        "title": "Khu vực và ngành quan tâm",
+        "sido": "Tỉnh/thành",
+        "industry": "Ngành nghề",
+        "any": "Tất cả"
+      },
+      "buttons": {
+        "alert": "Nhận thông báo việc làm cho khu vực và ngành này",
+        "visaCheck": "Kiểm tra visa của tôi có phù hợp không"
+      }
+    },
+    "guide": {
+      "breadcrumbHome": "Trang chủ",
+      "breadcrumbGuide": "Trung tâm thông tin visa",
+      "reviewedBy": "Người xem xét",
+      "updatedAt": "Cập nhật",
+      "faqTitle": "Câu hỏi thường gặp"
+    },
+    "cases": {
+      "eyebrow": "Cases",
+      "title": "Trường hợp",
+      "lead": "Chúng tôi sẽ giới thiệu các trường hợp chuyển đổi tư cách lưu trú ở dạng không thể nhận diện cá nhân.",
+      "emptyTitle": "Đang chuẩn bị các trường hợp",
+      "emptyBody": "Chỉ đăng các trường hợp đã được xem xét."
+    }
+  },
+  "visa": {
+    "outcome": {
+      "GREEN": "Khả năng cao",
+      "YELLOW": "Cần xác nhận",
+      "RED": "Khó khăn"
+    },
+    "outcomeReviewNote": "[Cần chuyên gia xem xét] Nhãn kết quả là cách diễn đạt đề xuất.",
+    "result": {
+      "title": "Kết quả",
+      "needsReview": "Thông tin của bạn không khớp với tiêu chí đã công bố nên cần hành chính sĩ xác nhận."
+    },
+    "rule": {
+      "sample": {
+        "placeholder": "Đây là quy tắc mẫu, không phải tiêu chí thực tế."
+      }
+    },
+    "form": {
+      "visa": "Visa",
+      "sido": "Khu vực (tỉnh/thành)",
+      "industry": "Ngành nghề",
+      "optional": "không bắt buộc",
+      "any": "Không chọn",
+      "submit": "Xem kết quả",
+      "pending": "Đang kiểm tra…",
+      "invalid": "Vui lòng chọn visa.",
+      "error": "Không thể tải kết quả. Vui lòng thử lại sau."
+    }
+  },
+  "score": {
+    "form": {
+      "submit": "Tính điểm",
+      "pending": "Đang tính…",
+      "choose": "Vui lòng chọn"
+    },
+    "result": {
+      "title": "Kết quả",
+      "total": "Tổng điểm",
+      "outOf": "trên tối đa {max} điểm",
+      "points": "{points} điểm",
+      "pointsOf": "{points} / {max} điểm",
+      "passScore": "Điểm chuẩn {score} điểm",
+      "items": "Điểm theo hạng mục",
+      "shortfalls": "Hạng mục còn thiếu",
+      "shortfallGap": "Thiếu {gap} điểm",
+      "noShortfalls": "Không có hạng mục còn thiếu."
+    }
+  },
+  "visaType": {
+    "f2": {
+      "name": "Cư trú"
+    },
+    "f4": {
+      "name": "Kiều bào"
+    },
+    "f5": {
+      "name": "Thường trú"
+    },
+    "f6": {
+      "name": "Kết hôn di trú"
+    },
+    "h2": {
+      "name": "Lao động thăm thân"
+    },
+    "d10": {
+      "name": "Tìm việc"
+    },
+    "d2": {
+      "name": "Du học"
+    },
+    "d4": {
+      "name": "Tu nghiệp phổ thông"
+    },
+    "e7": {
+      "name": "Hoạt động đặc định"
+    },
+    "e9": {
+      "name": "Lao động phổ thông"
+    },
+    "e10": {
+      "name": "Thuyền viên"
+    },
+    "c4": {
+      "name": "Lao động ngắn hạn"
+    },
+    "g1": {
+      "name": "Khác (G-1)"
+    },
+    "other": {
+      "name": "Visa khác"
+    },
+    "b1": {
+      "name": "Miễn thị thực"
+    },
+    "b2": {
+      "name": "Du lịch, quá cảnh"
+    },
+    "c3": {
+      "name": "Thăm ngắn hạn"
+    },
+    "none": {
+      "name": "Không có visa"
+    },
+    "unknown": {
+      "name": "Không rõ"
+    }
+  },
+  "legal": {
+    "draftDate": "Ngày soạn dự thảo {date}",
+    "koreanOriginal": "Bản gốc tiếng Hàn",
+    "translation": "Bản dịch",
+    "privacy": {
+      "title": "Chính sách bảo mật",
+      "sections": {
+        "s1": {
+          "title": "1. Mục đích xử lý",
+          "body": "VISA n JOB chỉ xử lý thông tin cá nhân tối thiểu cần thiết cho việc đăng ký tìm việc, kiểm tra visa, yêu cầu tư vấn và yêu cầu tuyển dụng."
+        },
+        "s2": {
+          "title": "2. Hạng mục xử lý",
+          "body": "Chúng tôi chỉ xử lý các hạng mục được nêu trên từng màn hình như số điện thoại, họ tên, quốc tịch, loại visa, khu vực và ngành nghề mong muốn. Chúng tôi không thu thập số đăng ký người nước ngoài và số hộ chiếu khi đăng ký tìm việc."
+        },
+        "s3": {
+          "title": "3. Thời gian lưu giữ",
+          "body": "Thông tin được hủy ngay khi đạt mục đích hoặc khi bạn rút lại đồng ý. Nếu pháp luật yêu cầu lưu giữ, chúng tôi lưu trong thời gian đó."
+        },
+        "s4": {
+          "title": "4. Cung cấp cho bên thứ ba",
+          "body": "Doanh nghiệp chỉ nhận thông tin ẩn danh. Họ tên thật chỉ được cung cấp cho doanh nghiệp liên quan sau khi bạn đồng ý phỏng vấn, và thông tin liên lạc không bao giờ được cung cấp cho doanh nghiệp."
+        },
+        "s5": {
+          "title": "5. Biện pháp bảo đảm an toàn",
+          "body": "Thông tin nhận dạng được mã hóa khi lưu trữ và việc nhân viên xem thông tin đều được ghi lại."
+        },
+        "s6": {
+          "title": "6. Quyền của chủ thể thông tin",
+          "body": "Bạn có thể yêu cầu xem, sửa, xóa, tạm dừng xử lý và rút lại đồng ý bất cứ lúc nào."
+        },
+        "s7": {
+          "title": "7. Liên hệ",
+          "body": "Mọi thắc mắc về thông tin cá nhân, vui lòng liên hệ qua điện thoại chính."
+        }
+      }
+    },
+    "terms": {
+      "title": "Điều khoản sử dụng",
+      "sections": {
+        "s1": {
+          "title": "Điều 1. Mục đích",
+          "body": "Điều khoản này quy định điều kiện sử dụng dịch vụ môi giới việc làm và kiểm tra visa do VISA n JOB cung cấp."
+        },
+        "s2": {
+          "title": "Điều 2. Nội dung dịch vụ",
+          "body": "VISA n JOB cung cấp đăng ký tìm việc, kiểm tra visa tham khảo, tiếp nhận yêu cầu tuyển dụng, đề xuất ẩn danh và sắp xếp phỏng vấn."
+        },
+        "s3": {
+          "title": "Điều 3. Không liên hệ trực tiếp",
+          "body": "Liên lạc giữa người tìm việc và doanh nghiệp chỉ thông qua VISA n JOB. Không trao đổi thông tin liên lạc trong dịch vụ."
+        },
+        "s4": {
+          "title": "Điều 4. Phí sử dụng",
+          "body": "Người tìm việc không mất phí. Phí giới thiệu cho doanh nghiệp theo trang phí dịch vụ và hợp đồng."
+        },
+        "s5": {
+          "title": "Điều 5. Tính chất của kết quả",
+          "body": "Kết quả kiểm tra visa và điểm số chỉ để tham khảo, cần hành chính sĩ xác nhận. Kết quả không có nghĩa là tư cách lưu trú sẽ được cấp."
+        },
+        "s6": {
+          "title": "Điều 6. Nghĩa vụ người dùng",
+          "body": "Người dùng không đăng ký thông tin sai sự thật và không sử dụng thông tin của người khác."
+        },
+        "s7": {
+          "title": "Điều 7. Thay đổi điều khoản",
+          "body": "Khi thay đổi điều khoản, chúng tôi thông báo trước ngày có hiệu lực và nội dung thay đổi."
+        }
+      }
     }
   }
 }

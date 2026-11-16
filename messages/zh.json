@@ -3,8 +3,48 @@
   "meta": {
     "siteName": "VISA n JOB",
     "home": {
-      "title": "VISA n JOB — 外国人求职与签证咨询",
-      "description": "确认您的签证可以从事的工作，并通过 VISA n JOB 对接经过核实的工作机会。"
+      "title": "VISA n JOB — 在韩外国人求职、招聘与签证咨询",
+      "description": "确认您的签证可以从事的工作，并通过 VISA n JOB 对接经过核实的工作。"
+    },
+    "about": {
+      "title": "公司介绍",
+      "description": "介绍运营 VISA n JOB 的收费职业介绍所和行政士事务所的登记信息。"
+    },
+    "fees": {
+      "title": "费用说明",
+      "description": "求职者免费。公开企业费用说明和登记信息。"
+    },
+    "privacy": {
+      "title": "个人信息处理方针",
+      "description": "VISA n JOB 个人信息处理方针草案。"
+    },
+    "terms": {
+      "title": "使用条款",
+      "description": "VISA n JOB 使用条款草案。"
+    },
+    "visaCheck": {
+      "title": "签证诊断",
+      "description": "选择签证、地区和行业即可查看参考结果。需要行政士确认。"
+    },
+    "score": {
+      "title": "E-7-4 分数计算器",
+      "description": "按照行政士公布的评分表计算参考分数。"
+    },
+    "demand": {
+      "title": "需求地图",
+      "description": "根据公开招聘信息分析的各地区、各行业招聘需求。"
+    },
+    "guide": {
+      "title": "签证信息中心",
+      "description": "VISA n JOB 使用指南和常见问题。"
+    },
+    "cases": {
+      "title": "案例",
+      "description": "将以匿名方式介绍居留资格变更案例。"
+    },
+    "employerCandidates": {
+      "title": "查看候选人",
+      "description": "仅限已核实并签约的企业。"
     }
   },
   "common": {
@@ -15,12 +55,546 @@
       "title": "找不到页面",
       "description": "请重新确认网址。",
       "cta": "返回首页"
+    },
+    "skipToContent": "跳到正文",
+    "disclaimer": {
+      "reference": "仅供参考，需行政士确认"
+    },
+    "noSeekerFee": "求职者免费",
+    "contactViaOperator": "与企业的联系仅通过 VISA n JOB 进行",
+    "expertReview": {
+      "label": "[需专家审核]",
+      "draftNote": "本文件为草案，经专家审核后确定。"
+    },
+    "consult": "申请咨询",
+    "comingSoon": {
+      "title": "准备中",
+      "description": "该服务正在准备中。如有疑问，请提交咨询申请。"
+    },
+    "select": {
+      "placeholder": "请选择",
+      "all": "全部"
+    },
+    "industryUnknown": "行业未分类",
+    "region": {
+      "seoul": "首尔特别市",
+      "busan": "釜山广域市",
+      "daegu": "大邱广域市",
+      "incheon": "仁川广域市",
+      "gwangju": "光州广域市",
+      "daejeon": "大田广域市",
+      "ulsan": "蔚山广域市",
+      "sejong": "世宗特别自治市",
+      "gyeonggi": "京畿道",
+      "gangwon": "江原特别自治道",
+      "chungbuk": "忠清北道",
+      "chungnam": "忠清南道",
+      "jeonbuk": "全北特别自治道",
+      "jeonnam": "全罗南道",
+      "gyeongbuk": "庆尚北道",
+      "gyeongnam": "庆尚南道",
+      "jeju": "济州特别自治道"
+    },
+    "industry": {
+      "a": "农业、林业和渔业",
+      "b": "采矿业",
+      "c": "制造业",
+      "d": "电力、燃气、蒸汽及空调供应业",
+      "e": "供水、污水和废物处理及资源回收业",
+      "f": "建筑业",
+      "g": "批发和零售业",
+      "h": "运输和仓储业",
+      "i": "住宿和餐饮业",
+      "j": "信息通信业",
+      "k": "金融和保险业",
+      "l": "房地产业",
+      "m": "专业、科学和技术服务业",
+      "n": "设施管理、商务支持和租赁服务业",
+      "o": "公共行政、国防和社会保障",
+      "p": "教育服务业",
+      "q": "卫生和社会福利服务业",
+      "r": "艺术、体育和休闲相关服务业",
+      "s": "协会和团体、维修及其他个人服务业",
+      "t": "家庭雇佣活动及未分类的自用生产活动",
+      "u": "国际及外国机构"
     }
+  },
+  "nav": {
+    "mainLabel": "主菜单",
+    "home": "返回首页",
+    "seeker": "求职者",
+    "seekerSub": "快速注册",
+    "employer": "企业",
+    "employerSub": "免费招聘诊断",
+    "visaCheck": "签证诊断",
+    "visaCheckSub": "参考",
+    "jobs": "工作",
+    "jobsSub": "推荐工作",
+    "demand": "需求地图",
+    "demandSub": "地区 · 行业",
+    "about": "公司介绍",
+    "aboutSub": "登记信息",
+    "fees": "费用",
+    "feesSub": "求职者免费",
+    "cta": "免费招聘诊断",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "menuTitle": "菜单"
+  },
+  "footer": {
+    "mission": "VISA n JOB 受理、核实并对接外国求职者和企业的委托。",
+    "columns": {
+      "services": "服务",
+      "people": "求职者 · 企业",
+      "company": "公司",
+      "registration": "登记信息"
+    },
+    "links": {
+      "visaCheck": "签证诊断",
+      "score": "E-7-4 分数计算器",
+      "demand": "需求地图",
+      "jobs": "推荐工作",
+      "quickRegister": "快速注册",
+      "register": "正式注册",
+      "diagnosis": "免费招聘诊断",
+      "request": "招聘委托",
+      "about": "公司介绍",
+      "fees": "费用说明",
+      "privacy": "个人信息处理方针",
+      "terms": "使用条款"
+    },
+    "labels": {
+      "jobPlacement": "收费职业介绍所",
+      "adminOffice": "行政士事务所",
+      "representative": "代表人",
+      "jobPlacementRegNo": "职业介绍业登记号",
+      "adminScrivenerRegNo": "行政士登记号",
+      "businessRegNo": "营业执照号",
+      "address": "地址",
+      "phone": "代表电话",
+      "email": "电子邮件"
+    },
+    "copyright": "© {year} {brand}. All rights reserved.",
+    "languages": "语言"
   },
   "public": {
     "home": {
-      "title": "网站正在准备中",
-      "description": "签证诊断和求职登记即将开放。"
+      "hero": {
+        "badge": "外国人雇佣，连法律风险也一起规划",
+        "titleLine1": "连接全球人才与韩国产业",
+        "titleLine2": "——",
+        "titleEmphasis": "最可靠的桥梁",
+        "subLatin": "Trusted global workforce solutions, from Seoul to every region.",
+        "sub": "从签证诊断到求职注册、对接经过核实的工作，VISA n JOB 全程相伴。",
+        "primaryCta": "免费招聘诊断",
+        "secondaryCta": "签证诊断",
+        "licenseLabel": "LICENSED AGENCY",
+        "licenseValue": "收费职业介绍所 {regNo}",
+        "scroll": "SCROLL",
+        "expertReviewNote": "[需专家审核] 首屏文案中的最高级或保证性表述需进行广告合规审核。",
+        "stats": {
+          "regNo": {
+            "label": "Licensed",
+            "sub": "职业介绍业登记号"
+          },
+          "noFee": {
+            "label": "Job seekers",
+            "sub": "不向求职者收取介绍费"
+          },
+          "languages": {
+            "label": "Languages",
+            "value": "6 种语言",
+            "sub": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha"
+          },
+          "office": {
+            "label": "Visa office",
+            "sub": "合作行政士事务所"
+          }
+        }
+      },
+      "audience": {
+        "eyebrow": "Choose your path",
+        "title": "您是哪一方？",
+        "lead": "企业、求职者还是合作介绍所——选择后，下方的说明会随之变化。",
+        "tabsLabel": "选择用户类型",
+        "employer": {
+          "tab": "企业",
+          "num": "01 / EMPLOYER",
+          "kicker": "For employers",
+          "title": "企业招聘",
+          "subtitle": "制造 · 建筑 · 农畜 · 服务",
+          "desc": "先确认能否雇佣外国人，再提交招聘委托。",
+          "action": "免费招聘诊断",
+          "panel": {
+            "title": "企业现在需要确认的内容",
+            "body": "请先通过免费招聘诊断确认招聘可能性。招聘委托由 VISA n JOB 负责人审核。",
+            "bullets": {
+              "b1": "按签证类型预先确认招聘可能性",
+              "b2": "以匿名方式推荐经过核实的求职者",
+              "b3": "面试日程由 VISA n JOB 协调"
+            },
+            "cta": "免费招聘诊断",
+            "secondary": "招聘委托"
+          }
+        },
+        "seeker": {
+          "tab": "求职者",
+          "num": "02 / JOB SEEKER",
+          "kicker": "For job seekers",
+          "title": "求职者指南",
+          "subtitle": "提供 6 种语言服务",
+          "desc": "确认您的签证可以从事的工作，并从快速注册开始。",
+          "action": "快速注册",
+          "panel": {
+            "title": "寻找适合您签证的工作",
+            "body": "选择签证、地区和行业，即可先确认您的签证可以从事的工作。",
+            "bullets": {
+              "b1": "通过签证诊断预先确认可能性",
+              "b2": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha",
+              "b3": "求职者免费"
+            },
+            "cta": "快速注册",
+            "secondary": "签证诊断"
+          }
+        },
+        "agency": {
+          "tab": "合作介绍所",
+          "num": "03 / AGENCY",
+          "kicker": "For agencies",
+          "title": "合作介绍所",
+          "subtitle": "准备中",
+          "desc": "合作介绍所专用服务正在准备中。",
+          "action": "申请咨询",
+          "panel": {
+            "title": "合作介绍所服务正在准备中",
+            "body": "合作介绍所专用服务尚未开放。请提交咨询申请，我们会为您说明。",
+            "badge": "准备中",
+            "cta": "申请咨询"
+          }
+        }
+      },
+      "metrics": {
+        "eyebrow": "Licensed operators",
+        "title": "由已登记的机构直接运营",
+        "lead": "VISA n JOB 由已登记的收费职业介绍所与行政士事务所共同运营。",
+        "titleWithMetrics": "用数字说话的成果",
+        "license": {
+          "jobPlacement": "正规收费职业介绍所",
+          "adminOffice": "行政士事务所",
+          "regNo": "登记号 {regNo}"
+        }
+      },
+      "visaWidget": {
+        "hello": "您好！这里是 VISA n JOB",
+        "title": "您的签证可以从事的工作，",
+        "titleLine2": "先在这里确认",
+        "lead": "选择签证、地区和行业，立即显示参考结果。还可获得母语说明和材料方面的帮助。",
+        "feesLink": "查看费用说明",
+        "languagesLabel": "服务语言",
+        "card": {
+          "title": "用我的签证确认",
+          "badge": "参考",
+          "more": "详细签证诊断"
+        }
+      },
+      "demandPreview": {
+        "eyebrow": "Demand map",
+        "title": "各地区、各行业的招聘需求",
+        "lead": "将最近 30 天的公开招聘信息按市道和行业汇总展示。",
+        "mapLabel": "各市道招聘需求地图",
+        "more": "查看需求地图详情"
+      },
+      "finalCta": {
+        "eyebrow": "Start here",
+        "title": "现在就开始",
+        "lead": "求职者从快速注册开始，企业从免费招聘诊断开始。由 VISA n JOB 直接与您联系。",
+        "seeker": {
+          "kicker": "For job seekers",
+          "title": "快速注册",
+          "body": "只需选择语言、签证和地区即可开始注册。",
+          "cta": "快速注册",
+          "secondary": "签证诊断"
+        },
+        "employer": {
+          "kicker": "For employers",
+          "title": "免费招聘诊断",
+          "body": "告诉我们行业、人数和签证类型，VISA n JOB 负责人将进行审核。",
+          "cta": "免费招聘诊断",
+          "secondary": "招聘委托",
+          "phone": "代表电话 {phone}"
+        },
+        "feesLink": "费用说明"
+      }
+    },
+    "about": {
+      "eyebrow": "About",
+      "title": "公司介绍",
+      "lead": "VISA n JOB 是受理、核实并对接外国求职者和企业委托的封闭式中介服务。",
+      "principles": {
+        "title": "运营原则",
+        "p1": "求职者与企业不直接联系，所有联系均由 VISA n JOB 负责。",
+        "p2": "求职者免费",
+        "p3": "企业只能看到匿名信息。",
+        "p4": "签证诊断和分数仅供参考，需行政士确认。"
+      },
+      "operators": {
+        "title": "运营主体"
+      },
+      "contact": {
+        "title": "申请咨询",
+        "body": "请拨打代表电话申请咨询，负责人会为您说明。"
+      }
+    },
+    "fees": {
+      "eyebrow": "Fees",
+      "title": "费用说明",
+      "lead": "VISA n JOB 不向求职者收取介绍费。",
+      "seeker": {
+        "title": "求职者",
+        "body": "注册、签证诊断和面试申请对求职者均不收费。"
+      },
+      "employer": {
+        "title": "企业",
+        "body": "企业介绍费标准经运营方确定后将在本页公布。目前请通过咨询申请了解。"
+      },
+      "registration": {
+        "title": "登记信息"
+      }
+    },
+    "visaCheck": {
+      "eyebrow": "Visa check",
+      "title": "签证诊断",
+      "lead": "选择签证、地区和行业，即可查看依据行政士公布的标准得出的参考结果。",
+      "scoreLink": "E-7-4 分数计算器"
+    },
+    "score": {
+      "eyebrow": "E-7-4",
+      "title": "E-7-4 分数计算器",
+      "lead": "按照行政士公布的评分表计算参考分数。",
+      "comingSoon": {
+        "title": "分数计算器正在准备中",
+        "description": "行政士公布评分表后即可计算。目前请通过咨询申请了解。"
+      }
+    },
+    "demand": {
+      "eyebrow": "Demand map",
+      "title": "需求地图",
+      "lead": "将最近 30 天公开招聘信息按市道和行业汇总的招聘需求。",
+      "notice": "这是 VISA n JOB 根据公开招聘信息分析的各地区、各行业招聘需求，并非已确定的个别招聘信息。",
+      "windowNote": "以最近 {days} 天为准，少于 {min} 件的单元格显示为资料不足。",
+      "table": {
+        "caption": "市道 × 行业招聘需求",
+        "sido": "市道",
+        "industry": "行业",
+        "count": "招聘需求（最近 30 天）",
+        "pay": "提供工资（中位数区间）",
+        "insufficient": "资料不足",
+        "noPay": "工资信息不足",
+        "countValue": "{count} 件",
+        "payBand": "{min} ~ {max}",
+        "empty": "暂无可显示的需求，所有地区均为资料不足。"
+      },
+      "filter": {
+        "title": "关注的地区和行业",
+        "sido": "市道",
+        "industry": "行业",
+        "any": "全部"
+      },
+      "buttons": {
+        "alert": "接收该地区、行业的工作提醒",
+        "visaCheck": "确认我的签证是否可行"
+      }
+    },
+    "guide": {
+      "breadcrumbHome": "首页",
+      "breadcrumbGuide": "签证信息中心",
+      "reviewedBy": "审核",
+      "updatedAt": "更新",
+      "faqTitle": "常见问题"
+    },
+    "cases": {
+      "eyebrow": "Cases",
+      "title": "案例",
+      "lead": "我们将以无法识别个人的方式整理并介绍居留资格变更案例。",
+      "emptyTitle": "案例正在准备中",
+      "emptyBody": "只公布经过审核的案例。"
+    }
+  },
+  "visa": {
+    "outcome": {
+      "GREEN": "可能性高",
+      "YELLOW": "需要确认",
+      "RED": "有困难"
+    },
+    "outcomeReviewNote": "[需专家审核] 判定标签为建议用语。",
+    "result": {
+      "title": "诊断结果",
+      "needsReview": "与已公布的判定标准不一致，需要行政士确认。"
+    },
+    "rule": {
+      "sample": {
+        "placeholder": "这是示例规则，并非实际标准。"
+      }
+    },
+    "form": {
+      "visa": "签证",
+      "sido": "地区（市道）",
+      "industry": "行业",
+      "optional": "可选",
+      "any": "不选择",
+      "submit": "查看结果",
+      "pending": "确认中…",
+      "invalid": "请选择签证。",
+      "error": "无法加载诊断结果，请稍后重试。"
+    }
+  },
+  "score": {
+    "form": {
+      "submit": "计算分数",
+      "pending": "计算中…",
+      "choose": "请选择"
+    },
+    "result": {
+      "title": "计算结果",
+      "total": "总分",
+      "outOf": "满分 {max} 分",
+      "points": "{points} 分",
+      "pointsOf": "{points} / {max} 分",
+      "passScore": "基准分数 {score} 分",
+      "items": "各项分数",
+      "shortfalls": "不足项目",
+      "shortfallGap": "差 {gap} 分",
+      "noShortfalls": "没有不足项目。"
+    }
+  },
+  "visaType": {
+    "f2": {
+      "name": "居住"
+    },
+    "f4": {
+      "name": "在外同胞"
+    },
+    "f5": {
+      "name": "永住"
+    },
+    "f6": {
+      "name": "婚姻移民"
+    },
+    "h2": {
+      "name": "访问就业"
+    },
+    "d10": {
+      "name": "求职"
+    },
+    "d2": {
+      "name": "留学"
+    },
+    "d4": {
+      "name": "一般研修"
+    },
+    "e7": {
+      "name": "特定活动"
+    },
+    "e9": {
+      "name": "非专业就业"
+    },
+    "e10": {
+      "name": "船员就业"
+    },
+    "c4": {
+      "name": "短期就业"
+    },
+    "g1": {
+      "name": "其他（G-1）"
+    },
+    "other": {
+      "name": "其他签证"
+    },
+    "b1": {
+      "name": "免签"
+    },
+    "b2": {
+      "name": "旅游过境"
+    },
+    "c3": {
+      "name": "短期访问"
+    },
+    "none": {
+      "name": "无签证"
+    },
+    "unknown": {
+      "name": "不清楚"
+    }
+  },
+  "legal": {
+    "draftDate": "草案编写日期 {date}",
+    "koreanOriginal": "韩文原文",
+    "translation": "译文",
+    "privacy": {
+      "title": "个人信息处理方针",
+      "sections": {
+        "s1": {
+          "title": "1. 处理目的",
+          "body": "VISA n JOB 仅为处理求职注册、签证诊断、咨询申请和招聘委托而处理最低限度的个人信息。"
+        },
+        "s2": {
+          "title": "2. 处理项目",
+          "body": "仅处理各页面所说明的项目，如手机号码、姓名、国籍、签证种类、希望地区和行业。求职注册阶段不收集外国人登录证号码和护照号码。"
+        },
+        "s3": {
+          "title": "3. 保存期限",
+          "body": "达到目的或撤回同意后立即销毁。法律要求保存的，在相应期限内保存。"
+        },
+        "s4": {
+          "title": "4. 向第三方提供",
+          "body": "仅向企业提供匿名信息。实名仅在您同意面试后提供给相关企业，联系方式不提供给企业。"
+        },
+        "s5": {
+          "title": "5. 安全保障措施",
+          "body": "可识别个人的信息加密保存，并记录工作人员的查阅情况。"
+        },
+        "s6": {
+          "title": "6. 信息主体的权利",
+          "body": "您可随时要求查阅、更正、删除、停止处理以及撤回同意。"
+        },
+        "s7": {
+          "title": "7. 咨询",
+          "body": "有关个人信息的咨询，请拨打代表电话。"
+        }
+      }
+    },
+    "terms": {
+      "title": "使用条款",
+      "sections": {
+        "s1": {
+          "title": "第1条 目的",
+          "body": "本条款规定 VISA n JOB 提供的求职招聘中介和签证诊断服务的使用条件。"
+        },
+        "s2": {
+          "title": "第2条 服务内容",
+          "body": "VISA n JOB 提供求职注册、参考性签证诊断、受理招聘委托、匿名推荐和面试安排。"
+        },
+        "s3": {
+          "title": "第3条 禁止直接联系",
+          "body": "求职者与企业之间的联系仅通过 VISA n JOB 进行，服务内不交换彼此的联系方式。"
+        },
+        "s4": {
+          "title": "第4条 使用费用",
+          "body": "求职者免费。企业介绍费按照费用说明页面和合同执行。"
+        },
+        "s5": {
+          "title": "第5条 结果的性质",
+          "body": "签证诊断和分数结果仅供参考，需行政士确认。结果并不意味着一定能获得居留资格许可。"
+        },
+        "s6": {
+          "title": "第6条 用户义务",
+          "body": "用户不得登记虚假信息，也不得使用他人信息。"
+        },
+        "s7": {
+          "title": "第7条 条款变更",
+          "body": "变更条款时，将提前公告生效日期和变更内容。"
+        }
+      }
     }
   }
 }

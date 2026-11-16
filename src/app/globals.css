@@ -107,26 +107,28 @@
   --ring: var(--blue);
   --radius: 16px;
 
-  /* 2.3.2 font stacks. --font-pretendard / --font-inter / --font-noto-sans-sc come from next/font (src/lib/fonts.ts). */
+  /* 2.3.2 font stacks. --font-noto-sans-kr (SC-11, replaces Pretendard) / --font-inter / --font-noto-sans-sc come from next/font (src/lib/fonts.ts). */
   --font-system-fallback:
     system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
   --app-font-sans:
-    var(--font-pretendard, "Pretendard"), var(--font-inter, "Inter"), var(--font-system-fallback);
+    var(--font-noto-sans-kr, "Noto Sans KR"), var(--font-inter, "Inter"),
+    var(--font-system-fallback);
 }
 
-/* 2.3.2: ko (default above) = Pretendard first. en, vi, ru, uz = Inter first. zh = Noto Sans SC first. */
+/* 2.3.2: ko (default above) = Noto Sans KR first (SC-11). en, vi, ru, uz = Inter first. zh = Noto Sans SC first. */
 html:lang(en),
 html:lang(vi),
 html:lang(ru),
 html:lang(uz) {
   --app-font-sans:
-    var(--font-inter, "Inter"), var(--font-pretendard, "Pretendard"), var(--font-system-fallback);
+    var(--font-inter, "Inter"), var(--font-noto-sans-kr, "Noto Sans KR"),
+    var(--font-system-fallback);
 }
 
 html:lang(zh) {
   --app-font-sans:
     var(--font-noto-sans-sc, "Noto Sans SC"), var(--font-inter, "Inter"),
-    var(--font-pretendard, "Pretendard"), var(--font-system-fallback);
+    var(--font-noto-sans-kr, "Noto Sans KR"), var(--font-system-fallback);
 }
 
 /* ---------- 2.2.2 Tailwind theme ---------- */

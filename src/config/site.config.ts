@@ -69,6 +69,11 @@ export type SiteConfig = {
   metrics: readonly OperatorMetric[];
   /** 수수료표 경로 (locale prefix is added by the router) */
   feesPath: string;
+  /**
+   * Absolute origin used for canonical URLs, hreflang, sitemap and JSON-LD (R-130).
+   * Set SITE_URL in production. Default is the local production server.
+   */
+  siteUrl: string;
 };
 
 export const SITE_DEFAULTS = {
@@ -84,6 +89,7 @@ export const SITE_DEFAULTS = {
   adminScrivenerRegNo: "24-SU-RG-042",
   jobPlacementName: "비자앤잡 유료직업소개소",
   jobPlacementRegNo: "제2026-3230291-14-5-00014호",
+  siteUrl: "http://localhost:3000",
 } as const;
 
 /** PC-7: no operator-entered metrics yet. */
@@ -130,6 +136,7 @@ export function getSiteConfig(env: Env = process.env): SiteConfig {
     },
     metrics: OPERATOR_METRICS,
     feesPath: "/fees",
+    siteUrl: pick(env, "SITE_URL", SITE_DEFAULTS.siteUrl).replace(/\/+$/, ""),
   };
 }
 

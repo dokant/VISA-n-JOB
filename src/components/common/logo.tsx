@@ -4,8 +4,8 @@ import { siteConfig } from "@/config/site.config";
 import { cn } from "@/lib/utils";
 
 type LogoProps = {
-  /** "light" surfaces use navy, "dark" surfaces (hero, footer) use white. */
-  tone?: "light" | "dark";
+  /** "light" surfaces use navy, "dark" surfaces (hero, footer) use white, "inherit" uses currentColor. */
+  tone?: "light" | "dark" | "inherit";
   /** Show the small secondary label next to the wordmark (hidden at <=760px). Rendered only when configured. */
   withTagline?: boolean;
   className?: string;
@@ -25,7 +25,8 @@ export function Logo({ tone = "light", withTagline = false, className }: LogoPro
     <span
       className={cn(
         "inline-flex flex-none items-center gap-2.5",
-        tone === "light" ? "text-navy" : "text-white",
+        tone === "light" && "text-navy",
+        tone === "dark" && "text-white",
         className,
       )}
     >

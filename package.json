@@ -17,6 +17,7 @@
     "test:e2e": "playwright test",
     "i18n:check": "tsx scripts/i18n-check.ts",
     "qa:static": "tsx scripts/qa-static.ts",
+    "lighthouse": "tsx scripts/lighthouse.ts",
     "db:start": "tsx scripts/db.ts start",
     "db:stop": "tsx scripts/db.ts stop",
     "db:status": "tsx scripts/db.ts status",

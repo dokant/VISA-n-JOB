@@ -1,8 +1,9 @@
 /*
  * STANDARD v2 §2.1.3 / §3.8 / §4.3 — handoff decorative recipes (class prefix `vj-`).
  * Hex values are allowed here and in globals.css only (S-02).
- * P0a: section surfaces and the gradient-text recipe. Film plate, card art, map and mesh
- * recipes are added with the home sections (P1a).
+ * P0a: section surfaces and the gradient-text recipe.
+ * P1a: reveal contract, hero film plate, audience card art, metrics/seeker washes, demand map,
+ * final CTA mesh, panel entry keyframes.
  */
 @layer components {
   /* Dark section surfaces (not tokens; 2.1.5 dark-surface text rules apply to all of them) */
@@ -33,5 +34,423 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* ---------- 2.7 reveal contract [HO, do not change] ----------
+   * Content is always opaque. Only after JS adds `js-reveal` to <html> do elements that have not
+   * entered yet get a transform offset. Never animate opacity here. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .js-reveal .reveal {
+    transition: transform 0.78s var(--ease-out);
+  }
+  .js-reveal .reveal:not(.is-in) {
+    transform: translateY(var(--reveal-y, 18px));
+  }
+  .reveal.is-in {
+    transform: none;
+  }
+
+  /* State-swapped panels: transform-only entry (no opacity keyframe) [HO panelIn] */
+  .vj-panel-in {
+    animation: vj-panel-in 0.5s var(--ease-out);
+  }
+
+  /* ---------- 3.8 hero film plate (CSS only, no video) ---------- */
+  .vj-film {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 58% 46% at 74% 26%, rgba(47, 107, 255, 0.5) 0%, transparent 62%),
+      radial-gradient(ellipse 44% 38% at 18% 66%, rgba(34, 211, 238, 0.22) 0%, transparent 64%),
+      radial-gradient(ellipse 70% 60% at 50% 108%, rgba(255, 138, 61, 0.13) 0%, transparent 60%),
+      linear-gradient(168deg, #0a1b3f 0%, #061231 46%, #03081a 100%);
+  }
+  .vj-film__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(150, 190, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(150, 190, 255, 0.05) 1px, transparent 1px);
+    background-size: 96px 96px;
+    mask-image: radial-gradient(ellipse 80% 70% at 62% 34%, #000 0%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 62% 34%, #000 0%, transparent 78%);
+    opacity: 0.75;
+  }
+  .vj-film__horizon {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 46vh;
+    background: linear-gradient(to top, rgba(3, 8, 26, 0.96), transparent);
+  }
+  /* Moving layers: rendered only >=1025px and without reduced motion (3.8). */
+  .vj-film__moving {
+    display: none;
+  }
+  @media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
+    .vj-film__moving {
+      display: block;
+    }
+  }
+  .vj-film__beam {
+    position: absolute;
+    top: -30%;
+    width: 42vw;
+    height: 160%;
+    background: linear-gradient(90deg, transparent, rgba(140, 185, 255, 0.16), transparent);
+    transform: rotate(14deg);
+    filter: blur(26px);
+    will-change: transform;
+    animation: vj-beam 18s var(--ease-standard) infinite alternate;
+  }
+  .vj-film__beam--a {
+    left: 6%;
+  }
+  .vj-film__beam--b {
+    left: 46%;
+    width: 26vw;
+    opacity: 0.6;
+    animation-duration: 23s;
+    animation-delay: -6s;
+  }
+  .vj-film__beam--c {
+    left: 76%;
+    width: 18vw;
+    opacity: 0.45;
+    animation-duration: 28s;
+    animation-delay: -12s;
+  }
+  .vj-film__glow {
+    position: absolute;
+    right: -2%;
+    top: 8%;
+    width: 46vw;
+    height: 46vw;
+    max-width: 700px;
+    max-height: 700px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 200deg,
+      rgba(47, 107, 255, 0.55),
+      rgba(34, 211, 238, 0.3),
+      transparent 62%
+    );
+    filter: blur(60px);
+    opacity: 0.6;
+    will-change: transform;
+    animation: vj-spin 52s linear infinite;
+  }
+  .vj-film__grain {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.14;
+    mix-blend-mode: overlay;
+  }
+  .vj-hero-badge {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .vj-hero-pill {
+    background: rgba(34, 211, 238, 0.16);
+    color: #7ff0ff;
+  }
+  .vj-hero-cell {
+    background: rgba(5, 13, 36, 0.35);
+  }
+  .vj-scroll-cue__line {
+    position: relative;
+    width: 1px;
+    height: 46px;
+    overflow: hidden;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  }
+  .vj-scroll-cue__line::after {
+    content: "";
+    position: absolute;
+    top: -46px;
+    left: 0;
+    width: 1px;
+    height: 46px;
+    background: linear-gradient(to bottom, transparent, #7ff0ff);
+    animation: vj-cue 2.4s var(--ease-standard) infinite;
+  }
+
+  /* ---------- audience card art [HO .acard__art--b / --p / --s] ---------- */
+  .vj-art {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    opacity: 0;
+    transform: scale(1.06);
+    transition:
+      opacity 0.6s var(--ease-standard),
+      transform 0.9s var(--ease-out);
+    pointer-events: none;
+  }
+  .vj-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(6, 18, 43, 0.94) 8%,
+      rgba(6, 18, 43, 0.55) 52%,
+      rgba(6, 18, 43, 0.3)
+    );
+  }
+  .vj-art__lines {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+    background-size: 64px 100%;
+    mask-image: linear-gradient(to top, #000, transparent 70%);
+    -webkit-mask-image: linear-gradient(to top, #000, transparent 70%);
+  }
+  .vj-art--employer {
+    background:
+      radial-gradient(circle at 78% 18%, rgba(47, 107, 255, 0.85), transparent 55%),
+      radial-gradient(circle at 20% 78%, rgba(34, 211, 238, 0.5), transparent 55%),
+      linear-gradient(150deg, #0d2255, #050f2b);
+  }
+  .vj-art--agency {
+    background:
+      radial-gradient(circle at 25% 20%, rgba(34, 211, 238, 0.55), transparent 52%),
+      radial-gradient(circle at 82% 74%, rgba(47, 107, 255, 0.7), transparent 58%),
+      linear-gradient(210deg, #0a2047, #04102a);
+  }
+  .vj-art--seeker {
+    background:
+      radial-gradient(circle at 70% 26%, rgba(255, 138, 61, 0.55), transparent 52%),
+      radial-gradient(circle at 20% 72%, rgba(47, 107, 255, 0.62), transparent 58%),
+      linear-gradient(160deg, #102048, #050f2b);
+  }
+  .vj-acard[aria-pressed="true"] .vj-art {
+    opacity: 1;
+    transform: scale(1);
+  }
+  @media (hover: hover) {
+    .vj-acard:hover .vj-art {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .vj-acard[aria-pressed="true"] {
+    border-color: transparent;
+    box-shadow:
+      0 0 0 2px var(--blue),
+      var(--shadow-2);
+  }
+  .vj-aud-panel {
+    background: linear-gradient(180deg, #fff, var(--n50));
+  }
+
+  /* ---------- metrics section wash [HO .metrics::before] ---------- */
+  .vj-metrics {
+    background-color: var(--navy-deep);
+    color: var(--white);
+  }
+  .vj-metrics::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 50% 60% at 82% 10%, rgba(47, 107, 255, 0.3), transparent 60%),
+      radial-gradient(ellipse 40% 50% at 8% 90%, rgba(34, 211, 238, 0.14), transparent 60%);
+  }
+  .vj-metric-suffix {
+    font-size: 0.5em; /* [HO .metric__num .suffix] */
+  }
+  .vj-license-seal {
+    background: rgba(34, 211, 238, 0.12);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    color: #7ff0ff;
+  }
+
+  /* ---------- seeker (visa widget) wash [HO .seek] ---------- */
+  .vj-seek {
+    background:
+      radial-gradient(ellipse 60% 52% at 82% 8%, rgba(34, 211, 238, 0.18), transparent 60%),
+      radial-gradient(ellipse 50% 60% at 8% 92%, rgba(255, 138, 61, 0.12), transparent 60%),
+      linear-gradient(180deg, #f2f6ff, #eef3ff 60%, #f7f9fd);
+  }
+  .vj-searchcard {
+    box-shadow:
+      0 40px 90px -50px rgba(11, 27, 63, 0.5),
+      0 2px 8px rgba(11, 27, 63, 0.05);
+  }
+  .vj-lang-chip {
+    background: rgba(11, 27, 63, 0.05);
+  }
+
+  /* ---------- demand map [HO .net / .map] ---------- */
+  .vj-net::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 50% 50% at 90% 20%, rgba(47, 107, 255, 0.22), transparent 60%),
+      radial-gradient(ellipse 40% 50% at 0% 100%, rgba(34, 211, 238, 0.12), transparent 60%);
+  }
+  .vj-map-land {
+    fill: rgba(255, 255, 255, 0.045);
+    stroke: rgba(160, 200, 255, 0.3);
+    stroke-width: 1.1;
+  }
+  .vj-map-link {
+    stroke: rgba(47, 107, 255, 0.55);
+    stroke-width: 1;
+    fill: none;
+    stroke-dasharray: 3 5;
+  }
+  .vj-map-node {
+    fill: rgba(255, 255, 255, 0.55);
+  }
+  .vj-map-node--data {
+    fill: var(--cyan);
+  }
+  .vj-map-label {
+    fill: rgba(255, 255, 255, 0.72);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .vj-map-region:hover .vj-map-node,
+  .vj-map-region:focus-visible .vj-map-node {
+    fill: #fff;
+  }
+  .vj-map-region:focus-visible {
+    outline: none;
+  }
+  .vj-map-region:focus-visible .vj-map-ring {
+    stroke: var(--blue);
+    stroke-width: 2;
+  }
+
+  /* ---------- final CTA mesh [HO .final__mesh] ---------- */
+  .vj-mesh {
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+    filter: blur(56px);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .vj-mesh i {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+  }
+  .vj-mesh i:nth-child(1) {
+    width: 46%;
+    height: 96%;
+    left: -4%;
+    top: -18%;
+    background: radial-gradient(circle, rgba(47, 107, 255, 0.75), transparent 66%);
+  }
+  .vj-mesh i:nth-child(2) {
+    width: 40%;
+    height: 86%;
+    right: 2%;
+    top: -6%;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.5), transparent 66%);
+  }
+  .vj-mesh i:nth-child(3) {
+    width: 34%;
+    height: 70%;
+    left: 38%;
+    bottom: -28%;
+    background: radial-gradient(circle, rgba(255, 138, 61, 0.34), transparent 66%);
+  }
+  @media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
+    .vj-mesh i:nth-child(1) {
+      animation: vj-drift1 22s ease-in-out infinite alternate;
+    }
+    .vj-mesh i:nth-child(2) {
+      animation: vj-drift2 27s ease-in-out infinite alternate;
+    }
+    .vj-mesh i:nth-child(3) {
+      animation: vj-drift3 24s ease-in-out infinite alternate;
+    }
+  }
+  /* MDX guide body (R-131) */
+  .vj-prose h2 {
+    margin-top: 24px;
+    font-size: var(--text-h3);
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .vj-prose p + p {
+    margin-top: 4px;
+  }
+
+  .vj-fcta {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .vj-fcta--warm {
+    background: linear-gradient(150deg, rgba(255, 138, 61, 0.2), rgba(255, 138, 61, 0.06));
+    border-color: rgba(255, 138, 61, 0.32);
+  }
+}
+
+@keyframes vj-panel-in {
+  from {
+    transform: translateY(8px);
+  }
+}
+@keyframes vj-beam {
+  0% {
+    transform: rotate(14deg) translate3d(-4%, 0, 0) scaleY(1);
+  }
+  100% {
+    transform: rotate(9deg) translate3d(5%, -2%, 0) scaleY(1.12);
+  }
+}
+@keyframes vj-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes vj-cue {
+  0% {
+    top: -46px;
+  }
+  70%,
+  100% {
+    top: 46px;
+  }
+}
+@keyframes vj-drift1 {
+  to {
+    transform: translate3d(12%, 8%, 0) scale(1.14);
+  }
+}
+@keyframes vj-drift2 {
+  to {
+    transform: translate3d(-10%, 12%, 0) scale(1.1);
+  }
+}
+@keyframes vj-drift3 {
+  to {
+    transform: translate3d(6%, -10%, 0) scale(1.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .reveal:not(.is-in) {
+    transform: none;
   }
 }

@@ -3,8 +3,48 @@
   "meta": {
     "siteName": "VISA n JOB",
     "home": {
-      "title": "VISA n JOB — Jobs and visa consulting for foreign residents",
+      "title": "VISA n JOB — Jobs, hiring and visa consultation for foreign workers in Korea",
       "description": "Check which jobs your visa allows and get connected to verified jobs through VISA n JOB."
+    },
+    "about": {
+      "title": "About us",
+      "description": "Registration details of the licensed employment agency and the administrative agent office that run VISA n JOB."
+    },
+    "fees": {
+      "title": "Fees",
+      "description": "No fees for job seekers. Employer fee information and registration details."
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "description": "Draft privacy policy of VISA n JOB."
+    },
+    "terms": {
+      "title": "Terms of use",
+      "description": "Draft terms of use of VISA n JOB."
+    },
+    "visaCheck": {
+      "title": "Visa check",
+      "description": "Choose your visa, region and industry to see a reference result. Confirmation by an administrative agent is required."
+    },
+    "score": {
+      "title": "E-7-4 score calculator",
+      "description": "Calculates a reference score with the score table published by an administrative agent."
+    },
+    "demand": {
+      "title": "Demand map",
+      "description": "Hiring demand by region and industry, analyzed from public job information."
+    },
+    "guide": {
+      "title": "Visa information center",
+      "description": "How to use VISA n JOB and frequently asked questions."
+    },
+    "cases": {
+      "title": "Cases",
+      "description": "De-identified status change cases will be introduced here."
+    },
+    "employerCandidates": {
+      "title": "Candidates",
+      "description": "Only for verified companies with a contract."
     }
   },
   "common": {
@@ -15,12 +55,546 @@
       "title": "Page not found",
       "description": "Please check the address again.",
       "cta": "Go to home"
+    },
+    "skipToContent": "Skip to main content",
+    "disclaimer": {
+      "reference": "For reference only — must be confirmed by an administrative agent"
+    },
+    "noSeekerFee": "No fees for job seekers",
+    "contactViaOperator": "All contact with companies goes through VISA n JOB only",
+    "expertReview": {
+      "label": "[Expert review required]",
+      "draftNote": "This document is a draft. It will be finalized after expert review."
+    },
+    "consult": "Request a consultation",
+    "comingSoon": {
+      "title": "Coming soon",
+      "description": "This service is being prepared. Please leave a consultation request if you have questions."
+    },
+    "select": {
+      "placeholder": "Please choose",
+      "all": "All"
+    },
+    "industryUnknown": "Industry not classified",
+    "region": {
+      "seoul": "Seoul",
+      "busan": "Busan",
+      "daegu": "Daegu",
+      "incheon": "Incheon",
+      "gwangju": "Gwangju",
+      "daejeon": "Daejeon",
+      "ulsan": "Ulsan",
+      "sejong": "Sejong",
+      "gyeonggi": "Gyeonggi-do",
+      "gangwon": "Gangwon-do",
+      "chungbuk": "Chungcheongbuk-do",
+      "chungnam": "Chungcheongnam-do",
+      "jeonbuk": "Jeonbuk-do",
+      "jeonnam": "Jeollanam-do",
+      "gyeongbuk": "Gyeongsangbuk-do",
+      "gyeongnam": "Gyeongsangnam-do",
+      "jeju": "Jeju-do"
+    },
+    "industry": {
+      "a": "Agriculture, forestry and fishing",
+      "b": "Mining and quarrying",
+      "c": "Manufacturing",
+      "d": "Electricity, gas, steam and air conditioning supply",
+      "e": "Water supply, sewage, waste management and remediation",
+      "f": "Construction",
+      "g": "Wholesale and retail trade",
+      "h": "Transportation and storage",
+      "i": "Accommodation and food service",
+      "j": "Information and communication",
+      "k": "Financial and insurance activities",
+      "l": "Real estate activities",
+      "m": "Professional, scientific and technical activities",
+      "n": "Business facilities management, support and rental services",
+      "o": "Public administration, defence and social security",
+      "p": "Education",
+      "q": "Human health and social work",
+      "r": "Arts, sports and recreation",
+      "s": "Membership organizations, repair and other personal services",
+      "t": "Activities of households as employers and undifferentiated production",
+      "u": "Activities of extraterritorial organizations"
     }
+  },
+  "nav": {
+    "mainLabel": "Main menu",
+    "home": "Go to home",
+    "seeker": "Job seekers",
+    "seekerSub": "Quick sign-up",
+    "employer": "Companies",
+    "employerSub": "Free hiring check",
+    "visaCheck": "Visa check",
+    "visaCheckSub": "Reference",
+    "jobs": "Jobs",
+    "jobsSub": "Recommended jobs",
+    "demand": "Demand map",
+    "demandSub": "Region · industry",
+    "about": "About",
+    "aboutSub": "Registration",
+    "fees": "Fees",
+    "feesSub": "Free for job seekers",
+    "cta": "Free hiring check",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu"
+  },
+  "footer": {
+    "mission": "VISA n JOB receives, verifies and connects requests from foreign job seekers and companies.",
+    "columns": {
+      "services": "Services",
+      "people": "Seekers · Companies",
+      "company": "Company",
+      "registration": "Registration"
+    },
+    "links": {
+      "visaCheck": "Visa check",
+      "score": "E-7-4 score calculator",
+      "demand": "Demand map",
+      "jobs": "Recommended jobs",
+      "quickRegister": "Quick sign-up",
+      "register": "Full registration",
+      "diagnosis": "Free hiring check",
+      "request": "Hiring request",
+      "about": "About us",
+      "fees": "Fees",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use"
+    },
+    "labels": {
+      "jobPlacement": "Licensed employment agency",
+      "adminOffice": "Administrative agent office",
+      "representative": "Representative",
+      "jobPlacementRegNo": "Employment agency registration no.",
+      "adminScrivenerRegNo": "Administrative agent registration no.",
+      "businessRegNo": "Business registration no.",
+      "address": "Address",
+      "phone": "Main phone",
+      "email": "Email"
+    },
+    "copyright": "© {year} {brand}. All rights reserved.",
+    "languages": "Languages"
   },
   "public": {
     "home": {
-      "title": "Our website is being prepared",
-      "description": "Visa check and job seeker registration will open soon."
+      "hero": {
+        "badge": "We plan foreign hiring together, including the legal risks",
+        "titleLine1": "Connecting global talent",
+        "titleLine2": "with Korean industry —",
+        "titleEmphasis": "the most trusted bridge",
+        "subLatin": "Trusted global workforce solutions, from Seoul to every region.",
+        "sub": "From the visa check to registration and verified job connections, VISA n JOB is with you.",
+        "primaryCta": "Free hiring check",
+        "secondaryCta": "Visa check",
+        "licenseLabel": "LICENSED AGENCY",
+        "licenseValue": "Licensed employment agency {regNo}",
+        "scroll": "SCROLL",
+        "expertReviewNote": "[Expert review required] Superlative or guarantee-like hero wording must be reviewed for advertising compliance.",
+        "stats": {
+          "regNo": {
+            "label": "Licensed",
+            "sub": "Employment agency registration no."
+          },
+          "noFee": {
+            "label": "Job seekers",
+            "sub": "We never charge job seekers a placement fee"
+          },
+          "languages": {
+            "label": "Languages",
+            "value": "6 languages",
+            "sub": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha"
+          },
+          "office": {
+            "label": "Visa office",
+            "sub": "Linked administrative agent office"
+          }
+        }
+      },
+      "audience": {
+        "eyebrow": "Choose your path",
+        "title": "Who are you?",
+        "lead": "Company, job seeker or partner agency — choose one and the guidance below changes for you.",
+        "tabsLabel": "Choose user type",
+        "employer": {
+          "tab": "Companies",
+          "num": "01 / EMPLOYER",
+          "kicker": "For employers",
+          "title": "Hiring for companies",
+          "subtitle": "Manufacturing · Construction · Agriculture · Services",
+          "desc": "First check whether you can hire foreign workers, then leave a hiring request.",
+          "action": "Free hiring check",
+          "panel": {
+            "title": "What companies should check now",
+            "body": "Start with the free hiring check to see your hiring options. A VISA n JOB staff member reviews every hiring request.",
+            "bullets": {
+              "b1": "Check hiring options by visa type in advance",
+              "b2": "Blind recommendations of verified job seekers",
+              "b3": "VISA n JOB arranges the interview schedule"
+            },
+            "cta": "Free hiring check",
+            "secondary": "Hiring request"
+          }
+        },
+        "seeker": {
+          "tab": "Job seekers",
+          "num": "02 / JOB SEEKER",
+          "kicker": "For job seekers",
+          "title": "Guidance for job seekers",
+          "subtitle": "Available in 6 languages",
+          "desc": "Check which jobs your visa allows and start with quick sign-up.",
+          "action": "Quick sign-up",
+          "panel": {
+            "title": "Find work that fits your visa",
+            "body": "Choose your visa, region and industry to first check which jobs your visa allows.",
+            "bullets": {
+              "b1": "Check your options in advance with the visa check",
+              "b2": "한국어 · English · Tiếng Việt · Русский · 中文 · Oʻzbekcha",
+              "b3": "No fees for job seekers"
+            },
+            "cta": "Quick sign-up",
+            "secondary": "Visa check"
+          }
+        },
+        "agency": {
+          "tab": "Partner agencies",
+          "num": "03 / AGENCY",
+          "kicker": "For agencies",
+          "title": "Partner agencies",
+          "subtitle": "Coming soon",
+          "desc": "Services for partner agencies are being prepared.",
+          "action": "Request a consultation",
+          "panel": {
+            "title": "Partner agency services are coming soon",
+            "body": "Services for partner agencies are not open yet. Leave a consultation request and we will guide you.",
+            "badge": "Coming soon",
+            "cta": "Request a consultation"
+          }
+        }
+      },
+      "metrics": {
+        "eyebrow": "Licensed operators",
+        "title": "Run directly by registered organizations",
+        "lead": "VISA n JOB is run by a registered fee-charging employment agency together with an administrative agent office.",
+        "titleWithMetrics": "Results you can count",
+        "license": {
+          "jobPlacement": "Licensed employment agency",
+          "adminOffice": "Administrative agent office",
+          "regNo": "Registration no. {regNo}"
+        }
+      },
+      "visaWidget": {
+        "hello": "Hello! This is VISA n JOB",
+        "title": "Work your visa allows —",
+        "titleLine2": "check it here first",
+        "lead": "Choose your visa, region and industry to see a reference result right away. You can also get guidance in your language and help with documents.",
+        "feesLink": "See fees",
+        "languagesLabel": "Languages",
+        "card": {
+          "title": "Check with my visa",
+          "badge": "Reference",
+          "more": "Detailed visa check"
+        }
+      },
+      "demandPreview": {
+        "eyebrow": "Demand map",
+        "title": "Hiring demand by region and industry",
+        "lead": "Public job information from the last 30 days, grouped by province and industry.",
+        "mapLabel": "Map of hiring demand by province",
+        "more": "Open the demand map"
+      },
+      "finalCta": {
+        "eyebrow": "Start here",
+        "title": "Get started now",
+        "lead": "Job seekers start with quick sign-up, companies with the free hiring check. VISA n JOB contacts you directly.",
+        "seeker": {
+          "kicker": "For job seekers",
+          "title": "Quick sign-up",
+          "body": "Just choose your language, visa and region to start registering.",
+          "cta": "Quick sign-up",
+          "secondary": "Visa check"
+        },
+        "employer": {
+          "kicker": "For employers",
+          "title": "Free hiring check",
+          "body": "Tell us your industry, headcount and visa type, and a VISA n JOB staff member will review it.",
+          "cta": "Free hiring check",
+          "secondary": "Hiring request",
+          "phone": "Main phone {phone}"
+        },
+        "feesLink": "Fees"
+      }
+    },
+    "about": {
+      "eyebrow": "About",
+      "title": "About us",
+      "lead": "VISA n JOB is a closed brokerage service that receives, verifies and connects requests from foreign job seekers and companies.",
+      "principles": {
+        "title": "Our principles",
+        "p1": "Job seekers and companies do not contact each other directly. VISA n JOB handles all contact.",
+        "p2": "No fees for job seekers",
+        "p3": "Companies only see blind information.",
+        "p4": "Visa checks and scores are for reference only and must be confirmed by an administrative agent."
+      },
+      "operators": {
+        "title": "Operators"
+      },
+      "contact": {
+        "title": "Request a consultation",
+        "body": "Please request a consultation by calling our main phone. A staff member will guide you."
+      }
+    },
+    "fees": {
+      "eyebrow": "Fees",
+      "title": "Fees",
+      "lead": "VISA n JOB does not charge job seekers any placement fee.",
+      "seeker": {
+        "title": "Job seekers",
+        "body": "Registration, the visa check and interview requests cost job seekers nothing."
+      },
+      "employer": {
+        "title": "Companies",
+        "body": "The employer fee table will be published on this page once the operator confirms it. For now, please request a consultation."
+      },
+      "registration": {
+        "title": "Registration details"
+      }
+    },
+    "visaCheck": {
+      "eyebrow": "Visa check",
+      "title": "Visa check",
+      "lead": "Choose your visa, region and industry to see a reference result based on criteria published by an administrative agent.",
+      "scoreLink": "E-7-4 score calculator"
+    },
+    "score": {
+      "eyebrow": "E-7-4",
+      "title": "E-7-4 score calculator",
+      "lead": "Calculates a reference score with the score table published by an administrative agent.",
+      "comingSoon": {
+        "title": "The score calculator is coming soon",
+        "description": "It will work once an administrative agent publishes the score table. For now, please request a consultation."
+      }
+    },
+    "demand": {
+      "eyebrow": "Demand map",
+      "title": "Demand map",
+      "lead": "Hiring demand from the last 30 days of public job information, grouped by province and industry.",
+      "notice": "This is hiring demand by region and industry, analyzed by VISA n JOB from public job information. It is not information about confirmed individual hiring.",
+      "windowNote": "Based on the last {days} days. Cells with fewer than {min} cases are shown as insufficient data.",
+      "table": {
+        "caption": "Hiring demand by province × industry",
+        "sido": "Province",
+        "industry": "Industry",
+        "count": "Hiring demand (last 30 days)",
+        "pay": "Offered pay (median range)",
+        "insufficient": "Insufficient data",
+        "noPay": "Not enough pay data",
+        "countValue": "{count} cases",
+        "payBand": "{min} – {max}",
+        "empty": "There is no demand to show yet. All regions have insufficient data."
+      },
+      "filter": {
+        "title": "Region and industry of interest",
+        "sido": "Province",
+        "industry": "Industry",
+        "any": "All"
+      },
+      "buttons": {
+        "alert": "Get job alerts for this region and industry",
+        "visaCheck": "Check if my visa allows it"
+      }
+    },
+    "guide": {
+      "breadcrumbHome": "Home",
+      "breadcrumbGuide": "Visa information center",
+      "reviewedBy": "Reviewed by",
+      "updatedAt": "Updated",
+      "faqTitle": "Frequently asked questions"
+    },
+    "cases": {
+      "eyebrow": "Cases",
+      "title": "Cases",
+      "lead": "We will introduce status change cases in a form where no individual can be identified.",
+      "emptyTitle": "Cases are being prepared",
+      "emptyBody": "Only reviewed cases will be published."
+    }
+  },
+  "visa": {
+    "outcome": {
+      "GREEN": "Likely",
+      "YELLOW": "Needs review",
+      "RED": "Difficult"
+    },
+    "outcomeReviewNote": "[Expert review required] The result labels are proposed wording.",
+    "result": {
+      "title": "Result",
+      "needsReview": "No published criteria match your input, so an administrative agent needs to review it."
+    },
+    "rule": {
+      "sample": {
+        "placeholder": "This is a sample rule, not a real criterion."
+      }
+    },
+    "form": {
+      "visa": "Visa",
+      "sido": "Region (province)",
+      "industry": "Industry",
+      "optional": "optional",
+      "any": "Not selected",
+      "submit": "See result",
+      "pending": "Checking…",
+      "invalid": "Please choose a visa.",
+      "error": "We could not load the result. Please try again later."
+    }
+  },
+  "score": {
+    "form": {
+      "submit": "Calculate score",
+      "pending": "Calculating…",
+      "choose": "Please choose"
+    },
+    "result": {
+      "title": "Result",
+      "total": "Total score",
+      "outOf": "out of {max} points",
+      "points": "{points} points",
+      "pointsOf": "{points} / {max} points",
+      "passScore": "Reference score {score} points",
+      "items": "Score by item",
+      "shortfalls": "Items below maximum",
+      "shortfallGap": "{gap} points short",
+      "noShortfalls": "No items below the maximum."
+    }
+  },
+  "visaType": {
+    "f2": {
+      "name": "Residence"
+    },
+    "f4": {
+      "name": "Overseas Korean"
+    },
+    "f5": {
+      "name": "Permanent residence"
+    },
+    "f6": {
+      "name": "Marriage migrant"
+    },
+    "h2": {
+      "name": "Working visit"
+    },
+    "d10": {
+      "name": "Job seeking"
+    },
+    "d2": {
+      "name": "Student"
+    },
+    "d4": {
+      "name": "General training"
+    },
+    "e7": {
+      "name": "Specially designated activities"
+    },
+    "e9": {
+      "name": "Non-professional employment"
+    },
+    "e10": {
+      "name": "Crew employment"
+    },
+    "c4": {
+      "name": "Short-term employment"
+    },
+    "g1": {
+      "name": "Miscellaneous (G-1)"
+    },
+    "other": {
+      "name": "Other visa"
+    },
+    "b1": {
+      "name": "Visa exemption"
+    },
+    "b2": {
+      "name": "Tourist / transit"
+    },
+    "c3": {
+      "name": "Short-term visit"
+    },
+    "none": {
+      "name": "No visa"
+    },
+    "unknown": {
+      "name": "Not sure"
+    }
+  },
+  "legal": {
+    "draftDate": "Draft written on {date}",
+    "koreanOriginal": "Korean original",
+    "translation": "Translation",
+    "privacy": {
+      "title": "Privacy policy",
+      "sections": {
+        "s1": {
+          "title": "1. Purpose of processing",
+          "body": "VISA n JOB processes only the minimum personal information needed for job seeker registration, visa checks, consultation requests and hiring requests."
+        },
+        "s2": {
+          "title": "2. Items processed",
+          "body": "We process only the items shown on each screen, such as mobile number, name, nationality, visa type and preferred region and industry. We do not collect alien registration numbers or passport numbers at registration."
+        },
+        "s3": {
+          "title": "3. Retention period",
+          "body": "We delete the information without delay once the purpose is achieved or consent is withdrawn. If a law requires retention, we keep it for that period."
+        },
+        "s4": {
+          "title": "4. Provision to third parties",
+          "body": "Companies receive only blind information. Your real name is given only to the company concerned after you agree to an interview, and contact details are never given to companies."
+        },
+        "s5": {
+          "title": "5. Security measures",
+          "body": "Identifying information is stored encrypted, and staff access is logged."
+        },
+        "s6": {
+          "title": "6. Your rights",
+          "body": "You can request access, correction, deletion or suspension of processing, and withdraw consent at any time."
+        },
+        "s7": {
+          "title": "7. Contact",
+          "body": "For privacy questions, please contact us through our main phone."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms of use",
+      "sections": {
+        "s1": {
+          "title": "Article 1 Purpose",
+          "body": "These terms set the conditions for using the job brokerage and visa check services provided by VISA n JOB."
+        },
+        "s2": {
+          "title": "Article 2 Services",
+          "body": "VISA n JOB provides job seeker registration, reference visa checks, hiring request intake, blind recommendations and interview arrangement."
+        },
+        "s3": {
+          "title": "Article 3 No direct contact",
+          "body": "Contact between job seekers and companies goes through VISA n JOB only. Contact details are not exchanged within the service."
+        },
+        "s4": {
+          "title": "Article 4 Fees",
+          "body": "No fees for job seekers. Employer fees follow the fees page and the contract."
+        },
+        "s5": {
+          "title": "Article 5 Nature of results",
+          "body": "Visa check and score results are for reference only and must be confirmed by an administrative agent. A result does not mean a status permit will be granted."
+        },
+        "s6": {
+          "title": "Article 6 User obligations",
+          "body": "Users must not register false information or use another person's information."
+        },
+        "s7": {
+          "title": "Article 7 Changes to the terms",
+          "body": "When the terms change, we announce the effective date and the changes in advance."
+        }
+      }
     }
   }
 }
