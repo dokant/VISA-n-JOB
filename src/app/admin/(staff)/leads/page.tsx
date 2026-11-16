@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import {
   LEAD_COLUMN_HINT,
+  LEAD_COLUMN_TITLE,
   LEAD_GRADE_LABEL,
   LEAD_NO_COMPANY,
   LEAD_NO_TITLE,
@@ -92,7 +93,7 @@ export default async function LeadBoardPage() {
             >
               <header className="grid gap-0.5 px-1">
                 <h2 id={`col-${col.grade}`} className="text-ui font-semibold text-navy">
-                  {LEAD_GRADE_LABEL[col.grade]}{" "}
+                  {LEAD_COLUMN_TITLE[col.grade]}{" "}
                   <span
                     className="tabular-nums text-n700"
                     data-testid={`lead-col-count-${col.grade}`}

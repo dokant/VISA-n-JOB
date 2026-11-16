@@ -1,6 +1,7 @@
 /**
  * R-121: "등급 전이 시 AuditLog, 기본 정렬이 priority 내림차순 테스트" — call results move lead
- * grades (INTERESTED→B, DNC→DO_NOT_CONTACT, 구인신청·검증→A) with LEAD_GRADE_CHANGE each time.
+ * grades (INTERESTED→B, DNC·NO_INTENT→DO_NOT_CONTACT (Q-14), 구인신청·검증→A) with LEAD_GRADE_CHANGE
+ * each time.
  */
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -27,9 +28,39 @@ describe("R-121 call result → lead grade", () => {
     for (const g of ["C", "B", "A", "ARCHIVED"] as const) {
       expect(gradeAfterCall(g, "DNC")).toBe("DO_NOT_CONTACT");
       expect(gradeAfterCall(g, "NO_ANSWER")).toBeNull();
-      expect(gradeAfterCall(g, "NO_INTENT")).toBeNull();
+      expect(gradeAfterCall(g, "NO_INTENT")).toBe("DO_NOT_CONTACT"); // Q-14, WO §8.2
     }
     expect(gradeAfterCall("DO_NOT_CONTACT", "INTERESTED")).toBeNull();
+    expect(gradeAfterCall("DO_NOT_CONTACT", "NO_INTENT")).toBeNull();
+  });
+
+  it("R-121 / Q-14: NO_INTENT moves to DO_NOT_CONTACT (LEAD_GRADE_CHANGE CALL_NO_INTENT), foreignIntent=false, next action cleared", async () => {
+    const staff = await staffUser("STAFF_PLACEMENT");
+    const l = await lead(uniq("call"), { grade: "C" });
+    const now = new Date();
+    expect(
+      await recordLeadCall({
+        actorId: staff.id,
+        leadId: l.id,
+        outcome: "NO_INTENT",
+        nextActionAt: new Date(now.getTime() + DAY_MS),
+        now,
+      }),
+    ).toEqual({ ok: true, grade: "DO_NOT_CONTACT" });
+    const row = await db.jobLead.findUniqueOrThrow({ where: { id: l.id } });
+    expect(row.grade).toBe("DO_NOT_CONTACT");
+    expect(row.foreignIntent).toBe(false);
+    expect(row.nextActionAt).toBeNull();
+    expect(row.lastContactedAt?.getTime()).toBe(now.getTime());
+    const audit = await auditRows(l.id, "LEAD_GRADE_CHANGE");
+    expect(audit).toHaveLength(1);
+    expect(audit[0]).toMatchObject({
+      actorId: staff.id,
+      meta: { from: "C", to: "DO_NOT_CONTACT", reason: "CALL_NO_INTENT" },
+    });
+    expect(
+      await recordLeadCall({ actorId: staff.id, leadId: l.id, outcome: "INTERESTED" }),
+    ).toEqual({ ok: false, code: "LEAD_DNC" });
   });
 
   it("R-121: INTERESTED moves C→B with CallLog + LEAD_GRADE_CHANGE; NO_ANSWER keeps grade and lastContactedAt", async () => {

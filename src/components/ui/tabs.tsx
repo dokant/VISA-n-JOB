@@ -6,7 +6,7 @@ import { Tabs as TabsPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 // shadcn/ui tabs restyled to the handoff segmented `.aud__tabs` (STANDARD v2 3.1): n100 track with
-// n200 border and 4px padding, pill; tabs 38px (44px below 1025px, B-10) 13px/600; unselected n700
+// n200 border and 4px padding, pill; tabs 44px at every width (v2.10, Q-15) 13px/600; unselected n700
 // (B-05); selected white, navy, shadow-tab.
 
 function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
@@ -31,7 +31,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex h-11 cursor-pointer items-center justify-center rounded-full px-4 text-caption font-semibold whitespace-nowrap text-n700 lg:h-9.5",
+        "inline-flex h-11 cursor-pointer items-center justify-center rounded-full px-4 text-caption font-semibold whitespace-nowrap text-n700",
         "transition-[background-color,color,box-shadow] duration-300 ease-standard hover:text-navy",
         "data-[state=active]:bg-white data-[state=active]:text-navy data-[state=active]:shadow-tab",
         className,

@@ -85,6 +85,7 @@ export type LeadTransitionReason =
   | "CALL_INTERESTED" // P1e R-121: 통화 결과 관심 있음 → B
   | "CALL_REQUEST_RECEIVED" // P1e R-121: 통화 중 구인신청 접수 → B
   | "CALL_DNC" // P1e R-121: 재접촉 거부 → DO_NOT_CONTACT
+  | "CALL_NO_INTENT" // P1e R-121, Q-14 (WO §8.2 의사 없음): 고용 의사 없음 → DO_NOT_CONTACT
   | "STAFF_VERIFIED"; // P1e R-121: 구인신청 + 직원 검증 완료 → A (BR-05)
 
 /** Anything with `jobLead.updateMany` + `auditLog.create` (the app db, a transaction client …). */

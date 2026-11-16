@@ -90,7 +90,11 @@ export function SiteNav({ logo, flags, operatorPhone, address }: Props) {
           scrolled && "md:h-16.5",
         )}
       >
-        <Link href="/" aria-label={t("home")} className="flex-none rounded-2xs">
+        <Link
+          href="/"
+          aria-label={t("home")}
+          className="flex min-h-11 flex-none items-center rounded-2xs"
+        >
           {logo}
         </Link>
 

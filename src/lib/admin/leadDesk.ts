@@ -11,7 +11,9 @@
  * - REQUEST_RECEIVED(구인신청 접수): C·보관 → B, `requestedAt`이 없으면 지금으로 기록.
  *   A는 따로 "검증 완료"(verifyLead)로만 간다 — 구인신청 + 직원 검증(BR-05, WO §8.2).
  * - DNC(재접촉 거부): 어느 등급에서든 DO_NOT_CONTACT(최종, R-115).
- * - NO_INTENT(지금은 고용 의사 없음): 등급 그대로, `foreignIntent=false`.
+ * - NO_INTENT(고용 의사 없음): 어느 등급에서든 DO_NOT_CONTACT(WO §8.2 "의사 없음", DECISIONS Q-14),
+ *   `foreignIntent=false`. NO_INTENT·DNC는 되돌릴 수 없어 화면이 확인 다이얼로그를 거치고 서버 액션은
+ *   `confirmFinal=yes` 없이는 거부한다(FINAL_CALL_OUTCOMES).
  * - NO_ANSWER(부재): 등급 그대로. 연락이 닿지 않았으므로 `lastContactedAt`(R-116 30일 미접촉)은 바꾸지
  *   않는다. 그 밖의 결과는 `lastContactedAt=now`.
  * - 재접촉금지 리드에는 통화를 기록하지 않는다(전화 금지).
@@ -51,7 +53,7 @@ const WORKED: readonly LeadGrade[] = ["C", "B", "A"];
 /** Grade after a call result (null = unchanged). */
 export function gradeAfterCall(from: LeadGrade, outcome: CallOutcome): LeadGrade | null {
   if (from === "DO_NOT_CONTACT") return null;
-  if (outcome === "DNC") return "DO_NOT_CONTACT";
+  if (outcome === "DNC" || outcome === "NO_INTENT") return "DO_NOT_CONTACT";
   if (outcome === "INTERESTED" || outcome === "REQUEST_RECEIVED") {
     return from === "C" || from === "ARCHIVED" ? "B" : null;
   }
@@ -62,6 +64,7 @@ const CALL_REASON: Partial<Record<CallOutcome, LeadTransitionReason>> = {
   INTERESTED: "CALL_INTERESTED",
   REQUEST_RECEIVED: "CALL_REQUEST_RECEIVED",
   DNC: "CALL_DNC",
+  NO_INTENT: "CALL_NO_INTENT",
 };
 
 // ─── Board ──────────────────────────────────────────────────────────────────────────────────
@@ -225,7 +228,10 @@ export async function recordLeadCall(
       });
 
       const data: Prisma.JobLeadUncheckedUpdateManyInput = {
-        nextActionAt: args.outcome === "DNC" ? null : (args.nextActionAt ?? null),
+        nextActionAt:
+          gradeAfterCall(lead.grade, args.outcome) === "DO_NOT_CONTACT"
+            ? null
+            : (args.nextActionAt ?? null),
       };
       if (args.outcome !== "NO_ANSWER") data.lastContactedAt = now;
       if (args.outcome === "INTERESTED" || args.outcome === "REQUEST_RECEIVED") {

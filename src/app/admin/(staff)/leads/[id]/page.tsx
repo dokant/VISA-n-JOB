@@ -13,6 +13,7 @@ import {
   fmtDate,
   fmtDateTime,
   fmtWon,
+  requestRows,
 } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
 import { LeadCallForm, VerifyLeadForm } from "@/components/admin/lead-call-form";
@@ -50,14 +51,6 @@ function Field({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-/** Flat key → value rows of the 구인 의뢰 / 진단 JSON (already pii-guard checked, P1d). */
-function jsonRows(value: unknown): [string, string][] {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) return [];
-  return Object.entries(value as Record<string, unknown>)
-    .filter(([, v]) => v != null && v !== "")
-    .map(([k, v]) => [k, typeof v === "object" ? JSON.stringify(v) : String(v)]);
-}
-
 /** /admin/leads/[id] — 리드 상세, 통화 기록(R-121), 연락처 열람(R-122). */
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const actor = await requireStaff(); // rbac: admin:access + 2FA
@@ -74,7 +67,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       : Promise.resolve(null),
   ]);
   const dnc = lead.grade === "DO_NOT_CONTACT";
-  const request = jsonRows(lead.requestJson);
+  const request = requestRows(lead.requestJson); // 한국어 라벨 (E-5), pii-guard checked in P1d
 
   return (
     <div className="grid gap-6" data-testid="lead-detail">
@@ -174,9 +167,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
         {request.length > 0 ? (
           <Section title="구인 의뢰 내용" id="lead-request-title">
-            <dl className="divide-y divide-n100">
-              {request.map(([k, v]) => (
-                <Field key={k} label={k} value={v} />
+            <dl className="divide-y divide-n100" data-testid="lead-request">
+              {request.map((r) => (
+                <Field key={r.label} label={r.label} value={r.value} />
               ))}
             </dl>
           </Section>

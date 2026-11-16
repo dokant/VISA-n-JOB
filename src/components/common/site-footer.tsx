@@ -75,7 +75,11 @@ export async function SiteFooter({ flags }: Props) {
       <div className="mx-auto max-w-site px-gutter">
         <div className="grid grid-cols-2 gap-6.5 pb-11.5 md:grid-cols-3 md:gap-7.5 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr] lg:gap-8.5">
           <div className="col-span-2 grid content-start gap-4 md:col-span-3 lg:col-span-1">
-            <Link href="/" className="w-fit rounded-2xs" aria-label={site.brand.wordmark}>
+            <Link
+              href="/"
+              className="flex min-h-11 w-fit items-center rounded-2xs"
+              aria-label={site.brand.wordmark}
+            >
               <Logo tone="dark" withTagline />
             </Link>
             <p className="max-w-80 text-caption leading-relaxed text-white/60">{t("mission")}</p>
@@ -86,12 +90,12 @@ export async function SiteFooter({ flags }: Props) {
               <h2 className="mb-3.5 text-eyebrow font-bold tracking-[0.14em] text-white/60 uppercase">
                 {col.title}
               </h2>
-              <ul className="grid gap-1">
+              <ul className="grid">
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="inline-flex min-h-8 items-center text-caption text-white/66 transition-colors duration-200 hover:text-white"
+                      className="inline-flex min-h-11 items-center text-caption text-white/66 transition-colors duration-200 hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -113,12 +117,12 @@ export async function SiteFooter({ flags }: Props) {
                 </div>
               ))}
               {site.contact.phone ? (
-                <div className="flex gap-2 text-caption leading-normal">
+                <div className="flex items-center gap-2 text-caption leading-normal">
                   <dt className="flex-none font-medium text-white/72">{t("labels.phone")}</dt>
                   <dd>
                     <a
                       href={phoneHref}
-                      className="text-white/72 underline-offset-4 hover:underline"
+                      className="inline-flex min-h-11 items-center text-white/72 underline-offset-4 hover:underline"
                     >
                       {site.contact.phone}
                     </a>
@@ -131,7 +135,7 @@ export async function SiteFooter({ flags }: Props) {
                   <dd>
                     <a
                       href={`mailto:${site.contact.email}`}
-                      className="text-white/72 underline-offset-4 hover:underline"
+                      className="inline-flex min-h-11 items-center text-white/72 underline-offset-4 hover:underline"
                     >
                       {site.contact.email}
                     </a>
@@ -146,16 +150,16 @@ export async function SiteFooter({ flags }: Props) {
           <span>
             {t("copyright", { year: new Date().getFullYear(), brand: site.brand.wordmark })}
           </span>
-          <div className="flex flex-wrap gap-x-4.5 gap-y-1">
-            <Link href="/privacy" className="inline-flex min-h-8 items-center hover:text-white">
+          <div className="flex flex-wrap gap-x-4.5">
+            <Link href="/privacy" className="inline-flex min-h-11 items-center hover:text-white">
               {t("links.privacy")}
             </Link>
-            <Link href="/terms" className="inline-flex min-h-8 items-center hover:text-white">
+            <Link href="/terms" className="inline-flex min-h-11 items-center hover:text-white">
               {t("links.terms")}
             </Link>
             <Link
               href={site.feesPath}
-              className="inline-flex min-h-8 items-center hover:text-white"
+              className="inline-flex min-h-11 items-center hover:text-white"
             >
               {t("links.fees")}
             </Link>
@@ -167,7 +171,7 @@ export async function SiteFooter({ flags }: Props) {
                 href="/"
                 locale={locale}
                 lang={locale}
-                className="inline-flex h-11 items-center rounded-full border border-white/16 px-3 lg:h-8.5 text-caption text-white/72 hover:border-white/40 hover:text-white"
+                className="inline-flex h-11 items-center rounded-full border border-white/16 px-3 text-caption text-white/72 hover:border-white/40 hover:text-white"
               >
                 {localeNames[locale]}
               </Link>

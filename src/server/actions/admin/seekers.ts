@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { adminAction } from "@/lib/admin/actionGuard";
 import { requireStaff } from "@/lib/admin/session";
 import {
   type GradeRequirement,
@@ -27,6 +28,8 @@ import {
  * - 등급·트랙·확인 항목·전환 가능성: `seeker:review` (STAFF_VISA·ADMIN, DECISIONS Q-08)
  * - 이름·학교·이전 직장명 열람: `seeker:view` (모든 직원)
  * - 전화·메신저·이메일 열람: `contact:view` (STAFF_PLACEMENT·ADMIN, WO §11)
+ * Each action is wrapped in `adminAction`: a refused permission returns `{ ok: false, code:
+ * "FORBIDDEN" }` instead of an unhandled error (QA O-3).
  */
 export type AdminActionState =
   { ok: true; at: number } | { ok: false; code: string; missing?: GradeRequirement[] } | null;
@@ -42,7 +45,7 @@ function done(seekerId: string): AdminActionState {
   return { ok: true, at: Date.now() };
 }
 
-export async function changeGradeAction(
+export const changeGradeAction = adminAction(async function changeGradeAction(
   _prev: AdminActionState,
   fd: FormData,
 ): Promise<AdminActionState> {
@@ -52,9 +55,9 @@ export async function changeGradeAction(
   if (!parsed.success) return { ok: false, code: "INVALID_INPUT" };
   const r = await changeSeekerGrade({ actorId: actor.id, ...parsed.data });
   return r.ok ? done(parsed.data.seekerId) : { ok: false, code: r.code, missing: r.missing };
-}
+});
 
-export async function changeTrackAction(
+export const changeTrackAction = adminAction(async function changeTrackAction(
   _prev: AdminActionState,
   fd: FormData,
 ): Promise<AdminActionState> {
@@ -64,9 +67,9 @@ export async function changeTrackAction(
   if (!parsed.success) return { ok: false, code: "INVALID_INPUT" };
   const r = await changeSeekerTrack({ actorId: actor.id, ...parsed.data });
   return r.ok ? done(parsed.data.seekerId) : { ok: false, code: r.code };
-}
+});
 
-export async function updateReviewFlagsAction(
+export const updateReviewFlagsAction = adminAction(async function updateReviewFlagsAction(
   _prev: AdminActionState,
   fd: FormData,
 ): Promise<AdminActionState> {
@@ -79,9 +82,9 @@ export async function updateReviewFlagsAction(
   const { seekerId, ...patch } = parsed.data;
   const r = await updateReviewFlags({ actorId: actor.id, seekerId, patch });
   return r.ok ? done(seekerId) : { ok: false, code: r.code };
-}
+});
 
-export async function setConvertibilityAction(
+export const setConvertibilityAction = adminAction(async function setConvertibilityAction(
   _prev: AdminActionState,
   fd: FormData,
 ): Promise<AdminActionState> {
@@ -93,7 +96,7 @@ export async function setConvertibilityAction(
   if (!parsed.success) return { ok: false, code: "INVALID_INPUT" };
   const r = await setConvertibility({ actorId: actor.id, ...parsed.data });
   return r.ok ? done(parsed.data.seekerId) : { ok: false, code: r.code };
-}
+});
 
 export type RevealState =
   { ok: true; values: SeekerPiiValues } | { ok: false; code: string } | null;
@@ -110,21 +113,21 @@ async function reveal(
 }
 
 /** R-122: 이름·학교·이전 직장명. Each call writes PII_VIEW before the values are returned. */
-export async function revealSeekerBasicAction(
+export const revealSeekerBasicAction = adminAction(async function revealSeekerBasicAction(
   _prev: RevealState,
   fd: FormData,
 ): Promise<RevealState> {
   const actor = await requireStaff(); // rbac: admin:access + 2FA
   assertCan(actor, "seeker:view");
   return reveal(actor.id, fd, "basic");
-}
+});
 
 /** R-122: 전화·메신저·이메일 (WO §11). Each call writes PII_VIEW before the values are returned. */
-export async function revealSeekerContactAction(
+export const revealSeekerContactAction = adminAction(async function revealSeekerContactAction(
   _prev: RevealState,
   fd: FormData,
 ): Promise<RevealState> {
   const actor = await requireStaff(); // rbac: admin:access + 2FA
   assertCan(actor, "contact:view");
   return reveal(actor.id, fd, "contact");
-}
+});

@@ -21,7 +21,7 @@ type Props = {
 };
 
 // STANDARD v2 3.2 LocaleSwitcher: 6 languages only, each in its own name. Pill button with
-// Globe + upper-case code + ChevronDown (13px/600). 38px tall on desktop, 44px below 1025px (B-10).
+// Globe + upper-case code + ChevronDown (13px/600). 44px tall at every width (v2.10, Q-15).
 export function LocaleSwitcher({ tone = "light" }: Props) {
   const t = useTranslations("common.localeSwitcher");
   const current = useLocale() as Locale;
@@ -46,7 +46,7 @@ export function LocaleSwitcher({ tone = "light" }: Props) {
           disabled={isPending}
           data-testid="locale-switcher"
           className={cn(
-            "gap-1.75 px-3 text-caption font-semibold tracking-[0.04em] shadow-none lg:h-9.5",
+            "gap-1.75 px-3 text-caption font-semibold tracking-[0.04em] shadow-none",
             tone === "light"
               ? "border-n200 bg-white text-navy hover:border-input"
               : "border-white/22 bg-white/7 text-white hover:border-white/22 hover:bg-white/16",

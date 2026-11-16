@@ -5,8 +5,8 @@ import { Slot } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 // shadcn/ui button restyled to the handoff `.btn` (STANDARD v2 3.1).
-// All buttons are pills. Sizes: sm 42px / default 52px / lg 60px; below 1025px every size is at least
-// 44px (B-10). Icons: 10px gap; a trailing icon marked data-icon="trailing" nudges 3px on hover.
+// All buttons are pills. Sizes: sm 44px / default 52px / lg 60px; every size is at least 44px at every
+// width (STANDARD v2.10 3.3, CLAUDE.md h-11, Q-15). Icons: 10px gap; a trailing icon marked data-icon="trailing" nudges 3px on hover.
 // Press = scale(.975). Disabled = opacity .45. Focus = global :focus-visible outline (2.8).
 const buttonVariants = cva(
   [
@@ -35,7 +35,7 @@ const buttonVariants = cva(
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       },
       size: {
-        sm: "h-11 px-4 text-dense font-semibold lg:h-10.5",
+        sm: "h-11 px-4 text-dense font-semibold",
         default: "h-13 px-6 text-ui",
         lg: "h-15 px-7.5 text-control font-semibold",
       },

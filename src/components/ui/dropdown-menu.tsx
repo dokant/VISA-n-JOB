@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 // shadcn/ui dropdown-menu restyled to the handoff `.lang__menu` (STANDARD v2 3.1):
 // 236px wide, 8px padding, n200 border, 16px radius, shadow-2. Rows 9px/11px, 13.5px, hover n50,
-// selected row (aria-current) = accent / accent-foreground / 600 (B-03). Rows >= 44px below 1025px (B-10).
+// selected row (aria-current) = accent / accent-foreground / 600 (B-03). Rows >= 44px at every width (v2.10, Q-15).
 
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -65,7 +65,7 @@ function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "relative flex cursor-default items-center gap-2 min-h-11 rounded-xs px-2.75 py-2.25 text-dense outline-hidden select-none transition-colors focus:bg-n50 data-[highlighted]:bg-n50 aria-[current=true]:bg-accent aria-[current=true]:font-semibold aria-[current=true]:text-accent-foreground lg:min-h-0 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:*:[svg]:text-destructive!",
+        "relative flex cursor-default items-center gap-2 min-h-11 rounded-xs px-2.75 py-2.25 text-dense outline-hidden select-none transition-colors focus:bg-n50 data-[highlighted]:bg-n50 aria-[current=true]:bg-accent aria-[current=true]:font-semibold aria-[current=true]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:*:[svg]:text-destructive!",
         className,
       )}
       {...props}
@@ -83,7 +83,7 @@ function DropdownMenuCheckboxItem({
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
       className={cn(
-        "relative flex cursor-default items-center gap-2 min-h-11 rounded-xs py-2.25 pr-2.75 pl-8 text-dense outline-hidden select-none focus:bg-n50 data-[highlighted]:bg-n50 lg:min-h-0 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2 min-h-11 rounded-xs py-2.25 pr-2.75 pl-8 text-dense outline-hidden select-none focus:bg-n50 data-[highlighted]:bg-n50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       checked={checked}
@@ -114,7 +114,7 @@ function DropdownMenuRadioItem({
     <DropdownMenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
       className={cn(
-        "relative flex cursor-default items-center gap-2 min-h-11 rounded-xs py-2.25 pr-2.75 pl-8 text-dense outline-hidden select-none focus:bg-n50 data-[highlighted]:bg-n50 lg:min-h-0 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2 min-h-11 rounded-xs py-2.25 pr-2.75 pl-8 text-dense outline-hidden select-none focus:bg-n50 data-[highlighted]:bg-n50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -186,7 +186,7 @@ function DropdownMenuSubTrigger({
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex cursor-default items-center gap-2 min-h-11 rounded-xs px-2.75 py-2.25 text-dense outline-hidden select-none transition-colors focus:bg-n50 data-[highlighted]:bg-n50 aria-[current=true]:bg-accent aria-[current=true]:font-semibold aria-[current=true]:text-accent-foreground lg:min-h-0 data-[inset]:pl-8 data-[state=open]:bg-n50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+        "flex cursor-default items-center gap-2 min-h-11 rounded-xs px-2.75 py-2.25 text-dense outline-hidden select-none transition-colors focus:bg-n50 data-[highlighted]:bg-n50 aria-[current=true]:bg-accent aria-[current=true]:font-semibold aria-[current=true]:text-accent-foreground data-[inset]:pl-8 data-[state=open]:bg-n50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
         className,
       )}
       {...props}

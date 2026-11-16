@@ -70,6 +70,8 @@ test.describe("P1e admin core", () => {
     await expect(
       page.getByTestId("lead-col-C").locator(`[data-lead-id="${leadId}"]`),
     ).toBeVisible();
+    // STANDARD 1.1 (E-2): 칸반 열 제목은 "리드 등급"으로 구분.
+    await expect(page.locator("#col-C")).toContainText("리드 등급 C");
 
     await page.goto(`/admin/leads/${leadId}`);
     await waitForHydration(page, "call-form");
@@ -93,5 +95,39 @@ test.describe("P1e admin core", () => {
     await expect(
       page.getByTestId("lead-col-B").locator(`[data-lead-id="${leadId}"]`),
     ).toBeVisible();
+  });
+
+  test("R-121 / Q-14: 고용 의사 없음 → 확인 다이얼로그(취소 시 변경 없음) → 재접촉금지 + AuditLog", async ({
+    page,
+  }) => {
+    const staffId = await signInNewStaff(page, "STAFF_PLACEMENT");
+    const leadId = await createCallLead();
+
+    await page.goto(`/admin/leads/${leadId}`);
+    await waitForHydration(page, "call-form");
+    await page.getByLabel(/통화 결과/).selectOption("NO_INTENT");
+    await expect(page.getByLabel(/통화 결과/)).toContainText("재접촉금지로 이동");
+    await page.getByTestId("call-save").click();
+    const dialog = page.getByTestId("call-final-confirm");
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText("되돌릴 수 없");
+
+    // Cancel: nothing is stored.
+    await page.getByTestId("call-final-cancel").click();
+    await expect(dialog).toHaveCount(0);
+    expect((await leadGrade(leadId)).grade).toBe("C");
+    expect(await auditFor(leadId, "LEAD_GRADE_CHANGE")).toHaveLength(0);
+
+    // Confirm: DO_NOT_CONTACT with LEAD_GRADE_CHANGE (CALL_NO_INTENT).
+    await page.getByTestId("call-save").click();
+    await expect(dialog).toBeVisible();
+    await page.getByTestId("call-final-confirm-submit").click();
+    await expect(page.getByTestId("lead-grade")).toHaveAttribute("data-grade", "DO_NOT_CONTACT");
+    await expect(page.getByTestId("call-form")).toHaveCount(0);
+    expect((await leadGrade(leadId)).grade).toBe("DO_NOT_CONTACT");
+    const audit = await auditFor(leadId, "LEAD_GRADE_CHANGE");
+    expect(audit.map((a) => [a.actorId, a.meta])).toEqual([
+      [staffId, { from: "C", to: "DO_NOT_CONTACT", reason: "CALL_NO_INTENT" }],
+    ]);
   });
 });

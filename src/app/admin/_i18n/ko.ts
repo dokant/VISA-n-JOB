@@ -46,6 +46,15 @@ export const LEAD_GRADE_LABEL: Record<LeadGrade, string> = {
   DO_NOT_CONTACT: "재접촉금지",
 };
 
+/** Kanban column titles (STANDARD 1.1: 관리자 화면은 "리드 등급"으로 구분, P1e E-2). */
+export const LEAD_COLUMN_TITLE: Record<LeadGrade, string> = {
+  C: "리드 등급 C",
+  B: "리드 등급 B",
+  A: "리드 등급 A",
+  ARCHIVED: "보관",
+  DO_NOT_CONTACT: "재접촉금지",
+};
+
 export const LEAD_COLUMN_HINT: Record<LeadGrade, string> = {
   C: "수집 · 첫 통화 전",
   B: "관심 확인",
@@ -84,10 +93,10 @@ export const REQUIREMENT_LABEL: Record<GradeRequirement, string> = {
 
 export const CALL_OUTCOME_LABEL: Record<CallOutcome, string> = {
   NO_ANSWER: "부재 · 연결 안 됨",
-  NO_INTENT: "지금은 고용 의사 없음",
+  NO_INTENT: "고용 의사 없음 (재접촉금지로 이동)",
   INTERESTED: "관심 있음 (B로)",
   REQUEST_RECEIVED: "구인신청 접수 (B로)",
-  DNC: "재접촉 거부 (재접촉금지로)",
+  DNC: "재접촉 거부 (재접촉금지로 이동)",
 };
 
 export const STAFF_TASK_LABEL: Record<StaffTaskType, string> = {
@@ -100,6 +109,14 @@ export const STAFF_TASK_LABEL: Record<StaffTaskType, string> = {
   LEAD_REVIEW: "리드 검증",
   OTHER: "기타",
 };
+
+/** Confirmation for outcomes that move the lead to 재접촉금지 (FINAL_CALL_OUTCOMES, Q-14). */
+export const CALL_FINAL_CONFIRM = {
+  title: "재접촉금지로 옮길까요?",
+  body: "이 결과를 저장하면 리드 등급이 재접촉금지로 바뀝니다. 되돌릴 수 없고, 이 리드에는 다시 전화하지 않습니다.",
+  confirm: "저장하고 재접촉금지로 이동",
+  cancel: "취소",
+} as const;
 
 export const LEAD_SOURCE_LABEL: Record<string, string> = {
   WORK24_API: "고용24",
@@ -114,6 +131,8 @@ export const LEAD_NO_TITLE = "제목 없음";
 export const LEAD_NO_COMPANY = "회사명 미입력";
 
 const ERROR_TEXT: Record<string, string> = {
+  FORBIDDEN: "이 작업을 할 권한이 없습니다.",
+  UNAUTHENTICATED: "다시 로그인해 주세요.",
   INVALID_INPUT: "입력값을 확인해 주세요.",
   NOT_FOUND: "대상을 찾을 수 없습니다. 새로고침해 주세요.",
   CONFLICT: "다른 직원이 먼저 바꿨습니다. 새로고침한 뒤 다시 확인해 주세요.",
@@ -125,6 +144,7 @@ const ERROR_TEXT: Record<string, string> = {
   SAME_TRACK: "이미 그 트랙입니다.",
   UNKNOWN_VISA: "목록에 있는 비자만 고를 수 있습니다.",
   NOTHING_TO_SAVE: "바뀐 내용이 없습니다.",
+  CONFIRM_REQUIRED: "재접촉금지로 옮기는 결과는 확인 후에 저장합니다.",
   LEAD_DNC: "재접촉금지 리드에는 통화를 기록하지 않습니다.",
   NOTE_HAS_CONTACT: "메모에 전화번호·이메일 같은 연락처를 적지 마세요.",
   LEAD_STATE: "B등급 리드만 검증 완료로 바꿀 수 있습니다.",
@@ -166,11 +186,103 @@ export function fmtDateTime(d: Date | null | undefined): string {
 export function fmtMonth(d: Date | null | undefined): string {
   return d ? monthFmt.format(d) : "—";
 }
+/** 원화 (STANDARD 3.5·S-32: `Intl` currency KRW, 관리자는 ko-KR 고정). */
+const wonFmt = new Intl.NumberFormat("ko-KR", {
+  style: "currency",
+  currency: "KRW",
+  maximumFractionDigits: 0,
+});
+const countFmt = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
+
 export function fmtWon(n: number | null | undefined): string {
-  return n == null ? "—" : `${n.toLocaleString("ko-KR")}원`;
+  return n == null ? "—" : wonFmt.format(n);
 }
 /** YYYY-MM-DD in KST, for `<input type="date">` default values. */
 export function isoDay(d: Date | null | undefined): string {
   if (!d) return "";
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(d);
+}
+
+// ─── 구인 의뢰 내용 (JobLead.requestJson, R-125 / P1e E-5) ───────────────────────────────────
+
+type RequestField = {
+  label: string;
+  kind: "text" | "won" | "count" | "people";
+  options?: Record<string, string>;
+};
+
+/** Keys written by src/lib/employer/jobRequest.ts, in display order, with the form's Korean wording. */
+const REQUEST_FIELDS: Record<string, RequestField> = {
+  role: { label: "직무", kind: "text" },
+  payMin: { label: "월 급여 최저(세전)", kind: "won" },
+  payMax: { label: "월 급여 최고(세전)", kind: "won" },
+  workHours: { label: "근무시간", kind: "text" },
+  overtime: {
+    label: "잔업",
+    kind: "text",
+    options: { NONE: "없음", SOMETIMES: "가끔 있음", REGULAR: "자주 있음", UNKNOWN: "모름" },
+  },
+  headcount: { label: "채용 인원", kind: "people" },
+  startTiming: {
+    label: "채용 시기",
+    kind: "text",
+    options: {
+      IMMEDIATE: "바로",
+      WITHIN_1M: "1개월 안",
+      WITHIN_3M: "3개월 안",
+      UNDECIDED: "정하지 않음",
+    },
+  },
+  dormitory: {
+    label: "숙소",
+    kind: "text",
+    options: { PROVIDED: "제공", ALLOWANCE: "주거비 도움", NONE: "없음" },
+  },
+  meals: {
+    label: "식사",
+    kind: "text",
+    options: { PROVIDED: "제공", PARTIAL: "일부 제공", NONE: "없음" },
+  },
+  employeeCount: { label: "상시근로자 수", kind: "people" },
+  preferences: { label: "희망 조건", kind: "text" },
+  detail: { label: "그 밖의 요청", kind: "text" },
+};
+
+export const REQUEST_OTHER_LABEL = "기타 항목";
+const YES_NO = { true: "예", false: "아니요" } as const;
+
+function requestValue(field: RequestField | undefined, v: unknown): string {
+  if (typeof v === "number") {
+    if (field?.kind === "won") return fmtWon(v);
+    if (field?.kind === "people") return `${countFmt.format(v)}명`;
+    return countFmt.format(v);
+  }
+  if (typeof v === "boolean") return YES_NO[String(v) as "true" | "false"];
+  if (typeof v === "string") return field?.options?.[v] ?? v;
+  if (Array.isArray(v)) return v.map((x) => requestValue(field, x)).join(", ");
+  return "";
+}
+
+/**
+ * 구인 의뢰 JSON → Korean label/value rows (관리자 한국어 전용, STANDARD 3.6). Known keys use the
+ * form's labels and option words; unknown keys are grouped under "기타 항목" without exposing the
+ * raw key, and nested objects are not printed as JSON.
+ */
+export function requestRows(value: unknown): { label: string; value: string }[] {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) return [];
+  const obj = value as Record<string, unknown>;
+  const present = (v: unknown) => v != null && v !== "" && !(Array.isArray(v) && v.length === 0);
+  const rows: { label: string; value: string }[] = [];
+  for (const [key, field] of Object.entries(REQUEST_FIELDS)) {
+    const v = obj[key];
+    if (!present(v)) continue;
+    const text = requestValue(field, v);
+    if (text) rows.push({ label: field.label, value: text });
+  }
+  const other = Object.entries(obj)
+    .filter(([k, v]) => !(k in REQUEST_FIELDS) && present(v))
+    .map(([, v]) => requestValue(undefined, v))
+    .filter((t) => t !== "");
+  if (other.length > 0) rows.push({ label: REQUEST_OTHER_LABEL, value: other.join(" · ") });
+  return rows;
 }

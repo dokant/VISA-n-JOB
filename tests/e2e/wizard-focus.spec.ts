@@ -5,7 +5,7 @@ import { expect, type Page, test, type TestInfo } from "@playwright/test";
 import { uniquePhone } from "./support/authDb";
 import { msg } from "./support/messages";
 import { createWizardSeeker } from "./support/seekerDb";
-import { isolate, loginUi, verifyPhone } from "./support/seekerFlow";
+import { isolate, loginUi, verifyPhone, waitForHydration } from "./support/seekerFlow";
 
 // STANDARD 3.3 / Q-10 (P1c run 3, D-2·R2-2·R2-3): keyboard focus is never hidden under the sticky
 // bottom bar, required checkboxes receive the "first error field" focus, 등록 불가 비자 rows show
@@ -72,6 +72,7 @@ test("R2-2: empty required consent on Step 7 → focus moves to its checkbox", a
   await createWizardSeeker(phone, "6");
   await loginUi(page, L, phone);
   await page.goto(`/${L}/seeker/register?step=7`);
+  await waitForHydration(page, "wizard-step-7");
   // the quick signup already agreed: untick the first required consent, move focus away, submit
   const box = page.getByTestId("consent-PRIVACY_REQUIRED").getByRole("checkbox");
   await expect(box).toBeChecked();
@@ -90,12 +91,16 @@ test("R2-2 · 6: Step 2 confirm checkbox gets focus; 등록 불가 비자 keeps 
   await page.goto(`/${L}/seeker/register`);
   await verifyPhone(page, L, phone);
   await page.getByTestId("wizard-next").click();
+  // Each step is a full page load (useStepSubmit → location.assign): wait for React before typing,
+  // or a pre-hydration submit/selection is lost and the focus assertion times out (QA O-4).
+  await waitForHydration(page, "wizard-step-1");
   const s1 = page.getByTestId("wizard-step-1");
   await s1.getByLabel(new RegExp(t("step1.legalName.label").replace(/[()]/g, "."))).fill("LE C");
   await s1.locator('select[name="nationality"]').selectOption("VN");
   await s1.locator('select[name="sido"]').selectOption({ index: 1 });
   await page.getByTestId("wizard-next").click();
   await expect(page).toHaveURL(/step=2$/);
+  await waitForHydration(page, "wizard-step-2");
 
   const s2 = page.getByTestId("wizard-step-2");
   await s2.getByTestId("visa-select").selectOption("F-4");
