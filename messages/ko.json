@@ -516,25 +516,33 @@
       "headcount": "{count}명",
       "notSpecified": "안내 예정",
       "overtime": {
-        "NONE": "없음",
-        "SOMETIMES": "가끔 있음",
-        "REGULAR": "자주 있음"
+        "option": {
+          "NONE": "없음",
+          "SOMETIMES": "가끔 있음",
+          "REGULAR": "자주 있음"
+        }
       },
       "dormitory": {
-        "NONE": "없음",
-        "FREE": "무료 제공",
-        "PAID": "유상 제공"
+        "option": {
+          "NONE": "없음",
+          "FREE": "무료 제공",
+          "PAID": "유상 제공"
+        }
       },
       "meals": {
-        "PROVIDED": "제공",
-        "PARTIAL": "일부 제공",
-        "NONE": "없음"
+        "option": {
+          "PROVIDED": "제공",
+          "PARTIAL": "일부 제공",
+          "NONE": "없음"
+        }
       },
       "shift": {
-        "DAY": "주간 근무",
-        "TWO_SHIFT": "2교대",
-        "THREE_SHIFT": "3교대",
-        "NIGHT": "야간 근무"
+        "option": {
+          "DAY": "주간 근무",
+          "TWO_SHIFT": "2교대",
+          "THREE_SHIFT": "3교대",
+          "NIGHT": "야간 근무"
+        }
       },
       "interest": {
         "title": "면접 신청",
@@ -542,7 +550,6 @@
         "submitting": "신청하는 중…",
         "how": "신청하면 비자앤잡 담당자가 내 비자와 조건을 확인한 뒤 연락드립니다. 기업에 내 연락처가 전달되지 않습니다.",
         "anonymous": "면접 신청은 등록한 구직자만 할 수 있습니다. 1분 간편 등록을 마치면 이 일자리로 돌아옵니다.",
-        "register": "간편 등록하고 면접 신청",
         "login": "이미 등록했나요? 로그인",
         "notEligibleTitle": "이 일자리는 내 비자로 바로 면접 신청을 할 수 없습니다",
         "notEligibleBody": "비자앤잡 담당자가 내 비자로 가능한 일을 함께 찾아 드립니다.",

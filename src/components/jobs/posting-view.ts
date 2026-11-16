@@ -56,7 +56,7 @@ export async function loadPostingViews(postings: readonly PublicPosting[]): Prom
     format.number(n, { style: "currency", currency: "KRW", maximumFractionDigits: 0 });
   const unset = t("public.jobs.notSpecified");
   const coded = (group: string, value: string | null) =>
-    value ? t(`public.jobs.${group}.${value}`) : unset;
+    value ? t(`public.jobs.${group}.option.${value}`) : unset;
 
   return postings.map((p) => {
     const sido = sidoName.get(p.sido) ?? p.sido;

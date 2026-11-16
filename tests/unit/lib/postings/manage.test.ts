@@ -70,6 +70,40 @@ describe("R-201 create only from grade-A leads (BR-05)", () => {
     expect(containsCompanyName("서울 제조업 생산직", ["한빛정밀 주식회사"])).toBe(false);
   });
 
+  it("R-201 / BR-03 (P2a QA D-2): symbols and invisible characters between the letters are ignored", () => {
+    const names = ["이투이공고정밀 주식회사"];
+    const hits = [
+      "이투이/공고정밀 생산직",
+      "이투이_공고정밀 생산직",
+      "이투이~공고정밀",
+      "이투이*공고정밀",
+      "이투이+공고정밀",
+      "이투이=공고정밀",
+      "이투이|공고정밀",
+      "이투이\\공고정밀",
+      "이투이:공고정밀",
+      "이투이\u200B공고정밀 생산직",
+      "이투이\u200C공고\u200D정밀",
+      "이투이\u2060공고\uFEFF정밀",
+      "이투이\u00AD공고정밀",
+      "이투이\u3164공고정밀",
+      "㈜이투이공고정밀",
+      "이투이\u3000공고정밀", // ideographic space
+    ];
+    for (const text of hits) expect(containsCompanyName(text, names), text).toBe(true);
+    expect(
+      containsCompanyName("ＨＡＮＢＩＴ-Precision 생산직", ["Hanbit Precision Co., Ltd."]),
+    ).toBe(true);
+    // ordinary job text with the same symbols stays negative
+    for (const text of [
+      "이투이 지역 / 공장 생산직",
+      "공고 정밀 가공 / 2교대",
+      "정밀_가공 생산직",
+    ]) {
+      expect(containsCompanyName(text, names), text).toBe(false);
+    }
+  });
+
   it("R-201: unknown visa / region / industry codes are refused", async () => {
     const staff = await staffUser("STAFF_PLACEMENT");
     const lead = await gradedLead("A");

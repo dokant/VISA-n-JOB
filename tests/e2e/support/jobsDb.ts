@@ -89,6 +89,14 @@ export async function createSeekerWithVisa(phone: string, visaCode: string) {
   return user.id;
 }
 
+/** Changes a seeker's visa / status after the page was opened (P2a QA O-2, BLOCKED panel). */
+export async function updateSeeker(
+  userId: string,
+  data: { visaCode?: string; status?: "BLOCKED" },
+): Promise<void> {
+  await db.seekerProfile.update({ where: { userId }, data });
+}
+
 export function interestRequestsOf(postingId: string) {
   return db.interestRequest.findMany({
     where: { postingId },

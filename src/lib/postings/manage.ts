@@ -49,14 +49,21 @@ export type PostingActionResult<T = object> =
 
 const CORPORATE_MARKERS = /주식회사|유한회사|\(주\)|\(유\)|㈜|co\.?,?\s*ltd\.?|inc\.?|corp\.?/gi;
 
+/**
+ * P2a QA D-2: NFKC first (㈜ → (주), full-width letters), then invisible characters (Unicode Cf,
+ * default-ignorable) and the corporate markers go, then everything that is not a letter, combining
+ * mark or digit ("/ _ ~ * + = | \ :" spacing, punctuation) — "이투이/공고정밀" = "이투이공고정밀".
+ */
 function normalizeName(text: string): string {
   return text
+    .normalize("NFKC")
+    .replace(/[\p{Cf}\p{Default_Ignorable_Code_Point}]/gu, "")
     .replace(CORPORATE_MARKERS, "")
-    .replace(/[\s·.,()[\]{}'"-]/g, "")
+    .replace(/[^\p{L}\p{M}\p{N}]/gu, "")
     .toLowerCase();
 }
 
-/** True when `text` contains one of the company names (spacing and 주식회사·(주) ignored). */
+/** True when `text` contains one of the company names (spacing, symbols, invisible characters and 주식회사·(주) ignored). */
 export function containsCompanyName(text: string, names: ReadonlyArray<string | null>): boolean {
   const hay = normalizeName(text);
   return names.some((name) => {

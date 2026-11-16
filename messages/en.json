@@ -516,25 +516,33 @@
       "headcount": "{count, plural, one {# person} other {# people}}",
       "notSpecified": "To be announced",
       "overtime": {
-        "NONE": "None",
-        "SOMETIMES": "Sometimes",
-        "REGULAR": "Often"
+        "option": {
+          "NONE": "None",
+          "SOMETIMES": "Sometimes",
+          "REGULAR": "Often"
+        }
       },
       "dormitory": {
-        "NONE": "None",
-        "FREE": "Provided free",
-        "PAID": "Provided (paid)"
+        "option": {
+          "NONE": "None",
+          "FREE": "Provided free",
+          "PAID": "Provided (paid)"
+        }
       },
       "meals": {
-        "PROVIDED": "Provided",
-        "PARTIAL": "Partly provided",
-        "NONE": "None"
+        "option": {
+          "PROVIDED": "Provided",
+          "PARTIAL": "Partly provided",
+          "NONE": "None"
+        }
       },
       "shift": {
-        "DAY": "Day shift",
-        "TWO_SHIFT": "2 shifts",
-        "THREE_SHIFT": "3 shifts",
-        "NIGHT": "Night shift"
+        "option": {
+          "DAY": "Day shift",
+          "TWO_SHIFT": "2 shifts",
+          "THREE_SHIFT": "3 shifts",
+          "NIGHT": "Night shift"
+        }
       },
       "interest": {
         "title": "Interview request",
@@ -542,7 +550,6 @@
         "submitting": "Sending…",
         "how": "After you send the request, VISA n JOB staff check your visa and conditions and contact you. Your contact details are not given to the company.",
         "anonymous": "Only registered job seekers can request an interview. After the 1-minute quick registration you come back to this job.",
-        "register": "Register quickly and request an interview",
         "login": "Already registered? Log in",
         "notEligibleTitle": "You cannot request an interview for this job with your current visa",
         "notEligibleBody": "VISA n JOB staff will help you find work that your visa allows.",

@@ -33,17 +33,43 @@ export class ContactInfoError extends Error {
   }
 }
 
-/** Full-width ASCII (０-９, ＠, ＋ …) → ASCII, one char for one char so indices stay valid. */
-function normalizeWidth(text: string): string {
-  return text.replace(/[！-～　]/g, (ch) =>
-    ch === "　" ? " " : String.fromCharCode(ch.charCodeAt(0) - 0xfee0),
-  );
+/**
+ * P2a QA D-1: text compared for contacts is normalised first, and every normalised character keeps
+ * the original span it came from, so detected offsets (and `maskContacts`) still refer to the input.
+ * - Invisible characters (Unicode `Cf` and Default_Ignorable_Code_Point: U+200B ZWSP, U+200C/D,
+ *   U+2060, U+FEFF, U+00AD soft hyphen, U+3164 Hangul filler …) are dropped.
+ * - Each character (with its combining marks) is NFKC-normalised: full-width ０-９ ＠ ＋, NBSP,
+ *   ideographic space, circled digits, ㈜ …
+ */
+const IGNORABLE = /[\p{Cf}\p{Default_Ignorable_Code_Point}]/gu;
+const UNIT = /\P{M}\p{M}*|\p{M}+/gsu;
+
+type Normalized = { text: string; startOf: number[]; endOf: number[] };
+
+function normalizeForDetection(text: string): Normalized {
+  let out = "";
+  const startOf: number[] = [];
+  const endOf: number[] = [];
+  for (const m of text.matchAll(UNIT)) {
+    const unit = m[0].replace(IGNORABLE, "");
+    if (!unit) continue;
+    const norm = unit.normalize("NFKC").replace(IGNORABLE, "");
+    const start = m.index;
+    const end = m.index + m[0].length;
+    for (let i = 0; i < norm.length; i++) {
+      startOf.push(start);
+      endOf.push(end);
+    }
+    out += norm;
+  }
+  return { text: out, startOf, endOf };
 }
 
 // ── Phone numbers ────────────────────────────────────────────────────────────
 // A digit run: digits with at most 3 separator characters between them. Commas and colons are
 // not separators, so "2,500,000" and "09:00" never form one run.
-const SEP = "[\\s.\\-\\u2010-\\u2015\\u00B7/()]";
+// P2a QA D-1: "_ ~ * + = | \ ' " ^ #" and wave dashes also separate digit groups ("010_1234_5678").
+const SEP = "[\\s.\\-\\u2010-\\u2015\\u2212\\u00B7/()_~*+=|\\\\'\"^#\\u301C\\u3030]";
 const DIGIT_RUN = new RegExp(`(?:\\+${SEP}{0,2})?\\d(?:${SEP}{0,3}\\d)+`, "g");
 const KOREAN_DIGITS: Readonly<Record<string, string>> = {
   공: "0",
@@ -359,17 +385,25 @@ function mergeOverlaps(matches: ContactMatch[], text: string): ContactMatch[] {
   return merged;
 }
 
-/** All contact-like spans in `text`, ordered by position. */
+/** All contact-like spans in `text`, ordered by position (offsets refer to `text` as given). */
 export function detectContacts(text: string): ContactMatch[] {
   if (!text) return [];
-  const normalized = normalizeWidth(text);
+  const { text: normalized, startOf, endOf } = normalizeForDetection(text);
+  if (!normalized) return [];
   const found: ContactMatch[] = [];
   collect(normalized, EMAIL_PATTERNS, "EMAIL", found);
   collect(normalized, MESSENGER_PATTERNS, "MESSENGER_ID", found);
   findPhones(normalized, found);
   collect(normalized, URL_PATTERNS, "URL", found);
   collect(normalized, [HANDLE], "HANDLE", found);
-  return mergeOverlaps(found, text);
+  const mapped = found
+    .filter((m) => m.end > m.start)
+    .map((m) => {
+      const start = startOf[m.start];
+      const end = endOf[m.end - 1];
+      return { ...m, start, end, value: text.slice(start, end) };
+    });
+  return mergeOverlaps(mapped, text);
 }
 
 export function hasContacts(text: string): boolean {

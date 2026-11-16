@@ -516,25 +516,33 @@
       "headcount": "{count} kishi",
       "notSpecified": "Keyinroq maʼlum qilinadi",
       "overtime": {
-        "NONE": "Yoʻq",
-        "SOMETIMES": "Baʼzan",
-        "REGULAR": "Tez-tez"
+        "option": {
+          "NONE": "Yoʻq",
+          "SOMETIMES": "Baʼzan",
+          "REGULAR": "Tez-tez"
+        }
       },
       "dormitory": {
-        "NONE": "Yoʻq",
-        "FREE": "Bepul",
-        "PAID": "Pullik"
+        "option": {
+          "NONE": "Yoʻq",
+          "FREE": "Bepul",
+          "PAID": "Pullik"
+        }
       },
       "meals": {
-        "PROVIDED": "Bor",
-        "PARTIAL": "Qisman",
-        "NONE": "Yoʻq"
+        "option": {
+          "PROVIDED": "Bor",
+          "PARTIAL": "Qisman",
+          "NONE": "Yoʻq"
+        }
       },
       "shift": {
-        "DAY": "Kunduzgi smena",
-        "TWO_SHIFT": "2 smena",
-        "THREE_SHIFT": "3 smena",
-        "NIGHT": "Tungi smena"
+        "option": {
+          "DAY": "Kunduzgi smena",
+          "TWO_SHIFT": "2 smena",
+          "THREE_SHIFT": "3 smena",
+          "NIGHT": "Tungi smena"
+        }
       },
       "interest": {
         "title": "Suhbatga yozilish",
@@ -542,7 +550,6 @@
         "submitting": "Yuborilmoqda…",
         "how": "Yozilganingizdan soʻng VISA n JOB xodimi vizangiz va shartlaringizni tekshirib, siz bilan bogʻlanadi. Aloqa maʼlumotlaringiz kompaniyaga berilmaydi.",
         "anonymous": "Suhbatga faqat roʻyxatdan oʻtgan ish izlovchilar yozila oladi. 1 daqiqalik tezkor roʻyxatdan soʻng shu ishga qaytasiz.",
-        "register": "Tezkor roʻyxat va suhbatga yozilish",
         "login": "Roʻyxatdan oʻtganmisiz? Kirish",
         "notEligibleTitle": "Hozirgi vizangiz bilan bu ishga suhbatga yozila olmaysiz",
         "notEligibleBody": "VISA n JOB xodimi vizangizga mos ish topishda yordam beradi.",

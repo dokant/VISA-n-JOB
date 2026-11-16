@@ -516,25 +516,33 @@
       "headcount": "{count} 人",
       "notSpecified": "待定",
       "overtime": {
-        "NONE": "无",
-        "SOMETIMES": "偶尔",
-        "REGULAR": "经常"
+        "option": {
+          "NONE": "无",
+          "SOMETIMES": "偶尔",
+          "REGULAR": "经常"
+        }
       },
       "dormitory": {
-        "NONE": "无",
-        "FREE": "免费提供",
-        "PAID": "收费提供"
+        "option": {
+          "NONE": "无",
+          "FREE": "免费提供",
+          "PAID": "收费提供"
+        }
       },
       "meals": {
-        "PROVIDED": "提供",
-        "PARTIAL": "部分提供",
-        "NONE": "无"
+        "option": {
+          "PROVIDED": "提供",
+          "PARTIAL": "部分提供",
+          "NONE": "无"
+        }
       },
       "shift": {
-        "DAY": "白班",
-        "TWO_SHIFT": "两班倒",
-        "THREE_SHIFT": "三班倒",
-        "NIGHT": "夜班"
+        "option": {
+          "DAY": "白班",
+          "TWO_SHIFT": "两班倒",
+          "THREE_SHIFT": "三班倒",
+          "NIGHT": "夜班"
+        }
       },
       "interest": {
         "title": "面试申请",
@@ -542,7 +550,6 @@
         "submitting": "正在提交…",
         "how": "提交后，VISA n JOB 工作人员会确认您的签证和条件，然后与您联系。您的联系方式不会提供给企业。",
         "anonymous": "只有已登记的求职者才能申请面试。完成 1 分钟快速登记后，会回到这个工作页面。",
-        "register": "快速登记并申请面试",
         "login": "已经登记？登录",
         "notEligibleTitle": "以您目前的签证无法直接申请这个工作的面试",
         "notEligibleBody": "VISA n JOB 工作人员会和您一起寻找您的签证可以做的工作。",

@@ -4,14 +4,13 @@ import Link from "next/link";
 import {
   LEAD_NO_COMPANY,
   LEAD_NO_TITLE,
-  POSTING_STATUS_LABEL,
   fmtDate,
   fmtCount,
   fmtDateTime,
   fmtPeople,
 } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
-import { Badge } from "@/components/ui/badge";
+import { PostingStatusBadge, PostingVerifiedBadge } from "@/components/admin/posting-badges";
 import { requireStaff } from "@/lib/admin/session";
 import { db } from "@/lib/db";
 import { listAdminPostings, listPostableLeads } from "@/lib/postings/manage";
@@ -149,11 +148,18 @@ export default async function PostingsPage() {
                       </Link>
                     </td>
                     <td className={cell}>
-                      <Badge variant={p.status === "PUBLISHED" ? "cyan" : "neutral"}>
-                        {POSTING_STATUS_LABEL[p.status]}
-                      </Badge>
+                      <PostingStatusBadge status={p.status} />
                     </td>
-                    <td className={cell}>{p.verifiedAt ? fmtDateTime(p.verifiedAt) : "전"}</td>
+                    <td className={cell}>
+                      <div className="grid justify-items-start gap-1">
+                        <PostingVerifiedBadge verified={Boolean(p.verifiedAt)} />
+                        {p.verifiedAt ? (
+                          <span className="text-dense text-n700 tabular-nums">
+                            {fmtDateTime(p.verifiedAt)}
+                          </span>
+                        ) : null}
+                      </div>
+                    </td>
                     <td className={cell}>{fmtDate(p.publishedAt)}</td>
                     <td className={`${cell} tabular-nums`}>{fmtPeople(p.headcount)}</td>
                     <td className={`${cell} tabular-nums`}>

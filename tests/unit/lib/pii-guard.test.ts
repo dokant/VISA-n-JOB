@@ -130,6 +130,36 @@ const POSITIVE: Record<string, [string, ContactType][]> = {
     ["zero one zero 1234 5678", "PHONE_LOCAL"],
     ["전화번호는 공일공에 일이삼사 오육칠팔", "PHONE_LOCAL"],
   ],
+  // P2a QA D-1: invisible characters (Unicode Cf / default-ignorable) and other separators
+  "invisible characters and other separators": [
+    ["010\u200B1234\u200B5678", "PHONE_LOCAL"],
+    ["010\u200C1234\u200C5678", "PHONE_LOCAL"],
+    ["010\u200D1234\u200D5678", "PHONE_LOCAL"],
+    ["010\u20601234\u20605678", "PHONE_LOCAL"],
+    ["010\uFEFF1234\uFEFF5678", "PHONE_LOCAL"],
+    ["010\u00AD1234\u00AD5678", "PHONE_LOCAL"],
+    ["010\u200E1234\u200F5678", "PHONE_LOCAL"],
+    ["0\u200B1\u200B0\u200B1\u200B2\u200B3\u200B4\u200B5\u200B6\u200B7\u200B8", "PHONE_LOCAL"],
+    ["010\u31641234\u31645678", "PHONE_LOCAL"],
+    ["생산직 010\u200B1234\u200B5678", "PHONE_LOCAL"],
+    ["010_1234_5678", "PHONE_LOCAL"],
+    ["010~1234~5678", "PHONE_LOCAL"],
+    ["010*1234*5678", "PHONE_LOCAL"],
+    ["010/1234/5678", "PHONE_LOCAL"],
+    ["010+1234+5678", "PHONE_LOCAL"],
+    ["010=1234=5678", "PHONE_LOCAL"],
+    ["010|1234|5678", "PHONE_LOCAL"],
+    ["010\\1234\\5678", "PHONE_LOCAL"],
+    ["010\u22121234\u22125678", "PHONE_LOCAL"],
+    ["010\u301C1234\u301C5678", "PHONE_LOCAL"],
+    ["010\u00A01234\u00A05678", "PHONE_LOCAL"],
+    ["010 _ 1234 _ 5678", "PHONE_LOCAL"],
+    ["02_123_4567", "PHONE_LOCAL"],
+    ["+84\u200B912\u200B345\u200B678", "PHONE_INTL"],
+    ["⓪①⓪-1234-5678", "PHONE_LOCAL"],
+    ["hong\u200B@\u200Bnaver.com", "EMAIL"],
+    ["카\u200B톡 hong123", "MESSENGER_ID"],
+  ],
 };
 
 /** Ordinary job / profile text that must not be flagged. */
@@ -189,6 +219,25 @@ const NEGATIVE: Record<string, string[]> = {
     "생산 line 작업",
     "line work 경험",
     "Zalo: Nguyễn Văn An",
+  ],
+  // P2a QA D-1: the wider separator set must not turn dates, fractions or formulas into phones
+  "dates, fractions and formulas with the wider separators": [
+    "2026/11/17",
+    "2026/11/17 ~ 2026/12/31",
+    "기간: 2026_11_17 ~ 2027_02_28",
+    "1/2",
+    "3/4 + 1/2 = 5/4",
+    "2 * 3 = 6",
+    "10+20=30",
+    "250000*12=3000000",
+    "근무 09:00~18:00 | 주 5일",
+    "월 250만원 | 상여 400%",
+    "x_1 = 2, y_2 = 3",
+    "E-9 | H-2 | F-4",
+    "kakao\u200Bpay 결제",
+    "생산\u200B직 3\u200B명",
+    "Nguye\u0302\u0303n Va\u0306n An",
+    "#1 라인 #2 라인",
   ],
   "look-alike letters and numbers without a phone keyword": [
     "주문번호 15881234",
@@ -255,6 +304,20 @@ describe("R-012 pii-guard", () => {
     const [m] = detectContacts("문의 o1o-I234-5678 주세요");
     expect(m).toMatchObject({ type: "PHONE_LOCAL", value: "o1o-I234-5678" });
     expect(maskContacts("문의 o1o-I234-5678 주세요")).toBe("문의 *** 주세요");
+  });
+
+  it("P2a QA D-1: invisible characters are masked with the number, offsets refer to the input", () => {
+    const text = "생산직 010\u200B1234\u200B5678 연락, 메일 hong\u200B@naver.com 끝";
+    const found = detectContacts(text);
+    expect(found.map((f) => f.type)).toEqual(["PHONE_LOCAL", "EMAIL"]);
+    for (const f of found) expect(text.slice(f.start, f.end)).toBe(f.value);
+    expect(found[0].value).toBe("010\u200B1234\u200B5678");
+    expect(maskContacts(text)).toBe("생산직 *** 연락, 메일 *** 끝");
+    // a character that NFKC expands (㈜ → "(주)") keeps later offsets on the input
+    const wide = "㈜ 공장 ０１０－１２３４－５６７８ 문의";
+    expect(maskContacts(wide)).toBe("㈜ 공장 *** 문의");
+    // astral characters before the number do not shift the mask
+    expect(maskContacts("😀 010_1234_5678 😀")).toBe("😀 *** 😀");
   });
 
   it("an e-mail is reported once, not also as URL / handle", () => {

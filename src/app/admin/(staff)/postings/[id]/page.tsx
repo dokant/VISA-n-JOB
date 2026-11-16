@@ -7,7 +7,6 @@ import {
   LEAD_GRADE_LABEL,
   LEAD_NO_COMPANY,
   LEAD_NO_TITLE,
-  POSTING_STATUS_LABEL,
   fmtCount,
   fmtDateTime,
   fmtPeople,
@@ -15,12 +14,12 @@ import {
   postingCodeLabel,
 } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
+import { PostingStatusBadge, PostingVerifiedBadge } from "@/components/admin/posting-badges";
 import {
   ClosePostingForm,
   PublishPostingForm,
   VerifyPostingForm,
 } from "@/components/admin/posting-forms";
-import { Badge } from "@/components/ui/badge";
 import { requireStaff } from "@/lib/admin/session";
 import { db } from "@/lib/db";
 import { getAdminPosting } from "@/lib/postings/manage";
@@ -70,16 +69,8 @@ export default async function PostingDetailPage({ params }: { params: Promise<{ 
         </Link>
         <h1 className="text-h2 break-words text-navy">{p.blindTitle}</h1>
         <p className="flex flex-wrap items-center gap-2">
-          <Badge
-            variant={p.status === "PUBLISHED" ? "cyan" : "neutral"}
-            data-testid="posting-status"
-            data-status={p.status}
-          >
-            {POSTING_STATUS_LABEL[p.status]}
-          </Badge>
-          <Badge variant={p.verifiedAt ? "blue" : "orange"} data-testid="posting-verified">
-            {p.verifiedAt ? "검증 완료" : "검증 전"}
-          </Badge>
+          <PostingStatusBadge status={p.status} data-testid="posting-status" />
+          <PostingVerifiedBadge verified={Boolean(p.verifiedAt)} data-testid="posting-verified" />
         </p>
       </div>
 

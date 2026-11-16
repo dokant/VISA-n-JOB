@@ -12,6 +12,7 @@ import {
   jobsURL,
   postingOf,
   shot,
+  updateSeeker,
 } from "./support/jobsDb";
 import { msg } from "./support/messages";
 import { seekerProfileByPhone } from "./support/seekerDb";
@@ -152,7 +153,7 @@ test.describe("R-202 /jobs (flag-on server)", () => {
     await page.goto(`/en/jobs/${a}`);
     await expect(page.getByTestId("verified-badge")).toHaveText(msg("en", "public.jobs.verified"));
     await expect(page.getByTestId("job-facts")).toContainText(
-      msg("en", "public.jobs.shift.TWO_SHIFT"),
+      msg("en", "public.jobs.shift.option.TWO_SHIFT"),
     );
     expect(await page.content()).not.toContain("JobPosting");
   });
@@ -262,7 +263,57 @@ test.describe("R-203 면접 신청 — three cases (flag-on server)", () => {
     await expect(page.getByTestId("interest-not-eligible")).toContainText(
       msg("en", "public.jobs.interest.notEligibleTitle"),
     );
+    // the "신청하면 … 연락드립니다" line does not belong to a request that cannot be made
+    await expect(panel.getByTestId("interest-how")).toHaveCount(0);
     await shot(page, testInfo, "interest_consult");
+    expect(await interestRequestsOf(postingId)).toHaveLength(0);
+  });
+
+  test("R-203: BLOCKED seeker → blocked notice + 상담 신청, no 면접 신청 and no request line", async ({
+    page,
+  }) => {
+    const postingId = await createPublicPosting({ eligibleVisas: ["F-4"] });
+    const phone = uniquePhone();
+    const userId = await createSeekerWithVisa(phone, "F-4");
+    await loginUi(page, "ko", phone);
+    await updateSeeker(userId, { status: "BLOCKED" });
+
+    await page.goto(`/ko/jobs/${postingId}`);
+    const panel = page.getByTestId("interest-panel");
+    await expect(panel).toHaveAttribute("data-state", "BLOCKED");
+    await expect(page.getByTestId("interest-not-eligible")).toHaveText(
+      msg("ko", "public.jobs.interest.blocked"),
+    );
+    await expect(page.getByTestId("interest-consult")).toHaveText(msg("ko", "common.consult"));
+    await expect(page.getByTestId("interest-submit")).toHaveCount(0);
+    await expect(panel.getByTestId("interest-how")).toHaveCount(0);
+    expect(await interestRequestsOf(postingId)).toHaveLength(0);
+  });
+
+  test("QA O-2: visa changed after the page opened → server NOT_ELIGIBLE shows 상담 신청 in place", async ({
+    page,
+  }, testInfo) => {
+    const postingId = await createPublicPosting({ eligibleVisas: ["F-4"] });
+    const phone = uniquePhone();
+    const userId = await createSeekerWithVisa(phone, "F-4");
+    await loginUi(page, "ko", phone);
+
+    await page.goto(`/ko/jobs/${postingId}`);
+    const panel = page.getByTestId("interest-panel");
+    await expect(panel).toHaveAttribute("data-state", "ELIGIBLE");
+    await waitForHydration(page, "interest-submit");
+    await updateSeeker(userId, { visaCode: "E-9" });
+    await page.getByTestId("interest-submit").click();
+
+    const notice = page.getByTestId("interest-not-eligible");
+    await expect(notice).toHaveAttribute("data-code", "NOT_ELIGIBLE");
+    await expect(notice).toContainText(msg("ko", "public.jobs.interest.notEligibleTitle"));
+    const consult = page.getByTestId("interest-consult");
+    await expect(consult).toHaveText(msg("ko", "common.consult"));
+    await expect(consult).toHaveAttribute("href", /\/ko\/about#contact$/);
+    await expect(page.getByTestId("interest-submit")).toHaveCount(0);
+    await expect(panel.getByTestId("interest-how")).toHaveCount(0);
+    await shot(page, testInfo, "interest_not_eligible_after_submit");
     expect(await interestRequestsOf(postingId)).toHaveLength(0);
   });
 });

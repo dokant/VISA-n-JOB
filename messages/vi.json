@@ -516,25 +516,33 @@
       "headcount": "{count} người",
       "notSpecified": "Sẽ thông báo",
       "overtime": {
-        "NONE": "Không có",
-        "SOMETIMES": "Thỉnh thoảng",
-        "REGULAR": "Thường xuyên"
+        "option": {
+          "NONE": "Không có",
+          "SOMETIMES": "Thỉnh thoảng",
+          "REGULAR": "Thường xuyên"
+        }
       },
       "dormitory": {
-        "NONE": "Không có",
-        "FREE": "Miễn phí",
-        "PAID": "Có tính phí"
+        "option": {
+          "NONE": "Không có",
+          "FREE": "Miễn phí",
+          "PAID": "Có tính phí"
+        }
       },
       "meals": {
-        "PROVIDED": "Có",
-        "PARTIAL": "Một phần",
-        "NONE": "Không có"
+        "option": {
+          "PROVIDED": "Có",
+          "PARTIAL": "Một phần",
+          "NONE": "Không có"
+        }
       },
       "shift": {
-        "DAY": "Ca ngày",
-        "TWO_SHIFT": "2 ca",
-        "THREE_SHIFT": "3 ca",
-        "NIGHT": "Ca đêm"
+        "option": {
+          "DAY": "Ca ngày",
+          "TWO_SHIFT": "2 ca",
+          "THREE_SHIFT": "3 ca",
+          "NIGHT": "Ca đêm"
+        }
       },
       "interest": {
         "title": "Đăng ký phỏng vấn",
@@ -542,7 +550,6 @@
         "submitting": "Đang gửi…",
         "how": "Sau khi đăng ký, nhân viên VISA n JOB sẽ kiểm tra visa và điều kiện của bạn rồi liên hệ. Thông tin liên hệ của bạn không được chuyển cho doanh nghiệp.",
         "anonymous": "Chỉ người tìm việc đã đăng ký mới có thể đăng ký phỏng vấn. Sau khi đăng ký nhanh 1 phút, bạn sẽ quay lại việc làm này.",
-        "register": "Đăng ký nhanh và đăng ký phỏng vấn",
         "login": "Đã đăng ký? Đăng nhập",
         "notEligibleTitle": "Bạn chưa thể đăng ký phỏng vấn việc này với visa hiện tại",
         "notEligibleBody": "Nhân viên VISA n JOB sẽ cùng bạn tìm công việc phù hợp với visa của bạn.",

@@ -111,14 +111,14 @@ export async function SiteFooter({ flags }: Props) {
             </h2>
             <dl className="grid gap-2" data-testid="footer-registration">
               {registration.map((row) => (
-                <div key={row.label} className="flex gap-2 text-caption leading-normal">
-                  <dt className="flex-none font-medium text-white/72">{row.label}</dt>
+                <div key={row.label} className="grid gap-0.5 text-caption leading-normal">
+                  <dt className="font-medium text-white/72">{row.label}</dt>
                   <dd className="text-white/60">{row.value}</dd>
                 </div>
               ))}
               {site.contact.phone ? (
-                <div className="flex items-center gap-2 text-caption leading-normal">
-                  <dt className="flex-none font-medium text-white/72">{t("labels.phone")}</dt>
+                <div className="grid gap-0.5 text-caption leading-normal">
+                  <dt className="font-medium text-white/72">{t("labels.phone")}</dt>
                   <dd>
                     <a
                       href={phoneHref}
@@ -130,8 +130,8 @@ export async function SiteFooter({ flags }: Props) {
                 </div>
               ) : null}
               {site.contact.email ? (
-                <div className="flex gap-2 text-caption leading-normal">
-                  <dt className="flex-none font-medium text-white/72">{t("labels.email")}</dt>
+                <div className="grid gap-0.5 text-caption leading-normal">
+                  <dt className="font-medium text-white/72">{t("labels.email")}</dt>
                   <dd>
                     <a
                       href={`mailto:${site.contact.email}`}

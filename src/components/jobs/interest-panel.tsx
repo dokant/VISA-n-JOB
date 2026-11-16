@@ -21,7 +21,9 @@ type Props = {
  *   link with the same `next`);
  * - visa not in eligibleVisas (or blocked) → "상담 신청" instead of 면접 신청;
  * - eligible → the 면접 신청 form; already requested → a received message.
- * Every state says that the request goes to VISA n JOB staff, not to the company (BR-01).
+ * The states where a request can be made (or was made) say that it goes to VISA n JOB staff, not to
+ * the company (BR-01). The 비자 부적합 · BLOCKED states show only their own notice and 상담 신청 (the
+ * "신청하면 … 연락드립니다" line does not fit a request that cannot be made).
  * The words "지원하기" / "Apply" are never used (SC-06).
  */
 export async function InterestPanel({ postingId, state }: Props) {
@@ -31,6 +33,7 @@ export async function InterestPanel({ postingId, state }: Props) {
   const registerPath = `/seeker/register/quick?next=${encodeURIComponent(next)}`;
   const loginPath = `/seeker/login?next=${encodeURIComponent(next)}`;
   const panelState = state ?? "ANONYMOUS";
+  const consultLabel = (await getTranslations("common"))("consult");
 
   return (
     <section
@@ -73,7 +76,7 @@ export async function InterestPanel({ postingId, state }: Props) {
           <div>
             <Button asChild>
               <Link href={CONSULT_HREF} data-testid="interest-consult">
-                {(await getTranslations("common"))("consult")}
+                {consultLabel}
                 <ArrowRight aria-hidden="true" strokeWidth={1.5} data-icon="trailing" />
               </Link>
             </Button>
@@ -89,13 +92,19 @@ export async function InterestPanel({ postingId, state }: Props) {
         </p>
       ) : (
         <ScopedIntlProvider namespaces={["public.jobs.interest"]}>
-          <InterestForm postingId={postingId} registerHref={`/${locale}${registerPath}`} />
+          <InterestForm
+            postingId={postingId}
+            registerHref={`/${locale}${registerPath}`}
+            consultLabel={consultLabel}
+          />
         </ScopedIntlProvider>
       )}
 
-      <p className="text-caption text-n500" data-testid="interest-how">
-        {t("how")}
-      </p>
+      {state === null || state === "REQUESTED" ? (
+        <p className="text-caption text-n500" data-testid="interest-how">
+          {t("how")}
+        </p>
+      ) : null}
     </section>
   );
 }
