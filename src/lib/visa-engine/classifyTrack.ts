@@ -54,14 +54,36 @@ export type ClassifyInput = {
   now?: Date;
 };
 
-/** First instant (UTC) of the month of `d`, shifted by `addMonths`. */
+/**
+ * Stored months (stayExpiry, graduationDate) are calendar labels saved as the 1st of the month at
+ * 00:00 UTC (`monthToDate`), so their month is read in UTC.
+ */
 function monthStart(d: Date, addMonths = 0): number {
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + addMonths, 1);
 }
 
-/** True when the expiry month is already over (a permit valid "until this month" is not expired). */
+/** Service time zone: "this month" is the month in Korea (O-8), not the UTC month. */
+const SERVICE_TIME_ZONE = "Asia/Seoul";
+const serviceMonthFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: SERVICE_TIME_ZONE,
+  year: "numeric",
+  month: "numeric",
+});
+
+/** The current month in Asia/Seoul at `now`, as a stored-month value (1st 00:00 UTC), shifted. */
+function currentMonthStart(now: Date, addMonths = 0): number {
+  const parts = serviceMonthFormat.formatToParts(now);
+  const year = Number(parts.find((p) => p.type === "year")?.value);
+  const month = Number(parts.find((p) => p.type === "month")?.value);
+  return Date.UTC(year, month - 1 + addMonths, 1);
+}
+
+/**
+ * True when the expiry month is already over in Korea (a permit valid "until this month" is not
+ * expired; it expires at 00:00 KST on the 1st of the next month).
+ */
 export function isStayExpired(stayExpiry: Date, now: Date = new Date()): boolean {
-  return monthStart(stayExpiry) < monthStart(now);
+  return monthStart(stayExpiry) < currentMonthStart(now);
 }
 
 /**
@@ -69,7 +91,7 @@ export function isStayExpired(stayExpiry: Date, now: Date = new Date()): boolean
  * `stayExpiry >= notExpiredFrom(now)` ⇔ `!isStayExpired(stayExpiry, now)`.
  */
 export function notExpiredFrom(now: Date = new Date()): Date {
-  return new Date(monthStart(now));
+  return new Date(currentMonthStart(now));
 }
 
 function withinGraduationWindow(
@@ -80,7 +102,9 @@ function withinGraduationWindow(
   if (row.graduationWindowMonths == null || row.graduationWindowTrack == null) return false;
   if (!graduationDate) return false;
   const grad = monthStart(graduationDate);
-  return grad >= monthStart(now) && grad <= monthStart(now, row.graduationWindowMonths);
+  return (
+    grad >= currentMonthStart(now) && grad <= currentMonthStart(now, row.graduationWindowMonths)
+  );
 }
 
 export function classifyTrack(input: ClassifyInput): TrackResult {

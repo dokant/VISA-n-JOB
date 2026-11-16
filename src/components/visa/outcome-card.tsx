@@ -30,7 +30,7 @@ const STYLE: Record<Outcome, { icon: typeof CircleCheck; card: string; icon_: st
 
 type Props = {
   outcome: Outcome;
-  visa: { code: string; nameKey: string };
+  visa: { code: string; nameKey: string; isStatusCode: boolean };
   /** Rule messageKey (or the needs-review key). */
   messageKey: string;
   className?: string;
@@ -58,7 +58,12 @@ export function OutcomeCard({ outcome, visa, messageKey, className }: Props) {
         </span>
         <h3 className="text-h3 text-navy">{t(`visa.outcome.${outcome}`)}</h3>
       </div>
-      <VisaLabel code={visa.code} nameKey={visa.nameKey} className="text-dense text-navy" />
+      <VisaLabel
+        code={visa.code}
+        nameKey={visa.nameKey}
+        showCode={visa.isStatusCode}
+        className="text-dense text-navy"
+      />
       <p className="text-dense">{t(messageKey)}</p>
       <p className="text-caption font-semibold" data-testid="reference-disclaimer">
         {t(REFERENCE_DISCLAIMER_KEY)}

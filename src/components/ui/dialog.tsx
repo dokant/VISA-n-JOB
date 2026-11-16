@@ -30,7 +30,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed inset-x-4 top-1/2 z-50 mx-auto grid max-w-110 -translate-y-1/2 gap-5 rounded-lg bg-white p-6.5 shadow-3",
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-4.5 data-[state=open]:zoom-in-98 data-[state=open]:duration-500 data-[state=open]:ease-out",
+          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-dialog data-[state=open]:zoom-in-98 data-[state=open]:duration-500 data-[state=open]:ease-out",
           className,
         )}
         {...props}

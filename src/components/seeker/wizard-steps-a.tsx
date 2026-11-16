@@ -465,6 +465,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
                   htmlFor={`${id}-confirm`}
                 >
                   <Checkbox
+                    ref={field.ref}
                     id={`${id}-confirm`}
                     checked={field.value}
                     onCheckedChange={(v) => field.onChange(v === true)}
@@ -491,7 +492,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
           />
         </>
       )}
-      <WizardNav backHref={backHref} pending={pending || blocked} state={state}>
+      <WizardNav backHref={backHref} pending={pending} disabled={blocked} state={state}>
         <DisclosureSummary
           blind={[
             s.label("visaCode"),

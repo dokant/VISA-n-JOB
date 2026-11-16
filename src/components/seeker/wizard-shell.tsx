@@ -83,12 +83,15 @@ export function useStepSubmit<T extends FieldValues>(step: string, form: UseForm
 export function WizardNav({
   backHref,
   pending,
+  disabled = false,
   state,
   submitLabel,
   children,
 }: {
   backHref?: string;
   pending: boolean;
+  /** Next is unavailable for another reason (e.g. 등록 불가 비자): disabled, label unchanged. */
+  disabled?: boolean;
   state: RegisterActionState | null;
   submitLabel?: string;
   children?: ReactNode;
@@ -113,6 +116,7 @@ export function WizardNav({
       <div
         className="sticky bottom-0 z-20 -mx-gutter flex items-center justify-between gap-3 border-t border-navy/8 bg-white/82 px-gutter py-3 backdrop-blur-nav backdrop-saturate-160"
         data-testid="wizard-nav-bar"
+        data-sticky-bottom-bar=""
       >
         {backHref ? (
           <Button asChild variant="outline">
@@ -124,7 +128,12 @@ export function WizardNav({
         ) : (
           <span />
         )}
-        <Button type="submit" variant="seeker" disabled={pending} data-testid="wizard-next">
+        <Button
+          type="submit"
+          variant="seeker"
+          disabled={pending || disabled}
+          data-testid="wizard-next"
+        >
           {pending ? t("saving") : (submitLabel ?? t("next"))}
           <ArrowRight aria-hidden="true" strokeWidth={1.5} />
         </Button>

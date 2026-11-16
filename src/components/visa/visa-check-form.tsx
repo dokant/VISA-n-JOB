@@ -12,7 +12,13 @@ import { type VisaCheckState, evaluateVisaAction } from "@/server/actions/visa/e
 import { OutcomeCard } from "./outcome-card";
 
 export type LabeledOption = { code: string; label: string };
-export type VisaBoxOption = { code: string; nameKey: string; label: string };
+export type VisaBoxOption = {
+  code: string;
+  nameKey: string;
+  label: string;
+  /** VisaType.isStatusCode: false → name only, no code (STANDARD 3.2 VisaLabel B-3). */
+  isStatusCode: boolean;
+};
 
 type Props = {
   /** "boxes" = home widget visa boxes [HO `.vbox`], "select" = full list on /visa-check. */
@@ -72,7 +78,7 @@ export function VisaCheckForm({
                       "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-ring",
                     )}
                   >
-                    <span>{v.code}</span>
+                    {v.isStatusCode ? <span>{v.code}</span> : null}
                     <span className="block text-eyebrow font-medium tracking-normal opacity-80">
                       {v.label}
                     </span>
@@ -89,7 +95,7 @@ export function VisaCheckForm({
             <NativeSelect id={`${id}-visa`} name="visaCode" defaultValue={defaultVisa} required>
               {visas.map((v) => (
                 <option key={v.code} value={v.code}>
-                  {v.code} {v.label}
+                  {v.isStatusCode ? [v.code, v.label].join(" ") : v.label}
                 </option>
               ))}
             </NativeSelect>

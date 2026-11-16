@@ -230,6 +230,8 @@ html:lang(zh) {
   /* 2.7 motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* 3.1 dialog entrance offset (translateY 18px) for tw-animate slide-in-from-bottom-dialog */
+  --translate-dialog: 18px;
 
   /* 3.1 glass button blur */
   --blur-glass: 14px;
@@ -239,6 +241,8 @@ html:lang(zh) {
   /* 2.4 section rhythm (overridden at <=760px below) */
   --spacing-section: clamp(64px, 8vw, 132px);
   --spacing-section-tight: clamp(48px, 5.5vw, 88px);
+  /* 3.3 wizard sticky bottom bar (77px) + breathing room: keeps focused fields above the bar */
+  --spacing-wizard-bar: 96px;
 
   /* 2.6 breakpoints: handoff max-width edges converted to mobile-first min-width */
   --breakpoint-xs: 25.0625rem; /* 401px */
@@ -306,6 +310,10 @@ html:lang(zh) {
 @layer base {
   :root {
     scroll-padding-top: 70px; /* 2.7 smooth anchors: offset for the sticky nav */
+  }
+  /* 3.3 / WCAG 2.4.11: Tab focus and error focus never land under the wizard's sticky bottom bar */
+  :root:has([data-sticky-bottom-bar]) {
+    scroll-padding-bottom: var(--spacing-wizard-bar);
   }
 
   /* 2.3.4 responsive token values */

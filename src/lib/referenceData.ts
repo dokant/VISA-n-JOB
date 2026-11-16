@@ -5,7 +5,13 @@
  */
 import { db } from "@/lib/db";
 
-export type VisaOption = { code: string; nameKey: string; registrable: boolean };
+export type VisaOption = {
+  code: string;
+  nameKey: string;
+  registrable: boolean;
+  /** false → 기타·없음·모름 rows: shown by name only, no code (STANDARD 3.2 VisaLabel B-3). */
+  isStatusCode: boolean;
+};
 export type CodeOption = { code: string; nameKey: string };
 
 /** Active visa types in operator order. */
@@ -13,7 +19,7 @@ export async function getVisaTypes(): Promise<VisaOption[]> {
   return db.visaType.findMany({
     where: { active: true },
     orderBy: { sortOrder: "asc" },
-    select: { code: true, nameKey: true, registrable: true },
+    select: { code: true, nameKey: true, registrable: true, isStatusCode: true },
   });
 }
 

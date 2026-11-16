@@ -26,7 +26,12 @@ export async function VisaWidget() {
 
   const visas = visaTypes
     .filter((v) => v.registrable)
-    .map((v) => ({ code: v.code, nameKey: v.nameKey, label: tr(v.nameKey) }));
+    .map((v) => ({
+      code: v.code,
+      nameKey: v.nameKey,
+      label: tr(v.nameKey),
+      isStatusCode: v.isStatusCode,
+    }));
 
   return (
     <section

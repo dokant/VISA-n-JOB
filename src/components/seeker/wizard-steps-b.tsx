@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { type ReactNode, useId } from "react";
+import { type ReactNode, type Ref, useId } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 
 import { ChipGroup, MultiChips } from "@/components/forms/choice-chips";
@@ -643,6 +643,7 @@ export function ConsentRow({
   error,
   document,
   testId,
+  ref,
 }: {
   id: string;
   label: string;
@@ -652,6 +653,8 @@ export function ConsentRow({
   error?: string;
   document?: ReactNode;
   testId: string;
+  /** react-hook-form `field.ref`: focus target for "first error field" (STANDARD 3.3). */
+  ref?: Ref<HTMLButtonElement>;
 }) {
   const t = useTranslations("common.form");
   const tr = useTranslations("seeker.register.step7");
@@ -662,6 +665,7 @@ export function ConsentRow({
         className="flex min-h-11 cursor-pointer items-start gap-3 py-1 text-body text-navy"
       >
         <Checkbox
+          ref={ref}
           id={id}
           checked={checked}
           onCheckedChange={(v) => onChange(v === true)}
@@ -723,6 +727,7 @@ export function Step7Form({
             name={field}
             render={({ field: f }) => (
               <ConsentRow
+                ref={f.ref}
                 id={`${id}-${field}`}
                 label={s.label(field)}
                 required={required}

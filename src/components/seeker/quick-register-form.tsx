@@ -89,6 +89,7 @@ export function QuickRegisterForm({
       name={field}
       render={({ field: f }) => (
         <ConsentRow
+          ref={f.ref}
           id={`${id}-${field}`}
           label={tc(`seeker.register.step7.${field}.label`)}
           required={field !== "blindProfile" || (visa?.blindRequired ?? true)}

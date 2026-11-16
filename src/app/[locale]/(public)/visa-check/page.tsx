@@ -51,7 +51,12 @@ export default async function VisaCheckPage({ params, searchParams }: Props) {
       <div className="grid max-w-180 gap-6">
         <VisaCheckForm
           visaInput="select"
-          visas={visaTypes.map((v) => ({ code: v.code, nameKey: v.nameKey, label: tr(v.nameKey) }))}
+          visas={visaTypes.map((v) => ({
+            code: v.code,
+            nameKey: v.nameKey,
+            label: tr(v.nameKey),
+            isStatusCode: v.isStatusCode,
+          }))}
           sidos={sidos.map((s) => ({ code: s.code, label: tr(s.nameKey) }))}
           industries={industries.map((i) => ({ code: i.code, label: tr(i.nameKey) }))}
           defaults={defaults}

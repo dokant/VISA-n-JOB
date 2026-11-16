@@ -75,6 +75,20 @@ export async function referralCodeOf(phone: string): Promise<string> {
  * (the admin promotion screen is P1e; the row is updated directly here).
  */
 export async function createGradeASeeker(phone: string) {
+  const { userId } = await createWizardSeeker(phone, "7");
+  const p = await db.seekerProfile.update({
+    where: { userId },
+    data: { grade: "A", verifiedVisa: true },
+    select: { id: true },
+  });
+  return { userId, seekerId: p.id };
+}
+
+/** A seeker (quick signup F-4 + BLIND_PROFILE) whose wizard is saved through step `upTo`. */
+export async function createWizardSeeker(
+  phone: string,
+  upTo: Parameters<typeof saveWizardStep>[0],
+) {
   const code = "135792";
   const otp = await requestOtp({ phone, purpose: "SIGNUP", locale: "ko", code, notifier: silent });
   if (!otp.ok) throw new Error(`otp ${otp.code}`);
@@ -150,12 +164,8 @@ export async function createGradeASeeker(phone: string) {
   for (const [step, values] of steps) {
     const s = await saveWizardStep(step, values, ctx);
     if (!s.ok) throw new Error(`step ${step}: ${JSON.stringify(s)}`);
+    if (step === upTo) break;
   }
-  const p = await db.seekerProfile.update({
-    where: { userId: r.userId },
-    data: { grade: "A", verifiedVisa: true },
-    select: { id: true },
-  });
   await ageOtpChallenges(phone);
-  return { userId: r.userId, seekerId: p.id };
+  return { userId: r.userId };
 }

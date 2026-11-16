@@ -13,6 +13,7 @@ import {
   classifyVisa,
   isStayExpired,
   loadVisaTypeForTrack,
+  notExpiredFrom,
 } from "@/lib/visa-engine/classifyTrack";
 
 const NOW = new Date("2026-11-16T03:00:00.000Z");
@@ -84,6 +85,27 @@ describe("R-108 WO §7.4 track table (VisaType data)", () => {
     expect(await classify("F-4", { stayExpiry: month(2026, 11) })).toEqual(ok("JOB_MATCH"));
     expect(isStayExpired(month(2026, 10), NOW)).toBe(true);
     expect(isStayExpired(month(2026, 11), NOW)).toBe(false);
+  });
+
+  it("O-8: the month boundary is Asia/Seoul (00:00 KST on the 1st), not UTC", () => {
+    // 2026-11-30 23:59:59 KST = 2026-11-30T14:59:59Z → November in Korea: November expiry valid
+    const beforeKst = new Date("2026-11-30T14:59:59.000Z");
+    // 2026-12-01 00:00:00 KST = 2026-11-30T15:00:00Z → December in Korea (still November in UTC)
+    const atKst = new Date("2026-11-30T15:00:00.000Z");
+    expect(isStayExpired(month(2026, 11), beforeKst)).toBe(false);
+    expect(isStayExpired(month(2026, 11), atKst)).toBe(true);
+    expect(isStayExpired(month(2026, 12), atKst)).toBe(false);
+    expect(notExpiredFrom(beforeKst)).toEqual(month(2026, 11));
+    expect(notExpiredFrom(atKst)).toEqual(month(2026, 12));
+    // 2026-12-01T00:00:01Z = 09:00:01 KST: already December in both
+    expect(isStayExpired(month(2026, 11), new Date("2026-12-01T00:00:01.000Z"))).toBe(true);
+    // year boundary: 2027-01-01 00:00 KST = 2026-12-31T15:00:00Z
+    expect(notExpiredFrom(new Date("2026-12-31T14:59:59.999Z"))).toEqual(month(2026, 12));
+    expect(notExpiredFrom(new Date("2026-12-31T15:00:00.000Z"))).toEqual(month(2027, 1));
+    // query form and predicate agree on both sides of the boundary
+    for (const now of [beforeKst, atKst]) {
+      expect(isStayExpired(notExpiredFrom(now), now)).toBe(false);
+    }
   });
 
   it("R-109: 없음 — no visa or an unknown code → 등록 불가", async () => {

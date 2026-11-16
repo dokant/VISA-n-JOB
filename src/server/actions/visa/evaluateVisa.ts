@@ -14,7 +14,7 @@ export type VisaCheckState =
       status: "ok";
       outcome: Outcome;
       messageKey: string;
-      visa: { code: string; nameKey: string };
+      visa: { code: string; nameKey: string; isStatusCode: boolean };
     };
 
 /** Runs the visa check for the given reference codes (shared by the action and server pages). */
@@ -44,7 +44,7 @@ export async function runVisaCheck(raw: {
     status: "ok",
     outcome: result.outcome,
     messageKey: result.messageKey,
-    visa: { code: visa.code, nameKey: visa.nameKey },
+    visa: { code: visa.code, nameKey: visa.nameKey, isStatusCode: visa.isStatusCode },
   };
 }
 
