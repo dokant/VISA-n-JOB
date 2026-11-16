@@ -64,6 +64,14 @@ export function isStayExpired(stayExpiry: Date, now: Date = new Date()): boolean
   return monthStart(stayExpiry) < monthStart(now);
 }
 
+/**
+ * Earliest stored expiry (month) that is not expired at `now` — the query form of `isStayExpired`:
+ * `stayExpiry >= notExpiredFrom(now)` ⇔ `!isStayExpired(stayExpiry, now)`.
+ */
+export function notExpiredFrom(now: Date = new Date()): Date {
+  return new Date(monthStart(now));
+}
+
 function withinGraduationWindow(
   row: VisaTypeTrackData,
   graduationDate: Date | null | undefined,

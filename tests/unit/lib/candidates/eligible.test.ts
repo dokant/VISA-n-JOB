@@ -5,8 +5,13 @@
 import { describe, expect, it } from "vitest";
 
 import { db } from "@/lib/db";
-import { eligibleCandidateIds, isEligibleCandidate } from "@/lib/candidates/eligible";
+import {
+  eligibleCandidateIds,
+  eligibleCandidateWhere,
+  isEligibleCandidate,
+} from "@/lib/candidates/eligible";
 import { grantConsent, revokeConsent } from "@/lib/seeker/consent";
+import { isStayExpired, notExpiredFrom } from "@/lib/visa-engine/classifyTrack";
 
 import { fillSteps, save, wizardAccount } from "../seeker/seekerFixtures";
 
@@ -77,5 +82,30 @@ describe("R-113 candidate eligibility (query layer)", () => {
       data: { status: "ACTIVE", completedStep: 6 },
     });
     expect(await isEligibleCandidate(seekerId)).toBe(false);
+  });
+
+  it("Q-11 / P1c QA O-1: a seeker whose stay expiry month is over is excluded at once", async () => {
+    const { seekerId } = await gradeASeeker();
+    const now = new Date("2027-03-15T10:00:00.000Z");
+    // valid until this month → still a candidate (a permit "until March" is not expired in March)
+    await db.seekerProfile.update({
+      where: { id: seekerId },
+      data: { stayExpiry: new Date("2027-03-01T00:00:00.000Z") },
+    });
+    expect(await isEligibleCandidate(seekerId, now)).toBe(true);
+    expect(await eligibleCandidateIds({ id: seekerId }, now)).toEqual([seekerId]);
+    // changed to last month after registration (/me/stay) → excluded
+    await db.seekerProfile.update({
+      where: { id: seekerId },
+      data: { stayExpiry: new Date("2027-02-01T00:00:00.000Z") },
+    });
+    expect(await isEligibleCandidate(seekerId, now)).toBe(false);
+    expect(await eligibleCandidateIds({ id: seekerId }, now)).toEqual([]);
+    // the same rule as classifyTrack's isStayExpired
+    expect(eligibleCandidateWhere(now)).toMatchObject({
+      OR: [{ stayExpiry: null }, { stayExpiry: { gte: notExpiredFrom(now) } }],
+    });
+    expect(isStayExpired(new Date("2027-02-01T00:00:00.000Z"), now)).toBe(true);
+    expect(isStayExpired(notExpiredFrom(now), now)).toBe(false);
   });
 });

@@ -177,7 +177,7 @@ describe("R-123 employer sign-in", () => {
     ).toEqual({ ok: false, code: "INVALID_CREDENTIALS" });
   });
 
-  it("R-129: the 11th sign-in attempt for one e-mail within 15 minutes is rate limited", async () => {
+  it("R-129: once the account-wide failure cap is reached within 15 minutes, sign-in is limited", async () => {
     const { email } = await createUser("EMPLOYER");
     const limit = RATE_LIMITS.loginPerIdentifier.limit;
     for (let i = 0; i < limit; i++) {
@@ -253,6 +253,103 @@ describe("R-123 employer sign-in", () => {
       now: T0,
     });
     expect(r).toMatchObject({ ok: false, code: "RATE_LIMITED" });
+  });
+});
+
+describe("Q-11 / P1c QA D-1: login failures per (account + IP) and per account", () => {
+  const pairLimit = RATE_LIMITS.loginPerIdentifierIp.limit;
+  const accountLimit = RATE_LIMITS.loginPerIdentifier.limit;
+
+  it("the account-wide cap is higher than the (account + IP) cap (operator values)", () => {
+    expect(accountLimit).toBeGreaterThan(pairLimit);
+  });
+
+  it("wrong passwords from one address limit that address only — the owner elsewhere signs in", async () => {
+    const { email } = await createUser("EMPLOYER");
+    const attacker = ip();
+    for (let i = 0; i < pairLimit; i++) {
+      expect(
+        await authorizeEmployerPassword({ email, password: "bad", ip: attacker, now: T0 }),
+      ).toEqual({ ok: false, code: "INVALID_CREDENTIALS" });
+    }
+    // that address is now refused, even with the right password
+    expect(
+      await authorizeEmployerPassword({ email, password: PASSWORD, ip: attacker, now: T0 }),
+    ).toMatchObject({ ok: false, code: "RATE_LIMITED" });
+    // the owner from another address is not affected
+    expect(
+      (await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: T0 })).ok,
+    ).toBe(true);
+  });
+
+  it("wrong passwords spread over many addresses do not lock the owner until the account cap", async () => {
+    const { email } = await createUser("EMPLOYER");
+    // accountLimit - 1 failures, at most pairLimit - 1 from each address
+    let sent = 0;
+    while (sent < accountLimit - 1) {
+      const from = ip();
+      for (let i = 0; i < pairLimit - 1 && sent < accountLimit - 1; i++, sent++) {
+        expect(
+          await authorizeEmployerPassword({ email, password: "bad", ip: from, now: T0 }),
+        ).toEqual({ ok: false, code: "INVALID_CREDENTIALS" });
+      }
+    }
+    const owner = ip();
+    expect(
+      (await authorizeEmployerPassword({ email, password: PASSWORD, ip: owner, now: T0 })).ok,
+    ).toBe(true);
+    // the success cleared the account-wide counter: a new full series is needed for the cap
+    let again = 0;
+    while (again < accountLimit) {
+      const from = ip();
+      for (let i = 0; i < pairLimit - 1 && again < accountLimit; i++, again++) {
+        await authorizeEmployerPassword({ email, password: "bad", ip: from, now: T0 });
+      }
+    }
+    // account cap reached: refused from every address (documented last stop against guessing)
+    expect(
+      await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: T0 }),
+    ).toMatchObject({ ok: false, code: "RATE_LIMITED" });
+    const later = plusSec(T0, RATE_LIMITS.loginPerIdentifier.windowSec);
+    expect(
+      (await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: later })).ok,
+    ).toBe(true);
+  });
+
+  it("unknown client address (TRUST_PROXY off): no (account + IP) bucket, only the account cap", async () => {
+    const { email } = await createUser("EMPLOYER");
+    for (let i = 0; i < pairLimit + 2; i++) {
+      expect(
+        await authorizeEmployerPassword({ email, password: "bad", ip: null, now: T0 }),
+      ).toEqual({ ok: false, code: "INVALID_CREDENTIALS" });
+    }
+    // past the (account + IP) cap, still below the account cap → the owner signs in
+    expect(
+      (await authorizeEmployerPassword({ email, password: PASSWORD, ip: null, now: T0 })).ok,
+    ).toBe(true);
+    for (let i = 0; i < accountLimit; i++) {
+      await authorizeEmployerPassword({ email, password: "bad", ip: null, now: T0 });
+    }
+    expect(
+      await authorizeEmployerPassword({ email, password: PASSWORD, ip: null, now: T0 }),
+    ).toMatchObject({ ok: false, code: "RATE_LIMITED" });
+  });
+
+  it("seeker OTP sign-in uses the same (phone + IP) buckets", async () => {
+    const phone = randomPhone();
+    await db.user.create({
+      data: { role: "SEEKER", phoneEnc: phone, phoneHash: phoneHashOf(phone) },
+    });
+    const attacker = ip();
+    for (let i = 0; i < pairLimit; i++) {
+      await authorizeSeekerOtp({ phone, code: "000000", ip: attacker, now: T0 });
+    }
+    expect(
+      await authorizeSeekerOtp({ phone, code: "000000", ip: attacker, now: T0 }),
+    ).toMatchObject({ ok: false, code: "RATE_LIMITED" });
+    // another address is not limited by the attacker's failures (the OTP itself decides)
+    const other = await authorizeSeekerOtp({ phone, code: "000000", ip: ip(), now: T0 });
+    expect(other.ok ? null : other.code).not.toBe("RATE_LIMITED");
   });
 });
 

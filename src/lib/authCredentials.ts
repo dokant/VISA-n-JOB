@@ -8,9 +8,11 @@
  *   The admin area stays closed until `verifyStaffTotp` succeeds and the session is upgraded with a
  *   short-lived proof (`createTotpProof` / `verifyTotpProof`).
  * R-129 login limits: every attempt counts against the per-IP limit (only when the address is
- * trusted, see `clientIp`). The per-identifier limit counts FAILED attempts only and is cleared by a
- * successful sign-in, so a third party cannot keep an account locked once its owner signs in
- * (P1b QA O-7); it still stops password / code guessing.
+ * trusted, see `clientIp`). Failed attempts are counted per (account + IP) and, with a higher cap,
+ * per account; a successful sign-in clears both (P1b QA O-7, P1c QA D-1 / Q-11). Wrong passwords or
+ * codes sent from other addresses therefore do not lock the owner out until the account-wide cap is
+ * reached. When the client address is unknown (`TRUST_PROXY` off) there is no (account + IP)
+ * bucket: only the account-wide cap applies.
  * Failure results carry a code only — never which part (account / password) was wrong.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -64,41 +66,69 @@ export function normalizeEmail(email: string): string {
 
 type LimitEntry = { key: string; rule: RateLimitRule };
 
+/** Account-wide failure bucket (higher cap). */
 function identifierLimit(identifier: string): LimitEntry {
   return { key: `login:id:${rateLimitSubject(identifier)}`, rule: RATE_LIMITS.loginPerIdentifier };
+}
+
+/** Failure bucket of one account from one client address; none when the address is unknown. */
+function identifierIpLimit(identifier: string, ip: string | null): LimitEntry | null {
+  return ip
+    ? {
+        key: `login:idip:${rateLimitSubject(`${identifier}|${ip}`)}`,
+        rule: RATE_LIMITS.loginPerIdentifierIp,
+      }
+    : null;
 }
 
 function ipLimit(ip: string | null): LimitEntry | null {
   return ip ? { key: `login:ip:${rateLimitSubject(ip)}`, rule: RATE_LIMITS.loginPerIp } : null;
 }
 
-/** Keys checked by the Auth.js route before a credentials callback is processed (429). */
-export function loginRateLimitKeys(identifier: string, ip: string | null): LimitEntry[] {
-  const byIp = ipLimit(ip);
-  return byIp ? [identifierLimit(identifier), byIp] : [identifierLimit(identifier)];
+/** Failure buckets of a sign-in: account-wide first, then (account + IP) when the IP is known. */
+function failureLimits(identifier: string, ip: string | null): LimitEntry[] {
+  const pair = identifierIpLimit(identifier, ip);
+  return pair ? [identifierLimit(identifier), pair] : [identifierLimit(identifier)];
 }
 
 /**
- * Gate before checking credentials: refuses while the identifier holds too many failures (peek, not
- * counted) and counts this attempt against the per-IP limit.
+ * Keys checked by the Auth.js route before a credentials callback is processed (429): account-wide
+ * failures, (account + IP) failures and the per-IP attempts — the last two only for a known IP.
+ */
+export function loginRateLimitKeys(identifier: string, ip: string | null): LimitEntry[] {
+  const byIp = ipLimit(ip);
+  return byIp ? [...failureLimits(identifier, ip), byIp] : failureLimits(identifier, ip);
+}
+
+/**
+ * Gate before checking credentials: refuses while a failure bucket is full (peek, not counted) and
+ * counts this attempt against the per-IP limit.
  */
 async function loginGate(
   identifier: string,
   ip: string | null,
   now: Date,
 ): Promise<RateLimitResult> {
-  const id = identifierLimit(identifier);
-  const failures = await peekRateLimit(id.key, id.rule, now);
-  if (!failures.ok) return failures;
+  let last: RateLimitResult | null = null;
+  for (const f of failureLimits(identifier, ip)) {
+    last = await peekRateLimit(f.key, f.rule, now);
+    if (!last.ok) return last;
+  }
   const byIp = ipLimit(ip);
-  return byIp ? consumeRateLimit(byIp.key, byIp.rule, now) : failures;
+  return byIp ? consumeRateLimit(byIp.key, byIp.rule, now) : (last as RateLimitResult);
 }
 
-/** Records the outcome: a failure is counted for the identifier, a success clears its counter. */
-async function loginOutcome(identifier: string, ok: boolean, now: Date): Promise<void> {
-  const id = identifierLimit(identifier);
-  if (ok) await resetRateLimit(id.key);
-  else await consumeRateLimit(id.key, id.rule, now);
+/** Records the outcome: a failure is counted in every failure bucket, a success clears them. */
+async function loginOutcome(
+  identifier: string,
+  ip: string | null,
+  ok: boolean,
+  now: Date,
+): Promise<void> {
+  for (const f of failureLimits(identifier, ip)) {
+    if (ok) await resetRateLimit(f.key);
+    else await consumeRateLimit(f.key, f.rule, now);
+  }
 }
 
 /** Identifier used for the login limits: hashed phone (E.164) or normalised e-mail. */
@@ -150,7 +180,7 @@ export async function authorizeSeekerOtp(
   if (!limited.ok) return { ok: false, code: "RATE_LIMITED", retryAfterSec: limited.retryAfterSec };
 
   const otp = await verifyOtp({ phone: e164, code: args.code, purpose: "LOGIN", now });
-  await loginOutcome(identifier, otp.ok, now);
+  await loginOutcome(identifier, args.ip, otp.ok, now);
   if (!otp.ok) {
     switch (otp.code) {
       case "INVALID_CODE":
@@ -194,7 +224,7 @@ async function authorizePassword(
   const allowed = user != null && accept(user.role);
   // Always run argon2 (dummy hash when there is no usable account): same timing either way.
   const valid = await verifyPassword(allowed ? user.password : null, args.password);
-  await loginOutcome(identifier, allowed && valid, now);
+  await loginOutcome(identifier, args.ip, allowed && valid, now);
   if (!allowed || !valid) return { ok: false, code: "INVALID_CREDENTIALS" };
 
   await db.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });

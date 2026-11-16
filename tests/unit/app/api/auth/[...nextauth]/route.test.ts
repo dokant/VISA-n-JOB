@@ -58,6 +58,40 @@ describe("R-129 /api/auth/callback rate limit", () => {
     expect(res.status).toBe(429);
   });
 
+  it("Q-11: a full (account + IP) bucket answers 429 to that address only", async () => {
+    process.env.TRUST_PROXY = "true";
+    const email = `pair-${Date.now()}@example.test`;
+    const attacker = `192.0.2.202-${Date.now()}`;
+    const owner = `192.0.2.203-${Date.now()}`;
+    const identifier = loginIdentifier("email", email) as string;
+    const keys = loginRateLimitKeys(identifier, attacker);
+    // [account, (account + IP), IP]
+    expect(keys.map((k) => k.rule)).toEqual([
+      RATE_LIMITS.loginPerIdentifier,
+      RATE_LIMITS.loginPerIdentifierIp,
+      RATE_LIMITS.loginPerIp,
+    ]);
+    const pair = keys[1];
+    for (let i = 0; i < pair.rule.limit; i++) await consumeRateLimit(pair.key, pair.rule);
+    const calls = authPost.mock.calls.length;
+    expect(
+      (await POST(callback("employer-password", { email, password: "x" }, attacker))).status,
+    ).toBe(429);
+    expect(
+      (await POST(callback("employer-password", { email, password: "x" }, owner))).status,
+    ).toBe(302);
+    expect(authPost).toHaveBeenCalledTimes(calls + 1);
+
+    // TRUST_PROXY off: the address is unknown, so no (account + IP) bucket is consulted
+    delete process.env.TRUST_PROXY;
+    expect(loginRateLimitKeys(identifier, null).map((k) => k.rule)).toEqual([
+      RATE_LIMITS.loginPerIdentifier,
+    ]);
+    expect(
+      (await POST(callback("employer-password", { email, password: "x" }, attacker))).status,
+    ).toBe(302);
+  });
+
   it("other Auth.js POSTs (sign-out, session) are not touched", async () => {
     const res = await POST(
       new NextRequest("http://127.0.0.1/api/auth/signout", { method: "POST", body: "" }),

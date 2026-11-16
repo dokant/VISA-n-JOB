@@ -35,11 +35,19 @@ export const OTP_CODE_LENGTH = 6;
 
 /**
  * R-129 (OTP·로그인 부분): fixed-window limits kept in Postgres (RateLimitBucket).
- * `perIdentifier` counts by the hashed e-mail / phone, `perIp` by the client address.
+ * `perIp` counts every attempt by the client address.
+ * Login failures (Q-11, P1c QA D-1) are counted twice and cleared by a successful sign-in:
+ * - `loginPerIdentifierIp`: failures of one account from one client address. Stops guessing from
+ *   one place without locking the owner, who signs in from another address.
+ * - `loginPerIdentifier`: failures of one account from all addresses together. Higher cap — the last
+ *   stop against guessing spread over many addresses. Also the only failure limit when the client
+ *   address is unknown (`TRUST_PROXY` off, see `clientIp`).
+ * 운영 수치: 운영자가 조정한다 (로그인 실패 한도, 계정+IP < 계정 전체).
  */
 export const RATE_LIMITS = {
   otpRequestPerIp: { limit: 20, windowSec: 3_600 },
-  loginPerIdentifier: { limit: 10, windowSec: 900 },
+  loginPerIdentifierIp: { limit: 10, windowSec: 900 },
+  loginPerIdentifier: { limit: 50, windowSec: 900 },
   loginPerIp: { limit: 30, windowSec: 900 },
   totpVerifyPerUser: { limit: 5, windowSec: 900 },
   signupPerIp: { limit: 10, windowSec: 3_600 },
