@@ -24,6 +24,9 @@ export const AUDIT_ACTIONS = [
   "RULE_PUBLISH", // 규칙·점수표 게시
   "CONSENT_REVOKE", // 동의 철회
   "COMPANY_VERIFY", // 기업 검증·계약 등록 (R-218, PC-2)
+  // [P1e] PLAN P1e 작업 2 "모두 AuditLog": 등급 조건 확인 항목(상담 완료·체류자격 확인·한국어 확인)과
+  // 전환 가능성 판정 입력. STANDARD 4.8 표에 행 추가 요청(P1e 보고).
+  "SEEKER_REVIEW_UPDATE",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

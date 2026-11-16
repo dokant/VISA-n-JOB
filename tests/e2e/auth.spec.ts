@@ -57,7 +57,7 @@ test.describe("R-118 admin 2FA", () => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/admin\/2fa\/setup$/);
     }
-    await expect(page.getByTestId("admin-dashboard-placeholder")).toHaveCount(0);
+    await expect(page.getByTestId("admin-dashboard")).toHaveCount(0);
 
     // A client-side session update cannot fake the second factor.
     const forged = await page.evaluate(async () => {
@@ -85,7 +85,7 @@ test.describe("R-118 admin 2FA", () => {
     await page.getByLabel("인증 앱의 6자리 코드").fill(totpCodeAt(secret));
     await page.getByRole("button", { name: "설정 완료" }).click();
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(page.getByTestId("admin-dashboard-placeholder")).toBeVisible();
+    await expect(page.getByTestId("admin-dashboard")).toBeVisible();
     await expect(page.getByTestId("admin-actor")).toContainText("매칭 담당");
 
     // 2FA screens bounce back to the dashboard once verified.

@@ -139,3 +139,29 @@ export const DIAGNOSIS_FOREIGN_ROWS_MAX = 10;
 
 /** R-125: the 구인 의뢰 page lists the company's latest requests, at most this many. */
 export const JOB_REQUEST_LIST_MAX = 20;
+
+// ─── Admin MVP (P1e: R-119 ~ R-122) ─────────────────────────────────────────────────────────
+
+/** R-119 / DECISIONS PC-10: the dashboard counts stays that expire within this many days. */
+export const ADMIN_STAY_EXPIRY_SOON_DAYS = 90;
+
+/** R-120 / WO §7.6: S requires a status check (lastActiveConfirmedAt) within this many days. */
+export const SEEKER_S_ACTIVE_CONFIRM_DAYS = 30;
+
+/** Admin lists: rows shown at most per list / kanban column (newer rows are reached by filters). */
+export const ADMIN_LIST_MAX = 100;
+export const ADMIN_LEAD_COLUMN_MAX = 50;
+
+/**
+ * R-121 / WO §8.3 / DECISIONS PC-5: 전화 우선순위 가중치.
+ *   priority = Σ(일치 구직자 등급 가중치) × matchMultiplier + 인구감소지역 가점 + 신규성 가점
+ * 운영 수치: 운영자가 조정한다 (초기값 PC-5: S=2, A=1, 인구감소지역 +3, 7일 이내 신규 +2).
+ * `matchMultiplier` is the "× 2" of the WO §8.3 formula.
+ */
+export const LEAD_PRIORITY_WEIGHTS = {
+  seekerGrade: { S: 2, A: 1 },
+  matchMultiplier: 2,
+  depopulationBonus: 3,
+  newLeadBonus: 2,
+  newLeadDays: 7,
+} as const;

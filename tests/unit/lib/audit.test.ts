@@ -27,7 +27,7 @@ async function rowsFor(entityId: string) {
 }
 
 describe("R-011 audit", () => {
-  it("STANDARD 4.8: action constants are exactly the listed 11 names", () => {
+  it("STANDARD 4.8: action constants are the listed 11 names + P1e SEEKER_REVIEW_UPDATE", () => {
     expect([...AUDIT_ACTIONS]).toEqual([
       "PII_VIEW",
       "PII_EXPORT",
@@ -40,6 +40,7 @@ describe("R-011 audit", () => {
       "RULE_PUBLISH",
       "CONSENT_REVOKE",
       "COMPANY_VERIFY",
+      "SEEKER_REVIEW_UPDATE",
     ]);
     expect(AuditAction.COMPANY_VERIFY).toBe("COMPANY_VERIFY");
     expect(Object.isFrozen(AuditAction)).toBe(true);

@@ -81,7 +81,11 @@ export type LeadTransitionReason =
   | "ARCHIVE_CLOSED" // R-116
   | "JOB_REQUEST" // R-125
   | "DIAGNOSIS_REPEATED" // R-124: a signed-in company runs the diagnosis again (ARCHIVED → C)
-  | "CREATED"; // a lead created directly at a grade above C (R-125 without an earlier lead)
+  | "CREATED" // a lead created directly at a grade above C (R-125 without an earlier lead)
+  | "CALL_INTERESTED" // P1e R-121: 통화 결과 관심 있음 → B
+  | "CALL_REQUEST_RECEIVED" // P1e R-121: 통화 중 구인신청 접수 → B
+  | "CALL_DNC" // P1e R-121: 재접촉 거부 → DO_NOT_CONTACT
+  | "STAFF_VERIFIED"; // P1e R-121: 구인신청 + 직원 검증 완료 → A (BR-05)
 
 /** Anything with `jobLead.updateMany` + `auditLog.create` (the app db, a transaction client …). */
 type TxClient = {
