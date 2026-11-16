@@ -160,6 +160,45 @@ const POSITIVE: Record<string, [string, ContactType][]> = {
     ["hong\u200B@\u200Bnaver.com", "EMAIL"],
     ["카\u200B톡 hong123", "MESSENGER_ID"],
   ],
+  // P2a QA D-3: separators by Unicode category (punctuation, symbols, marks, ㅡ) and keycap digits
+  "P2a D-3 separators by category and keycap digits": [
+    ["010ㅡ1234ㅡ5678", "PHONE_LOCAL"],
+    ["문의 010ㅡ1234ㅡ5678", "PHONE_LOCAL"],
+    ["010•1234•5678", "PHONE_LOCAL"],
+    ["생산직 010•1234•5678", "PHONE_LOCAL"],
+    ["010・1234・5678", "PHONE_LOCAL"],
+    ["010●1234●5678", "PHONE_LOCAL"],
+    ["010→1234→5678", "PHONE_LOCAL"],
+    ["0️⃣1️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣", "PHONE_LOCAL"],
+    ["010★1234★5678", "PHONE_LOCAL"],
+    ["010 · 1234 · 5678", "PHONE_LOCAL"],
+    ["010—1234—5678", "PHONE_LOCAL"],
+    ["010ー1234ー5678", "PHONE_LOCAL"],
+    ["010、1234、5678", "PHONE_LOCAL"],
+    ["010⃣1234⃣5678", "PHONE_LOCAL"],
+    ["0⃣1⃣0⃣ 1234 5678", "PHONE_LOCAL"],
+    ["010※1234※5678", "PHONE_LOCAL"],
+    ["010♥1234♥5678", "PHONE_LOCAL"],
+    ["010»1234»5678", "PHONE_LOCAL"],
+    ["＋８２　１０•１２３４•５６７８", "PHONE_INTL"],
+    ["+84→912→345→678", "PHONE_INTL"],
+    ["공 일 공 ㅡ 일이삼사 ㅡ 오육칠팔", "PHONE_LOCAL"],
+  ],
+  // P2a QA O-1: other decimal digit systems, Han numerals, jamo / NFD Hangul, English digit words
+  "P2a O-1 digit systems, Han numerals, jamo and spelled numbers": [
+    ["٠١٠-١٢٣٤-٥٦٧٨", "PHONE_LOCAL"],
+    ["०१०-१२३४-५६७८", "PHONE_LOCAL"],
+    ["۰۱۰-۱۲۳۴-۵۶۷۸", "PHONE_LOCAL"],
+    ["๐๑๐-๑๒๓๔-๕๖๗๘", "PHONE_LOCAL"],
+    ["٠١٠•١٢٣٤•٥٦٧٨", "PHONE_LOCAL"],
+    ["零一零 一二三四 五六七八", "PHONE_LOCAL"],
+    ["〇一〇-一二三四-五六七八", "PHONE_LOCAL"],
+    ["010一1234一5678", "PHONE_LOCAL"],
+    ["ㄱㅗㅇㅇㅣㄹㄱㅗㅇ ㅇㅣㄹㅇㅣㅅㅏㅁㅅㅏ ㅇㅗㅇㅠㄱㅊㅣㄹㅍㅏㄹ", "PHONE_LOCAL"],
+    ["공일공 일이삼사 오육칠팔".normalize("NFD"), "PHONE_LOCAL"],
+    ["zero one zero one two three four five six seven eight", "PHONE_LOCAL"],
+    ["Zero One Zero - 1234 - five six seven eight", "PHONE_LOCAL"],
+  ],
 };
 
 /** Ordinary job / profile text that must not be flagged. */
@@ -247,6 +286,82 @@ const NEGATIVE: Record<string, string[]> = {
     "영업 1년, 공정 2개",
     "TOPIK 1급 l 2급",
   ],
+  // P2a run 3: the category-based separators must not join dates, times, amounts, lists or codes
+  "P2a D-3 dates with the new separators": [
+    "2026.11.17",
+    "2026-11-17",
+    "2026/11/17",
+    "11·17",
+    "11·17(화) 면접",
+    "2026·11·17",
+    "입사일 2026.11.17 · 교육 2026.11.24",
+    "교육 2026/11/17 → 2026/11/21",
+    "20261117 공고",
+  ],
+  "P2a D-3 times and ranges": [
+    "09:00~18:00",
+    "근무 09:00~18:00 (휴게 12:00~13:00)",
+    "9시→18시",
+    "오전 9시 → 오후 6시",
+    "1일 2교대 (주간 08:00~20:00 / 야간 20:00~08:00)",
+    "월~금 08:30 ~ 17:30",
+    "2025~2026",
+    "2025 → 2026 계약",
+    "Làm việc 08:00 – 17:00",
+  ],
+  "P2a D-3 amounts": [
+    "250만원·300만 원",
+    "월 2,500,000원",
+    "2,500,000원 ~ 3,000,000원",
+    "₩2,500,000 × 12개월",
+    "급여: 2,800,000~3,200,000원",
+    "식비 ₩200,000 지원",
+    "시급 10,030원 × 209시간",
+    "상여 200%·성과급 별도",
+    "Lương 2.500.000 KRW/tháng",
+    "Зарплата 2 500 000 вон",
+    "工资 二百五十万韩元",
+    "٢٥٠٠٠٠٠ وون",
+  ],
+  "P2a D-3 list symbols, arrows, visa codes, head counts, postal codes": [
+    "• 숙소 제공 • 식사 3끼",
+    "● 4대보험 ● 퇴직금 ● 상여 200%",
+    "★ 급구 ★ 2명 ★",
+    "※ 1일 8시간 ※ 주 5일",
+    "① 생산 ② 포장 ③ 검사",
+    "1️⃣ 생산 2️⃣ 포장 3️⃣ 검사",
+    "E-9 · H-2 · F-4",
+    "E-9 • H-2 • F-4 • F-5",
+    "주간 → 야간 교대",
+    "E-9 → E-7-4 전환",
+    "3명/5명",
+    "10~20명 · 30~50명",
+    "모집 3/5/10명",
+    "우편번호 06236",
+    "(우)06236 · 서울",
+  ],
+  "P2a D-3 ordinary posting phrases": [
+    "정년 60세 · 경력 3~5년 우대",
+    "연차 15일 · 주 52시간",
+    "ISO 9001 · 14001 · 45001 인증",
+    "ISO 9001:2015",
+    "24시간 3조 2교대",
+    "주 5일(월~금) · 토 격주",
+    "제1공장 · 제2공장",
+    "기숙사 2인 1실 → 1인 1실 가능",
+    "잔업 월 20~40시간 ±",
+    "키 170cm↑ 우대",
+    "1차 · 2차 · 3차 협력사",
+    "자동차 부품 3종·5종 생산",
+    "No.1 → No.2 라인",
+    "면적 84㎡ 기숙사",
+    "График 5/2, 8 часов",
+    "一二三四 공정",
+    "ㅎㅎ 감사합니다 ㅋㅋㅋ",
+    "ㅡㅡ 3교대 아님",
+    "Tel 없음, 상담은 비자앤잡",
+    "one or two shifts, five days a week",
+  ],
   "other text": [
     "Node.js 경험",
     "settings 변경",
@@ -318,6 +433,41 @@ describe("R-012 pii-guard", () => {
     expect(maskContacts(wide)).toBe("㈜ 공장 *** 문의");
     // astral characters before the number do not shift the mask
     expect(maskContacts("😀 010_1234_5678 😀")).toBe("😀 *** 😀");
+  });
+
+  it("P2a QA D-3 / O-1: masks keep the input offsets after jamo composition, keycaps and digit mapping", () => {
+    const keycap = "0️⃣1️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣";
+    const jamo = "ㄱㅗㅇㅇㅣㄹㄱㅗㅇ ㅇㅣㄹㅇㅣㅅㅏㅁㅅㅏ ㅇㅗㅇㅠㄱㅊㅣㄹㅍㅏㄹ";
+    const nfd = "공일공 일이삼사 오육칠팔".normalize("NFD");
+    const text = `• 숙소 제공 문의 010ㅡ1234ㅡ5678 / ${keycap} 끝 ${jamo} 그리고 ${nfd} · ٠١٠-١٢٣٤-٥٦٧٨ 월 2,500,000원 09:00~18:00`;
+    const found = detectContacts(text);
+    expect(found.map((f) => f.type)).toEqual(Array(5).fill("PHONE_LOCAL"));
+    for (const f of found) expect(text.slice(f.start, f.end)).toBe(f.value);
+    expect(found.map((f) => f.value)).toEqual([
+      "010ㅡ1234ㅡ5678",
+      keycap,
+      jamo,
+      nfd,
+      "٠١٠-١٢٣٤-٥٦٧٨",
+    ]);
+    expect(maskContacts(text)).toBe(
+      "• 숙소 제공 문의 *** / *** 끝 *** 그리고 *** · *** 월 2,500,000원 09:00~18:00",
+    );
+    // a jamo word next to the number is not swallowed into the mask
+    expect(maskContacts("ㅎㅎ 010•1234•5678 ㅋㅋ")).toBe("ㅎㅎ *** ㅋㅋ");
+  });
+
+  it("P2a QA O-3 (design limit, kept): commas, colons, letters or 4+ separators between groups", () => {
+    // Widening these would turn amounts ("1,500,2,000"), times ("09:00:00") and numbered text into
+    // phone numbers, so they stay undetected on purpose (pii-guard SEP comment).
+    for (const text of [
+      "010,1234,5678",
+      "010:1234:5678",
+      "010번 1234번 5678",
+      "010 -_ 1234 -_ 5678",
+    ]) {
+      expect(detectContacts(text), text).toEqual([]);
+    }
   });
 
   it("an e-mail is reported once, not also as URL / handle", () => {

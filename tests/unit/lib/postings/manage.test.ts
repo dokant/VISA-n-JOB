@@ -104,6 +104,69 @@ describe("R-201 create only from grade-A leads (BR-05)", () => {
     }
   });
 
+  it("R-201 / BR-03 (P2a QA O-2): Latin corporate markers are dropped only as whole words", () => {
+    // no false positive: "inc" inside "Vinco" / "Prince" is part of the name, not a marker
+    expect(containsCompanyName("Novo 볼트 생산직", ["Vinco"])).toBe(false);
+    expect(containsCompanyName("pre metal 생산직", ["Prince Metal"])).toBe(false);
+    expect(containsCompanyName("인천(Incheon) 남동공단 생산직", ["Incheon Steel Inc."])).toBe(
+      false,
+    );
+    expect(containsCompanyName("Incorporated 표기 없음 생산직", ["Corp Steel"])).toBe(false);
+    // no miss: the name itself is still found, with or without its marker
+    expect(containsCompanyName("Incheon Steel 협력 생산직", ["Cheon Steel"])).toBe(true);
+    expect(containsCompanyName("Vinco 볼트 생산직", ["Vinco"])).toBe(true);
+    expect(containsCompanyName("Prince-Metal 생산직", ["Prince Metal"])).toBe(true);
+    expect(containsCompanyName("Incheon Steel 생산직", ["Incheon Steel Inc."])).toBe(true);
+    expect(containsCompanyName("HANBIT PRECISION CO., LTD. 생산직", ["Hanbit Precision"])).toBe(
+      true,
+    );
+    expect(containsCompanyName("Hanbit Precision 생산직", ["Hanbit Precision Co., Ltd."])).toBe(
+      true,
+    );
+    expect(containsCompanyName("Doosan 생산직", ["Doosan Corp."])).toBe(true);
+    expect(containsCompanyName("Vina Tech 생산직", ["VINA TECH LLC"])).toBe(true);
+  });
+
+  it("R-201 / BR-14 (P2a QA D-3, O-1): separators by category, keycaps and other digits are refused", async () => {
+    const staff = await staffUser("STAFF_PLACEMENT");
+    const lead = await gradedLead("A");
+    for (const text of [
+      "생산직 010ㅡ1234ㅡ5678",
+      "생산직 010•1234•5678",
+      "생산직 010・1234・5678",
+      "생산직 010●1234●5678",
+      "생산직 010→1234→5678",
+      "생산직 0️⃣1️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣",
+      "생산직 ٠١٠-١٢٣٤-٥٦٧٨",
+      "생산직 零一零 一二三四 五六七八",
+      "생산직 ㄱㅗㅇㅇㅣㄹㄱㅗㅇ ㅇㅣㄹㅇㅣㅅㅏㅁㅅㅏ ㅇㅗㅇㅠㄱㅊㅣㄹㅍㅏㄹ",
+    ]) {
+      expect(
+        await createPostingFromLead({
+          actorId: staff.id,
+          input: postingInput(lead.id, { blindTitle: text }),
+        }),
+        text,
+      ).toEqual({ ok: false, code: "TEXT_HAS_CONTACT" });
+    }
+    expect(
+      await createPostingFromLead({
+        actorId: staff.id,
+        input: postingInput(lead.id, { role: "생산 010ㅡ1234ㅡ5678" }),
+      }),
+    ).toEqual({ ok: false, code: "TEXT_HAS_CONTACT" });
+    expect(await db.jobPosting.count({ where: { leadId: lead.id } })).toBe(0);
+    // ordinary text with the same symbols is accepted
+    const ok = await createPostingFromLead({
+      actorId: staff.id,
+      input: postingInput(lead.id, {
+        blindTitle: "• 숙소 제공 • 식사 3끼 · 09:00~18:00 · 250만원·300만 원",
+        role: "주간 → 야간 교대",
+      }),
+    });
+    expect(ok.ok).toBe(true);
+  });
+
   it("R-201: unknown visa / region / industry codes are refused", async () => {
     const staff = await staffUser("STAFF_PLACEMENT");
     const lead = await gradedLead("A");

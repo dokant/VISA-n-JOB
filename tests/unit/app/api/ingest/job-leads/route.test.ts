@@ -140,6 +140,25 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     ]);
   });
 
+  it("BR-14 (P2a QA D-3, O-1): maskContacts masks category separators, keycaps and other digits in place", async () => {
+    const keycap = "0️⃣1️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣";
+    const item = leadItem({
+      title: `생산직 문의 010ㅡ1234ㅡ5678 • 숙소 제공 • 09:00~18:00`,
+      companyName: `마스킹 제조 010→1234→5678`,
+      memo: `앞 010•1234•5678 중간 ${keycap} 뒤 ٠١٠-١٢٣٤-٥٦٧٨ 끝 월 2,500,000원`,
+    });
+    const res = await post([item]);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as Body).created).toBe(1);
+    const row = await prisma.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(row.title).toBe("생산직 문의 *** • 숙소 제공 • 09:00~18:00");
+    expect(row.companyName).toBe("마스킹 제조 ***");
+    expect(JSON.stringify(row.rawJson)).toContain("앞 *** 중간 *** 뒤 *** 끝 월 2,500,000원");
+    expect(JSON.stringify(row.rawJson)).not.toMatch(/1234|٢٣٤/);
+  });
+
   it("R-115: a DO_NOT_CONTACT lead keeps its grade when collected again", async () => {
     const item = leadItem();
     await post([item]);

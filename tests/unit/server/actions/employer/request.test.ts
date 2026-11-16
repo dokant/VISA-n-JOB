@@ -78,6 +78,38 @@ describe("R-125 submitJobRequestAction", () => {
     expect(company.employeeCount).toBeNull();
   });
 
+  it("R-125 BR-14 (P2a QA D-3, O-1): category separators, keycaps and other digit systems are refused", async () => {
+    session.actor = await createEmployer();
+    const cases: Array<[string, string]> = [
+      ["detail", "문의 010ㅡ1234ㅡ5678"],
+      ["detail", "급하면 010•1234•5678"],
+      ["preferences", "010・1234・5678 로 연락"],
+      ["workHours", "08:00~17:00 / 010●1234●5678"],
+      ["role", "조립 010→1234→5678"],
+      ["detail", "0️⃣1️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣"],
+      ["detail", "०१०-१२३४-५६७८"],
+      ["companyName", "零一零 一二三四 五六七八 제조"],
+    ];
+    for (const [field, text] of cases) {
+      expect(await submitJobRequestAction(await input({ [field]: text })), text).toEqual({
+        ok: false,
+        code: "CONTACT_INFO",
+        fields: [field],
+      });
+    }
+    expect(await prisma.jobLead.count({ where: { companyId: session.actor.companyId } })).toBe(0);
+    // the same symbols in ordinary text pass
+    expect(
+      await submitJobRequestAction(
+        await input({
+          workHours: "09:00~18:00 · 주간 → 야간 교대",
+          preferences: "• 숙소 제공 • 식사 3끼 · E-9 · H-2 · F-4",
+          detail: "월 2,500,000원 · 250만원·300만 원 · 2026.11.17 입사 · 3명/5명",
+        }),
+      ),
+    ).toEqual({ ok: true });
+  });
+
   it("R-125: a valid request is stored as a B lead", async () => {
     session.actor = await createEmployer();
     expect(await submitJobRequestAction(await input())).toEqual({ ok: true });

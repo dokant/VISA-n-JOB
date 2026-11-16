@@ -47,7 +47,14 @@ export type PostingActionError =
 export type PostingActionResult<T = object> =
   ({ ok: true } & T) | { ok: false; code: PostingActionError };
 
-const CORPORATE_MARKERS = /주식회사|유한회사|\(주\)|\(유\)|㈜|co\.?,?\s*ltd\.?|inc\.?|corp\.?/gi;
+/** Korean corporate markers are dropped wherever they appear ("한빛정밀주식회사"). */
+const KOREAN_CORPORATE_MARKERS = /주식회사|유한회사|\(주\)|\(유\)|㈜/gu;
+/**
+ * P2a QA O-2: Latin corporate markers (Co., Ltd. / Inc. / Corp. / LLC …) are dropped only as whole
+ * words of the original text — never inside a word: "Vinco", "Prince", "Incheon" keep their letters.
+ */
+const LATIN_CORPORATE_MARKERS =
+  /(?<![\p{L}\p{M}\p{N}])(?:co\.?,?\s*ltd|inc|corp|corporation|ltd|llc|co)\.?(?![\p{L}\p{M}\p{N}])/giu;
 
 /**
  * P2a QA D-2: NFKC first (㈜ → (주), full-width letters), then invisible characters (Unicode Cf,
@@ -58,7 +65,8 @@ function normalizeName(text: string): string {
   return text
     .normalize("NFKC")
     .replace(/[\p{Cf}\p{Default_Ignorable_Code_Point}]/gu, "")
-    .replace(CORPORATE_MARKERS, "")
+    .replace(KOREAN_CORPORATE_MARKERS, "")
+    .replace(LATIN_CORPORATE_MARKERS, "")
     .replace(/[^\p{L}\p{M}\p{N}]/gu, "")
     .toLowerCase();
 }

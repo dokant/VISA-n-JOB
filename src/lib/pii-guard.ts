@@ -34,31 +34,162 @@ export class ContactInfoError extends Error {
 }
 
 /**
- * P2a QA D-1: text compared for contacts is normalised first, and every normalised character keeps
- * the original span it came from, so detected offsets (and `maskContacts`) still refer to the input.
- * - Invisible characters (Unicode `Cf` and Default_Ignorable_Code_Point: U+200B ZWSP, U+200C/D,
- *   U+2060, U+FEFF, U+00AD soft hyphen, U+3164 Hangul filler …) are dropped.
- * - Each character (with its combining marks) is NFKC-normalised: full-width ０-９ ＠ ＋, NBSP,
- *   ideographic space, circled digits, ㈜ …
+ * P2a QA D-1 / D-3 / O-1: text compared for contacts is normalised first, and every normalised
+ * character keeps the original span it came from, so detected offsets (and `maskContacts`) still
+ * refer to the input.
+ * 1. The input is split into units (a character with its combining marks). Invisible characters
+ *    (Unicode `Cf` and Default_Ignorable_Code_Point: U+200B ZWSP, U+200C/D, U+2060, U+FEFF, U+00AD
+ *    soft hyphen, U+3164 Hangul filler, U+FE0F variation selector …) are dropped.
+ * 2. Hangul written as separate jamo is composed into syllables before NFKC: NFD jamo
+ *    ("공" = U+1100 U+1169 U+11BC) and compatibility jamo typed one by one ("ㄱㅗㅇㅇㅣㄹ" → "공일").
+ *    `String.normalize("NFC")` alone does not compose compatibility jamo, so the composition is done
+ *    here (initial + vowel, plus a final consonant when no vowel follows it), one syllable spanning
+ *    the jamo it came from.
+ * 3. Each unit is NFKC-normalised (full-width ０-９ ＠ ＋, NBSP, ideographic space, circled and
+ *    super/subscript digits, mathematical digits, ㈜ …).
+ * 4. Digits: every Unicode decimal digit (`\p{Nd}`: Arabic-Indic ٠-٩, Persian ۰-۹, Devanagari ०-९,
+ *    Thai ๐-๙ …) becomes its ASCII digit; Han numerals 零〇一二三四五六七八九 become digits (a "一"
+ *    standing between two other digits reads as a dash: "010一1234"); a digit's combining marks are
+ *    dropped, so keycap emoji ("0️⃣" = 0 + U+FE0F + U+20E3) read as the digit.
  */
 const IGNORABLE = /[\p{Cf}\p{Default_Ignorable_Code_Point}]/gu;
 const UNIT = /\P{M}\p{M}*|\p{M}+/gsu;
+const DECIMAL_DIGIT = /\p{Nd}/u;
+const MARKS_ONLY = /^\p{M}*$/u;
+const HAN_DIGITS: Readonly<Record<string, string>> = {
+  零: "0",
+  〇: "0",
+  一: "1",
+  二: "2",
+  三: "3",
+  四: "4",
+  五: "5",
+  六: "6",
+  七: "7",
+  八: "8",
+  九: "9",
+};
 
+type Piece = { text: string; start: number; end: number; han?: boolean };
 type Normalized = { text: string; startOf: number[]; endOf: number[] };
 
+/** ASCII value of a `\p{Nd}` character (Nd digits come in contiguous runs of ten, 0 → 9). */
+function decimalValue(ch: string): string {
+  let cp = ch.codePointAt(0) as number;
+  let steps = 0;
+  while (DECIMAL_DIGIT.test(String.fromCodePoint(cp - 1))) {
+    cp -= 1;
+    steps += 1;
+  }
+  return String(steps % 10);
+}
+
+// ── Hangul jamo composition ──
+const COMPAT_INITIALS = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+const COMPAT_FINALS = "ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ";
+function initialIndex(ch: string): number {
+  const cp = ch.codePointAt(0) as number;
+  if (cp >= 0x1100 && cp <= 0x1112) return cp - 0x1100;
+  return ch.length === 1 ? COMPAT_INITIALS.indexOf(ch) : -1;
+}
+function vowelIndex(ch: string | undefined): number {
+  if (ch === undefined || ch.length !== 1) return -1;
+  const cp = ch.charCodeAt(0);
+  if (cp >= 0x1161 && cp <= 0x1175) return cp - 0x1161;
+  if (cp >= 0x314f && cp <= 0x3163) return cp - 0x314f;
+  return -1;
+}
+/** 1–27 for a final consonant; conjoining finals always, compatibility ones only before a non-vowel. */
+function finalIndex(ch: string | undefined, next: string | undefined): number {
+  if (ch === undefined || ch.length !== 1) return 0;
+  const cp = ch.charCodeAt(0);
+  if (cp >= 0x11a8 && cp <= 0x11c2) return cp - 0x11a7;
+  const i = COMPAT_FINALS.indexOf(ch);
+  return i >= 0 && vowelIndex(next) < 0 ? i + 1 : 0;
+}
+
+function composeHangul(pieces: Piece[]): Piece[] {
+  const out: Piece[] = [];
+  for (let i = 0; i < pieces.length; i++) {
+    const p = pieces[i];
+    const l = p.text.length === 1 ? initialIndex(p.text) : -1;
+    const v = vowelIndex(pieces[i + 1]?.text);
+    if (l >= 0 && v >= 0) {
+      let j = i + 1;
+      const t = finalIndex(pieces[j + 1]?.text, pieces[j + 2]?.text);
+      if (t > 0) j += 1;
+      const syllable = String.fromCharCode(0xac00 + (l * 21 + v) * 28 + t);
+      out.push({ text: syllable, start: p.start, end: pieces[j].end });
+      i = j;
+      continue;
+    }
+    // a precomposed syllable without a final, followed by a conjoining final (partial NFD)
+    const cp = p.text.length === 1 ? p.text.charCodeAt(0) : 0;
+    if (cp >= 0xac00 && cp <= 0xd7a3 && (cp - 0xac00) % 28 === 0) {
+      const nextCp = pieces[i + 1]?.text.length === 1 ? pieces[i + 1].text.charCodeAt(0) : 0;
+      if (nextCp >= 0x11a8 && nextCp <= 0x11c2) {
+        out.push({
+          text: String.fromCharCode(cp + nextCp - 0x11a7),
+          start: p.start,
+          end: pieces[i + 1].end,
+        });
+        i += 1;
+        continue;
+      }
+    }
+    out.push(p);
+  }
+  return out;
+}
+
+function normalizeDigits(text: string): { text: string; han: boolean } {
+  const chars = [...text];
+  let han = false;
+  const mapped = chars.map((c) => {
+    if (HAN_DIGITS[c]) {
+      han = true;
+      return HAN_DIGITS[c];
+    }
+    if (c.length === 1 && c >= "0" && c <= "9") return c;
+    return DECIMAL_DIGIT.test(c) ? decimalValue(c) : c;
+  });
+  // a digit with combining marks (keycap "0⃣", "1̲") is just the digit
+  if (/^[0-9]$/.test(mapped[0] ?? "") && MARKS_ONLY.test(mapped.slice(1).join(""))) {
+    return { text: mapped[0], han };
+  }
+  return { text: mapped.join(""), han };
+}
+
 function normalizeForDetection(text: string): Normalized {
+  const units: Piece[] = [];
+  for (const m of text.matchAll(UNIT)) {
+    const unit = m[0].replace(IGNORABLE, "");
+    if (unit) units.push({ text: unit, start: m.index, end: m.index + m[0].length });
+  }
+  const pieces = composeHangul(units).map((p) => {
+    const digits = normalizeDigits(p.text.normalize("NFKC").replace(IGNORABLE, ""));
+    return { ...p, ...digits };
+  });
+  const isPlainDigit = (p: Piece | undefined) => p !== undefined && !p.han && /[0-9]$/.test(p.text);
   let out = "";
   const startOf: number[] = [];
   const endOf: number[] = [];
-  for (const m of text.matchAll(UNIT)) {
-    const unit = m[0].replace(IGNORABLE, "");
-    if (!unit) continue;
-    const norm = unit.normalize("NFKC").replace(IGNORABLE, "");
-    const start = m.index;
-    const end = m.index + m[0].length;
-    for (let i = 0; i < norm.length; i++) {
-      startOf.push(start);
-      endOf.push(end);
+  for (let i = 0; i < pieces.length; i++) {
+    const p = pieces[i];
+    let norm = p.text;
+    // "010一1234一5678": a Han "one" between other digits is a dash, not a digit
+    if (
+      p.han &&
+      norm === "1" &&
+      isPlainDigit(pieces[i - 1]) &&
+      /^[0-9]/.test(pieces[i + 1]?.text ?? "") &&
+      !pieces[i + 1]?.han
+    ) {
+      norm = "-";
+    }
+    for (let k = 0; k < norm.length; k++) {
+      startOf.push(p.start);
+      endOf.push(p.end);
     }
     out += norm;
   }
@@ -66,11 +197,23 @@ function normalizeForDetection(text: string): Normalized {
 }
 
 // ── Phone numbers ────────────────────────────────────────────────────────────
-// A digit run: digits with at most 3 separator characters between them. Commas and colons are
-// not separators, so "2,500,000" and "09:00" never form one run.
-// P2a QA D-1: "_ ~ * + = | \ ' " ^ #" and wave dashes also separate digit groups ("010_1234_5678").
-const SEP = "[\\s.\\-\\u2010-\\u2015\\u2212\\u00B7/()_~*+=|\\\\'\"^#\\u301C\\u3030]";
-const DIGIT_RUN = new RegExp(`(?:\\+${SEP}{0,2})?\\d(?:${SEP}{0,3}\\d)+`, "g");
+// A digit run: digits with at most 3 separator characters between them.
+// P2a QA D-3: separators are defined by Unicode category, not by a list (a list always misses one:
+// "ㅡ", "•", "・", "●", "→" …). On the normalised text a separator is
+//   - white space,
+//   - any punctuation (`\p{P}`: - . / _ ( ) • ・ · … ) or symbol (`\p{S}`: ~ * + = | → ● ★ …),
+//   - a combining mark left on its own (`\p{M}`, e.g. a stray keycap U+20E3),
+//   - Hangul ㅡ (U+3161, typed as a dash; NFKC turns it into U+1173) and Katakana ー (U+30FC).
+// Kept exceptions (amount / time false positives, unchanged since P0c):
+//   - the comma "," is never a separator: "2,500,000원" and "1,500,2,000" are amounts;
+//   - the colon ":" is never a separator: "09:00~18:00", "2026-11-16 09:00" are times;
+//   - at most 3 separator characters join two groups, so dot leaders and long rules
+//     ("1층 ..... 2층", "010 -_ 1234 -_ 5678") do not join numbers.
+// Design limit (QA O-3): 4 or more separator characters between groups, commas, colons and letters
+// between groups ("010번 1234번 5678") are not read as one number — widening those would turn
+// amounts, times and numbered lists into phone numbers.
+const SEP = "(?:(?![,:])[\\s\\p{P}\\p{S}\\p{M}\\u3161\\u1173\\u30FC])";
+const DIGIT_RUN = new RegExp(`(?:\\+${SEP}{0,2})?\\d(?:${SEP}{0,3}\\d)+`, "gu");
 const KOREAN_DIGITS: Readonly<Record<string, string>> = {
   공: "0",
   영: "0",
@@ -89,12 +232,31 @@ const KOREAN_DIGITS: Readonly<Record<string, string>> = {
 const KSEP = `(?:${SEP}|[에은는])`;
 const KOREAN_SPELLED_MOBILE = new RegExp(
   `[공영]${KSEP}{0,3}일${KSEP}{0,3}[공영일육칠팔구](?:${KSEP}{0,3}[0-9공영일이삼사오육칠팔구]){7,8}(?![0-9])`,
-  "g",
+  "gu",
 );
 // P0c QA P-4: "제로원제로 1234 5678" / "zero one zero 1234 5678" — the 010 prefix spelled out.
 const SPELLED_PREFIX_MOBILE = new RegExp(
   `(?:제로|zero)${SEP}{0,2}(?:원|one)${SEP}{0,2}(?:제로|zero)(?:${SEP}{0,3}\\d){7,8}(?!\\d)`,
-  "gi",
+  "giu",
+);
+// P2a QA O-1: a number spelled (wholly or partly) with English digit words —
+// "zero one zero one two three four five six seven eight". Read as digits, then classified.
+const EN_DIGIT_WORDS: Readonly<Record<string, string>> = {
+  zero: "0",
+  one: "1",
+  two: "2",
+  three: "3",
+  four: "4",
+  five: "5",
+  six: "6",
+  seven: "7",
+  eight: "8",
+  nine: "9",
+};
+const EN_DIGIT = "(?:zero|one|two|three|four|five|six|seven|eight|nine|\\d)";
+const ENGLISH_SPELLED_NUMBER = new RegExp(
+  `(?<![A-Za-z0-9])${EN_DIGIT}(?:${SEP}{0,3}${EN_DIGIT}){7,}(?![A-Za-z0-9])`,
+  "giu",
 );
 // P0c QA P-3: a representative number without separators ("15881234") counts only after a phone
 // keyword, so plain 8-digit amounts and codes stay negative.
@@ -220,6 +382,12 @@ function findPhones(text: string, out: ContactMatch[]): void {
   }
   for (const m of text.matchAll(SPELLED_PREFIX_MOBILE)) {
     out.push({ type: "PHONE_LOCAL", value: m[0], start: m.index, end: m.index + m[0].length });
+  }
+  for (const m of text.matchAll(ENGLISH_SPELLED_NUMBER)) {
+    if (!/[a-z]/i.test(m[0])) continue; // plain digit runs are handled above
+    const digits = m[0].replace(/[a-z]+/gi, (w) => EN_DIGIT_WORDS[w.toLowerCase()] ?? w);
+    const type = classifyDigits(digits.replace(/\D/g, ""));
+    if (type) out.push({ type, value: m[0], start: m.index, end: m.index + m[0].length });
   }
   for (const m of text.matchAll(PHONE_KEYWORD_REPRESENTATIVE)) {
     if (!REPRESENTATIVE.test(m[1])) continue;
