@@ -14,6 +14,24 @@
  * - 구인 의뢰 (R-125) moves C or ARCHIVED to B.
  * - The archive job (R-116) moves only C to ARCHIVED (WO §8.2 arrow starts at C).
  * Every grade change writes one AuditLog row (LEAD_GRADE_CHANGE) in the same transaction.
+ *
+ * Re-ingest field rules (P1d QA O-2; applied in ingest.ts, any grade including DO_NOT_CONTACT):
+ * - A key the item does not carry (absent or `undefined`) keeps the stored value. It is never
+ *   overwritten with null.
+ * - A key carried as explicit `null` (or blank text) means "the source has no value now" and
+ *   clears the column to null. Required columns cannot be cleared: `companyName`, `title` sent as
+ *   null make the item INVALID, and 시·도 is never cleared (see region below).
+ * - A key carried with a value replaces the stored value.
+ * - Derived columns follow their input keys as a group:
+ *   - region (`sido`, `sigungu`, `depopulationArea`) from `sido` / `sigungu` / `address`: none
+ *     carried → kept; any carried → re-tagged together; carried but no 시·도 found → the item is
+ *     rejected UNKNOWN_REGION and the row is left unchanged.
+ *   - `industryCode` from `industryCode` / `industryName`: none carried → kept; any carried →
+ *     re-tagged (both null, or text the seed table does not know → null).
+ *   - `contactPhoneHash` follows `contactPhone`. Each contact field (`contactName`,
+ *     `contactPhone`, `contactEmail`) is handled on its own by the same three rules.
+ * - `source` follows the same rule (a new lead without it takes the schema default AGENT).
+ * - `rawJson` is always replaced by the latest item (it is the original of the last delivery).
  */
 import type { LeadGrade, Prisma } from "@prisma/client";
 

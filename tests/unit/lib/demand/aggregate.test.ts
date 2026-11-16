@@ -12,6 +12,9 @@ import {
   median,
   payBandOf,
 } from "@/lib/demand/aggregate";
+import { DIAGNOSIS_SOURCE } from "@/lib/employer/diagnosis";
+import { REQUEST_SOURCE } from "@/lib/employer/jobRequest";
+import { INGEST_SOURCES } from "@/schemas/ingest/jobLead";
 
 import { testPrisma, uniq } from "../../db/helpers";
 
@@ -159,5 +162,37 @@ describe("getDemandAggregate (database)", () => {
       { sido, industryCode: "F", masked: true, count: null, payBand: null },
     ]);
     expect(JSON.stringify(agg)).not.toContain("TEST COMPANY");
+  });
+
+  it("Q-12 counts collected postings only (WORK24_API / AGENT / MANUAL), not DIAGNOSIS / REQUEST", async () => {
+    const sido = uniq("TESTSIDO");
+    const now = new Date();
+    const row = (source: string, industryCode: string) => ({
+      source,
+      sourceRef: uniq(`demand-${source}`),
+      companyName: "TEST COMPANY",
+      sido,
+      industryCode,
+      title: "TEST",
+      payMin: 2_000_000,
+      payMax: 2_200_000,
+      postedAt: new Date(now.getTime() - DAY),
+      grade: "B" as const,
+      rawJson: {},
+    });
+    // C: one lead from each ingest source (masked: fewer than DEMAND_MIN_SAMPLE) plus enough
+    // app-created leads that would unmask the cell if they were counted.
+    // F: only app-created leads — the cell must not exist at all.
+    const collected = INGEST_SOURCES.map((source) => row(source, "C"));
+    const appMade = Array.from({ length: DEMAND_MIN_SAMPLE }, (_, i) => [
+      row(i % 2 === 0 ? DIAGNOSIS_SOURCE : REQUEST_SOURCE, "C"),
+      row(i % 2 === 0 ? REQUEST_SOURCE : DIAGNOSIS_SOURCE, "F"),
+    ]).flat();
+    await prisma.jobLead.createMany({ data: [...collected, ...appMade] });
+
+    const agg = await getDemandAggregate(now, [sido]);
+    const mine = agg.cells.filter((c) => c.sido === sido);
+    expect(INGEST_SOURCES.length).toBeLessThan(DEMAND_MIN_SAMPLE);
+    expect(mine).toEqual([{ sido, industryCode: "C", masked: true, count: null, payBand: null }]);
   });
 });

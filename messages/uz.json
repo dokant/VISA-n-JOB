@@ -399,7 +399,7 @@
       },
       "contact": {
         "title": "Maslahatga ariza",
-        "body": "Maslahat uchun asosiy telefonga qoʻngʻiroq qiling. Xodim sizga yoʻl-yoʻriq beradi."
+        "body": "Maslahat uchun asosiy telefonga qoʻngʻiroq qiling. VISA n JOB xodimi sizga yoʻl-yoʻriq beradi."
       }
     },
     "fees": {
@@ -1326,7 +1326,7 @@
       "eyebrow": "Ishga olish so'rovi",
       "title": "Ishga olish so'rovi shakli",
       "lead": "Kerakli xodimlar va ish sharoitlarini ayting. VISA n JOB xodimi tekshirib, siz bilan bog'lanadi.",
-      "notice": "Mas'ul shaxs aloqa ma'lumotlarini faqat VISA n JOB xodimlari ko'radi. Ish izlovchilarga ko'rsatilmaydi. Erkin matn maydonlariga aloqa ma'lumoti, havola va messenjer ID yozib bo'lmaydi.",
+      "notice": "Kompaniya aloqa ma'lumotlarini (mas'ul shaxs ismi, telefoni, e-pochtasi) faqat VISA n JOB xodimlari ko'radi. Ish izlovchilarga ko'rsatilmaydi. Erkin matn maydonlariga aloqa ma'lumoti, havola va messenjer ID yozib bo'lmaydi.",
       "progress": "{current}/{total} · {name}",
       "steps": {
         "company": "Kompaniya",

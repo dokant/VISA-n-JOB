@@ -399,7 +399,7 @@
       },
       "contact": {
         "title": "Request a consultation",
-        "body": "Please request a consultation by calling our main phone. A staff member will guide you."
+        "body": "Please request a consultation by calling our main phone. A VISA n JOB staff member will guide you."
       }
     },
     "fees": {
@@ -1326,7 +1326,7 @@
       "eyebrow": "Hiring request",
       "title": "Hiring request form",
       "lead": "Tell us the staff you need and the working conditions. A VISA n JOB staff member will check it and contact you.",
-      "notice": "Only VISA n JOB staff can see the contact person's details. They are never shown to job seekers. Contact details, links and messenger IDs are not allowed in free-text fields.",
+      "notice": "Your company's contact details (contact person's name, phone and e-mail) are seen only by VISA n JOB staff members. They are never shown to job seekers. Contact details, links and messenger IDs are not allowed in free-text fields.",
       "progress": "{current}/{total} · {name}",
       "steps": {
         "company": "Company",

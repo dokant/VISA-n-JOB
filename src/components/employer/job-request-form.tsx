@@ -125,11 +125,15 @@ export function JobRequestForm({ sidos, sigungus, defaults }: Props) {
   if (done) {
     return (
       <section
-        className="grid gap-4 rounded-md border border-success bg-success-subtle p-6 text-success-subtle-foreground"
+        className="grid gap-4 rounded-md border border-border bg-white p-6 text-n700 shadow-1"
         data-testid="job-request-done"
       >
         <div className="flex items-center gap-3">
-          <CircleCheck aria-hidden="true" strokeWidth={1.5} className="size-6 text-success" />
+          <CircleCheck
+            aria-hidden="true"
+            strokeWidth={1.5}
+            className="size-6 flex-none text-brand-blue-600"
+          />
           <h2 ref={headingRef} tabIndex={-1} className="text-h3 text-navy">
             {t("done.title")}
           </h2>

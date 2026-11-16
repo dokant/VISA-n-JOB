@@ -3,6 +3,9 @@
  *
  * - Source: job leads of grade C·B·A dated within the last DEMAND_WINDOW_DAYS days
  *   (postedAt, or createdAt when postedAt is missing). Leads are never listed individually.
+ * - Only collected public job postings count (DECISIONS Q-12 ①): `source` must be one of the
+ *   ingest sources (WORK24_API / AGENT / MANUAL). Leads the app creates itself from the free
+ *   hiring check (DIAGNOSIS, R-124) or a 구인 의뢰 (REQUEST, R-125) are left out.
  * - Grouped by 시·도 × 업종 (KSIC section). Leads without an industry form their own cell.
  * - A cell with fewer than DEMAND_MIN_SAMPLE leads is masked ("자료 부족"): neither its count nor its
  *   pay is returned (WO §15-10). The pay median is shown as a band only, and only when at least
@@ -19,6 +22,7 @@ import {
   DEMAND_WINDOW_DAYS,
 } from "@/config/limits";
 import { db } from "@/lib/db";
+import { INGEST_SOURCES } from "@/schemas/ingest/jobLead";
 
 const DAY_MS = 86_400_000; // one day
 
@@ -164,6 +168,7 @@ export async function getDemandAggregate(
   const leads = await client.jobLead.findMany({
     where: {
       grade: { in: [...DEMAND_LEAD_GRADES] },
+      source: { in: [...INGEST_SOURCES] },
       OR: [{ postedAt: { gte: since, lte: now } }, { postedAt: null, createdAt: { gte: since } }],
     },
     select: {

@@ -5,7 +5,13 @@
 import { afterAll, describe, expect, it } from "vitest";
 
 import { db } from "@/lib/db";
-import { ingestJobLeads, isReservedSourceRef, sanitizeRaw } from "@/lib/leads/ingest";
+import {
+  ingestJobLeads,
+  isContactKey,
+  isPhoneShapedNumber,
+  isReservedSourceRef,
+  sanitizeRaw,
+} from "@/lib/leads/ingest";
 
 import { testPrisma } from "../../db/helpers";
 import { leadItem } from "./leadFixtures";
@@ -128,6 +134,121 @@ describe("R-114 ingestJobLeads", () => {
     expect(lead.contactPhoneEnc).toBe("+821034567890");
   });
 
+  it("O-1 masks contacts in the title / companyName columns and phone-like numbers in rawJson", async () => {
+    const item = leadItem({
+      title: "생산직 문의 010-9876-5432 카톡 qahr77",
+      companyName: "큐에이 엣지 010-9876-5432",
+      tel: 1098765432,
+      extra: { fax: 15881234, hp_no: "1588-1234", headcount: 3, memo: "급여 2500000" },
+    });
+    await ingestJobLeads([item]);
+    const [raw] = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
+      `SELECT row_to_json(j)::text AS whole, j."title", j."companyName", j."rawJson"::text AS raw FROM "JobLead" j WHERE "sourceRef" = $1`,
+      item.sourceRef,
+    );
+    const whole = String(raw.whole);
+    for (const plain of ["9876", "5432", "qahr77", "1098765432", "15881234", "1588-1234"]) {
+      expect(whole).not.toContain(plain);
+    }
+    expect(raw.title).toBe("생산직 문의 *** ***");
+    // the company name itself stays, only the contact span is replaced
+    expect(raw.companyName).toBe("큐에이 엣지 ***");
+    const json = JSON.parse(String(raw.raw)) as Record<string, unknown>;
+    expect(json.tel).toBe("***");
+    expect(json.extra).toEqual({ fax: "***", hp_no: "***", headcount: 3, memo: "급여 2500000" });
+    expect(json.payMin).toBe(2_500_000);
+  });
+
+  it("O-2 keeps stored values for keys a re-delivery does not carry, clears explicit null", async () => {
+    const item = leadItem({
+      bizRegNo: "123-45-67890",
+      foreignIntent: true,
+      contactName: "김담당",
+      contactPhone: "010-4567-8901",
+      contactEmail: "hr2@example.com",
+    });
+    await ingestJobLeads([item]);
+    const before = await db.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(before).toMatchObject({ industryCode: "C", sigungu: expect.any(String) });
+
+    // 1) only the required keys: every optional column keeps its value (any grade, here DNC)
+    await prisma.jobLead.update({ where: { id: before.id }, data: { grade: "DO_NOT_CONTACT" } });
+    const minimal = {
+      sourceRef: item.sourceRef,
+      companyName: item.companyName,
+      title: "생산직 재게시",
+      industryName: undefined,
+    };
+    expect(await ingestJobLeads([minimal])).toEqual({ created: 0, updated: 1, rejected: [] });
+    const kept = await db.jobLead.findUniqueOrThrow({ where: { id: before.id } });
+    expect(kept).toMatchObject({
+      grade: "DO_NOT_CONTACT",
+      source: "WORK24_API",
+      title: "생산직 재게시",
+      industryCode: before.industryCode,
+      sido: before.sido,
+      sigungu: before.sigungu,
+      depopulationArea: before.depopulationArea,
+      bizRegNo: "1234567890",
+      payMin: before.payMin,
+      payMax: before.payMax,
+      postedAt: before.postedAt,
+      closesAt: before.closesAt,
+      foreignIntent: true,
+      contactNameEnc: "김담당",
+      contactPhoneEnc: "+821045678901",
+      contactPhoneHash: before.contactPhoneHash,
+      contactEmailEnc: "hr2@example.com",
+    });
+
+    // 2) explicit null clears the column; other carried keys replace, absent keys stay
+    await ingestJobLeads([
+      {
+        ...minimal,
+        industryName: null,
+        industryCode: null,
+        payMax: null,
+        foreignIntent: null,
+        contactPhone: null,
+        contactEmail: "  ",
+      },
+    ]);
+    const cleared = await db.jobLead.findUniqueOrThrow({ where: { id: before.id } });
+    expect(cleared).toMatchObject({
+      industryCode: null,
+      payMax: null,
+      foreignIntent: null,
+      contactPhoneEnc: null,
+      contactPhoneHash: null,
+      contactEmailEnc: null,
+      // not carried → kept
+      payMin: before.payMin,
+      sido: before.sido,
+      sigungu: before.sigungu,
+      contactNameEnc: "김담당",
+      bizRegNo: "1234567890",
+    });
+
+    // 3) a region key carried without a known 시·도 rejects the item and leaves the row as it is
+    const r = await ingestJobLeads([{ ...minimal, sido: null, sigungu: null, address: null }]);
+    expect(r.rejected).toEqual([{ sourceRef: item.sourceRef, reason: "UNKNOWN_REGION" }]);
+    expect((await row(item.sourceRef as string)).sido).toBe(before.sido);
+  });
+
+  it("O-2 a new lead without any region key is still rejected (sido is required)", async () => {
+    const { sido: _s, sigungu: _g, ...noRegion } = leadItem();
+    void _s;
+    void _g;
+    const r = await ingestJobLeads([noRegion]);
+    expect(r).toEqual({
+      created: 0,
+      updated: 0,
+      rejected: [{ sourceRef: noRegion.sourceRef, reason: "UNKNOWN_REGION" }],
+    });
+  });
+
   it("helpers: reserved refs and rawJson sanitising", () => {
     expect(isReservedSourceRef("DIAGNOSIS:abc")).toBe(true);
     expect(isReservedSourceRef("request:abc")).toBe(true);
@@ -139,5 +260,29 @@ describe("R-114 ingestJobLeads", () => {
         nil: null,
       }),
     ).toEqual({ nested: { memo: "***", n: 3, ok: true, list: ["***"] }, nil: null });
+    for (const key of [
+      "tel",
+      "telNo",
+      "hp_no",
+      "fax",
+      "contactInfo",
+      "e_mail",
+      "연락처",
+      "담당자",
+    ]) {
+      expect(isContactKey(key)).toBe(true);
+    }
+    for (const key of ["title", "companyName", "headcount", "shipping", "address", "n"]) {
+      expect(isContactKey(key)).toBe(false);
+    }
+    expect(isPhoneShapedNumber(1098765432)).toBe(true); // 010-9876-5432 without the leading 0
+    expect(isPhoneShapedNumber(821098765432)).toBe(true);
+    expect(isPhoneShapedNumber(2_500_000)).toBe(false);
+    expect(isPhoneShapedNumber(20261116)).toBe(false);
+    expect(isPhoneShapedNumber(3)).toBe(false);
+    expect(sanitizeRaw({ payMax: 1_000_000_000, contact: { name: "홍", no: 7 } })).toEqual({
+      payMax: 1_000_000_000,
+      contact: { name: "***", no: "***" },
+    });
   });
 });

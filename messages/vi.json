@@ -399,7 +399,7 @@
       },
       "contact": {
         "title": "Yêu cầu tư vấn",
-        "body": "Vui lòng gọi điện thoại chính để yêu cầu tư vấn. Nhân viên sẽ hướng dẫn bạn."
+        "body": "Vui lòng gọi điện thoại chính để yêu cầu tư vấn. Nhân viên VISA n JOB sẽ hướng dẫn bạn."
       }
     },
     "fees": {
@@ -1326,7 +1326,7 @@
       "eyebrow": "Yêu cầu tuyển dụng",
       "title": "Phiếu yêu cầu tuyển dụng",
       "lead": "Hãy cho chúng tôi biết nhân lực cần tuyển và điều kiện làm việc. Nhân viên VISA n JOB sẽ kiểm tra rồi liên hệ.",
-      "notice": "Chỉ nhân viên VISA n JOB xem được thông tin người phụ trách. Thông tin này không được công khai cho người tìm việc. Không được ghi thông tin liên lạc, đường link hay ID mạng xã hội trong ô nhập tự do.",
+      "notice": "Thông tin liên lạc của công ty (tên, điện thoại, email người phụ trách) chỉ nhân viên VISA n JOB xem được. Thông tin này không được công khai cho người tìm việc. Không được ghi thông tin liên lạc, đường link hay ID mạng xã hội trong ô nhập tự do.",
       "progress": "{current}/{total} · {name}",
       "steps": {
         "company": "Thông tin công ty",

@@ -118,6 +118,12 @@ export const STAY_ALERT_DAYS = [90, 60, 30] as const;
 /** R-114 / WO §8.1: at most this many leads in one ingest batch. */
 export const INGEST_MAX_BATCH = 200;
 
+/**
+ * R-114: the collector API key (INGEST_API_KEY) must be at least this long; a shorter or unset
+ * server key rejects every ingest request (fail closed, src/lib/leads/ingestAuth.ts).
+ */
+export const INGEST_API_KEY_MIN_LENGTH = 32;
+
 /** R-116 / WO §8.2: a C lead without contact for this many days is archived. */
 export const LEAD_ARCHIVE_NO_CONTACT_DAYS = 30;
 

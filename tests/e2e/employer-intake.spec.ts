@@ -97,6 +97,12 @@ test.describe("R-125 /employer/request", () => {
     await expect(page.getByTestId("job-request-list")).toContainText(
       msg("ko", "employer.request.list.empty"),
     );
+    // Q-12 ③: the contact collection notice carries [전문가 검토 필요]
+    const notice = page.getByTestId("request-notice");
+    await expect(notice.getByTestId("expert-review")).toContainText(
+      msg("ko", "common.expertReview.label"),
+    );
+    await expect(notice.getByTestId("notice-box")).toHaveText(msg("ko", "employer.request.notice"));
 
     const form = page.getByTestId("job-request-form");
     const next = () =>
