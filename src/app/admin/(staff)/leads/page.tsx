@@ -69,7 +69,7 @@ export default async function LeadBoardPage() {
                 <li key={t.id}>
                   <Link
                     href={`/admin/leads/${t.lead.id}`}
-                    className="inline-flex min-h-11 items-center gap-2 text-dense text-navy underline-offset-4 hover:underline"
+                    className="inline-flex min-h-11 min-w-11 items-center gap-2 text-dense text-navy underline-offset-4 hover:underline"
                   >
                     {t.lead.title ?? LEAD_NO_TITLE} · {t.lead.companyName ?? LEAD_NO_COMPANY} · 리드
                     등급 {LEAD_GRADE_LABEL[t.lead.grade]}

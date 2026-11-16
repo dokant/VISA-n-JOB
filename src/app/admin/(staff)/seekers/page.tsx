@@ -92,7 +92,7 @@ export default async function SeekerQueuePage({
                   <td className="px-4 py-2">
                     <Link
                       href={`/admin/seekers/${s.id}`}
-                      className="inline-flex min-h-11 items-center font-semibold text-navy underline-offset-4 hover:underline"
+                      className="inline-flex min-h-11 min-w-11 items-center font-semibold text-navy underline-offset-4 hover:underline"
                       data-testid="seeker-link"
                     >
                       #{s.publicId.slice(0, 8)}

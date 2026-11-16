@@ -38,7 +38,7 @@ export default async function EmployerLoginPage({ params, searchParams }: Props)
           {t("toSignup")}{" "}
           <Link
             href="/employer/signup"
-            className="inline-flex min-h-11 items-center font-semibold text-brand-blue-600 underline underline-offset-4"
+            className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-blue-600 underline underline-offset-4"
           >
             {t("toSignupLink")}
           </Link>

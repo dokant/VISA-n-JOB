@@ -27,7 +27,7 @@ export async function createReviewSeeker(
   return s.id;
 }
 
-export async function createCallLead() {
+export async function createCallLead(grade: "C" | "ARCHIVED" = "C") {
   const sido = await db.region.findFirstOrThrow({
     where: { level: "SIDO" },
     select: { code: true },
@@ -40,7 +40,8 @@ export async function createCallLead() {
       title: "E2E 생산직",
       sido: sido.code,
       rawJson: {},
-      grade: "C",
+      grade,
+      archivedAt: grade === "ARCHIVED" ? new Date() : null,
       contactNameEnc: "이투이 담당",
     },
   });
@@ -49,6 +50,10 @@ export async function createCallLead() {
 
 export function auditFor(entityId: string, action: string) {
   return db.auditLog.findMany({ where: { entityId, action }, orderBy: { at: "asc" } });
+}
+
+export function callCount(leadId: string) {
+  return db.callLog.count({ where: { leadId } });
 }
 
 export function leadGrade(id: string) {

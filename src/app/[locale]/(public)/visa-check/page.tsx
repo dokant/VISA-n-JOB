@@ -64,7 +64,7 @@ export default async function VisaCheckPage({ params, searchParams }: Props) {
         />
         <Link
           href="/score/e74"
-          className="inline-flex min-h-11 w-fit items-center gap-2 text-dense font-semibold text-brand-blue-600 hover:underline"
+          className="inline-flex min-h-11 min-w-11 w-fit items-center gap-2 text-dense font-semibold text-brand-blue-600 hover:underline"
         >
           {t("scoreLink")}
           <ArrowRight aria-hidden="true" strokeWidth={1.5} className="size-4" />

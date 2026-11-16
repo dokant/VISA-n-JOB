@@ -93,7 +93,7 @@ export function SiteNav({ logo, flags, operatorPhone, address }: Props) {
         <Link
           href="/"
           aria-label={t("home")}
-          className="flex min-h-11 flex-none items-center rounded-2xs"
+          className="flex min-h-11 min-w-11 flex-none items-center rounded-2xs"
         >
           {logo}
         </Link>
@@ -108,20 +108,23 @@ export function SiteNav({ logo, flags, operatorPhone, address }: Props) {
                     href={item.href}
                     aria-current={current ? "page" : undefined}
                     className={cn(
-                      "group relative inline-flex min-h-11 items-center text-dense whitespace-nowrap transition-opacity duration-300",
+                      "group inline-flex min-h-11 min-w-11 items-center justify-center text-dense whitespace-nowrap transition-opacity duration-300",
                       current
                         ? "font-semibold opacity-100"
                         : "font-medium opacity-82 hover:opacity-100",
                     )}
                   >
-                    {item.label}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "absolute inset-x-0 bottom-2.5 h-0.375 origin-left bg-current transition-transform duration-400 ease-out",
-                        current ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
-                      )}
-                    />
+                    {/* Q-16: the link box is at least 44×44; the underline stays as wide as the label. */}
+                    <span className="relative">
+                      {item.label}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute inset-x-0 -bottom-px h-0.375 origin-left bg-current transition-transform duration-400 ease-out",
+                          current ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                        )}
+                      />
+                    </span>
                   </Link>
                 </li>
               );

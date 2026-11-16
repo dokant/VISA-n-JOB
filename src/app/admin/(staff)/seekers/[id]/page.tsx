@@ -89,7 +89,7 @@ export default async function SeekerDetailPage({ params }: { params: Promise<{ i
       <div className="grid gap-2">
         <Link
           href="/admin/seekers"
-          className="inline-flex min-h-11 items-center text-dense text-n700 hover:text-navy"
+          className="inline-flex min-h-11 min-w-11 items-center text-dense text-n700 hover:text-navy"
         >
           ← 구직자 검토
         </Link>

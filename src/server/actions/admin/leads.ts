@@ -10,6 +10,7 @@ import {
 } from "@/lib/admin/leadDesk";
 import { adminAction } from "@/lib/admin/actionGuard";
 import { requireStaff } from "@/lib/admin/session";
+import { LeadTransitionError } from "@/lib/leads/transitions";
 import { assertCan } from "@/lib/rbac";
 import { isFinalCallOutcome, leadCallSchema, leadIdSchema } from "@/schemas/admin/leads";
 
@@ -21,7 +22,21 @@ import type { AdminActionState } from "./seekers";
  * (both STAFF_PLACEMENT·ADMIN; STAFF_VISA has neither — WO §11).
  * Each action is wrapped in `adminAction` so a refused permission returns `{ ok: false, code:
  * "FORBIDDEN" }` instead of an unhandled error (QA O-3).
+ * A grade move the transition table refuses (LeadTransitionError) is answered in the action body as
+ * `{ ok: false, code: "INVALID_TRANSITION" }` (DECISIONS Q-16); the wrapper converts only AuthzError
+ * (STANDARD 4.5). The error is thrown inside the transaction, so the CallLog and audit rows roll back.
  */
+async function refuseInvalidTransition<T>(
+  run: () => Promise<T>,
+): Promise<T | { ok: false; code: "INVALID_TRANSITION" }> {
+  try {
+    return await run();
+  } catch (e) {
+    if (e instanceof LeadTransitionError) return { ok: false, code: "INVALID_TRANSITION" };
+    throw e;
+  }
+}
+
 function done(leadId: string): AdminActionState {
   revalidatePath(`/admin/leads/${leadId}`);
   revalidatePath("/admin/leads");
@@ -48,7 +63,7 @@ export const recordCallAction = adminAction(async function recordCallAction(
   if (isFinalCallOutcome(call.outcome) && confirmFinal !== "yes") {
     return { ok: false, code: "CONFIRM_REQUIRED" };
   }
-  const r = await recordLeadCall({ actorId: actor.id, ...call });
+  const r = await refuseInvalidTransition(() => recordLeadCall({ actorId: actor.id, ...call }));
   return r.ok ? done(parsed.data.leadId) : { ok: false, code: r.code };
 });
 
@@ -60,7 +75,9 @@ export const verifyLeadAction = adminAction(async function verifyLeadAction(
   assertCan(actor, "lead:manage");
   const parsed = leadIdSchema.safeParse({ leadId: fd.get("leadId") });
   if (!parsed.success) return { ok: false, code: "INVALID_INPUT" };
-  const r = await verifyLead({ actorId: actor.id, leadId: parsed.data.leadId });
+  const r = await refuseInvalidTransition(() =>
+    verifyLead({ actorId: actor.id, leadId: parsed.data.leadId }),
+  );
   return r.ok ? done(parsed.data.leadId) : { ok: false, code: r.code };
 });
 

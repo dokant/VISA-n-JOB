@@ -63,6 +63,41 @@ describe("R-121 call result → lead grade", () => {
     ).toEqual({ ok: false, code: "LEAD_DNC" });
   });
 
+  it("R-121 / Q-16: an ARCHIVED lead saves NO_INTENT and DNC as DO_NOT_CONTACT (CallLog + LEAD_GRADE_CHANGE)", async () => {
+    const staff = await staffUser("STAFF_PLACEMENT");
+    for (const [outcome, reason] of [
+      ["NO_INTENT", "CALL_NO_INTENT"],
+      ["DNC", "CALL_DNC"],
+    ] as const) {
+      const now = new Date();
+      const l = await lead(uniq("call"), {
+        grade: "ARCHIVED",
+        archivedAt: new Date(now.getTime() - 3 * DAY_MS),
+      });
+      expect(
+        await recordLeadCall({
+          actorId: staff.id,
+          leadId: l.id,
+          outcome,
+          nextActionAt: new Date(now.getTime() + DAY_MS),
+          now,
+        }),
+      ).toEqual({ ok: true, grade: "DO_NOT_CONTACT" });
+      const row = await db.jobLead.findUniqueOrThrow({ where: { id: l.id } });
+      expect(row.grade).toBe("DO_NOT_CONTACT");
+      expect(row.nextActionAt).toBeNull();
+      expect(row.archivedAt).toBeNull();
+      if (outcome === "NO_INTENT") expect(row.foreignIntent).toBe(false);
+      expect(await db.callLog.count({ where: { leadId: l.id, outcome } })).toBe(1);
+      const audit = await auditRows(l.id, "LEAD_GRADE_CHANGE");
+      expect(audit).toHaveLength(1);
+      expect(audit[0]).toMatchObject({
+        actorId: staff.id,
+        meta: { from: "ARCHIVED", to: "DO_NOT_CONTACT", reason },
+      });
+    }
+  });
+
   it("R-121: INTERESTED moves C→B with CallLog + LEAD_GRADE_CHANGE; NO_ANSWER keeps grade and lastContactedAt", async () => {
     const staff = await staffUser("STAFF_PLACEMENT");
     const l = await lead(uniq("call"));

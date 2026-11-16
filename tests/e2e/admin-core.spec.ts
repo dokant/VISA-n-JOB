@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import { uniqueIp } from "./support/authDb";
 import {
   auditFor,
+  callCount,
   createCallLead,
   createReviewSeeker,
   leadGrade,
@@ -128,6 +129,29 @@ test.describe("P1e admin core", () => {
     const audit = await auditFor(leadId, "LEAD_GRADE_CHANGE");
     expect(audit.map((a) => [a.actorId, a.meta])).toEqual([
       [staffId, { from: "C", to: "DO_NOT_CONTACT", reason: "CALL_NO_INTENT" }],
+    ]);
+  });
+
+  test("R-121 / Q-16: 보관 리드 → 재접촉 거부 → 확인 → 재접촉금지 + CallLog + AuditLog (서버 오류 없음)", async ({
+    page,
+  }) => {
+    const staffId = await signInNewStaff(page, "STAFF_PLACEMENT");
+    const leadId = await createCallLead("ARCHIVED");
+
+    await page.goto(`/admin/leads/${leadId}`);
+    await waitForHydration(page, "call-form");
+    await page.getByLabel(/통화 결과/).selectOption("DNC");
+    await page.getByTestId("call-save").click();
+    await expect(page.getByTestId("call-final-confirm")).toBeVisible();
+    await page.getByTestId("call-final-confirm-submit").click();
+    await expect(page.getByTestId("lead-grade")).toHaveAttribute("data-grade", "DO_NOT_CONTACT");
+    await expect(page.getByTestId("call-form")).toHaveCount(0);
+    await expect(page.getByText("Application error")).toHaveCount(0);
+    expect((await leadGrade(leadId)).grade).toBe("DO_NOT_CONTACT");
+    expect(await callCount(leadId)).toBe(1);
+    const audit = await auditFor(leadId, "LEAD_GRADE_CHANGE");
+    expect(audit.map((a) => [a.actorId, a.meta])).toEqual([
+      [staffId, { from: "ARCHIVED", to: "DO_NOT_CONTACT", reason: "CALL_DNC" }],
     ]);
   });
 });

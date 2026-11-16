@@ -36,7 +36,7 @@ export async function DemandPreview() {
           <DemandActions tone="dark" sidos={view.sidoOptions} industries={view.industryOptions} />
           <Link
             href="/demand"
-            className="inline-flex min-h-11 w-fit items-center gap-2 text-dense font-semibold text-white/86 hover:text-white"
+            className="inline-flex min-h-11 min-w-11 w-fit items-center gap-2 text-dense font-semibold text-white/86 hover:text-white"
           >
             {t("home.demandPreview.more")}
             <ArrowRight aria-hidden="true" strokeWidth={1.5} className="size-4" />

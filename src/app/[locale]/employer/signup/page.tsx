@@ -42,7 +42,7 @@ export default async function EmployerSignupPage({ params }: Props) {
           {t("toLogin")}{" "}
           <Link
             href="/employer/login"
-            className="inline-flex min-h-11 items-center font-semibold text-brand-blue-600 underline underline-offset-4"
+            className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-blue-600 underline underline-offset-4"
           >
             {t("toLoginLink")}
           </Link>

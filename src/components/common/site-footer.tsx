@@ -77,7 +77,7 @@ export async function SiteFooter({ flags }: Props) {
           <div className="col-span-2 grid content-start gap-4 md:col-span-3 lg:col-span-1">
             <Link
               href="/"
-              className="flex min-h-11 w-fit items-center rounded-2xs"
+              className="flex min-h-11 min-w-11 w-fit items-center rounded-2xs"
               aria-label={site.brand.wordmark}
             >
               <Logo tone="dark" withTagline />
@@ -95,7 +95,7 @@ export async function SiteFooter({ flags }: Props) {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="inline-flex min-h-11 items-center text-caption text-white/66 transition-colors duration-200 hover:text-white"
+                      className="inline-flex min-h-11 min-w-11 items-center text-caption text-white/66 transition-colors duration-200 hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -122,7 +122,7 @@ export async function SiteFooter({ flags }: Props) {
                   <dd>
                     <a
                       href={phoneHref}
-                      className="inline-flex min-h-11 items-center text-white/72 underline-offset-4 hover:underline"
+                      className="inline-flex min-h-11 min-w-11 items-center text-white/72 underline-offset-4 hover:underline"
                     >
                       {site.contact.phone}
                     </a>
@@ -135,7 +135,7 @@ export async function SiteFooter({ flags }: Props) {
                   <dd>
                     <a
                       href={`mailto:${site.contact.email}`}
-                      className="inline-flex min-h-11 items-center text-white/72 underline-offset-4 hover:underline"
+                      className="inline-flex min-h-11 min-w-11 items-center text-white/72 underline-offset-4 hover:underline"
                     >
                       {site.contact.email}
                     </a>
@@ -151,15 +151,21 @@ export async function SiteFooter({ flags }: Props) {
             {t("copyright", { year: new Date().getFullYear(), brand: site.brand.wordmark })}
           </span>
           <div className="flex flex-wrap gap-x-4.5">
-            <Link href="/privacy" className="inline-flex min-h-11 items-center hover:text-white">
+            <Link
+              href="/privacy"
+              className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+            >
               {t("links.privacy")}
             </Link>
-            <Link href="/terms" className="inline-flex min-h-11 items-center hover:text-white">
+            <Link
+              href="/terms"
+              className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+            >
               {t("links.terms")}
             </Link>
             <Link
               href={site.feesPath}
-              className="inline-flex min-h-11 items-center hover:text-white"
+              className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
             >
               {t("links.fees")}
             </Link>

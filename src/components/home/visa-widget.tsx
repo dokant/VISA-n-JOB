@@ -59,7 +59,7 @@ export async function VisaWidget() {
           </p>
           <Link
             href={site.feesPath}
-            className="reveal inline-flex min-h-11 w-fit items-center gap-2 text-dense font-semibold text-brand-blue-600 underline-offset-4 hover:underline"
+            className="reveal inline-flex min-h-11 min-w-11 w-fit items-center gap-2 text-dense font-semibold text-brand-blue-600 underline-offset-4 hover:underline"
             data-testid="fees-link"
           >
             {t("feesLink")}
@@ -94,7 +94,7 @@ export async function VisaWidget() {
           />
           <Link
             href="/visa-check"
-            className="inline-flex min-h-11 items-center justify-center gap-2 text-dense font-semibold text-navy hover:text-brand-blue-600"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 text-dense font-semibold text-navy hover:text-brand-blue-600"
           >
             {t("card.more")}
             <ArrowRight aria-hidden="true" strokeWidth={1.5} className="size-4" />

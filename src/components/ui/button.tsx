@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 
 // shadcn/ui button restyled to the handoff `.btn` (STANDARD v2 3.1).
 // All buttons are pills. Sizes: sm 44px / default 52px / lg 60px; every size is at least 44px at every
-// width (STANDARD v2.10 3.3, CLAUDE.md h-11, Q-15). Icons: 10px gap; a trailing icon marked data-icon="trailing" nudges 3px on hover.
+// width (STANDARD v2.10 3.3, CLAUDE.md h-11, Q-15), and at least 44px wide (min-w-11, Q-16). Icons: 10px gap; a trailing icon marked data-icon="trailing" nudges 3px on hover.
 // Press = scale(.975). Disabled = opacity .45. Focus = global :focus-visible outline (2.8).
 const buttonVariants = cva(
   [
-    "relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2.5 rounded-full border border-transparent whitespace-nowrap",
+    "relative inline-flex min-w-11 shrink-0 cursor-pointer items-center justify-center gap-2.5 rounded-full border border-transparent whitespace-nowrap",
     "transition-[transform,box-shadow,background-color,color,border-color] duration-300 ease-standard",
     "active:scale-[0.975] disabled:pointer-events-none disabled:opacity-45",
     "aria-invalid:border-destructive",

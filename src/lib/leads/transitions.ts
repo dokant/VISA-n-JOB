@@ -13,6 +13,8 @@
  *   archived (`postedAt` later than `archivedAt`, i.e. re-posted) — then it returns to C.
  * - 구인 의뢰 (R-125) moves C or ARCHIVED to B.
  * - The archive job (R-116) moves only C to ARCHIVED (WO §8.2 arrow starts at C).
+ * - Every grade (C, B, A, ARCHIVED) may move to DO_NOT_CONTACT (DECISIONS Q-16: a stricter final
+ *   state, the company's wish is respected). Nothing leaves DO_NOT_CONTACT.
  * Every grade change writes one AuditLog row (LEAD_GRADE_CHANGE) in the same transaction.
  *
  * Re-ingest field rules (P1d QA O-2; applied in ingest.ts, any grade including DO_NOT_CONTACT):
@@ -42,7 +44,7 @@ export const LEAD_TRANSITIONS: Readonly<Record<LeadGrade, readonly LeadGrade[]>>
   C: ["B", "ARCHIVED", "DO_NOT_CONTACT"],
   B: ["A", "ARCHIVED", "DO_NOT_CONTACT"],
   A: ["ARCHIVED", "DO_NOT_CONTACT"],
-  ARCHIVED: ["C", "B"],
+  ARCHIVED: ["C", "B", "DO_NOT_CONTACT"],
   DO_NOT_CONTACT: [],
 };
 

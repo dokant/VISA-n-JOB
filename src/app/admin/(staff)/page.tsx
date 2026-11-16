@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
                 {t.type === "LEAD_REVIEW" && leadsOk ? (
                   <Link
                     href="/admin/leads#lead-review"
-                    className="underline-offset-4 hover:underline"
+                    className="inline-flex min-h-11 min-w-11 items-center underline-offset-4 hover:underline"
                   >
                     {STAFF_TASK_LABEL[t.type]}
                   </Link>

@@ -100,7 +100,7 @@ export async function FinalCta() {
           <span className="font-semibold text-white">{tc("noSeekerFee")}</span>
           <Link
             href={site.feesPath}
-            className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-white underline-offset-4 hover:underline"
+            className="inline-flex min-h-11 min-w-11 items-center gap-1.5 font-semibold text-white underline-offset-4 hover:underline"
             data-testid="final-fees-link"
           >
             {t("feesLink")}

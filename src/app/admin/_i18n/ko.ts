@@ -146,6 +146,8 @@ const ERROR_TEXT: Record<string, string> = {
   NOTHING_TO_SAVE: "바뀐 내용이 없습니다.",
   CONFIRM_REQUIRED: "재접촉금지로 옮기는 결과는 확인 후에 저장합니다.",
   LEAD_DNC: "재접촉금지 리드에는 통화를 기록하지 않습니다.",
+  INVALID_TRANSITION:
+    "지금 등급에서는 이 결과로 바꿀 수 없습니다. 새로고침한 뒤 다시 확인해 주세요.",
   NOTE_HAS_CONTACT: "메모에 전화번호·이메일 같은 연락처를 적지 마세요.",
   LEAD_STATE: "B등급 리드만 검증 완료로 바꿀 수 있습니다.",
   NOT_REQUESTED: "구인신청이 접수된 리드만 검증할 수 있습니다.",
@@ -259,14 +261,24 @@ function requestValue(field: RequestField | undefined, v: unknown): string {
   }
   if (typeof v === "boolean") return YES_NO[String(v) as "true" | "false"];
   if (typeof v === "string") return field?.options?.[v] ?? v;
-  if (Array.isArray(v)) return v.map((x) => requestValue(field, x)).join(", ");
+  if (Array.isArray(v)) {
+    return v
+      .map((x) => requestValue(field, x))
+      .filter((t) => t !== "")
+      .join(", ");
+  }
+  if (v != null && typeof v === "object") {
+    // QA O-4: a nested object is summarised by its filled entries, never printed as keys or JSON.
+    const n = Object.values(v).filter((x) => x != null && x !== "").length;
+    return n > 0 ? `(세부 항목 ${countFmt.format(n)}개)` : "";
+  }
   return "";
 }
 
 /**
  * 구인 의뢰 JSON → Korean label/value rows (관리자 한국어 전용, STANDARD 3.6). Known keys use the
  * form's labels and option words; unknown keys are grouped under "기타 항목" without exposing the
- * raw key, and nested objects are not printed as JSON.
+ * raw key, and nested objects are shown only as "(세부 항목 n개)", never as keys or JSON.
  */
 export function requestRows(value: unknown): { label: string; value: string }[] {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return [];

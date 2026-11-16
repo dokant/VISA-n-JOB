@@ -74,7 +74,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       <div className="grid gap-2">
         <Link
           href="/admin/leads"
-          className="inline-flex min-h-11 items-center text-dense text-n700 hover:text-navy"
+          className="inline-flex min-h-11 min-w-11 items-center text-dense text-n700 hover:text-navy"
         >
           ← 리드 칸반
         </Link>

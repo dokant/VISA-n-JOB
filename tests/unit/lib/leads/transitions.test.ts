@@ -30,6 +30,28 @@ describe("WO §8.2 lead transitions", () => {
     }
   });
 
+  it("R-121 / Q-16: every grade (C, B, A, ARCHIVED) may move to DO_NOT_CONTACT; nothing leaves it", () => {
+    for (const from of ["C", "B", "A", "ARCHIVED"] as const) {
+      expect(canTransition(from, "DO_NOT_CONTACT")).toBe(true);
+    }
+    for (const to of ["C", "B", "A", "ARCHIVED", "DO_NOT_CONTACT"] as const) {
+      expect(canTransition("DO_NOT_CONTACT", to)).toBe(false);
+    }
+  });
+
+  it("R-115 / Q-16: re-ingest never produces or leaves DO_NOT_CONTACT (ARCHIVED → DO_NOT_CONTACT is staff only)", () => {
+    const archivedAt = new Date("2026-10-01T00:00:00Z");
+    const later = { postedAt: new Date("2026-10-02T00:00:00Z") };
+    expect(gradeOnReingest({ grade: "DO_NOT_CONTACT", archivedAt }, later)).toBe("DO_NOT_CONTACT");
+    expect(gradeOnReingest({ grade: "DO_NOT_CONTACT", archivedAt: null }, later)).toBe(
+      "DO_NOT_CONTACT",
+    );
+    for (const grade of ["C", "B", "A", "ARCHIVED"] as const) {
+      expect(gradeOnReingest({ grade, archivedAt }, later)).not.toBe("DO_NOT_CONTACT");
+      expect(gradeOnReingest({ grade, archivedAt }, {})).not.toBe("DO_NOT_CONTACT");
+    }
+  });
+
   it("re-ingest grade: keeps every grade except a re-posted ARCHIVED lead", () => {
     const archivedAt = new Date("2026-10-01T00:00:00Z");
     for (const grade of ["C", "B", "A", "DO_NOT_CONTACT"] as const) {
