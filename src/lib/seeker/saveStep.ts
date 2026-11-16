@@ -9,7 +9,7 @@
  * (classifyTrack). A visa that cannot register, an expired stay or no visa refuses the save /
  * completion with `BLOCKED` and the screen guides to a consult.
  */
-import type { JobSearchStatus, Prisma, SeekerProfile, ShiftOk } from "@prisma/client";
+import type { JobSearchStatus, Prisma, SeekerProfile, ShiftOk, YesNoUnknown } from "@prisma/client";
 import type { ZodType, ZodTypeDef } from "zod";
 
 import type { Locale } from "@/i18n/locales";
@@ -175,7 +175,7 @@ async function saveStep2(p: SeekerProfile, input: unknown, ctx: Ctx): Promise<St
     stayExpiry,
     hasArc: yes(v.hasArc),
     entryYear: intOrNull(v.entryYear),
-    pendingApplication: v.pendingApplication === "YES",
+    pendingApplication: v.pendingApplication === "" ? null : (v.pendingApplication as YesNoUnknown),
     visaConfirmedAt: ctx.now,
   };
   const track = classifyTrack({

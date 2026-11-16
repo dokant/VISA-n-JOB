@@ -2,11 +2,11 @@
 
 [전문가 검토 필요] (Mutaxassis tekshiruvi kerak) Bu rozilik matni qoralama boʻlib, huquqiy tekshiruvdan soʻng tasdiqlanadi.
 
-Visa&Job tekshirilgan va shartnoma tuzgan korxonalarga faqat ism va aloqasiz anonim profil beradi.
+VISA n JOB tekshirilgan va shartnoma tuzgan korxonalarga faqat ism va aloqasiz anonim profil beradi.
 
 - Beriladi: fuqarolik, viloyat / shahar, viza turi, qolgan turish muddati (oraliq), Koreyadagi yillar, taʼlim va soha, koreys tili darajasi, tajriba (soha, lavozim, muddat), koʻnikma va guvohnomalar, istalgan sharoitlar, daraja
 - Berilmaydi: ism, surat, aloqa, tugʻilgan yil, jins, taʼlim muassasasi nomi, oʻzingiz yozgan matn
-- Korxonalar bilan aloqa faqat Visa&Job orqali.
+- Korxonalar bilan aloqa faqat VISA n JOB orqali.
 - Ish tavsiya yoʻnalishida majburiy. Mening sahifamda istalgan vaqtda qaytarib olish mumkin; shunda darhol nomzodlar roʻyxatidan chiqasiz.
 
 ---

@@ -58,7 +58,7 @@ export function wizardValues(
       stayExpiry: dateToMonth(p.stayExpiry),
       hasArc: yn(p.hasArc),
       entryYear: num(p.entryYear),
-      pendingApplication: p.visaConfirmedAt ? yn(p.pendingApplication) : "",
+      pendingApplication: p.pendingApplication ?? "",
       visaConfirm: p.visaConfirmedAt != null,
     },
     "3a": {

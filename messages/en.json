@@ -60,7 +60,7 @@
     },
     "seekerRegister": {
       "title": "Job seeker registration",
-      "description": "Full registration with Visa&Job. Each step is saved automatically."
+      "description": "Full registration with VISA n JOB. Each step is saved automatically."
     },
     "seekerQuick": {
       "title": "Quick registration",
@@ -165,7 +165,7 @@
       "required": "(required)"
     },
     "profileCompletion": {
-      "sms": "Your Visa&Job quick registration is done. Complete your profile to get better job matches: {path}"
+      "sms": "Your VISA n JOB quick registration is done. Complete your profile to get better job matches: {path}"
     }
   },
   "nav": {
@@ -806,7 +806,7 @@
         "sidoOnly": "Province / city of residence",
         "messenger": {
           "label": "Messenger for contact",
-          "help": "Only Visa&Job staff will contact you.",
+          "help": "Only VISA n JOB staff will contact you.",
           "option": {
             "KAKAO": "KakaoTalk",
             "ZALO": "Zalo",
@@ -823,7 +823,7 @@
         },
         "birthYear": {
           "label": "Year of birth",
-          "help": "Used only inside Visa&Job."
+          "help": "Used only inside VISA n JOB."
         },
         "gender": {
           "label": "Gender",
@@ -1015,11 +1015,11 @@
         },
         "desiredIndustries": {
           "label": "Preferred industries",
-          "help": "You can choose up to 3."
+          "help": "You can choose up to {max}."
         },
         "desiredRegions": {
           "label": "Preferred regions",
-          "help": "You can choose up to 3."
+          "help": "You can choose up to {max}."
         },
         "anyRegion": "Anywhere",
         "needDormitory": {
@@ -1081,7 +1081,7 @@
           "label": "I want to receive job and visa news"
         },
         "notice": {
-          "label": "I have read: \"No fees for job seekers\" and \"Contact with employers goes only through Visa&Job\""
+          "label": "I have read: \"No fees for job seekers\" and \"Contact with employers goes only through VISA n JOB\""
         },
         "optional": "(optional)",
         "readFull": "Read the full text",
@@ -1093,7 +1093,7 @@
       "title": "1-minute quick registration",
       "lead": "Just your language, visa, region and phone. You can fill in the rest later.",
       "noSeekerFee": "No fees for job seekers.",
-      "notice": "Contact with employers goes only through Visa&Job.",
+      "notice": "Contact with employers goes only through VISA n JOB.",
       "locale": "Language",
       "visa": "Current visa",
       "visaHelp": "If you are not sure, choose 'I don't know'. We will guide you to a consultation.",
@@ -1106,7 +1106,7 @@
     "complete": {
       "eyebrow": "Registration complete",
       "title": "You are registered",
-      "lead": "Visa&Job staff will check your details and contact you.",
+      "lead": "VISA n JOB staff will check your details and contact you.",
       "gradeTitle": "Current grade",
       "upgrade": "Book a consultation to reach grade A. After your stay and Korean are checked you reach grade S and are recommended to employers first.",
       "completeProfile": "Complete your profile to get jobs that fit you better.",
@@ -1115,7 +1115,7 @@
       "referralTitle": "My referral code",
       "referralLead": "Share it so your friends can register easily.",
       "noSeekerFee": "No fees for job seekers.",
-      "contactNotice": "Contact with employers goes only through Visa&Job.",
+      "contactNotice": "Contact with employers goes only through VISA n JOB.",
       "toMyPage": "Go to my page"
     },
     "next": {
@@ -1124,7 +1124,7 @@
         "JOB_MATCH_CONSULT": "We plan your job and your change to E-7 together. A scrivener is preparing a consultation.",
         "VISA_REVIEW": "Changing jobs needs a procedure. An administrative scrivener will check it.",
         "CONSULT_ONLY": "We will guide you in a consultation on the work and career your visa allows.",
-        "FUTURE_POOL": "Changing workplaces goes through the Employment Center. Visa&Job helps you plan a long-term stay (such as E-7-4)."
+        "FUTURE_POOL": "Changing workplaces goes through the Employment Center. VISA n JOB helps you plan a long-term stay (such as E-7-4)."
       },
       "recommended": "See recommended jobs",
       "consult": "Request a consultation",
@@ -1134,10 +1134,10 @@
     "referral": {
       "eyebrow": "Referral",
       "title": "My referral code",
-      "lead": "Introduce Visa&Job to your friends.",
+      "lead": "Introduce VISA n JOB to your friends.",
       "codeLabel": "Referral code",
-      "shareText": "Find work that fits your visa on Visa&Job. Referral code: {code}",
-      "shareTitle": "Visa&Job quick registration",
+      "shareText": "Find work that fits your visa on VISA n JOB. Referral code: {code}",
+      "shareTitle": "VISA n JOB quick registration",
       "share": "Share",
       "copyLink": "Copy link",
       "copied": "Copied",

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { REFERRAL_CODE_LENGTH } from "@/config/limits";
-import { YES_NO, dayToDate, monthToDate } from "@/lib/seeker/options";
+import { YES_NO, YES_NO_UNKNOWN, dayToDate, monthToDate } from "@/lib/seeker/options";
 
 /**
  * Field building blocks of the seeker registration schemas (WO §7.3). Error messages are codes,
@@ -31,6 +31,8 @@ export const optionalChoice = <T extends readonly [string, ...string[]]>(values:
 
 export const yesNo = choice(YES_NO);
 export const optionalYesNo = optionalChoice(YES_NO);
+/** Optional yes / no / 모름 (STANDARD 3.3 B-5). */
+export const optionalYesNoUnknown = optionalChoice(YES_NO_UNKNOWN);
 
 /** "YYYY-MM" (month picker = year + month selects, STANDARD 3.1 no calendar). */
 export const monthField = z

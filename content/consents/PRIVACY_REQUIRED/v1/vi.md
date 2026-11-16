@@ -2,7 +2,7 @@
 
 [전문가 검토 필요] (Cần chuyên gia xem xét) Văn bản đồng ý này là bản nháp, sẽ được hoàn thiện sau khi chuyên gia pháp lý xem xét.
 
-Visa&Job thu thập và sử dụng các thông tin dưới đây để giới thiệu việc làm và tư vấn lưu trú.
+VISA n JOB thu thập và sử dụng các thông tin dưới đây để giới thiệu việc làm và tư vấn lưu trú.
 
 - Mục thu thập: số điện thoại, họ tên (theo hộ chiếu), quốc tịch, nơi ở, tư cách lưu trú (loại visa, năm tháng hết hạn, có thẻ người nước ngoài hay không), học vấn, kinh nghiệm, ngôn ngữ, điều kiện làm việc mong muốn, mục không bắt buộc (ứng dụng nhắn tin, email, năm sinh, giới tính)
 - Không thu thập: số thẻ người nước ngoài, số hộ chiếu

@@ -2,7 +2,7 @@
 
 [전문가 검토 필요] (Mutaxassis tekshiruvi kerak) Bu rozilik matni qoralama boʻlib, huquqiy tekshiruvdan soʻng tasdiqlanadi.
 
-Visa&Job yangi ishlar va viza tizimi yangiliklarini messenjer va SMS orqali yuborishiga rozisiz.
+VISA n JOB yangi ishlar va viza tizimi yangiliklarini messenjer va SMS orqali yuborishiga rozisiz.
 
 - Ishlatiladi: telefon raqami, messenjer maʼlumoti, til
 - Rozilik bermaslik roʻyxat va xizmatdan foydalanishga taʼsir qilmaydi. Mening sahifamda istalgan vaqtda qaytarib olish mumkin.

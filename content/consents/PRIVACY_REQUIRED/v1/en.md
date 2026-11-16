@@ -2,7 +2,7 @@
 
 [전문가 검토 필요] (Expert review required) This consent text is a draft and will be finalised after legal review.
 
-Visa&Job collects and uses the personal information below for job placement and stay consultation.
+VISA n JOB collects and uses the personal information below for job placement and stay consultation.
 
 - Items: mobile number, name (as in passport), nationality, residence, status of stay (visa type, expiry year and month, whether you hold a residence card), education, experience, languages, work preferences, optional items (messenger, e-mail, year of birth, gender)
 - Not collected: residence card number, passport number

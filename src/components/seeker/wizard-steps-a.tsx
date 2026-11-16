@@ -39,6 +39,7 @@ import {
   TOPIK_LEVELS,
   UNKNOWN,
   YES_NO,
+  YES_NO_UNKNOWN,
 } from "@/lib/seeker/options";
 import { type Step1Input, step1Schema } from "@/schemas/seeker/register/step1";
 import { type Step2Input, step2Schema } from "@/schemas/seeker/register/step2";
@@ -56,7 +57,8 @@ export function useStepText(step: string) {
   const t = useTranslations(`seeker.register.${step}`);
   return {
     label: (field: string) => t(`${field}.label`),
-    help: (field: string) => (t.has(`${field}.help`) ? t(`${field}.help`) : undefined),
+    help: (field: string, values?: Record<string, string | number>) =>
+      t.has(`${field}.help`) ? t(`${field}.help`, values) : undefined,
     option: (field: string, value: string) => t(`${field}.option.${value}`),
     text: (key: string, values?: Record<string, string | number>) => t(key, values),
   };
@@ -245,6 +247,7 @@ export function Step1Form({ values, reference, backHref }: Props<Step1Input>) {
             name="gender"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="gender"
                 value={field.value}
@@ -305,7 +308,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
             <option value="">{tc("common.select.placeholder")}</option>
             {reference.visas.map((v) => (
               <option key={v.code} value={v.code}>
-                {[v.code, tc(v.nameKey)].join(" ")}
+                {v.isStatusCode ? [v.code, tc(v.nameKey)].join(" ") : tc(v.nameKey)}
               </option>
             ))}
           </NativeSelect>
@@ -313,7 +316,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
       </FormField>
       {visa ? (
         <p className="-mt-3 text-dense text-n700" data-testid="visa-selected">
-          <VisaLabel code={visa.code} nameKey={visa.nameKey} />
+          <VisaLabel code={visa.code} nameKey={visa.nameKey} showCode={visa.isStatusCode} />
         </p>
       ) : null}
       {blocked ? (
@@ -334,6 +337,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
                   name="visaSubType"
                   render={({ field }) => (
                     <ChipGroup
+                      ref={field.ref}
                       a11y={a11y}
                       name="visaSubType"
                       value={field.value}
@@ -363,6 +367,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
                 name="stayExpiry"
                 render={({ field }) => (
                   <MonthSelect
+                    ref={field.ref}
                     a11y={a11y}
                     name="stayExpiry"
                     value={field.value}
@@ -389,6 +394,7 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
                 name="hasArc"
                 render={({ field }) => (
                   <ChipGroup
+                    ref={field.ref}
                     a11y={a11y}
                     name="hasArc"
                     value={field.value}
@@ -435,13 +441,14 @@ export function Step2Form({ values, reference, backHref }: Props<Step2Input>) {
                 name="pendingApplication"
                 render={({ field }) => (
                   <ChipGroup
+                    ref={field.ref}
                     a11y={a11y}
                     name="pendingApplication"
                     value={field.value}
                     onChange={field.onChange}
-                    options={YES_NO.map((v) => ({
+                    options={YES_NO_UNKNOWN.map((v) => ({
                       value: v,
-                      label: tc(`seeker.register.common.${v === "YES" ? "yes" : "no"}`),
+                      label: tc(`seeker.register.common.${v.toLowerCase()}`),
                     }))}
                   />
                 )}
@@ -529,6 +536,7 @@ export function Step3aForm({ values, reference, backHref }: Props<Step3aInput>) 
             name="educationLevel"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="educationLevel"
                 value={field.value}
@@ -577,6 +585,7 @@ export function Step3aForm({ values, reference, backHref }: Props<Step3aInput>) 
             name="graduationDate"
             render={({ field }) => (
               <MonthSelect
+                ref={field.ref}
                 a11y={a11y}
                 name="graduationDate"
                 value={field.value}
@@ -627,6 +636,7 @@ export function Step3bForm({ values, backHref }: Props<Step3bInput>) {
           name={name}
           render={({ field }) => (
             <ChipGroup
+              ref={field.ref}
               a11y={a11y}
               name={name}
               value={field.value}
@@ -657,6 +667,7 @@ export function Step3bForm({ values, backHref }: Props<Step3bInput>) {
             name="otherLanguages"
             render={({ field }) => (
               <MultiChips
+                ref={field.ref}
                 a11y={a11y}
                 value={field.value}
                 onChange={field.onChange}

@@ -21,7 +21,7 @@ export type SeekerOverview = {
   referralCode: string;
   referralCount: number;
   shareUrl: string;
-  visa: { code: string; nameKey: string } | null;
+  visa: { code: string; nameKey: string; isStatusCode: boolean } | null;
   stayExpiry: Date | null;
   stayAlertOptIn: boolean;
   autoConsult: boolean;
@@ -54,7 +54,7 @@ export async function getSeekerOverview(
     p.visaCode
       ? db.visaType.findUnique({
           where: { code: p.visaCode },
-          select: { code: true, nameKey: true },
+          select: { code: true, nameKey: true, isStatusCode: true },
         })
       : null,
     p.visaCode ? classifyProfile(p, now) : null,

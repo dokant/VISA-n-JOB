@@ -99,6 +99,7 @@ export function Step4Form({ values, reference, backHref }: Props<Step4Input>) {
                 <FormField
                   id={`${id}-c${i}`}
                   label={s.text("country")}
+                  labelAddon={icon("private")}
                   required
                   error={fieldError(re?.country?.message)}
                 >
@@ -209,6 +210,7 @@ export function Step4Form({ values, reference, backHref }: Props<Step4Input>) {
             name="skills"
             render={({ field }) => (
               <MultiChips
+                ref={field.ref}
                 a11y={a11y}
                 value={field.value}
                 onChange={field.onChange}
@@ -231,6 +233,7 @@ export function Step4Form({ values, reference, backHref }: Props<Step4Input>) {
             name="licenses"
             render={({ field }) => (
               <MultiChips
+                ref={field.ref}
                 a11y={a11y}
                 value={field.value}
                 onChange={field.onChange}
@@ -243,7 +246,7 @@ export function Step4Form({ values, reference, backHref }: Props<Step4Input>) {
       <WizardNav backHref={backHref} pending={pending} state={state}>
         <DisclosureSummary
           blind={[s.text("experienceSummary"), s.label("skills"), s.label("licenses")]}
-          hidden={[s.text("employerName")]}
+          hidden={[s.text("country"), s.text("employerName")]}
         />
       </WizardNav>
     </form>
@@ -278,6 +281,7 @@ export function Step5aForm({ values, reference, backHref }: Props<Step5aInput>) 
             name="jobSearchStatus"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="jobSearchStatus"
                 value={field.value}
@@ -309,7 +313,7 @@ export function Step5aForm({ values, reference, backHref }: Props<Step5aInput>) 
         labelSize="question"
         labelAddon={icon("blind")}
         required
-        help={s.help("desiredIndustries")}
+        help={s.help("desiredIndustries", { max: DESIRED_MAX_SELECTIONS })}
         error={fieldError(e.desiredIndustries?.message)}
       >
         {(a11y) => (
@@ -318,6 +322,7 @@ export function Step5aForm({ values, reference, backHref }: Props<Step5aInput>) 
             name="desiredIndustries"
             render={({ field }) => (
               <MultiChips
+                ref={field.ref}
                 a11y={a11y}
                 max={DESIRED_MAX_SELECTIONS}
                 value={field.value}
@@ -334,7 +339,7 @@ export function Step5aForm({ values, reference, backHref }: Props<Step5aInput>) 
         labelSize="question"
         labelAddon={icon("blind")}
         required
-        help={s.help("desiredRegions")}
+        help={s.help("desiredRegions", { max: DESIRED_MAX_SELECTIONS })}
         error={fieldError(e.desiredRegions?.message)}
       >
         {(a11y) => (
@@ -343,6 +348,7 @@ export function Step5aForm({ values, reference, backHref }: Props<Step5aInput>) 
             name="desiredRegions"
             render={({ field }) => (
               <MultiChips
+                ref={field.ref}
                 a11y={a11y}
                 max={DESIRED_MAX_SELECTIONS}
                 value={field.value}
@@ -404,6 +410,7 @@ export function Step5bForm({ values, backHref }: Props<Step5bInput>) {
             name="needDormitory"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="needDormitory"
                 value={field.value}
@@ -428,6 +435,7 @@ export function Step5bForm({ values, backHref }: Props<Step5bInput>) {
             name="shiftOk"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="shiftOk"
                 value={field.value}
@@ -477,6 +485,7 @@ export function Step5bForm({ values, backHref }: Props<Step5bInput>) {
             name="groupApply"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="groupApply"
                 value={field.value}
@@ -565,6 +574,7 @@ export function Step6Form({ values, reference, backHref }: Props<Step6Input>) {
             name="wantsConsult"
             render={({ field }) => (
               <ChipGroup
+                ref={field.ref}
                 a11y={a11y}
                 name="wantsConsult"
                 value={field.value}
@@ -590,6 +600,7 @@ export function Step6Form({ values, reference, backHref }: Props<Step6Input>) {
               name="consultTime"
               render={({ field }) => (
                 <MultiChips
+                  ref={field.ref}
                   a11y={a11y}
                   value={field.value}
                   onChange={field.onChange}

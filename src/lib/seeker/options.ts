@@ -176,6 +176,9 @@ export const CONSULT_TIMES = ["MORNING", "AFTERNOON", "EVENING", "WEEKEND"] as c
 /** Yes / no chips (hasArc, needDormitory: yes / no only — SC-02). */
 export const YES_NO = ["YES", "NO"] as const;
 
+/** Optional yes / no with 모름 — Prisma `YesNoUnknown` (STANDARD 3.3 B-5: pendingApplication, Q-10). */
+export const YES_NO_UNKNOWN = ["YES", "NO", "UNKNOWN"] as const;
+
 /** Consent types of Step 7 (WO §7.3). THIRD_PARTY_INTERVIEW is asked per interview (P2c). */
 export const REGISTRATION_CONSENTS = [
   "PRIVACY_REQUIRED",

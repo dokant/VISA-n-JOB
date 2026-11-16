@@ -9,6 +9,8 @@ import { classifyTrack, listVisaTypesForTrack } from "@/lib/visa-engine/classify
 export type WizardVisaOption = {
   code: string;
   nameKey: string;
+  /** false → not a 체류자격 code (기타·없음·모름): name only, no code chip (STANDARD 3.2 B-3) */
+  isStatusCode: boolean;
   /** false → completing registration is refused and a consult is suggested (BR-08, SC-02) */
   registrable: boolean;
   /** WO §7.3 Step 3: graduation date required (D-2·D-10) */
@@ -29,7 +31,7 @@ export async function getWizardVisaOptions(now: Date = new Date()): Promise<Wiza
     listVisaTypesForTrack(),
     db.visaType.findMany({
       where: { active: true },
-      select: { code: true, nameKey: true, subTypes: true },
+      select: { code: true, nameKey: true, subTypes: true, isStatusCode: true },
     }),
   ]);
   const byCode = new Map(extra.map((e) => [e.code, e]));
@@ -38,6 +40,7 @@ export async function getWizardVisaOptions(now: Date = new Date()): Promise<Wiza
     return {
       code: row.code,
       nameKey: byCode.get(row.code)?.nameKey ?? "",
+      isStatusCode: byCode.get(row.code)?.isStatusCode ?? true,
       registrable: row.registrable,
       requiresGraduationDate: row.requiresGraduationDate,
       subTypes: byCode.get(row.code)?.subTypes ?? [],

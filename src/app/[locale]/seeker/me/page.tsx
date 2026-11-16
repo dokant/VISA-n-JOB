@@ -57,7 +57,11 @@ export default async function SeekerMePage({ params }: Props) {
           {o.visa ? (
             <p className="text-dense text-n700">
               <span className="me-2 text-label text-n500">{t("visa")}</span>
-              <VisaLabel code={o.visa.code} nameKey={o.visa.nameKey} />
+              <VisaLabel
+                code={o.visa.code}
+                nameKey={o.visa.nameKey}
+                showCode={o.visa.isStatusCode}
+              />
             </p>
           ) : null}
         </Card>

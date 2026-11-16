@@ -79,7 +79,7 @@ export function SiteNav({ logo, flags, operatorPhone, address }: Props) {
         "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,height,color,backdrop-filter] duration-400 ease-standard",
         "border-b",
         solid
-          ? "border-navy/8 bg-white/82 text-navy backdrop-blur-[22px] backdrop-saturate-160"
+          ? "border-navy/8 bg-white/82 text-navy backdrop-blur-nav backdrop-saturate-160"
           : "border-transparent bg-transparent text-white",
       )}
     >

@@ -91,6 +91,13 @@ enum ShiftOk {
   UNKNOWN
 }
 
+/// [+] P1c run 2 (STANDARD 3.3 B-5, Q-10): optional yes / no question with "모름". null = 미응답.
+enum YesNoUnknown {
+  YES
+  NO
+  UNKNOWN
+}
+
 /// [+] PRD §3 Region: 시·도 / 시·군·구.
 enum RegionLevel {
   SIDO
@@ -175,7 +182,7 @@ model SeekerProfile {
   stayExpiry            DateTime?
   entryYear             Int?
   hasArc                Boolean? // 번호는 수집하지 않음 (BR-13), PC-3 nullable
-  pendingApplication    Boolean          @default(false)
+  pendingApplication    YesNoUnknown? // P1c run 2: 모름 추가 (Q-10), null = 미응답
   /// [+] Step 2 visaConfirm checkbox time
   visaConfirmedAt       DateTime?
   // 학력
@@ -572,6 +579,9 @@ model VisaType {
   subTypes                    String[]     @default([])
   /// [+] P1c: offered as a Step 6 nextVisaGoal option (its subTypes when present, else its code)
   nextGoal                    Boolean      @default(false)
+  /// [+] P1c run 2 (STANDARD 3.2 VisaLabel B-3): false = not a 체류자격 code (기타·없음·모름 rows),
+  /// shown by name only without the code chip. Admin-editable data, not a code list in src/.
+  isStatusCode                Boolean      @default(true)
   sortOrder                   Int          @default(0)
   active                      Boolean      @default(true)
   note                        String? // operator memo (WO §7.4 안내 요약)

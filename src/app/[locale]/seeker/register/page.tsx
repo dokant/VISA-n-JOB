@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { ScopedIntlProvider } from "@/components/common/scoped-intl-provider";
+import { SectionHeader } from "@/components/common/section-header";
 import { NoticeBox } from "@/components/legal/notice-box";
 import { BlockedNotice } from "@/components/seeker/blocked-notice";
 import { loadConsentDocuments } from "@/components/seeker/consent-documents";
@@ -82,10 +83,9 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   const frame = (step: number, stepName: string, saved: boolean, body: ReactNode) => (
     <main id="main" className="pt-16 md:pt-19">
       <WizardProgress step={step} stepName={stepName} saved={saved} />
-      <div className="mx-auto box-content grid max-w-180 gap-6 px-gutter py-10">
-        <header className="grid gap-2">
-          <h1 className="text-h2 text-navy">{stepName}</h1>
-          <p className="text-dense text-n700">{t(`step${step}.lead`)}</p>
+      <div className="mx-auto box-content grid max-w-xl gap-6 px-gutter py-10">
+        <header className="grid gap-3">
+          <SectionHeader as="h1" title={stepName} lead={t(`step${step}.lead`)} />
           <p className="text-caption font-semibold text-brand-blue-700" data-testid="no-seeker-fee">
             {t("common.noSeekerFee")}
           </p>

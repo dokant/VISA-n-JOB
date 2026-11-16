@@ -2,8 +2,8 @@
 
 [전문가 검토 필요] (Cần chuyên gia xem xét) Văn bản đồng ý này là bản nháp, sẽ được hoàn thiện sau khi chuyên gia pháp lý xem xét.
 
-- Người tìm việc không mất phí: Visa&Job không thu phí giới thiệu của người tìm việc.
-- Liên lạc với doanh nghiệp chỉ qua Visa&Job. Thông tin liên lạc của bạn không được đưa trực tiếp cho doanh nghiệp.
+- Người tìm việc không mất phí: VISA n JOB không thu phí giới thiệu của người tìm việc.
+- Liên lạc với doanh nghiệp chỉ qua VISA n JOB. Thông tin liên lạc của bạn không được đưa trực tiếp cho doanh nghiệp.
 - Khi phỏng vấn được xác nhận, chúng tôi xin đồng ý riêng cho từng trường hợp để cung cấp tên thật cho doanh nghiệp đó.
 - Kết quả đánh giá visa và điểm chỉ để tham khảo, cần hành chính sĩ xác nhận.
 

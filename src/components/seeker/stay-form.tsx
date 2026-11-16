@@ -47,6 +47,7 @@ export function StayForm({ values, nowYear }: { values: StaySettingsInput; nowYe
             name="stayExpiry"
             render={({ field }) => (
               <MonthSelect
+                ref={field.ref}
                 a11y={a11y}
                 name="stayExpiry"
                 value={field.value}

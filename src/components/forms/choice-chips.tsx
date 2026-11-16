@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 import { RadioChip, RadioGroup, chipClass } from "@/components/ui/radio-group";
 import type { FieldA11y } from "@/components/forms/form-field";
@@ -19,7 +19,10 @@ export function ChipGroup({
   onChange,
   name,
   testId,
+  ref,
 }: {
+  /** react-hook-form `field.ref`: focus target for "first error field" (STANDARD 3.3). */
+  ref?: Ref<HTMLButtonElement>;
   a11y: FieldA11y;
   options: readonly ChipOption[];
   value: string;
@@ -39,11 +42,20 @@ export function ChipGroup({
       aria-required={a11y["aria-required"]}
       data-testid={testId}
     >
-      {options.map((o) => (
-        <RadioChip key={o.value} value={o.value} data-value={o.value}>
-          {o.label}
-        </RadioChip>
-      ))}
+      {options.map((o, i) => {
+        // Focus goes to the selected chip, or the first chip when nothing is selected.
+        const focusTarget = value ? o.value === value : i === 0;
+        return (
+          <RadioChip
+            key={o.value}
+            ref={focusTarget ? ref : undefined}
+            value={o.value}
+            data-value={o.value}
+          >
+            {o.label}
+          </RadioChip>
+        );
+      })}
     </RadioGroup>
   );
 }
@@ -56,7 +68,10 @@ export function MultiChips({
   onChange,
   max,
   testId,
+  ref,
 }: {
+  /** react-hook-form `field.ref`: the first chip receives focus on an error (STANDARD 3.3). */
+  ref?: Ref<HTMLButtonElement>;
   a11y: FieldA11y;
   options: readonly ChipOption[];
   value: readonly string[];
@@ -77,11 +92,12 @@ export function MultiChips({
       className="flex flex-wrap gap-2"
       data-testid={testId}
     >
-      {options.map((o) => {
+      {options.map((o, i) => {
         const pressed = value.includes(o.value);
         return (
           <button
             key={o.value}
+            ref={i === 0 ? ref : undefined}
             type="button"
             aria-pressed={pressed}
             data-value={o.value}

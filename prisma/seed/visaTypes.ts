@@ -32,6 +32,8 @@ export type VisaTypeSeed = {
   requiresGraduationDate?: boolean;
   subTypes?: string[];
   nextGoal?: boolean;
+  /** false = not a 체류자격 code (기타·없음·모름): shown by name only (STANDARD 3.2 VisaLabel B-3) */
+  isStatusCode?: boolean;
   note: string;
 };
 
@@ -154,6 +156,7 @@ export const VISA_TYPES: VisaTypeSeed[] = [
   },
   {
     code: "OTHER",
+    isStatusCode: false,
     nameKey: "visaType.other.name",
     defaultTrack: "CONSULT_ONLY",
     registrable: false,
@@ -183,6 +186,7 @@ export const VISA_TYPES: VisaTypeSeed[] = [
   },
   {
     code: "NONE",
+    isStatusCode: false,
     nameKey: "visaType.none.name",
     defaultTrack: null,
     registrable: false,
@@ -190,6 +194,7 @@ export const VISA_TYPES: VisaTypeSeed[] = [
   },
   {
     code: "UNKNOWN",
+    isStatusCode: false,
     nameKey: "visaType.unknown.name",
     defaultTrack: null,
     registrable: false,
@@ -211,6 +216,7 @@ export async function seedVisaTypes(prisma: PrismaClient): Promise<number> {
       requiresGraduationDate: v.requiresGraduationDate ?? false,
       subTypes: v.subTypes ?? [],
       nextGoal: v.nextGoal ?? false,
+      isStatusCode: v.isStatusCode ?? true,
       sortOrder: i + 1,
       note: v.note,
     };

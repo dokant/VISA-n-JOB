@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
+import type { Ref } from "react";
 
 import type { FieldA11y } from "@/components/forms/form-field";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -16,7 +17,10 @@ export function MonthSelect({
   fromYear,
   toYear,
   name,
+  ref,
 }: {
+  /** react-hook-form `field.ref`: the year select receives focus on an error (STANDARD 3.3). */
+  ref?: Ref<HTMLSelectElement>;
   a11y: FieldA11y;
   value: string;
   onChange: (value: string) => void;
@@ -37,6 +41,7 @@ export function MonthSelect({
     <div className="grid grid-cols-2 gap-2">
       <NativeSelect
         {...a11y}
+        ref={ref}
         name={`${name}-year`}
         aria-label={t("year")}
         value={year}

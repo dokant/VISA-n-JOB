@@ -6,7 +6,7 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
-// shadcn/ui dialog restyled to the handoff `.modal` (STANDARD v2 3.1): scrim navy 86% + blur, 0.35s
+// shadcn/ui dialog restyled to the handoff `.modal` (STANDARD v2 3.1): scrim navy 86% + blur-glass (14px), 0.35s
 // fade; shell rounded-lg (22px), white, shadow-3, enters from translateY(18px) scale(.98) in 0.5s.
 // Close button rotates 90° on hover. Used for confirmations (동의 철회).
 
@@ -24,13 +24,13 @@ function DialogContent({
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
         data-slot="dialog-overlay"
-        className="fixed inset-0 z-50 bg-navy-deep/86 backdrop-blur-md data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-350"
+        className="fixed inset-0 z-50 bg-navy-deep/86 backdrop-blur-glass data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-350"
       />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
           "fixed inset-x-4 top-1/2 z-50 mx-auto grid max-w-110 -translate-y-1/2 gap-5 rounded-lg bg-white p-6.5 shadow-3",
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-500",
+          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-4.5 data-[state=open]:zoom-in-98 data-[state=open]:duration-500 data-[state=open]:ease-out",
           className,
         )}
         {...props}

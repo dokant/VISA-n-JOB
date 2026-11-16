@@ -2,8 +2,8 @@
 
 [전문가 검토 필요] (Expert review required) This consent text is a draft and will be finalised after legal review.
 
-- No fees for job seekers: Visa&Job does not charge job seekers any placement fee.
-- Contact with employers goes only through Visa&Job. Your contacts are not given to employers directly.
+- No fees for job seekers: VISA n JOB does not charge job seekers any placement fee.
+- Contact with employers goes only through VISA n JOB. Your contacts are not given to employers directly.
 - When an interview is confirmed, we ask separately, case by case, for consent to give your real name to that employer.
 - Visa checks and scores are for reference only and need an administrative scrivener's confirmation.
 

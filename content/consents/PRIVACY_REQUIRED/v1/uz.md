@@ -2,7 +2,7 @@
 
 [전문가 검토 필요] (Mutaxassis tekshiruvi kerak) Bu rozilik matni qoralama boʻlib, huquqiy tekshiruvdan soʻng tasdiqlanadi.
 
-Visa&Job ishga joylashtirish va turish boʻyicha maslahat uchun quyidagi maʼlumotlarni yigʻadi va ishlatadi.
+VISA n JOB ishga joylashtirish va turish boʻyicha maslahat uchun quyidagi maʼlumotlarni yigʻadi va ishlatadi.
 
 - Maʼlumotlar: telefon raqami, ism (pasportdagidek), fuqarolik, yashash joyi, turish maqomi (viza turi, tugash yili va oyi, chet ellik guvohnomasi bor-yoʻqligi), taʼlim, tajriba, tillar, istalgan ish sharoitlari, ixtiyoriy maʼlumotlar (messenjer, elektron pochta, tugʻilgan yil, jins)
 - Yigʻilmaydi: chet ellik guvohnomasi raqami, pasport raqami

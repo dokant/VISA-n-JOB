@@ -2,11 +2,11 @@
 
 [전문가 검토 필요] (Expert review required) This consent text is a draft and will be finalised after legal review.
 
-Visa&Job gives verified, contracted employers only a blind profile without your name and contacts.
+VISA n JOB gives verified, contracted employers only a blind profile without your name and contacts.
 
 - Shared: nationality, province / city, visa type, remaining stay (range), years in Korea, education and field of study, Korean level, experience (industry, role, period), skills and licenses, work preferences, grade
 - Not shared: name, photo, contacts, year of birth, gender, school name, text you wrote yourself
-- Contact with employers goes only through Visa&Job.
+- Contact with employers goes only through VISA n JOB.
 - Required for the job matching track. You can revoke it at any time on My page; you are then removed from employers' candidate lists at once.
 
 ---

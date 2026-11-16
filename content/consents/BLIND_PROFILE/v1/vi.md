@@ -2,11 +2,11 @@
 
 [전문가 검토 필요] (Cần chuyên gia xem xét) Văn bản đồng ý này là bản nháp, sẽ được hoàn thiện sau khi chuyên gia pháp lý xem xét.
 
-Visa&Job chỉ cung cấp cho doanh nghiệp đã được xác minh và ký hợp đồng hồ sơ ẩn danh, không có tên và thông tin liên lạc.
+VISA n JOB chỉ cung cấp cho doanh nghiệp đã được xác minh và ký hợp đồng hồ sơ ẩn danh, không có tên và thông tin liên lạc.
 
 - Cung cấp: quốc tịch, tỉnh / thành phố, loại visa, thời gian lưu trú còn lại (khoảng), số năm ở Hàn Quốc, học vấn và lĩnh vực, trình độ tiếng Hàn, kinh nghiệm (ngành, công việc, thời gian), kỹ năng và chứng chỉ, điều kiện mong muốn, hạng
 - Không cung cấp: tên, ảnh, liên lạc, năm sinh, giới tính, tên trường, nội dung tự viết
-- Liên lạc với doanh nghiệp chỉ qua Visa&Job.
+- Liên lạc với doanh nghiệp chỉ qua VISA n JOB.
 - Bắt buộc với nhóm giới thiệu việc làm. Có thể rút lại bất cứ lúc nào ở Trang của tôi; khi rút lại, bạn bị loại khỏi danh sách ứng viên ngay.
 
 ---

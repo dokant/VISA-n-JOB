@@ -60,7 +60,7 @@
     },
     "seekerRegister": {
       "title": "Đăng ký tìm việc",
-      "description": "Đăng ký đầy đủ với Visa&Job. Mỗi bước được lưu tự động."
+      "description": "Đăng ký đầy đủ với VISA n JOB. Mỗi bước được lưu tự động."
     },
     "seekerQuick": {
       "title": "Đăng ký nhanh",
@@ -165,7 +165,7 @@
       "required": "(bắt buộc)"
     },
     "profileCompletion": {
-      "sms": "Bạn đã đăng ký nhanh với Visa&Job. Hãy hoàn thiện hồ sơ để nhận gợi ý việc làm phù hợp hơn: {path}"
+      "sms": "Bạn đã đăng ký nhanh với VISA n JOB. Hãy hoàn thiện hồ sơ để nhận gợi ý việc làm phù hợp hơn: {path}"
     }
   },
   "nav": {
@@ -806,7 +806,7 @@
         "sidoOnly": "Tỉnh / thành phố cư trú",
         "messenger": {
           "label": "Ứng dụng nhắn tin để liên lạc",
-          "help": "Chỉ nhân viên Visa&Job liên lạc với bạn.",
+          "help": "Chỉ nhân viên VISA n JOB liên lạc với bạn.",
           "option": {
             "KAKAO": "KakaoTalk",
             "ZALO": "Zalo",
@@ -823,7 +823,7 @@
         },
         "birthYear": {
           "label": "Năm sinh",
-          "help": "Chỉ dùng nội bộ tại Visa&Job."
+          "help": "Chỉ dùng nội bộ tại VISA n JOB."
         },
         "gender": {
           "label": "Giới tính",
@@ -1015,11 +1015,11 @@
         },
         "desiredIndustries": {
           "label": "Ngành mong muốn",
-          "help": "Chọn tối đa 3."
+          "help": "Chọn tối đa {max}."
         },
         "desiredRegions": {
           "label": "Khu vực mong muốn",
-          "help": "Chọn tối đa 3."
+          "help": "Chọn tối đa {max}."
         },
         "anyRegion": "Ở đâu cũng được",
         "needDormitory": {
@@ -1081,7 +1081,7 @@
           "label": "Tôi muốn nhận tin việc làm và visa"
         },
         "notice": {
-          "label": "Tôi đã đọc: \"Người tìm việc không mất phí\" và \"Liên lạc với doanh nghiệp chỉ qua Visa&Job\""
+          "label": "Tôi đã đọc: \"Người tìm việc không mất phí\" và \"Liên lạc với doanh nghiệp chỉ qua VISA n JOB\""
         },
         "optional": "(không bắt buộc)",
         "readFull": "Xem toàn văn",
@@ -1093,7 +1093,7 @@
       "title": "Đăng ký nhanh 1 phút",
       "lead": "Chỉ cần ngôn ngữ, visa, khu vực và xác thực điện thoại. Phần còn lại có thể điền sau.",
       "noSeekerFee": "Người tìm việc không mất phí.",
-      "notice": "Liên lạc với doanh nghiệp chỉ qua Visa&Job.",
+      "notice": "Liên lạc với doanh nghiệp chỉ qua VISA n JOB.",
       "locale": "Ngôn ngữ",
       "visa": "Visa hiện tại",
       "visaHelp": "Nếu không chắc, hãy chọn 'Không biết'. Chúng tôi sẽ hướng dẫn tư vấn.",
@@ -1106,7 +1106,7 @@
     "complete": {
       "eyebrow": "Hoàn tất đăng ký",
       "title": "Bạn đã đăng ký xong",
-      "lead": "Nhân viên Visa&Job sẽ kiểm tra và liên lạc với bạn.",
+      "lead": "Nhân viên VISA n JOB sẽ kiểm tra và liên lạc với bạn.",
       "gradeTitle": "Hạng hiện tại",
       "upgrade": "Đặt lịch tư vấn để lên hạng A. Khi đã xác nhận lưu trú và tiếng Hàn, bạn lên hạng S và được ưu tiên giới thiệu cho doanh nghiệp.",
       "completeProfile": "Hoàn thiện hồ sơ để nhận việc làm phù hợp hơn.",
@@ -1115,7 +1115,7 @@
       "referralTitle": "Mã giới thiệu của tôi",
       "referralLead": "Chia sẻ để bạn bè đăng ký dễ dàng.",
       "noSeekerFee": "Người tìm việc không mất phí.",
-      "contactNotice": "Liên lạc với doanh nghiệp chỉ qua Visa&Job.",
+      "contactNotice": "Liên lạc với doanh nghiệp chỉ qua VISA n JOB.",
       "toMyPage": "Đến trang của tôi"
     },
     "next": {
@@ -1124,7 +1124,7 @@
         "JOB_MATCH_CONSULT": "Chúng tôi cùng bạn lên kế hoạch việc làm và chuyển sang E-7. Hành chính sĩ đang chuẩn bị tư vấn.",
         "VISA_REVIEW": "Khi chuyển việc cần làm thủ tục. Hành chính sĩ sẽ kiểm tra.",
         "CONSULT_ONLY": "Chúng tôi sẽ tư vấn về công việc và định hướng phù hợp với visa của bạn.",
-        "FUTURE_POOL": "Việc đổi nơi làm việc thực hiện qua Trung tâm việc làm. Visa&Job giúp bạn lên kế hoạch lưu trú dài hạn (như E-7-4)."
+        "FUTURE_POOL": "Việc đổi nơi làm việc thực hiện qua Trung tâm việc làm. VISA n JOB giúp bạn lên kế hoạch lưu trú dài hạn (như E-7-4)."
       },
       "recommended": "Xem việc làm đề xuất",
       "consult": "Đăng ký tư vấn",
@@ -1134,10 +1134,10 @@
     "referral": {
       "eyebrow": "Giới thiệu",
       "title": "Mã giới thiệu của tôi",
-      "lead": "Giới thiệu Visa&Job cho bạn bè.",
+      "lead": "Giới thiệu VISA n JOB cho bạn bè.",
       "codeLabel": "Mã giới thiệu",
-      "shareText": "Tìm việc phù hợp với visa của bạn trên Visa&Job. Mã giới thiệu: {code}",
-      "shareTitle": "Đăng ký nhanh Visa&Job",
+      "shareText": "Tìm việc phù hợp với visa của bạn trên VISA n JOB. Mã giới thiệu: {code}",
+      "shareTitle": "Đăng ký nhanh VISA n JOB",
       "share": "Chia sẻ",
       "copyLink": "Sao chép liên kết",
       "copied": "Đã sao chép",

@@ -2,8 +2,8 @@
 
 [전문가 검토 필요] (Mutaxassis tekshiruvi kerak) Bu rozilik matni qoralama boʻlib, huquqiy tekshiruvdan soʻng tasdiqlanadi.
 
-- Ish izlovchilar uchun bepul: Visa&Job ish izlovchilardan vositachilik haqi olmaydi.
-- Korxonalar bilan aloqa faqat Visa&Job orqali. Aloqa maʼlumotlaringiz korxonalarga bevosita berilmaydi.
+- Ish izlovchilar uchun bepul: VISA n JOB ish izlovchilardan vositachilik haqi olmaydi.
+- Korxonalar bilan aloqa faqat VISA n JOB orqali. Aloqa maʼlumotlaringiz korxonalarga bevosita berilmaydi.
 - Suhbat tasdiqlansa, haqiqiy ismingizni oʻsha korxonaga berish uchun har safar alohida rozilik soʻraymiz.
 - Viza va ball natijalari maʼlumot uchun, maʼmuriy mutaxassis tasdigʻi kerak.
 

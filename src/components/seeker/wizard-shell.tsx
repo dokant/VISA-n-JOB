@@ -60,9 +60,14 @@ export function useStepSubmit<T extends FieldValues>(step: string, form: UseForm
         return;
       }
       if (r.fieldErrors) {
-        for (const [field, code] of Object.entries(r.fieldErrors)) {
-          form.setError(field as Path<T>, { type: "server", message: code });
-        }
+        // STANDARD 3.3: focus moves to the first field with an error.
+        Object.entries(r.fieldErrors).forEach(([field, code], i) => {
+          form.setError(
+            field as Path<T>,
+            { type: "server", message: code },
+            { shouldFocus: i === 0 },
+          );
+        });
       }
       setState(r);
     });
@@ -70,7 +75,11 @@ export function useStepSubmit<T extends FieldValues>(step: string, form: UseForm
   return { submit: form.handleSubmit(submit), pending, state };
 }
 
-/** Bottom area of a wizard screen: server error / blocked notice, then "이전 / 다음". */
+/**
+ * Bottom area of a wizard screen: summary / server error / blocked notice in the normal flow, then
+ * "이전 / 다음" in a sticky bottom bar (STANDARD 3.3 하단 고정, Q-10). Rendered as direct children of
+ * the step <form> so the bar sticks over the whole form height.
+ */
 export function WizardNav({
   backHref,
   pending,
@@ -88,7 +97,7 @@ export function WizardNav({
   const serverText = useServerErrorText();
   const failed = state && !state.ok ? state : null;
   return (
-    <div className="grid gap-5">
+    <>
       {children}
       {failed?.code === "BLOCKED" ? <BlockedNotice reason={failed.reason} /> : null}
       {failed && failed.code !== "BLOCKED" && failed.code !== "VALIDATION" ? (
@@ -101,7 +110,10 @@ export function WizardNav({
           {t("fixErrors")}
         </p>
       ) : null}
-      <div className="flex items-center justify-between gap-3">
+      <div
+        className="sticky bottom-0 z-20 -mx-gutter flex items-center justify-between gap-3 border-t border-navy/8 bg-white/82 px-gutter py-3 backdrop-blur-nav backdrop-saturate-160"
+        data-testid="wizard-nav-bar"
+      >
         {backHref ? (
           <Button asChild variant="outline">
             <Link href={backHref} data-testid="wizard-back">
@@ -117,6 +129,6 @@ export function WizardNav({
           <ArrowRight aria-hidden="true" strokeWidth={1.5} />
         </Button>
       </div>
-    </div>
+    </>
   );
 }

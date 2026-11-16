@@ -60,7 +60,7 @@
     },
     "seekerRegister": {
       "title": "求职登记",
-      "description": "在 Visa&Job 完成正式登记。每一步都会自动保存。"
+      "description": "在 VISA n JOB 完成正式登记。每一步都会自动保存。"
     },
     "seekerQuick": {
       "title": "快速登记",
@@ -165,7 +165,7 @@
       "required": "（必填）"
     },
     "profileCompletion": {
-      "sms": "您已在 Visa&Job 完成快速登记。完善个人资料可获得更合适的工作推荐：{path}"
+      "sms": "您已在 VISA n JOB 完成快速登记。完善个人资料可获得更合适的工作推荐：{path}"
     }
   },
   "nav": {
@@ -806,7 +806,7 @@
         "sidoOnly": "居住的省 / 市",
         "messenger": {
           "label": "联系用的即时通讯",
-          "help": "只有 Visa&Job 工作人员会联系您。",
+          "help": "只有 VISA n JOB 工作人员会联系您。",
           "option": {
             "KAKAO": "KakaoTalk",
             "ZALO": "Zalo",
@@ -823,7 +823,7 @@
         },
         "birthYear": {
           "label": "出生年份",
-          "help": "仅在 Visa&Job 内部使用。"
+          "help": "仅在 VISA n JOB 内部使用。"
         },
         "gender": {
           "label": "性别",
@@ -1015,11 +1015,11 @@
         },
         "desiredIndustries": {
           "label": "希望行业",
-          "help": "最多可选 3 项。"
+          "help": "最多可选 {max} 项。"
         },
         "desiredRegions": {
           "label": "希望地区",
-          "help": "最多可选 3 项。"
+          "help": "最多可选 {max} 项。"
         },
         "anyRegion": "哪里都可以",
         "needDormitory": {
@@ -1081,7 +1081,7 @@
           "label": "我愿意接收工作和签证资讯"
         },
         "notice": {
-          "label": "我已确认\"求职者免费\"和\"与企业的联系只通过 Visa&Job 进行\"的说明"
+          "label": "我已确认\"求职者免费\"和\"与企业的联系只通过 VISA n JOB 进行\"的说明"
         },
         "optional": "（选填）",
         "readFull": "查看全文",
@@ -1093,7 +1093,7 @@
       "title": "1 分钟快速登记",
       "lead": "只需语言、签证、地区和手机验证。其余内容可以稍后填写。",
       "noSeekerFee": "求职者免费。",
-      "notice": "与企业的联系只通过 Visa&Job 进行。",
+      "notice": "与企业的联系只通过 VISA n JOB 进行。",
       "locale": "使用语言",
       "visa": "当前签证",
       "visaHelp": "如果不确定，请选择'不清楚'。我们会为您安排咨询。",
@@ -1106,7 +1106,7 @@
     "complete": {
       "eyebrow": "登记完成",
       "title": "登记已完成",
-      "lead": "Visa&Job 工作人员确认后会与您联系。",
+      "lead": "VISA n JOB 工作人员确认后会与您联系。",
       "gradeTitle": "当前等级",
       "upgrade": "预约咨询即可升为 A 级；完成滞留和韩语确认后升为 S 级，成为企业优先推荐对象。",
       "completeProfile": "完善个人资料，可获得更合适的工作。",
@@ -1115,7 +1115,7 @@
       "referralTitle": "我的推荐码",
       "referralLead": "分享给朋友，朋友登记更方便。",
       "noSeekerFee": "求职者免费。",
-      "contactNotice": "与企业的联系只通过 Visa&Job 进行。",
+      "contactNotice": "与企业的联系只通过 VISA n JOB 进行。",
       "toMyPage": "前往我的页面"
     },
     "next": {
@@ -1124,7 +1124,7 @@
         "JOB_MATCH_CONSULT": "我们与您一起规划就业和转换 E-7。行政士正在准备咨询。",
         "VISA_REVIEW": "换工作时需要办理手续。行政士会进行确认。",
         "CONSULT_ONLY": "我们会通过咨询介绍您的签证可以做的工作和发展方向。",
-        "FUTURE_POOL": "变更工作单位需通过雇佣中心办理。Visa&Job 为您规划长期滞留转换（如 E-7-4）。"
+        "FUTURE_POOL": "变更工作单位需通过雇佣中心办理。VISA n JOB 为您规划长期滞留转换（如 E-7-4）。"
       },
       "recommended": "查看推荐工作",
       "consult": "申请咨询",
@@ -1134,10 +1134,10 @@
     "referral": {
       "eyebrow": "推荐",
       "title": "我的推荐码",
-      "lead": "把 Visa&Job 介绍给朋友。",
+      "lead": "把 VISA n JOB 介绍给朋友。",
       "codeLabel": "推荐码",
-      "shareText": "在 Visa&Job 查找符合您签证的工作。推荐码：{code}",
-      "shareTitle": "Visa&Job 快速登记",
+      "shareText": "在 VISA n JOB 查找符合您签证的工作。推荐码：{code}",
+      "shareTitle": "VISA n JOB 快速登记",
       "share": "分享",
       "copyLink": "复制链接",
       "copied": "已复制",

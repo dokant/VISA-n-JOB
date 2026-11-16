@@ -6,7 +6,7 @@ import {
   mustCheck,
   optionalCode,
   optionalYear,
-  optionalYesNo,
+  optionalYesNoUnknown,
   yesNo,
 } from "./fields";
 
@@ -21,7 +21,7 @@ export const step2Schema = z.object({
   stayExpiry: monthField,
   hasArc: yesNo,
   entryYear: optionalYear,
-  pendingApplication: optionalYesNo,
+  pendingApplication: optionalYesNoUnknown,
   visaConfirm: mustCheck("mustConfirm"),
 });
 export type Step2Input = z.input<typeof step2Schema>;

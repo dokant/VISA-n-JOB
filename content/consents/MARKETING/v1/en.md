@@ -2,7 +2,7 @@
 
 [전문가 검토 필요] (Expert review required) This consent text is a draft and will be finalised after legal review.
 
-You agree that Visa&Job sends new job information and visa system news by messenger and text message.
+You agree that VISA n JOB sends new job information and visa system news by messenger and text message.
 
 - Used: mobile number, messenger details, language
 - Not agreeing does not affect your registration or use of the service. You can revoke it at any time on My page.

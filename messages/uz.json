@@ -60,7 +60,7 @@
     },
     "seekerRegister": {
       "title": "Ish izlovchi roʻyxati",
-      "description": "Visa&Job’da toʻliq roʻyxatdan oʻtish. Har bir qadam avtomatik saqlanadi."
+      "description": "VISA n JOB’da toʻliq roʻyxatdan oʻtish. Har bir qadam avtomatik saqlanadi."
     },
     "seekerQuick": {
       "title": "Tezkor roʻyxat",
@@ -165,7 +165,7 @@
       "required": "(majburiy)"
     },
     "profileCompletion": {
-      "sms": "Visa&Job’da tezkor roʻyxatdan oʻtdingiz. Mosroq ishlar uchun profilingizni toʻldiring: {path}"
+      "sms": "VISA n JOB’da tezkor roʻyxatdan oʻtdingiz. Mosroq ishlar uchun profilingizni toʻldiring: {path}"
     }
   },
   "nav": {
@@ -806,7 +806,7 @@
         "sidoOnly": "Yashash viloyati / shahri",
         "messenger": {
           "label": "Aloqa uchun messenjer",
-          "help": "Faqat Visa&Job xodimlari bogʻlanadi.",
+          "help": "Faqat VISA n JOB xodimlari bogʻlanadi.",
           "option": {
             "KAKAO": "KakaoTalk",
             "ZALO": "Zalo",
@@ -823,7 +823,7 @@
         },
         "birthYear": {
           "label": "Tugʻilgan yil",
-          "help": "Faqat Visa&Job ichida ishlatiladi."
+          "help": "Faqat VISA n JOB ichida ishlatiladi."
         },
         "gender": {
           "label": "Jins",
@@ -1015,11 +1015,11 @@
         },
         "desiredIndustries": {
           "label": "Istalgan sohalar",
-          "help": "Koʻpi bilan 3 ta tanlang."
+          "help": "Koʻpi bilan {max} ta tanlang."
         },
         "desiredRegions": {
           "label": "Istalgan hududlar",
-          "help": "Koʻpi bilan 3 ta tanlang."
+          "help": "Koʻpi bilan {max} ta tanlang."
         },
         "anyRegion": "Istalgan joy",
         "needDormitory": {
@@ -1081,7 +1081,7 @@
           "label": "Ish va viza yangiliklarini olishni xohlayman"
         },
         "notice": {
-          "label": "\"Ish izlovchilar uchun bepul\" va \"Korxonalar bilan aloqa faqat Visa&Job orqali\" eslatmasini oʻqidim"
+          "label": "\"Ish izlovchilar uchun bepul\" va \"Korxonalar bilan aloqa faqat VISA n JOB orqali\" eslatmasini oʻqidim"
         },
         "optional": "(ixtiyoriy)",
         "readFull": "Toʻliq matn",
@@ -1093,7 +1093,7 @@
       "title": "1 daqiqalik tezkor roʻyxat",
       "lead": "Faqat til, viza, hudud va telefonni tasdiqlash. Qolganini keyin toʻldirishingiz mumkin.",
       "noSeekerFee": "Ish izlovchilar uchun bepul.",
-      "notice": "Korxonalar bilan aloqa faqat Visa&Job orqali.",
+      "notice": "Korxonalar bilan aloqa faqat VISA n JOB orqali.",
       "locale": "Til",
       "visa": "Hozirgi viza",
       "visaHelp": "Ishonchingiz komil boʻlmasa, 'Bilmayman'ni tanlang. Maslahatga yoʻnaltiramiz.",
@@ -1106,7 +1106,7 @@
     "complete": {
       "eyebrow": "Roʻyxat yakunlandi",
       "title": "Siz roʻyxatdan oʻtdingiz",
-      "lead": "Visa&Job xodimi tekshirib, siz bilan bogʻlanadi.",
+      "lead": "VISA n JOB xodimi tekshirib, siz bilan bogʻlanadi.",
       "gradeTitle": "Hozirgi daraja",
       "upgrade": "Maslahatga yozilsangiz A daraja boʻlasiz. Turish va koreys tili tasdiqlangach S daraja boʻlib, korxonalarga birinchi navbatda tavsiya etilasiz.",
       "completeProfile": "Mosroq ishlar uchun profilingizni toʻldiring.",
@@ -1115,7 +1115,7 @@
       "referralTitle": "Mening tavsiya kodim",
       "referralLead": "Ulashsangiz, doʻstlaringiz oson roʻyxatdan oʻtadi.",
       "noSeekerFee": "Ish izlovchilar uchun bepul.",
-      "contactNotice": "Korxonalar bilan aloqa faqat Visa&Job orqali.",
+      "contactNotice": "Korxonalar bilan aloqa faqat VISA n JOB orqali.",
       "toMyPage": "Mening sahifamga"
     },
     "next": {
@@ -1124,7 +1124,7 @@
         "JOB_MATCH_CONSULT": "Ish va E-7 ga oʻtishni birga rejalashtiramiz. Mutaxassis maslahat tayyorlamoqda.",
         "VISA_REVIEW": "Ish almashtirishda tartib kerak. Maʼmuriy mutaxassis tekshiradi.",
         "CONSULT_ONLY": "Vizangiz ruxsat bergan ish va yoʻnalish haqida maslahatda tushuntiramiz.",
-        "FUTURE_POOL": "Ish joyini oʻzgartirish Bandlik markazi orqali boʻladi. Visa&Job uzoq muddatli turishga oʻtishni (masalan, E-7-4) rejalashtiradi."
+        "FUTURE_POOL": "Ish joyini oʻzgartirish Bandlik markazi orqali boʻladi. VISA n JOB uzoq muddatli turishga oʻtishni (masalan, E-7-4) rejalashtiradi."
       },
       "recommended": "Tavsiya etilgan ishlar",
       "consult": "Maslahatga ariza",
@@ -1134,10 +1134,10 @@
     "referral": {
       "eyebrow": "Tavsiya",
       "title": "Mening tavsiya kodim",
-      "lead": "Visa&Job’ni doʻstlaringizga tanishtiring.",
+      "lead": "VISA n JOB’ni doʻstlaringizga tanishtiring.",
       "codeLabel": "Tavsiya kodi",
-      "shareText": "Visa&Job’da vizangizga mos ish toping. Tavsiya kodi: {code}",
-      "shareTitle": "Visa&Job tezkor roʻyxat",
+      "shareText": "VISA n JOB’da vizangizga mos ish toping. Tavsiya kodi: {code}",
+      "shareTitle": "VISA n JOB tezkor roʻyxat",
       "share": "Ulashish",
       "copyLink": "Havolani nusxalash",
       "copied": "Nusxalandi",

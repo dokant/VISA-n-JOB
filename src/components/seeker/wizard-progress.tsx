@@ -21,10 +21,10 @@ export function WizardProgress({
   const t = useTranslations("seeker.register.progress");
   return (
     <div
-      className="sticky top-16 z-30 border-b border-navy/8 bg-white/82 backdrop-blur-xl md:top-19"
+      className="sticky top-16 z-30 border-b border-navy/8 bg-white/82 backdrop-blur-nav backdrop-saturate-160 md:top-19"
       data-testid="wizard-progress"
     >
-      <div className="mx-auto grid max-w-180 gap-2 px-gutter py-3 box-content">
+      <div className="mx-auto grid max-w-xl gap-2 px-gutter py-3 box-content">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-caption font-semibold text-n700">
             <span data-testid="wizard-progress-count">

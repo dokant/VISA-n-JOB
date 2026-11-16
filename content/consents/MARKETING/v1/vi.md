@@ -2,7 +2,7 @@
 
 [전문가 검토 필요] (Cần chuyên gia xem xét) Văn bản đồng ý này là bản nháp, sẽ được hoàn thiện sau khi chuyên gia pháp lý xem xét.
 
-Bạn đồng ý để Visa&Job gửi thông tin việc làm mới và tin tức về chế độ visa qua ứng dụng nhắn tin và tin nhắn.
+Bạn đồng ý để VISA n JOB gửi thông tin việc làm mới và tin tức về chế độ visa qua ứng dụng nhắn tin và tin nhắn.
 
 - Sử dụng: số điện thoại, thông tin nhắn tin, ngôn ngữ
 - Không đồng ý cũng không ảnh hưởng đến việc đăng ký và sử dụng dịch vụ. Có thể rút lại bất cứ lúc nào ở Trang của tôi.

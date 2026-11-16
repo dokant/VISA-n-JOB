@@ -134,7 +134,7 @@ export function QuickRegisterForm({
             <option value="">{tc("common.select.placeholder")}</option>
             {visas.map((v) => (
               <option key={v.code} value={v.code}>
-                {[v.code, tc(v.nameKey)].join(" ")}
+                {v.isStatusCode ? [v.code, tc(v.nameKey)].join(" ") : tc(v.nameKey)}
               </option>
             ))}
           </NativeSelect>
@@ -142,7 +142,7 @@ export function QuickRegisterForm({
       </FormField>
       {visa ? (
         <p className="-mt-3 text-dense text-n700">
-          <VisaLabel code={visa.code} nameKey={visa.nameKey} />
+          <VisaLabel code={visa.code} nameKey={visa.nameKey} showCode={visa.isStatusCode} />
         </p>
       ) : null}
       {blocked ? (

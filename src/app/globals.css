@@ -233,6 +233,8 @@ html:lang(zh) {
 
   /* 3.1 glass button blur */
   --blur-glass: 14px;
+  /* 2.2.2 nav / WizardProgress / wizard bottom bar blur (v2.7) */
+  --blur-nav: 22px;
 
   /* 2.4 section rhythm (overridden at <=760px below) */
   --spacing-section: clamp(64px, 8vw, 132px);
