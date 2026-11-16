@@ -93,6 +93,14 @@
     "employerRequest": {
       "title": "Ishga olish so'rovi",
       "description": "VISA n JOB ga kerakli xodimlar va ish sharoitlarini ayting."
+    },
+    "jobs": {
+      "title": "Tavsiya etilgan ishlar",
+      "description": "VISA n JOB xodimlari tekshirgan anonim ish oʻrinlari. Suhbat soʻrovlarini VISA n JOB qabul qiladi."
+    },
+    "jobDetail": {
+      "title": "Tavsiya etilgan ish tafsilotlari",
+      "description": "VISA n JOB xodimlari tekshirgan anonim ish oʻrni."
     }
   },
   "common": {
@@ -475,6 +483,74 @@
       "lead": "Yashash maqomini oʻzgartirish holatlarini shaxsni aniqlab boʻlmaydigan shaklda taqdim etamiz.",
       "emptyTitle": "Holatlar tayyorlanmoqda",
       "emptyBody": "Faqat tekshirilgan holatlar eʼlon qilinadi."
+    },
+    "jobs": {
+      "eyebrow": "Tavsiya etilgan ishlar",
+      "title": "Tavsiya etilgan ishlar",
+      "lead": "VISA n JOB xodimlari shaxsan tekshirgan ishlar. Kompaniya nomi va aloqa maʼlumotlari koʻrsatilmaydi, suhbat soʻrovingizni VISA n JOB qabul qilib yoʻl-yoʻriq beradi.",
+      "operatorNote": "Suhbat soʻrovi kompaniyaga emas, VISA n JOB xodimlariga yuboriladi. Kompaniyalar bilan aloqa faqat VISA n JOB orqali.",
+      "blindNote": "Kompaniya nomi, manzili va aloqa maʼlumotlari koʻrsatilmaydi.",
+      "empty": "Hozircha koʻrsatiladigan ish yoʻq. Tezkor roʻyxatdan oʻting, sizga mos ishlar haqida xabar beramiz.",
+      "emptyCta": "Tezkor roʻyxat",
+      "verified": "Tekshirilgan",
+      "viewDetail": "Batafsil",
+      "back": "Roʻyxatga qaytish",
+      "listLabel": "Tavsiya etilgan ishlar roʻyxati",
+      "facts": {
+        "region": "Hudud",
+        "industry": "Soha",
+        "role": "Lavozim",
+        "pay": "Oylik maosh (soliqdan oldin)",
+        "overtime": "Qoʻshimcha ish",
+        "dormitory": "Turar joy",
+        "meals": "Ovqat",
+        "shift": "Smena",
+        "headcount": "Kerakli kishilar soni",
+        "visas": "Mos vizalar",
+        "placementRegNo": "Ishga joylashtirish faoliyati roʻyxat raqami"
+      },
+      "pay": {
+        "range": "{min} ~ {max}",
+        "from": "{min} dan"
+      },
+      "headcount": "{count} kishi",
+      "notSpecified": "Keyinroq maʼlum qilinadi",
+      "overtime": {
+        "NONE": "Yoʻq",
+        "SOMETIMES": "Baʼzan",
+        "REGULAR": "Tez-tez"
+      },
+      "dormitory": {
+        "NONE": "Yoʻq",
+        "FREE": "Bepul",
+        "PAID": "Pullik"
+      },
+      "meals": {
+        "PROVIDED": "Bor",
+        "PARTIAL": "Qisman",
+        "NONE": "Yoʻq"
+      },
+      "shift": {
+        "DAY": "Kunduzgi smena",
+        "TWO_SHIFT": "2 smena",
+        "THREE_SHIFT": "3 smena",
+        "NIGHT": "Tungi smena"
+      },
+      "interest": {
+        "title": "Suhbatga yozilish",
+        "button": "Suhbatga yozilish",
+        "submitting": "Yuborilmoqda…",
+        "how": "Yozilganingizdan soʻng VISA n JOB xodimi vizangiz va shartlaringizni tekshirib, siz bilan bogʻlanadi. Aloqa maʼlumotlaringiz kompaniyaga berilmaydi.",
+        "anonymous": "Suhbatga faqat roʻyxatdan oʻtgan ish izlovchilar yozila oladi. 1 daqiqalik tezkor roʻyxatdan soʻng shu ishga qaytasiz.",
+        "register": "Tezkor roʻyxat va suhbatga yozilish",
+        "login": "Roʻyxatdan oʻtganmisiz? Kirish",
+        "notEligibleTitle": "Hozirgi vizangiz bilan bu ishga suhbatga yozila olmaysiz",
+        "notEligibleBody": "VISA n JOB xodimi vizangizga mos ish topishda yordam beradi.",
+        "done": "Suhbat soʻrovingiz qabul qilindi. VISA n JOB xodimi tekshirib, siz bilan bogʻlanadi.",
+        "already": "Siz allaqachon suhbatga yozilgansiz. VISA n JOB xodimi tekshirib, siz bilan bogʻlanadi.",
+        "blocked": "Hozir suhbatga yozilib boʻlmaydi. Maslahatga ariza qoldiring.",
+        "error": "Soʻrovni bajarib boʻlmadi. Birozdan soʻng qayta urinib koʻring."
+      }
     }
   },
   "visa": {
@@ -1121,7 +1197,8 @@
       "submit": "Tasdiqlash va roʻyxatdan oʻtish",
       "submitting": "Roʻyxatga olinmoqda…",
       "haveAccount": "Roʻyxatdan oʻtganmisiz? Kirish",
-      "fullInstead": "Toʻliq roʻyxatdan oʻtish"
+      "fullInstead": "Toʻliq roʻyxatdan oʻtish",
+      "nextNotice": "Roʻyxatdan oʻtgach, koʻrayotgan ishingizga qaytasiz."
     },
     "complete": {
       "eyebrow": "Roʻyxat yakunlandi",

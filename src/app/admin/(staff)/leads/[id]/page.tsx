@@ -134,6 +134,20 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           ) : (
             <LeadCallForm leadId={lead.id} />
           )}
+          {lead.grade === "A" && can(actor.role, "posting:manage") ? (
+            <div className="grid gap-2 border-t border-n100 pt-4">
+              <p className="text-dense text-n700">
+                리드 등급 A 리드입니다. 블라인드 공고를 만들 수 있습니다(회사 이름·연락처 비공개).
+              </p>
+              <Link
+                href={`/admin/postings/new?leadId=${lead.id}`}
+                className="inline-flex min-h-11 min-w-11 items-center text-dense font-semibold text-brand-blue-700 hover:underline"
+                data-testid="lead-posting-link"
+              >
+                블라인드 공고 만들기
+              </Link>
+            </div>
+          ) : null}
           {lead.grade === "B" ? (
             <div className="grid gap-2 border-t border-n100 pt-4">
               <p className="text-dense text-n700">

@@ -6,6 +6,7 @@
 import type {
   JobSearchStatus,
   LeadGrade,
+  PostingStatus,
   Role,
   SeekerGrade,
   SeekerStatus,
@@ -30,6 +31,7 @@ export const NAV = [
   { href: "/admin", label: "대시보드" },
   { href: "/admin/seekers", label: "구직자 검토" },
   { href: "/admin/leads", label: "리드 칸반" },
+  { href: "/admin/postings", label: "블라인드 공고" },
 ] as const;
 
 export const SEEKER_GRADE_LABEL: Record<SeekerGrade, string> = {
@@ -152,6 +154,16 @@ const ERROR_TEXT: Record<string, string> = {
   LEAD_STATE: "B등급 리드만 검증 완료로 바꿀 수 있습니다.",
   NOT_REQUESTED: "구인신청이 접수된 리드만 검증할 수 있습니다.",
   NO_COMPANY: "회사명이 없는 리드는 검증할 수 없습니다.",
+  // P2a 블라인드 공고 (R-201)
+  LEAD_NOT_FOUND: "리드를 찾을 수 없습니다. 새로고침해 주세요.",
+  LEAD_NOT_A:
+    "리드 등급 A(구인신청 + 직원 검증 완료) 리드에서만 블라인드 공고를 만들고 공개할 수 있습니다.",
+  TEXT_HAS_CONTACT: "공고 제목·직무에 전화번호·이메일·메신저 같은 연락처를 적지 마세요.",
+  TEXT_HAS_COMPANY: "공고 제목·직무에 회사 이름을 넣지 마세요(블라인드 공고).",
+  UNKNOWN_REGION: "목록에 있는 시·도와 시·군·구만 고를 수 있습니다.",
+  UNKNOWN_INDUSTRY: "목록에 있는 업종만 고를 수 있습니다.",
+  POSTING_STATE: "지금 상태에서는 할 수 없는 작업입니다. 새로고침해 주세요.",
+  NOT_VERIFIED: "직원 검증(검증자·검증 시각)이 끝나지 않은 공고는 공개할 수 없습니다.",
 };
 
 export function adminActionError(code: string): string {
@@ -298,3 +310,52 @@ export function requestRows(value: unknown): { label: string; value: string }[] 
   if (other.length > 0) rows.push({ label: REQUEST_OTHER_LABEL, value: other.join(" · ") });
   return rows;
 }
+
+// ─── 블라인드 공고 (P2a, R-201) ─────────────────────────────────────────────────────────────
+
+export const POSTING_STATUS_LABEL: Record<PostingStatus, string> = {
+  DRAFT: "작성됨",
+  PUBLISHED: "공개 중",
+  CLOSED: "마감",
+};
+
+/** Korean labels of the coded posting fields (src/schemas/admin/postings.ts). */
+export const POSTING_CODE_LABEL = {
+  dormitory: { NONE: "없음", FREE: "무료 제공", PAID: "유상 제공" },
+  meals: { PROVIDED: "제공", PARTIAL: "일부 제공", NONE: "없음" },
+  overtimeNote: { NONE: "없음", SOMETIMES: "가끔 있음", REGULAR: "자주 있음" },
+  shift: { DAY: "주간 근무", TWO_SHIFT: "2교대", THREE_SHIFT: "3교대", NIGHT: "야간 근무" },
+} as const satisfies Record<string, Record<string, string>>;
+
+export function postingCodeLabel(
+  group: keyof typeof POSTING_CODE_LABEL,
+  value: string | null | undefined,
+): string {
+  if (!value) return "—";
+  return (POSTING_CODE_LABEL[group] as Record<string, string>)[value] ?? value;
+}
+
+/** Counts with a Korean unit (STANDARD 3.5 H-3: `Intl` number + 명·건). */
+export function fmtPeople(n: number | null | undefined): string {
+  return n == null ? "—" : `${countFmt.format(n)}명`;
+}
+export function fmtCount(n: number, unit = ""): string {
+  return `${countFmt.format(n)}${unit}`;
+}
+
+/** Form field names → Korean (INVALID_INPUT feedback of the create form). */
+export const POSTING_FIELD_LABEL: Record<string, string> = {
+  blindTitle: "블라인드 제목",
+  role: "직무",
+  industryCode: "업종",
+  sido: "시·도",
+  sigungu: "시·군·구",
+  payMin: "월 급여 최저",
+  payMax: "월 급여 최고",
+  overtimeNote: "잔업",
+  dormitory: "숙소",
+  meals: "식사",
+  shift: "교대",
+  headcount: "채용 인원",
+  eligibleVisas: "채용 가능 비자",
+};

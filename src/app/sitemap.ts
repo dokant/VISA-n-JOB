@@ -27,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/guide",
     ...listGuideSlugs().map((slug) => `/guide/${slug}`),
     ...(isFeatureEnabled("FEATURE_DEMAND_MAP") ? ["/demand"] : []),
+    ...(isFeatureEnabled("FEATURE_PUBLIC_JOBS") ? ["/jobs"] : []),
   ];
 
   return paths.flatMap((path) =>

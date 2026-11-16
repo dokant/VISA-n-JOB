@@ -6,6 +6,9 @@ const DEMAND_PORT = PORT + 1;
 /** Server with FEATURE_DEMAND_MAP=true (tests read it from E2E_DEMAND_URL). */
 const demandURL = `http://127.0.0.1:${DEMAND_PORT}`;
 process.env.E2E_DEMAND_URL = demandURL;
+/** Server with FEATURE_PUBLIC_JOBS=true (P2a R-202 / R-203; tests read it from E2E_JOBS_PORT). */
+const JOBS_PORT = PORT + 2;
+process.env.E2E_JOBS_PORT = String(JOBS_PORT);
 
 // E2E runs against a production build (PLAN P0a task 5).
 // `next` resolves from node_modules/.bin because `pnpm test:e2e` puts it on PATH.
@@ -55,6 +58,17 @@ export default defineConfig({
       command: `next start --hostname 127.0.0.1 --port ${DEMAND_PORT}`,
       url: demandURL + "/ko/demand",
       env: { FEATURE_DEMAND_MAP: "true", TRUST_PROXY: "true" },
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+    {
+      // Same build with FEATURE_PUBLIC_JOBS on (R-202 / R-203 flag-on checks). The default server
+      // above keeps the flag off, so the SC-07 default regression runs there.
+      command: `next start --hostname 127.0.0.1 --port ${JOBS_PORT}`,
+      url: `http://127.0.0.1:${JOBS_PORT}/ko/jobs`,
+      env: { FEATURE_PUBLIC_JOBS: "true", TRUST_PROXY: "true" },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       stdout: "pipe",

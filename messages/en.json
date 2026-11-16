@@ -93,6 +93,14 @@
     "employerRequest": {
       "title": "Hiring request",
       "description": "Tell VISA n JOB the staff you need and the working conditions."
+    },
+    "jobs": {
+      "title": "Recommended jobs",
+      "description": "Blind job listings checked by VISA n JOB staff. Interview requests go to VISA n JOB."
+    },
+    "jobDetail": {
+      "title": "Recommended job details",
+      "description": "A blind job listing checked by VISA n JOB staff."
     }
   },
   "common": {
@@ -475,6 +483,74 @@
       "lead": "We will introduce status change cases in a form where no individual can be identified.",
       "emptyTitle": "Cases are being prepared",
       "emptyBody": "Only reviewed cases will be published."
+    },
+    "jobs": {
+      "eyebrow": "Recommended jobs",
+      "title": "Recommended jobs",
+      "lead": "Jobs checked in person by VISA n JOB staff. Company names and contact details are not shown, and VISA n JOB receives and handles your interview request.",
+      "operatorNote": "Your interview request goes to VISA n JOB staff, not to the company. All contact with companies goes through VISA n JOB only.",
+      "blindNote": "Company name, address and contact details are not shown.",
+      "empty": "There are no jobs to show right now. Register quickly and we will let you know about jobs that fit you.",
+      "emptyCta": "Quick registration",
+      "verified": "Verified",
+      "viewDetail": "View details",
+      "back": "Back to list",
+      "listLabel": "Recommended job list",
+      "facts": {
+        "region": "Location",
+        "industry": "Industry",
+        "role": "Job",
+        "pay": "Monthly pay (before tax)",
+        "overtime": "Overtime",
+        "dormitory": "Housing",
+        "meals": "Meals",
+        "shift": "Shifts",
+        "headcount": "Openings",
+        "visas": "Visas accepted",
+        "placementRegNo": "Job placement business registration no."
+      },
+      "pay": {
+        "range": "{min} – {max}",
+        "from": "From {min}"
+      },
+      "headcount": "{count, plural, one {# person} other {# people}}",
+      "notSpecified": "To be announced",
+      "overtime": {
+        "NONE": "None",
+        "SOMETIMES": "Sometimes",
+        "REGULAR": "Often"
+      },
+      "dormitory": {
+        "NONE": "None",
+        "FREE": "Provided free",
+        "PAID": "Provided (paid)"
+      },
+      "meals": {
+        "PROVIDED": "Provided",
+        "PARTIAL": "Partly provided",
+        "NONE": "None"
+      },
+      "shift": {
+        "DAY": "Day shift",
+        "TWO_SHIFT": "2 shifts",
+        "THREE_SHIFT": "3 shifts",
+        "NIGHT": "Night shift"
+      },
+      "interest": {
+        "title": "Interview request",
+        "button": "Request an interview",
+        "submitting": "Sending…",
+        "how": "After you send the request, VISA n JOB staff check your visa and conditions and contact you. Your contact details are not given to the company.",
+        "anonymous": "Only registered job seekers can request an interview. After the 1-minute quick registration you come back to this job.",
+        "register": "Register quickly and request an interview",
+        "login": "Already registered? Log in",
+        "notEligibleTitle": "You cannot request an interview for this job with your current visa",
+        "notEligibleBody": "VISA n JOB staff will help you find work that your visa allows.",
+        "done": "Your interview request has been received. VISA n JOB staff will check it and contact you.",
+        "already": "You have already requested an interview. VISA n JOB staff will check it and contact you.",
+        "blocked": "You cannot request an interview right now. Please request a consultation.",
+        "error": "We could not process your request. Please try again in a moment."
+      }
     }
   },
   "visa": {
@@ -1121,7 +1197,8 @@
       "submit": "Verify and register",
       "submitting": "Registering…",
       "haveAccount": "Already registered? Sign in",
-      "fullInstead": "Use the full registration"
+      "fullInstead": "Use the full registration",
+      "nextNotice": "When you finish, you will return to the job you were viewing."
     },
     "complete": {
       "eyebrow": "Registration complete",

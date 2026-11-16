@@ -165,3 +165,18 @@ export const LEAD_PRIORITY_WEIGHTS = {
   newLeadBonus: 2,
   newLeadDays: 7,
 } as const;
+
+// ─── Blind postings (P2a: R-201 ~ R-203) ────────────────────────────────────────────────────
+
+/** R-201: storage bounds of the staff-written posting text (S-53), not business values. */
+export const POSTING_TITLE_MAX = 60;
+export const POSTING_ROLE_MAX = 40;
+
+/** R-201: upper bound of 채용 인원 on one posting (input sanity bound, 운영 수치). */
+export const POSTING_HEADCOUNT_MAX = 999;
+
+/** R-201: upper bound of a monthly pay figure in KRW (input sanity bound, 운영 수치). */
+export const POSTING_PAY_MAX_KRW = 100_000_000;
+
+/** R-202: the public /jobs list shows at most this many postings (newest first). */
+export const PUBLIC_POSTING_LIST_MAX = 50;

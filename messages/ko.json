@@ -93,6 +93,14 @@
     "employerRequest": {
       "title": "구인 의뢰",
       "description": "필요한 인력과 근무 조건을 비자앤잡에 알려 주세요."
+    },
+    "jobs": {
+      "title": "추천 일자리",
+      "description": "비자앤잡 담당자가 확인한 블라인드 일자리입니다. 면접 신청은 비자앤잡이 받습니다."
+    },
+    "jobDetail": {
+      "title": "추천 일자리 상세",
+      "description": "비자앤잡 담당자가 확인한 블라인드 일자리입니다."
     }
   },
   "common": {
@@ -475,6 +483,74 @@
       "lead": "체류자격 변경 사례를 개인을 알아볼 수 없게 정리해 소개할 예정입니다.",
       "emptyTitle": "사례를 준비하고 있습니다",
       "emptyBody": "검토를 마친 사례만 게시합니다."
+    },
+    "jobs": {
+      "eyebrow": "추천 일자리",
+      "title": "추천 일자리",
+      "lead": "비자앤잡 담당자가 직접 확인한 일자리입니다. 회사 이름과 연락처는 공개하지 않고, 면접 신청은 비자앤잡이 받아 안내합니다.",
+      "operatorNote": "면접 신청은 기업이 아니라 비자앤잡 담당자에게 전달됩니다. 기업과의 연락은 비자앤잡을 통해서만 진행합니다.",
+      "blindNote": "회사 이름·주소·연락처는 공개하지 않습니다.",
+      "empty": "지금 보여 드릴 일자리가 없습니다. 간편 등록을 해 두면 맞는 일자리를 안내해 드립니다.",
+      "emptyCta": "간편 등록",
+      "verified": "검증 완료",
+      "viewDetail": "자세히 보기",
+      "back": "목록으로",
+      "listLabel": "추천 일자리 목록",
+      "facts": {
+        "region": "지역",
+        "industry": "업종",
+        "role": "직무",
+        "pay": "월 급여(세전)",
+        "overtime": "잔업",
+        "dormitory": "숙소",
+        "meals": "식사",
+        "shift": "교대",
+        "headcount": "채용 인원",
+        "visas": "채용 가능 비자",
+        "placementRegNo": "직업소개사업 등록번호"
+      },
+      "pay": {
+        "range": "{min} ~ {max}",
+        "from": "{min} 이상"
+      },
+      "headcount": "{count}명",
+      "notSpecified": "안내 예정",
+      "overtime": {
+        "NONE": "없음",
+        "SOMETIMES": "가끔 있음",
+        "REGULAR": "자주 있음"
+      },
+      "dormitory": {
+        "NONE": "없음",
+        "FREE": "무료 제공",
+        "PAID": "유상 제공"
+      },
+      "meals": {
+        "PROVIDED": "제공",
+        "PARTIAL": "일부 제공",
+        "NONE": "없음"
+      },
+      "shift": {
+        "DAY": "주간 근무",
+        "TWO_SHIFT": "2교대",
+        "THREE_SHIFT": "3교대",
+        "NIGHT": "야간 근무"
+      },
+      "interest": {
+        "title": "면접 신청",
+        "button": "면접 신청",
+        "submitting": "신청하는 중…",
+        "how": "신청하면 비자앤잡 담당자가 내 비자와 조건을 확인한 뒤 연락드립니다. 기업에 내 연락처가 전달되지 않습니다.",
+        "anonymous": "면접 신청은 등록한 구직자만 할 수 있습니다. 1분 간편 등록을 마치면 이 일자리로 돌아옵니다.",
+        "register": "간편 등록하고 면접 신청",
+        "login": "이미 등록했나요? 로그인",
+        "notEligibleTitle": "이 일자리는 내 비자로 바로 면접 신청을 할 수 없습니다",
+        "notEligibleBody": "비자앤잡 담당자가 내 비자로 가능한 일을 함께 찾아 드립니다.",
+        "done": "면접 신청이 접수되었습니다. 비자앤잡 담당자가 확인한 뒤 연락드립니다.",
+        "already": "이미 면접 신청을 했습니다. 비자앤잡 담당자가 확인한 뒤 연락드립니다.",
+        "blocked": "지금은 면접 신청을 할 수 없습니다. 상담 신청으로 문의해 주세요.",
+        "error": "신청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      }
     }
   },
   "visa": {
@@ -1121,7 +1197,8 @@
       "submit": "인증하고 등록하기",
       "submitting": "등록 중…",
       "haveAccount": "이미 등록했나요? 로그인",
-      "fullInstead": "정식 등록으로 하기"
+      "fullInstead": "정식 등록으로 하기",
+      "nextNotice": "등록을 마치면 보고 있던 일자리로 돌아갑니다."
     },
     "complete": {
       "eyebrow": "등록 완료",

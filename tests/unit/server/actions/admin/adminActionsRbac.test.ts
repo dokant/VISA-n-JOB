@@ -24,6 +24,7 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 const seekers = await import("@/server/actions/admin/seekers");
 const leads = await import("@/server/actions/admin/leads");
+const postings = await import("@/server/actions/admin/postings");
 
 afterAll(() => db.$disconnect());
 beforeEach(() => {
@@ -149,5 +150,65 @@ describe("admin server actions — permission matrix", () => {
         reason: outcome === "DNC" ? "CALL_DNC" : "CALL_NO_INTENT",
       });
     }
+  });
+
+  it("R-201: posting actions need posting:manage (STAFF_PLACEMENT·ADMIN, not STAFF_VISA)", async () => {
+    const a = await lead(uniq("act"), { grade: "A", industryCode: "C" });
+    const createForm = () => {
+      const f = fd({
+        leadId: a.id,
+        blindTitle: "서울 제조업 생산직",
+        role: "생산직",
+        industryCode: "C",
+        sido: "SEOUL",
+        sigungu: "",
+        payMin: "2500000",
+        payMax: "",
+        overtimeNote: "",
+        dormitory: "NONE",
+        meals: "",
+        shift: "",
+        headcount: "2",
+      });
+      f.append("eligibleVisas", "F-4");
+      return f;
+    };
+    expect(await postings.createPostingAction(null, createForm())).toEqual(UNAUTHENTICATED);
+    await as("STAFF_VISA");
+    expect(await postings.createPostingAction(null, createForm())).toEqual(FORBIDDEN);
+    expect(await db.jobPosting.count({ where: { leadId: a.id } })).toBe(0);
+
+    await as("STAFF_PLACEMENT");
+    const created = await postings.createPostingAction(null, createForm());
+    expect(created).toMatchObject({ ok: true });
+    const postingId = (created as { postingId: string }).postingId;
+
+    await as("STAFF_VISA");
+    for (const call of [
+      postings.verifyPostingAction,
+      postings.publishPostingAction,
+      postings.closePostingAction,
+    ]) {
+      expect(await call(null, fd({ postingId }))).toEqual(FORBIDDEN);
+    }
+
+    await as("STAFF_PLACEMENT");
+    // WO §15-4 through the action: unverified publish is refused.
+    expect(await postings.publishPostingAction(null, fd({ postingId }))).toEqual({
+      ok: false,
+      code: "NOT_VERIFIED",
+    });
+    expect(await postings.verifyPostingAction(null, fd({ postingId }))).toMatchObject({ ok: true });
+    await as("ADMIN");
+    expect(await postings.publishPostingAction(null, fd({ postingId }))).toMatchObject({
+      ok: true,
+    });
+    expect(await auditRows(postingId, "POSTING_PUBLISH")).toHaveLength(1);
+
+    // BR-05 through the action: a C lead is refused.
+    const c = await lead(uniq("act"), { grade: "C" });
+    const f = createForm();
+    f.set("leadId", c.id);
+    expect(await postings.createPostingAction(null, f)).toEqual({ ok: false, code: "LEAD_NOT_A" });
   });
 });

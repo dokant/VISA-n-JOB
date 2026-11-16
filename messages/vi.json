@@ -93,6 +93,14 @@
     "employerRequest": {
       "title": "Yêu cầu tuyển dụng",
       "description": "Hãy cho VISA n JOB biết nhân lực cần tuyển và điều kiện làm việc."
+    },
+    "jobs": {
+      "title": "Việc làm đề xuất",
+      "description": "Việc làm ẩn danh đã được nhân viên VISA n JOB kiểm tra. VISA n JOB tiếp nhận yêu cầu phỏng vấn."
+    },
+    "jobDetail": {
+      "title": "Chi tiết việc làm đề xuất",
+      "description": "Việc làm ẩn danh đã được nhân viên VISA n JOB kiểm tra."
     }
   },
   "common": {
@@ -475,6 +483,74 @@
       "lead": "Chúng tôi sẽ giới thiệu các trường hợp chuyển đổi tư cách lưu trú ở dạng không thể nhận diện cá nhân.",
       "emptyTitle": "Đang chuẩn bị các trường hợp",
       "emptyBody": "Chỉ đăng các trường hợp đã được xem xét."
+    },
+    "jobs": {
+      "eyebrow": "Việc làm đề xuất",
+      "title": "Việc làm đề xuất",
+      "lead": "Các việc làm do nhân viên VISA n JOB trực tiếp kiểm tra. Tên công ty và thông tin liên hệ không được công khai; VISA n JOB tiếp nhận và hướng dẫn yêu cầu phỏng vấn của bạn.",
+      "operatorNote": "Yêu cầu phỏng vấn được gửi đến nhân viên VISA n JOB, không gửi đến doanh nghiệp. Mọi liên lạc với doanh nghiệp chỉ thông qua VISA n JOB.",
+      "blindNote": "Tên công ty, địa chỉ và thông tin liên hệ không được công khai.",
+      "empty": "Hiện chưa có việc làm để hiển thị. Hãy đăng ký nhanh, chúng tôi sẽ giới thiệu việc phù hợp với bạn.",
+      "emptyCta": "Đăng ký nhanh",
+      "verified": "Đã xác minh",
+      "viewDetail": "Xem chi tiết",
+      "back": "Về danh sách",
+      "listLabel": "Danh sách việc làm đề xuất",
+      "facts": {
+        "region": "Khu vực",
+        "industry": "Ngành",
+        "role": "Công việc",
+        "pay": "Lương tháng (trước thuế)",
+        "overtime": "Làm thêm giờ",
+        "dormitory": "Chỗ ở",
+        "meals": "Bữa ăn",
+        "shift": "Ca làm",
+        "headcount": "Số người tuyển",
+        "visas": "Visa được nhận",
+        "placementRegNo": "Số đăng ký kinh doanh giới thiệu việc làm"
+      },
+      "pay": {
+        "range": "{min} ~ {max}",
+        "from": "Từ {min}"
+      },
+      "headcount": "{count} người",
+      "notSpecified": "Sẽ thông báo",
+      "overtime": {
+        "NONE": "Không có",
+        "SOMETIMES": "Thỉnh thoảng",
+        "REGULAR": "Thường xuyên"
+      },
+      "dormitory": {
+        "NONE": "Không có",
+        "FREE": "Miễn phí",
+        "PAID": "Có tính phí"
+      },
+      "meals": {
+        "PROVIDED": "Có",
+        "PARTIAL": "Một phần",
+        "NONE": "Không có"
+      },
+      "shift": {
+        "DAY": "Ca ngày",
+        "TWO_SHIFT": "2 ca",
+        "THREE_SHIFT": "3 ca",
+        "NIGHT": "Ca đêm"
+      },
+      "interest": {
+        "title": "Đăng ký phỏng vấn",
+        "button": "Đăng ký phỏng vấn",
+        "submitting": "Đang gửi…",
+        "how": "Sau khi đăng ký, nhân viên VISA n JOB sẽ kiểm tra visa và điều kiện của bạn rồi liên hệ. Thông tin liên hệ của bạn không được chuyển cho doanh nghiệp.",
+        "anonymous": "Chỉ người tìm việc đã đăng ký mới có thể đăng ký phỏng vấn. Sau khi đăng ký nhanh 1 phút, bạn sẽ quay lại việc làm này.",
+        "register": "Đăng ký nhanh và đăng ký phỏng vấn",
+        "login": "Đã đăng ký? Đăng nhập",
+        "notEligibleTitle": "Bạn chưa thể đăng ký phỏng vấn việc này với visa hiện tại",
+        "notEligibleBody": "Nhân viên VISA n JOB sẽ cùng bạn tìm công việc phù hợp với visa của bạn.",
+        "done": "Đã tiếp nhận yêu cầu phỏng vấn. Nhân viên VISA n JOB sẽ kiểm tra và liên hệ với bạn.",
+        "already": "Bạn đã đăng ký phỏng vấn rồi. Nhân viên VISA n JOB sẽ kiểm tra và liên hệ với bạn.",
+        "blocked": "Hiện bạn chưa thể đăng ký phỏng vấn. Vui lòng yêu cầu tư vấn.",
+        "error": "Không thể xử lý yêu cầu. Vui lòng thử lại sau."
+      }
     }
   },
   "visa": {
@@ -1121,7 +1197,8 @@
       "submit": "Xác thực và đăng ký",
       "submitting": "Đang đăng ký…",
       "haveAccount": "Đã đăng ký? Đăng nhập",
-      "fullInstead": "Dùng đăng ký đầy đủ"
+      "fullInstead": "Dùng đăng ký đầy đủ",
+      "nextNotice": "Đăng ký xong, bạn sẽ quay lại việc làm đang xem."
     },
     "complete": {
       "eyebrow": "Hoàn tất đăng ký",

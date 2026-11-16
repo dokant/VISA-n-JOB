@@ -31,11 +31,14 @@ export function QuickRegisterForm({
   sido,
   initialSido,
   documents,
+  next,
 }: {
   visas: WizardVisaOption[];
   sido: CodeOption[];
   initialSido: string;
   documents: Partial<Record<RegistrationConsent, ReactNode>>;
+  /** R-203: locale-less path to return to after signup (e.g. the posting of 면접 신청). */
+  next?: string;
 }) {
   const t = useTranslations("seeker.quick");
   const tc = useTranslations();
@@ -67,7 +70,7 @@ export function QuickRegisterForm({
   const submit = form.handleSubmit((values) =>
     startTransition(async () => {
       setState(null);
-      const r = await quickRegister(values);
+      const r = await quickRegister(values, next);
       if (r.ok) {
         window.location.assign(r.redirectTo);
         return;

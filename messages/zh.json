@@ -93,6 +93,14 @@
     "employerRequest": {
       "title": "招聘委托",
       "description": "请告诉 VISA n JOB 所需人员和工作条件。"
+    },
+    "jobs": {
+      "title": "推荐工作",
+      "description": "经 VISA n JOB 工作人员确认的匿名职位。面试申请由 VISA n JOB 受理。"
+    },
+    "jobDetail": {
+      "title": "推荐工作详情",
+      "description": "经 VISA n JOB 工作人员确认的匿名职位。"
     }
   },
   "common": {
@@ -475,6 +483,74 @@
       "lead": "我们将以无法识别个人的方式整理并介绍居留资格变更案例。",
       "emptyTitle": "案例正在准备中",
       "emptyBody": "只公布经过审核的案例。"
+    },
+    "jobs": {
+      "eyebrow": "推荐工作",
+      "title": "推荐工作",
+      "lead": "由 VISA n JOB 工作人员亲自确认的工作。不公开公司名称和联系方式，面试申请由 VISA n JOB 受理并为您安排。",
+      "operatorNote": "面试申请会转给 VISA n JOB 工作人员，而不是企业。与企业的联系仅通过 VISA n JOB 进行。",
+      "blindNote": "不公开公司名称、地址和联系方式。",
+      "empty": "目前没有可显示的工作。先快速登记，我们会为您推荐合适的工作。",
+      "emptyCta": "快速登记",
+      "verified": "已确认",
+      "viewDetail": "查看详情",
+      "back": "返回列表",
+      "listLabel": "推荐工作列表",
+      "facts": {
+        "region": "地区",
+        "industry": "行业",
+        "role": "职务",
+        "pay": "月薪（税前）",
+        "overtime": "加班",
+        "dormitory": "住宿",
+        "meals": "餐食",
+        "shift": "倒班",
+        "headcount": "招聘人数",
+        "visas": "可招聘签证",
+        "placementRegNo": "职业介绍业务登记号"
+      },
+      "pay": {
+        "range": "{min} ~ {max}",
+        "from": "{min} 以上"
+      },
+      "headcount": "{count} 人",
+      "notSpecified": "待定",
+      "overtime": {
+        "NONE": "无",
+        "SOMETIMES": "偶尔",
+        "REGULAR": "经常"
+      },
+      "dormitory": {
+        "NONE": "无",
+        "FREE": "免费提供",
+        "PAID": "收费提供"
+      },
+      "meals": {
+        "PROVIDED": "提供",
+        "PARTIAL": "部分提供",
+        "NONE": "无"
+      },
+      "shift": {
+        "DAY": "白班",
+        "TWO_SHIFT": "两班倒",
+        "THREE_SHIFT": "三班倒",
+        "NIGHT": "夜班"
+      },
+      "interest": {
+        "title": "面试申请",
+        "button": "申请面试",
+        "submitting": "正在提交…",
+        "how": "提交后，VISA n JOB 工作人员会确认您的签证和条件，然后与您联系。您的联系方式不会提供给企业。",
+        "anonymous": "只有已登记的求职者才能申请面试。完成 1 分钟快速登记后，会回到这个工作页面。",
+        "register": "快速登记并申请面试",
+        "login": "已经登记？登录",
+        "notEligibleTitle": "以您目前的签证无法直接申请这个工作的面试",
+        "notEligibleBody": "VISA n JOB 工作人员会和您一起寻找您的签证可以做的工作。",
+        "done": "面试申请已受理。VISA n JOB 工作人员确认后会与您联系。",
+        "already": "您已经申请过面试。VISA n JOB 工作人员确认后会与您联系。",
+        "blocked": "目前无法申请面试。请申请咨询。",
+        "error": "无法处理您的申请。请稍后再试。"
+      }
     }
   },
   "visa": {
@@ -1121,7 +1197,8 @@
       "submit": "验证并登记",
       "submitting": "正在登记…",
       "haveAccount": "已经登记？登录",
-      "fullInstead": "使用正式登记"
+      "fullInstead": "使用正式登记",
+      "nextNotice": "登记完成后会回到您正在查看的工作。"
     },
     "complete": {
       "eyebrow": "登记完成",

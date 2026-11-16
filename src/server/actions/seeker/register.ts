@@ -6,6 +6,7 @@ import { cookies, headers } from "next/headers";
 import { signIn } from "@/auth";
 import { type Locale, defaultLocale, locales } from "@/i18n/locales";
 import { createSeekerSignupProof, sendPhoneOtp } from "@/lib/authCredentials";
+import { safeNextPath } from "@/lib/authGuard";
 import { clientIp } from "@/lib/rateLimit";
 import { type EntryParams, quickSignup, startWizardAccount } from "@/lib/seeker/account";
 import { REF_COOKIE, SRC_COOKIE } from "@/lib/seeker/referral";
@@ -125,8 +126,11 @@ export async function startRegistration(input: unknown): Promise<RegisterActionS
   return { ok: true, redirectTo: `/${v.locale}/seeker/register` };
 }
 
-/** 간편 등록 (R-105): one screen, then the completion screen (R-112). */
-export async function quickRegister(input: unknown): Promise<RegisterActionState> {
+/**
+ * 간편 등록 (R-105): one screen, then the completion screen (R-112). With `next` (R-203: 면접 신청 from
+ * a posting, `?next=` on the page) the browser returns to that same-origin path instead.
+ */
+export async function quickRegister(input: unknown, next?: unknown): Promise<RegisterActionState> {
   // rbac: public — 간편 등록 (STANDARD 4.5 공개 예외, OTP로 본인 번호 확인)
   const parsed = quickSchema.safeParse(input);
   if (!parsed.success) {
@@ -152,10 +156,8 @@ export async function quickRegister(input: unknown): Promise<RegisterActionState
   const failed = await signInSeekerById(r.userId);
   if (failed) return { ok: false, code: failed };
   const locale = parsed.data.locale;
-  return {
-    ok: true,
-    redirectTo: r.created ? `/${locale}/seeker/register/complete` : `/${locale}/seeker/me`,
-  };
+  const fallback = r.created ? "/seeker/register/complete" : "/seeker/me";
+  return { ok: true, redirectTo: `/${locale}${safeNextPath(next, fallback)}` };
 }
 
 const STEP_IDS: readonly StepId[] = ["1", "2", "3a", "3b", "4", "5a", "5b", "6", "7"];

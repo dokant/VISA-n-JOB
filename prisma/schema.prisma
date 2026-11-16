@@ -384,6 +384,7 @@ model JobPosting {
   company       Company       @relation(fields: [companyId], references: [id])
   leadId        String?
   lead          JobLead?      @relation(fields: [leadId], references: [id])
+  /// P2a: staff-written blind text (pii-guard checked, never the lead title or company name)
   blindTitle    String
   industryCode  String
   sido          String
@@ -391,12 +392,16 @@ model JobPosting {
   role          String
   payMin        Int
   payMax        Int?
+  /// P2a: code NONE|SOMETIMES|REGULAR (translated on screen; src/schemas/admin/postings.ts)
   overtimeNote  String?
   dormitory     String // NONE|FREE|PAID
+  /// P2a: code PROVIDED|PARTIAL|NONE
   meals         String?
+  /// P2a: code DAY|TWO_SHIFT|THREE_SHIFT|NIGHT
   shift         String?
   headcount     Int
   eligibleVisas String[]
+  /// PUBLISHED requires verifiedBy + verifiedAt + publishedAt (DB CHECK, migration posting_publish_check)
   status        PostingStatus @default(DRAFT)
   verifiedBy    String?
   verifiedAt    DateTime?
@@ -412,6 +417,8 @@ model JobPosting {
   recommendations  Recommendation[]
 
   @@index([status])
+  /// [+] P2a R-202 public list order
+  @@index([status, publishedAt])
 }
 
 // ─── Matching ─────────────────────────────────────────────────────────────────
