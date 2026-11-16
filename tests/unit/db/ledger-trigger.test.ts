@@ -12,6 +12,40 @@ afterAll(() => prisma.$disconnect());
 
 const LEDGER_ERROR = /append-only ledger/;
 
+/** Lock wait failures (55P03 lock_timeout, 57014 statement_timeout, 40P01 deadlock) — retried. */
+const LOCK_WAIT_ERROR = /55P03|57014|40P01|lock timeout|statement timeout|deadlock detected/i;
+
+/**
+ * D-1 (P1d run 2): TRUNCATE needs ACCESS EXCLUSIVE locks on the ledger table (and, with CASCADE, on
+ * every table that references it). Other test files write to those tables in parallel on the same
+ * test database, so a plain TRUNCATE could deadlock with them and Postgres sometimes chose the
+ * other file's INSERT as the victim. Run the TRUNCATE in its own transaction with a short
+ * `lock_timeout` per lock and a `statement_timeout` for the whole statement: if it cannot take
+ * every lock quickly it gives up (55P03 / 57014) well before Postgres' deadlock check
+ * (deadlock_timeout 1s) can fire in a waiting session, releases what it holds, and is retried.
+ * Once the locks are held the BEFORE TRUNCATE trigger fires and must reject the statement.
+ */
+async function truncateError(sql: string): Promise<Error> {
+  for (let attempt = 1; attempt <= 100; attempt += 1) {
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.$executeRawUnsafe(`SET LOCAL lock_timeout = '100ms'`);
+        await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '400ms'`);
+        await tx.$executeRawUnsafe(sql);
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (LOCK_WAIT_ERROR.test(message) && !LEDGER_ERROR.test(message)) {
+        await new Promise((r) => setTimeout(r, 20 + Math.floor(Math.random() * 80)));
+        continue;
+      }
+      return err instanceof Error ? err : new Error(message);
+    }
+    throw new Error(`${sql} succeeded — the append-only TRUNCATE trigger did not fire`);
+  }
+  throw new Error(`${sql}: could not take the table locks after 100 attempts`);
+}
+
 let recommendationId = "";
 let auditLogId = "";
 
@@ -78,7 +112,7 @@ describe("R-006 ledger triggers (WO15-07)", () => {
   });
 
   it("WO15-07 R-006: TRUNCATE on Recommendation fails", async () => {
-    await expect(prisma.$executeRawUnsafe(`TRUNCATE "Recommendation" CASCADE`)).rejects.toThrow(
+    expect((await truncateError(`TRUNCATE "Recommendation" CASCADE`)).message).toMatch(
       LEDGER_ERROR,
     );
   });
@@ -90,7 +124,9 @@ describe("R-006 ledger triggers (WO15-07)", () => {
     await expect(prisma.recommendation.delete({ where: { id: recommendationId } })).rejects.toThrow(
       LEDGER_ERROR,
     );
-    await expect(prisma.recommendation.deleteMany({})).rejects.toThrow(LEDGER_ERROR);
+    await expect(
+      prisma.recommendation.deleteMany({ where: { id: recommendationId } }),
+    ).rejects.toThrow(LEDGER_ERROR);
   });
 
   it("R-006: raw SQL UPDATE / DELETE / TRUNCATE on AuditLog fail", async () => {
@@ -100,14 +136,16 @@ describe("R-006 ledger triggers (WO15-07)", () => {
     await expect(
       prisma.$executeRawUnsafe(`DELETE FROM "AuditLog" WHERE id = $1`, auditLogId),
     ).rejects.toThrow(LEDGER_ERROR);
-    await expect(prisma.$executeRawUnsafe(`TRUNCATE "AuditLog"`)).rejects.toThrow(LEDGER_ERROR);
+    expect((await truncateError(`TRUNCATE "AuditLog"`)).message).toMatch(LEDGER_ERROR);
   });
 
   it("R-006: Prisma update/delete on AuditLog fail", async () => {
     await expect(
       prisma.auditLog.update({ where: { id: auditLogId }, data: { action: "X" } }),
     ).rejects.toThrow(LEDGER_ERROR);
-    await expect(prisma.auditLog.deleteMany({})).rejects.toThrow(LEDGER_ERROR);
+    await expect(prisma.auditLog.deleteMany({ where: { id: auditLogId } })).rejects.toThrow(
+      LEDGER_ERROR,
+    );
   });
 
   it("R-006: rows are unchanged and INSERT still works", async () => {

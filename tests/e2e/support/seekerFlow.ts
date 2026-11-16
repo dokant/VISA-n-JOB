@@ -15,6 +15,22 @@ export function escapeRe(text: string): RegExp {
   return new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 }
 
+/**
+ * Waits until React has hydrated the element (`__reactProps$…` is put on a server-rendered DOM node
+ * when React hydrates it). The wizard moves between screens with a full page load
+ * (`window.location.assign`), and `toHaveURL` already passes when the new document commits — before
+ * its scripts run. A chip click that lands before hydration is lost (no React handler yet), so the
+ * screen then fails validation on "다음" and the URL never changes; a "다음" click before hydration
+ * is a native form submit. Waiting here removes that race instead of lengthening timeouts.
+ */
+export async function waitForHydration(page: Page, testId: string) {
+  await expect(page.getByTestId(testId).first()).toBeAttached();
+  await page.waitForFunction((id) => {
+    const el = document.querySelector(`[data-testid="${id}"]`);
+    return !!el && Object.keys(el).some((k) => k.startsWith("__reactProps$"));
+  }, testId);
+}
+
 /** Per-test client address (per-IP limits are isolated; the E2E server trusts X-Forwarded-For). */
 export async function isolate(page: Page) {
   await page.setExtraHTTPHeaders({ "x-forwarded-for": uniqueIp() });

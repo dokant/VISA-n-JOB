@@ -10,8 +10,10 @@
  *   - the text columns stored from the item (`title`, `companyName`) pass `maskContacts`; the
  *     company name itself stays, only contact-like spans are replaced;
  *   - `rawJson` keeps the original item without the dedicated contact fields; every string passes
- *     `maskContacts`, and values under contact-like keys (tel, phone, fax, contact …) or numbers
- *     shaped like a phone number are replaced as a whole.
+ *     `maskContacts`, and values under contact-like keys (tel, phone, fax, contact …, exact word
+ *     match; counts and flags such as `phoneCount` / `faxYn` excluded) are replaced as a whole.
+ *     Numbers shaped like a phone number are replaced unless the key names a business number
+ *     (bizNum, amount, pay, salary, price …) (P1d QA O-6).
  * - Grades on re-ingest follow transitions.ts (`gradeOnReingest`): DO_NOT_CONTACT stays (R-115),
  *   ARCHIVED returns to C only when re-posted, B / A are untouched.
  * - Fields on re-ingest follow the "re-ingest field rules" in transitions.ts (P1d QA O-2): a key the
@@ -55,12 +57,14 @@ const MASK = "***";
 const CONTACT_KEY_WORDS = new Set([
   "tel",
   "telno",
+  "telephone",
   "phone",
   "phoneno",
   "fax",
   "mobile",
   "cell",
   "cellphone",
+  "handphone",
   "hp",
   "contact",
   "email",
@@ -73,18 +77,94 @@ const CONTACT_KEY_WORDS = new Set([
   "whatsapp",
   "messenger",
 ]);
+/**
+ * Words that turn a contact-word key into a count or a flag about contacts (`cellCount`,
+ * `phoneCount`, `emailVerified`, `faxYn` …, P1d QA O-6). Such a key holds no contact value itself.
+ */
+const COUNT_FLAG_KEY_WORDS = new Set([
+  "count",
+  "cnt",
+  "total",
+  "yn",
+  "flag",
+  "verified",
+  "confirmed",
+  "enabled",
+  "disabled",
+  "is",
+  "has",
+  "use",
+  "used",
+  "exists",
+  "agree",
+  "agreed",
+  "consent",
+]);
+/**
+ * Words that mark a key as a business number (registration number, money, counts). Large numbers
+ * under these keys are kept as they are, never read as phone numbers (P1d QA O-6).
+ */
+const BUSINESS_NUMBER_KEY_WORDS = new Set([
+  "biz",
+  "bizno",
+  "bizregno",
+  "bizreg",
+  "bizregnum",
+  "biznum",
+  "brn",
+  "business",
+  "amount",
+  "amt",
+  "pay",
+  "salary",
+  "wage",
+  "price",
+  "cost",
+  "fee",
+  "budget",
+  "won",
+  "krw",
+  "sales",
+  "revenue",
+  "capital",
+  "headcount",
+]);
 /** Korean key parts that mark a contact key ("연락처", "전화번호", "담당자" …). */
 const CONTACT_KEY_KO = /연락|전화|휴대|핸드폰|팩스|메일|카톡|담당자/;
+/** Korean key parts of a count or flag ("연락처수", "전화번호 여부", "이메일 인증" …). */
+const COUNT_FLAG_KEY_KO = /(?:건)?수$|개수|여부|인증|확인|동의/;
+/** Korean key parts of a business number ("사업자번호", "금액", "급여" …). */
+const BUSINESS_NUMBER_KEY_KO = /사업자|금액|급여|임금|월급|연봉|가격|비용|예산|매출|자본/;
 
-/** True when a rawJson key names contact details (`tel`, `hpNo`, `contact_phone`, `연락처` …). */
-export function isContactKey(key: string): boolean {
-  if (CONTACT_KEY_KO.test(key)) return true;
-  const words = key
+/** Lower-case word parts of a key: `cellCount` → [cell, count], `hp_no` → [hp, no]. */
+function keyWords(key: string): string[] {
+  return key
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter(Boolean);
-  return words.some((w) => CONTACT_KEY_WORDS.has(w));
+}
+
+/** True when the key is a count or a flag (`phoneCount`, `faxYn`, `연락처수` …). */
+function isCountFlagKey(key: string): boolean {
+  return COUNT_FLAG_KEY_KO.test(key) || keyWords(key).some((w) => COUNT_FLAG_KEY_WORDS.has(w));
+}
+
+/**
+ * True when a rawJson key names contact details (`tel`, `hpNo`, `contact_phone`, `연락처` …).
+ * Words must match exactly (`shipping` is not `hp`); counts and flags about contacts
+ * (`cellCount`, `emailVerified`, `faxYn`) are not contact keys.
+ */
+export function isContactKey(key: string): boolean {
+  if (isCountFlagKey(key)) return false;
+  if (CONTACT_KEY_KO.test(key)) return true;
+  return keyWords(key).some((w) => CONTACT_KEY_WORDS.has(w));
+}
+
+/** True when the key holds a business number (`bizNum`, `amount`, `salaryWon`, `budget` …). */
+export function isBusinessNumberKey(key: string): boolean {
+  if (BUSINESS_NUMBER_KEY_KO.test(key)) return true;
+  return keyWords(key).some((w) => BUSINESS_NUMBER_KEY_WORDS.has(w));
 }
 
 /**
@@ -115,8 +195,14 @@ export function sanitizeRaw(
     return maskContacts(value);
   }
   if (typeof value === "number") {
-    if (contactKey) return MASK;
     if (depth === 1 && NUMERIC_FIELDS.has(key)) return value;
+    // A count or flag about contacts (`phoneCount: 2`, also under a contact key) is not a contact
+    // value; it is masked only when the number itself reads as a phone number (P1d QA O-6).
+    const countFlag = key !== "" && isCountFlagKey(key);
+    if (contactKey && !countFlag) return MASK;
+    // Business numbers (bizNum, amount, pay, salary, price …) keep their value; the phone-shape
+    // check applies only where the key does not say what the number is (P1d QA O-6).
+    if (!contactKey && !countFlag && key !== "" && isBusinessNumberKey(key)) return value;
     return isPhoneShapedNumber(value) ? MASK : value;
   }
   if (typeof value === "boolean") return value;

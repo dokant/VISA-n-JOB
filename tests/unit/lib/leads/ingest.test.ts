@@ -7,6 +7,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
 import {
   ingestJobLeads,
+  isBusinessNumberKey,
   isContactKey,
   isPhoneShapedNumber,
   isReservedSourceRef,
@@ -283,6 +284,97 @@ describe("R-114 ingestJobLeads", () => {
     expect(sanitizeRaw({ payMax: 1_000_000_000, contact: { name: "홍", no: 7 } })).toEqual({
       payMax: 1_000_000_000,
       contact: { name: "***", no: "***" },
+    });
+  });
+
+  it("O-6 rawJson: counts / flags about contacts and business numbers are not over-masked", () => {
+    // contact words match as whole words only; counts and flags about contacts are not contacts
+    for (const key of [
+      "cellCount",
+      "phoneCount",
+      "emailVerified",
+      "faxYn",
+      "hasPhone",
+      "연락처수",
+    ]) {
+      expect(isContactKey(key)).toBe(false);
+    }
+    for (const key of ["telephone", "phoneNum", "cell_phone", "hpNo1", "휴대폰번호"]) {
+      expect(isContactKey(key)).toBe(true);
+    }
+    for (const key of [
+      "bizNum",
+      "bizRegNo",
+      "amount",
+      "payAmount",
+      "salaryWon",
+      "price",
+      "budget",
+    ]) {
+      expect(isBusinessNumberKey(key)).toBe(true);
+    }
+    for (const key of ["no", "value", "extra", "tel", "headOffice"]) {
+      expect(isBusinessNumberKey(key)).toBe(false);
+    }
+
+    expect(
+      sanitizeRaw({
+        cellCount: 2,
+        phoneCount: 3,
+        emailVerified: true,
+        faxYn: "N",
+        extra: {
+          bizNum: 1234567890,
+          amount: 250_000_000,
+          budget: 1_000_000_000,
+          salary: 1_012_345_678,
+          priceWon: 100_000_000,
+          contact: { phoneCount: 1, verified: false },
+        },
+      }),
+    ).toEqual({
+      cellCount: 2,
+      phoneCount: 3,
+      emailVerified: true,
+      faxYn: "N",
+      extra: {
+        bizNum: 1234567890,
+        amount: 250_000_000,
+        budget: 1_000_000_000,
+        salary: 1_012_345_678,
+        priceWon: 100_000_000,
+        contact: { phoneCount: 1, verified: false },
+      },
+    });
+
+    // contact values are still masked: under contact keys, under unknown keys when phone-shaped,
+    // and a phone-shaped number never survives under a count / flag key either
+    expect(
+      sanitizeRaw({
+        telephone: "02-123-4567",
+        extra: {
+          hpNo: 1098765432,
+          contact: { no: 7, phone: 1055554444 },
+          value: 1098765432,
+          memo: "문의 010-9876-5432",
+          phoneCount: 1098765432,
+          faxYn: "051-123-4567",
+          bizNum: "사업자 123-45-67890, 연락 010-1111-2222",
+        },
+        list: [1098765432],
+      }),
+    ).toEqual({
+      telephone: "***",
+      extra: {
+        hpNo: "***",
+        contact: { no: "***", phone: "***" },
+        value: "***",
+        memo: "문의 ***",
+        phoneCount: "***",
+        faxYn: "***",
+        bizNum: expect.not.stringMatching(/010|1111|2222/),
+      },
+      list: ["***"],
     });
   });
 });

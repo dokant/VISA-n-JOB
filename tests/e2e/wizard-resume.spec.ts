@@ -5,7 +5,7 @@ import { expect, type Page, test, type TestInfo } from "@playwright/test";
 import { uniqueIp, uniquePhone } from "./support/authDb";
 import { msg } from "./support/messages";
 import { ageOtpChallenges, monthFromNow, seekerProfileByPhone } from "./support/seekerDb";
-import { chip, isolate, loginUi, verifyPhone } from "./support/seekerFlow";
+import { chip, isolate, loginUi, verifyPhone, waitForHydration } from "./support/seekerFlow";
 
 // R-106 정식 위저드 / R-107 자동 저장·재진입: Step 3까지 작성 → 새 세션 재로그인 → Step 4에서 재개,
 // 입력값 유지. P1C_SHOTS=<dir> saves 375px screenshots of each screen (QA evidence, N-04).
@@ -21,9 +21,20 @@ async function shot(page: Page, info: TestInfo, name: string) {
   await page.screenshot({ path: path.join(dir, `p1c_${name}.png`), fullPage: true });
 }
 
+/**
+ * "다음" → the next screen is loaded (full page load) and hydrated before the test touches it.
+ * The URL check covers two round trips (server action save + the next document), so it gets the
+ * navigation budget rather than the 5s default assertion timeout.
+ */
 async function next(page: Page, expected: RegExp) {
   await page.getByTestId("wizard-next").click();
-  await expect(page).toHaveURL(expected);
+  await expect(page).toHaveURL(expected, { timeout: 15_000 });
+  await waitForHydration(page, "wizard-next");
+}
+
+async function open(page: Page, url: string) {
+  await page.goto(url);
+  await waitForHydration(page, "wizard-next");
 }
 
 test("R-106 R-107: Step 0~3 saved → new session → resumes at Step 4 with the answers kept", async ({
@@ -33,13 +44,14 @@ test("R-106 R-107: Step 0~3 saved → new session → resumes at Step 4 with the
   const phone = uniquePhone();
 
   // Step 0 — account + sign-in
-  await page.goto(`/${L}/seeker/register`);
+  await open(page, `/${L}/seeker/register`);
   await expect(page.getByTestId("wizard-progress-count")).toHaveText("0/7");
   await expect(page.getByTestId("no-seeker-fee")).toHaveText(t("common.noSeekerFee"));
   await verifyPhone(page, L, phone);
   await shot(page, info, "step0");
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("wizard-step-1")).toBeVisible();
+  await waitForHydration(page, "wizard-next");
   await expect(page.getByTestId("wizard-progress-count")).toHaveText("1/7");
 
   // Step 1 — 기본 정보 (field icons + summary, SC-04)
@@ -133,11 +145,12 @@ test("R-106: Step 4~7 finish the registration (E-9 → no blind consent needed)"
   page,
 }, info) => {
   const phone = uniquePhone();
-  await page.goto(`/${L}/seeker/register`);
+  await open(page, `/${L}/seeker/register`);
   await verifyPhone(page, L, phone);
   await page.getByTestId("wizard-next").click();
   const s1 = page.getByTestId("wizard-step-1");
   await expect(s1).toBeVisible();
+  await waitForHydration(page, "wizard-next");
   await s1.getByLabel(new RegExp(t("step1.legalName.label").replace(/[()]/g, "."))).fill("ALIEV B");
   await s1.locator('select[name="nationality"]').selectOption("UZ");
   await s1.locator('select[name="sido"]').selectOption({ index: 2 });
@@ -203,11 +216,12 @@ test("R-106: Step 4~7 finish the registration (E-9 → no blind consent needed)"
 
 test("R-109: a non-registrable visa in Step 2 shows the consult guidance", async ({ page }) => {
   const phone = uniquePhone();
-  await page.goto(`/${L}/seeker/register`);
+  await open(page, `/${L}/seeker/register`);
   await verifyPhone(page, L, phone);
   await page.getByTestId("wizard-next").click();
   const s1 = page.getByTestId("wizard-step-1");
   await expect(s1).toBeVisible();
+  await waitForHydration(page, "wizard-next");
   await s1.getByLabel(new RegExp(t("step1.legalName.label").replace(/[()]/g, "."))).fill("X Y");
   await s1.locator('select[name="nationality"]').selectOption("PH");
   await s1.locator('select[name="sido"]').selectOption({ index: 1 });
