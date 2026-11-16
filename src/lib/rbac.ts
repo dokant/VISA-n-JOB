@@ -9,6 +9,8 @@
  * - STAFF_PLACEMENT may see contact details but not stay (visa) case details;
  *   STAFF_VISA is the reverse; ADMIN has both (WO §11 직원 권한 분리).
  * - ADMIN holds every staff permission and is the only role that reads the audit log.
+ * - DECISIONS Q-08: `seeker:review` (구직자 등급·트랙 변경) is STAFF_VISA·ADMIN only; STAFF_PLACEMENT
+ *   only views seekers (`seeker:view`). `company:verify` stays STAFF_PLACEMENT·ADMIN.
  * - AGENCY may only submit visa work requests — no seeker DB, postings or demand raw data (WO §9.5).
  * - EMPLOYER sees blind candidates only and never any contact detail (BR-01, BR-02, PC-1).
  * - Portal self-service permissions belong to the account type; staff act through staff permissions.
@@ -58,12 +60,7 @@ export const PERMISSIONS = [
 
 export type Permission = (typeof PERMISSIONS)[number];
 
-const STAFF_COMMON: readonly Permission[] = [
-  "admin:access",
-  "staffTask:view",
-  "seeker:view",
-  "seeker:review",
-];
+const STAFF_COMMON: readonly Permission[] = ["admin:access", "staffTask:view", "seeker:view"];
 
 const PLACEMENT_ONLY: readonly Permission[] = [
   "contact:view",
@@ -76,6 +73,7 @@ const PLACEMENT_ONLY: readonly Permission[] = [
 ];
 
 const VISA_ONLY: readonly Permission[] = [
+  "seeker:review", // DECISIONS Q-08: 등급·트랙 변경은 STAFF_VISA·ADMIN만
   "visaCase:view",
   "visaCase:manage",
   "rules:edit",

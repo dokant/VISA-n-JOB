@@ -47,6 +47,20 @@ describe("R-010 rbac", () => {
     }
   });
 
+  it("Q-08: seeker:review (등급·트랙 변경) is STAFF_VISA·ADMIN only; STAFF_PLACEMENT views only", () => {
+    expect(ROLES.filter((r) => can(r, "seeker:review"))).toEqual(["STAFF_VISA", "ADMIN"]);
+    expect(ROLES.filter((r) => can(r, "seeker:view"))).toEqual([
+      "STAFF_PLACEMENT",
+      "STAFF_VISA",
+      "ADMIN",
+    ]);
+    expect(() => assertCan("STAFF_PLACEMENT", "seeker:review")).toThrow(AuthzError);
+  });
+
+  it("Q-08: company:verify stays STAFF_PLACEMENT·ADMIN", () => {
+    expect(ROLES.filter((r) => can(r, "company:verify"))).toEqual(["STAFF_PLACEMENT", "ADMIN"]);
+  });
+
   it("rules publish is STAFF_VISA 이상 (R-215)", () => {
     expect(ROLES.filter((r) => can(r, "rules:publish"))).toEqual(["STAFF_VISA", "ADMIN"]);
   });
