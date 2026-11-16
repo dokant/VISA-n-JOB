@@ -18,11 +18,17 @@ export function StaffLoginForm() {
   return (
     <form action={action} className="grid gap-5.5" data-testid="staff-login-form">
       <div className="grid gap-1.75">
-        <Label htmlFor="staff-email">이메일</Label>
+        <Label htmlFor="staff-email">
+          이메일
+          <span className="ms-1 font-normal text-n500">(필수)</span>
+        </Label>
         <Input id="staff-email" name="email" type="email" autoComplete="username" required />
       </div>
       <div className="grid gap-1.75">
-        <Label htmlFor="staff-password">비밀번호</Label>
+        <Label htmlFor="staff-password">
+          비밀번호
+          <span className="ms-1 font-normal text-n500">(필수)</span>
+        </Label>
         <Input
           id="staff-password"
           name="password"

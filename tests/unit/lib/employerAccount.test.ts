@@ -6,7 +6,13 @@ import { afterAll, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
 import { bizRegNoHashOf, registerEmployer } from "@/lib/employerAccount";
 import { verifyPassword } from "@/lib/password";
-import { employerSignupSchema, normalizeBizRegNo } from "@/schemas/auth/auth";
+import {
+  bizRegNoCheckDigit,
+  employerSignupSchema,
+  isValidBizRegNoChecksum,
+  normalizeBizRegNo,
+  validBizRegNo,
+} from "@/schemas/auth/auth";
 
 import { testPrisma } from "../db/helpers";
 import { randomBizRegNo, randomEmail } from "./authFixtures";
@@ -90,6 +96,41 @@ describe("R-123 employer signup", () => {
     expect(await registerEmployer(await input({ industryCode: "NOPE" }))).toEqual({
       ok: false,
       code: "INVALID_REFERENCE",
+    });
+  });
+
+  it("O-4: 국세청 checksum (weights 1,3,7,1,3,7,1,3,5) — computed examples", () => {
+    // 2,2,0,8,1,6,2,5,1 → 2+6+0+8+3+42+2+15+5 = 83, + floor(1*5/10)=0 → 83 → (10-3)%10 = 7
+    expect(bizRegNoCheckDigit("220816251")).toBe(7);
+    expect(isValidBizRegNoChecksum("2208162517")).toBe(true);
+    expect(isValidBizRegNoChecksum("2208162510")).toBe(false);
+    // 4,6,1,0,8,9,8,6,6 → 172, + floor(6*5/10)=3 → 175 → 5 (QA example 461-08-98661 is invalid)
+    expect(bizRegNoCheckDigit("461089866")).toBe(5);
+    expect(validBizRegNo("461-08-98665")).toBe("4610898665");
+    expect(validBizRegNo("461-08-98661")).toBeNull();
+    // 1,2,3,4,5,6,7,8,9 → 1+6+21+4+15+42+7+24+45 = 165, + floor(45/10)=4 → 169 → 1
+    expect(bizRegNoCheckDigit("123456789")).toBe(1);
+    expect(validBizRegNo("123-45-67891")).toBe("1234567891");
+    expect(validBizRegNo("12345")).toBeNull();
+  });
+
+  it("O-4: the signup schema and registerEmployer refuse a wrong check digit", async () => {
+    const parsed = employerSignupSchema.safeParse({
+      companyName: "체크섬 상사",
+      bizRegNo: "461-08-98661",
+      industryCode: "C",
+      sido: "SEOUL",
+      email: "checksum@example.test",
+      password: "long enough password",
+      passwordConfirm: "long enough password",
+    });
+    expect(parsed.success).toBe(false);
+    expect(parsed.success ? [] : parsed.error.issues.map((i) => i.message)).toContain(
+      "bizRegNoChecksum",
+    );
+    expect(await registerEmployer({ ...(await input()), bizRegNo: "461-08-98661" })).toEqual({
+      ok: false,
+      code: "INVALID_BIZ_REG_NO",
     });
   });
 

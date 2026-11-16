@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
+import { getSiteConfig } from "@/config/site.config";
 
 /** 관리자 로그인·2FA 화면 공용 틀. */
 export function AdminAuthCard({
@@ -16,7 +17,7 @@ export function AdminAuthCard({
     <main id="main" className="mx-auto grid min-h-dvh max-w-110 content-center px-gutter py-12">
       <Card className="grid gap-6">
         <div className="grid gap-2">
-          <p className="text-label text-n500">VISA n JOB 관리자</p>
+          <p className="text-label text-n500">{getSiteConfig().brand.wordmark} 관리자</p>
           <h1 className="text-h3 text-navy">{title}</h1>
           {description ? <div className="text-dense text-n700">{description}</div> : null}
         </div>

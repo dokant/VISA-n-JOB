@@ -2,6 +2,7 @@
 import { randomInt } from "node:crypto";
 
 import type { NotificationMessage, NotificationProvider } from "@/lib/notifications";
+import { bizRegNoCheckDigit } from "@/schemas/auth/auth";
 
 export function randomPhone(): string {
   return `+8210${randomInt(10_000_000, 99_999_999)}`;
@@ -11,8 +12,10 @@ export function randomEmail(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${randomInt(1e9)}@example.test`;
 }
 
+/** Random 사업자등록번호 with a valid check digit (P1b QA O-4). */
 export function randomBizRegNo(): string {
-  return String(randomInt(1_000_000_000, 9_999_999_999));
+  const firstNine = String(randomInt(100_000_000, 999_999_999));
+  return `${firstNine}${bizRegNoCheckDigit(firstNine)}`;
 }
 
 /** Captures what would be sent instead of printing it. */

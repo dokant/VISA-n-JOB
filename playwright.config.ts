@@ -42,6 +42,8 @@ export default defineConfig({
     {
       command: `next build && next start --hostname 127.0.0.1 --port ${PORT}`,
       url: baseURL + "/ko",
+      // Tests isolate per-IP limits with X-Forwarded-For, so the server trusts it (P1b QA O-1).
+      env: { TRUST_PROXY: "true" },
       reuseExistingServer: !process.env.CI,
       timeout: 300_000,
       stdout: "pipe",
@@ -52,7 +54,7 @@ export default defineConfig({
       // server is ready, so the build exists. Flags are read at request time on dynamic pages.
       command: `next start --hostname 127.0.0.1 --port ${DEMAND_PORT}`,
       url: demandURL + "/ko/demand",
-      env: { FEATURE_DEMAND_MAP: "true" },
+      env: { FEATURE_DEMAND_MAP: "true", TRUST_PROXY: "true" },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       stdout: "pipe",

@@ -619,13 +619,14 @@
     "field": {
       "required": "Please fill in this field.",
       "invalidPhone": "Please check the phone number.",
-      "invalidCode": "Enter the 6-digit code.",
+      "invalidCode": "Enter the {length}-digit code.",
       "invalidEmail": "Please check the e-mail address.",
       "invalidBizRegNo": "Enter the 10-digit business registration number.",
       "passwordTooShort": "The password must be at least {min} characters.",
       "passwordTooLong": "The password is too long.",
       "passwordMismatch": "The passwords do not match.",
-      "tooLong": "This is too long."
+      "tooLong": "This is too long.",
+      "bizRegNoChecksum": "This is not a valid business registration number. Please check it again."
     },
     "auth": {
       "invalidCredentials": "The e-mail or password is not correct.",
@@ -658,7 +659,7 @@
       },
       "code": {
         "label": "Verification code",
-        "help": "Enter the 6-digit code from the text message."
+        "help": "Enter the {length}-digit code from the text message."
       },
       "sendCode": "Get a code",
       "sending": "Sending…",

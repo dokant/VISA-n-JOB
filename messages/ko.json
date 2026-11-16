@@ -619,13 +619,14 @@
     "field": {
       "required": "입력해 주세요.",
       "invalidPhone": "휴대폰 번호를 확인해 주세요.",
-      "invalidCode": "인증번호 6자리를 입력해 주세요.",
+      "invalidCode": "인증번호 {length}자리를 입력해 주세요.",
       "invalidEmail": "이메일 주소를 확인해 주세요.",
       "invalidBizRegNo": "사업자등록번호 10자리를 입력해 주세요.",
       "passwordTooShort": "비밀번호는 {min}자 이상이어야 합니다.",
       "passwordTooLong": "비밀번호가 너무 깁니다.",
       "passwordMismatch": "비밀번호가 서로 다릅니다.",
-      "tooLong": "입력한 내용이 너무 깁니다."
+      "tooLong": "입력한 내용이 너무 깁니다.",
+      "bizRegNoChecksum": "올바른 사업자등록번호가 아닙니다. 번호를 다시 확인해 주세요."
     },
     "auth": {
       "invalidCredentials": "이메일 또는 비밀번호가 맞지 않습니다.",
@@ -658,7 +659,7 @@
       },
       "code": {
         "label": "인증번호",
-        "help": "문자로 받은 6자리 숫자를 입력해 주세요."
+        "help": "문자로 받은 {length}자리 숫자를 입력해 주세요."
       },
       "sendCode": "인증번호 받기",
       "sending": "보내는 중…",

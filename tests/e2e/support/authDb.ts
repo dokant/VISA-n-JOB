@@ -14,6 +14,7 @@ import { bizRegNoHashOf } from "@/lib/employerAccount";
 import { codeHashOf, phoneHashOf } from "@/lib/otp";
 import { hashPassword } from "@/lib/password";
 import { consumeRateLimit } from "@/lib/rateLimit";
+import { bizRegNoCheckDigit } from "@/schemas/auth/auth";
 
 // Keys and DATABASE_URL are read lazily (first query / first hash), so loading here is early enough.
 const envFile = path.join(process.cwd(), ".env");
@@ -31,8 +32,10 @@ export function uniquePhone(): string {
   return `+8210${randomInt(10_000_000, 99_999_999)}`;
 }
 
+/** Random 사업자등록번호 with a valid check digit (P1b QA O-4). */
 export function uniqueBizRegNo(): string {
-  return String(randomInt(1_000_000_000, 9_999_999_999));
+  const firstNine = String(randomInt(100_000_000, 999_999_999));
+  return `${firstNine}${bizRegNoCheckDigit(firstNine)}`;
 }
 
 /** A documentation-range address per test, so per-IP limits never leak between tests or runs. */

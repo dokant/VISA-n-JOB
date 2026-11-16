@@ -129,6 +129,8 @@ model User {
   totpSecret    String? // staff 2FA (R-118)
   /// [+] R-118: set when the staff member finished TOTP enrolment
   totpEnabledAt DateTime?
+  /// [+] R-118 (P1b QA O-3): last accepted TOTP time step; codes of this step or earlier are refused
+  totpLastStep  Int?
   /// [+] staff display name for admin screens (internal only)
   displayName   String?
   /// [+] employer account → company (R-123)

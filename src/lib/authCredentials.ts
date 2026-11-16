@@ -7,7 +7,10 @@
  * - staff-password    (R-118): e-mail + password → staff user with `twoFactorVerified = false`.
  *   The admin area stays closed until `verifyStaffTotp` succeeds and the session is upgraded with a
  *   short-lived proof (`createTotpProof` / `verifyTotpProof`).
- * Every attempt counts against the R-129 login limits (per identifier hash and per IP).
+ * R-129 login limits: every attempt counts against the per-IP limit (only when the address is
+ * trusted, see `clientIp`). The per-identifier limit counts FAILED attempts only and is cleared by a
+ * successful sign-in, so a third party cannot keep an account locked once its owner signs in
+ * (P1b QA O-7); it still stops password / code guessing.
  * Failure results carry a code only — never which part (account / password) was wrong.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -23,7 +26,14 @@ import { db } from "./db";
 import { phoneHashOf, requestOtp, verifyOtp, type OtpPurpose } from "./otp";
 import { verifyPassword } from "./password";
 import { normalizePhone } from "./phone";
-import { consumeAll, consumeRateLimit, rateLimitSubject } from "./rateLimit";
+import {
+  consumeRateLimit,
+  peekRateLimit,
+  rateLimitSubject,
+  resetRateLimit,
+  type RateLimitResult,
+  type RateLimitRule,
+} from "./rateLimit";
 import { isStaff } from "./rbac";
 
 /** What the JWT callback copies into the token (no PII: no e-mail, no phone). */
@@ -52,16 +62,43 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function loginLimits(identifier: string, ip: string) {
-  return [
-    { key: `login:id:${rateLimitSubject(identifier)}`, rule: RATE_LIMITS.loginPerIdentifier },
-    { key: `login:ip:${rateLimitSubject(ip)}`, rule: RATE_LIMITS.loginPerIp },
-  ];
+type LimitEntry = { key: string; rule: RateLimitRule };
+
+function identifierLimit(identifier: string): LimitEntry {
+  return { key: `login:id:${rateLimitSubject(identifier)}`, rule: RATE_LIMITS.loginPerIdentifier };
+}
+
+function ipLimit(ip: string | null): LimitEntry | null {
+  return ip ? { key: `login:ip:${rateLimitSubject(ip)}`, rule: RATE_LIMITS.loginPerIp } : null;
 }
 
 /** Keys checked by the Auth.js route before a credentials callback is processed (429). */
-export function loginRateLimitKeys(identifier: string, ip: string) {
-  return loginLimits(identifier, ip);
+export function loginRateLimitKeys(identifier: string, ip: string | null): LimitEntry[] {
+  const byIp = ipLimit(ip);
+  return byIp ? [identifierLimit(identifier), byIp] : [identifierLimit(identifier)];
+}
+
+/**
+ * Gate before checking credentials: refuses while the identifier holds too many failures (peek, not
+ * counted) and counts this attempt against the per-IP limit.
+ */
+async function loginGate(
+  identifier: string,
+  ip: string | null,
+  now: Date,
+): Promise<RateLimitResult> {
+  const id = identifierLimit(identifier);
+  const failures = await peekRateLimit(id.key, id.rule, now);
+  if (!failures.ok) return failures;
+  const byIp = ipLimit(ip);
+  return byIp ? consumeRateLimit(byIp.key, byIp.rule, now) : failures;
+}
+
+/** Records the outcome: a failure is counted for the identifier, a success clears its counter. */
+async function loginOutcome(identifier: string, ok: boolean, now: Date): Promise<void> {
+  const id = identifierLimit(identifier);
+  if (ok) await resetRateLimit(id.key);
+  else await consumeRateLimit(id.key, id.rule, now);
 }
 
 /** Identifier used for the login limits: hashed phone (E.164) or normalised e-mail. */
@@ -83,33 +120,37 @@ export type OtpSendResult =
 
 /** Sends a code. Public: called before anyone is signed in (IP limit + per-phone OTP limits). */
 export async function sendPhoneOtp(
-  args: { phone: string; purpose: OtpPurpose; locale: Locale; ip: string } & Clock,
+  args: { phone: string; purpose: OtpPurpose; locale: Locale; ip: string | null } & Clock,
 ): Promise<OtpSendResult> {
   const now = args.now ?? new Date();
   const e164 = normalizePhone(args.phone);
   if (!e164) return { ok: false, code: "INVALID_PHONE" };
-  const ipLimit = await consumeRateLimit(
-    `otp:ip:${rateLimitSubject(args.ip)}`,
-    RATE_LIMITS.otpRequestPerIp,
-    now,
-  );
-  if (!ipLimit.ok) return { ok: false, code: "RATE_LIMITED", retryAfterSec: ipLimit.retryAfterSec };
+  if (args.ip) {
+    const byIp = await consumeRateLimit(
+      `otp:ip:${rateLimitSubject(args.ip)}`,
+      RATE_LIMITS.otpRequestPerIp,
+      now,
+    );
+    if (!byIp.ok) return { ok: false, code: "RATE_LIMITED", retryAfterSec: byIp.retryAfterSec };
+  }
   const r = await requestOtp({ phone: e164, purpose: args.purpose, locale: args.locale, now });
   if (!r.ok) return { ok: false, code: r.code, retryAfterSec: r.retryAfterSec };
   return { ok: true, resendAvailableAt: r.resendAvailableAt, expiresAt: r.expiresAt };
 }
 
 export async function authorizeSeekerOtp(
-  args: { phone: string; code: string; ip: string } & Clock,
+  args: { phone: string; code: string; ip: string | null } & Clock,
 ): Promise<AuthResult> {
   const now = args.now ?? new Date();
   const e164 = normalizePhone(args.phone);
   if (!e164) return { ok: false, code: "INVALID_CREDENTIALS" };
   const phoneHash = phoneHashOf(e164);
-  const limited = await consumeAll(loginLimits(`phone:${phoneHash}`, args.ip), now);
+  const identifier = `phone:${phoneHash}`;
+  const limited = await loginGate(identifier, args.ip, now);
   if (!limited.ok) return { ok: false, code: "RATE_LIMITED", retryAfterSec: limited.retryAfterSec };
 
   const otp = await verifyOtp({ phone: e164, code: args.code, purpose: "LOGIN", now });
+  await loginOutcome(identifier, otp.ok, now);
   if (!otp.ok) {
     switch (otp.code) {
       case "INVALID_CODE":
@@ -135,12 +176,13 @@ export async function authorizeSeekerOtp(
 // ─── E-mail + password (R-118 staff, R-123 employer) ─────────────────────────
 
 async function authorizePassword(
-  args: { email: string; password: string; ip: string } & Clock,
+  args: { email: string; password: string; ip: string | null } & Clock,
   accept: (role: Role) => boolean,
 ): Promise<AuthResult> {
   const now = args.now ?? new Date();
   const email = normalizeEmail(args.email);
-  const limited = await consumeAll(loginLimits(`email:${email}`, args.ip), now);
+  const identifier = `email:${email}`;
+  const limited = await loginGate(identifier, args.ip, now);
   if (!limited.ok) return { ok: false, code: "RATE_LIMITED", retryAfterSec: limited.retryAfterSec };
 
   const user = email
@@ -152,6 +194,7 @@ async function authorizePassword(
   const allowed = user != null && accept(user.role);
   // Always run argon2 (dummy hash when there is no usable account): same timing either way.
   const valid = await verifyPassword(allowed ? user.password : null, args.password);
+  await loginOutcome(identifier, allowed && valid, now);
   if (!allowed || !valid) return { ok: false, code: "INVALID_CREDENTIALS" };
 
   await db.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
@@ -167,13 +210,13 @@ async function authorizePassword(
 }
 
 export function authorizeEmployerPassword(
-  args: { email: string; password: string; ip: string } & Clock,
+  args: { email: string; password: string; ip: string | null } & Clock,
 ): Promise<AuthResult> {
   return authorizePassword(args, (role) => role === "EMPLOYER");
 }
 
 export function authorizeStaffPassword(
-  args: { email: string; password: string; ip: string } & Clock,
+  args: { email: string; password: string; ip: string | null } & Clock,
 ): Promise<AuthResult> {
   return authorizePassword(args, (role) => isStaff(role));
 }
@@ -215,9 +258,23 @@ export async function startTotpEnrollment(userId: string): Promise<TotpEnrollmen
 
 export type TotpVerifyResult =
   | { ok: true }
-  | { ok: false; code: "INVALID_CODE" | "RATE_LIMITED" | "NOT_ENROLLED"; retryAfterSec?: number };
+  | {
+      ok: false;
+      code: "INVALID_CODE" | "CODE_REUSED" | "RATE_LIMITED" | "NOT_ENROLLED";
+      retryAfterSec?: number;
+    };
 
-/** Checks a TOTP code; the first valid code also finishes enrolment (`totpEnabledAt`). */
+/** TOTP time step (30-second counter) of `now`. */
+function totpStepOf(now: Date): number {
+  return Math.floor(now.getTime() / 1000 / authenticator.allOptions().step);
+}
+
+/**
+ * Checks a TOTP code; the first valid code also finishes enrolment (`totpEnabledAt`).
+ * Replay protection (P1b QA O-3): the matched time step is stored in `User.totpLastStep` with a
+ * conditional update, so a code whose step is not newer than the last accepted one is refused —
+ * even when two requests race with the same code.
+ */
 export async function verifyStaffTotp(
   args: { userId: string; code: string } & Clock,
 ): Promise<TotpVerifyResult> {
@@ -234,13 +291,17 @@ export async function verifyStaffTotp(
     select: { role: true, totpSecret: true, totpEnabledAt: true },
   });
   if (!user || !isStaff(user.role) || !user.totpSecret) return { ok: false, code: "NOT_ENROLLED" };
-  if (!totp(now).check(args.code.trim(), user.totpSecret)) {
-    return { ok: false, code: "INVALID_CODE" };
-  }
-  await db.user.update({
-    where: { id: args.userId },
-    data: { totpEnabledAt: user.totpEnabledAt ?? now, lastLoginAt: now },
+  const delta = totp(now).checkDelta(args.code.trim(), user.totpSecret);
+  if (delta === null) return { ok: false, code: "INVALID_CODE" };
+  const step = totpStepOf(now) + delta;
+  const updated = await db.user.updateMany({
+    where: {
+      id: args.userId,
+      OR: [{ totpLastStep: null }, { totpLastStep: { lt: step } }],
+    },
+    data: { totpEnabledAt: user.totpEnabledAt ?? now, lastLoginAt: now, totpLastStep: step },
   });
+  if (updated.count === 0) return { ok: false, code: "CODE_REUSED" };
   return { ok: true };
 }
 

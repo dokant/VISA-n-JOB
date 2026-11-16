@@ -2,7 +2,7 @@
  * R-104 / R-129: POST /api/seeker/otp answers 429 (STANDARD 5 error format) when a limit is hit.
  */
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { OTP_RESEND_INTERVAL_SEC } from "@/config/limits";
 import { POST } from "@/app/api/seeker/otp/route";
@@ -21,6 +21,14 @@ function post(body: unknown, ip = `198.51.100.${++n}-${Date.now()}`) {
 }
 
 describe("R-129 POST /api/seeker/otp", () => {
+  // Per-IP limits use X-Forwarded-For only behind a trusted proxy (P1b QA O-1).
+  beforeAll(() => {
+    process.env.TRUST_PROXY = "true";
+  });
+  afterAll(() => {
+    delete process.env.TRUST_PROXY;
+  });
+
   it("200 then 429 RESEND_TOO_SOON with Retry-After for the same phone", async () => {
     const phone = randomPhone();
     const first = await post({ phone, locale: "vi" });
@@ -51,5 +59,17 @@ describe("R-129 POST /api/seeker/otp", () => {
     for (let i = 0; i < 25; i++) last = await post({ phone: randomPhone() }, ip);
     expect(last?.status).toBe(429);
     expect(((await last?.json()) as { error: { code: string } }).error.code).toBe("RATE_LIMITED");
+  });
+
+  it("O-1: without TRUST_PROXY a spoofed X-Forwarded-For is ignored (no per-IP limit)", async () => {
+    delete process.env.TRUST_PROXY;
+    try {
+      const ip = `203.0.113.78-${Date.now()}`;
+      for (let i = 0; i < 25; i++) {
+        expect((await post({ phone: randomPhone() }, ip)).status).toBe(200);
+      }
+    } finally {
+      process.env.TRUST_PROXY = "true";
+    }
   });
 });

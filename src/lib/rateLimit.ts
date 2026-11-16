@@ -83,8 +83,29 @@ export async function consumeAll(
   return { ok: true, remaining };
 }
 
-/** Client address from proxy headers; "unknown" when absent (local tests). Never logged. */
-export function clientIp(headers: Pick<Headers, "get">): string {
+/** Removes every window of `key` (a successful sign-in clears its failure counter — P1b QA O-7). */
+export async function resetRateLimit(key: string, client: RawClient = db): Promise<void> {
+  await client.$queryRaw`DELETE FROM "RateLimitBucket" WHERE "key" = ${key} RETURNING "key"`;
+}
+
+type Env = Readonly<Record<string, string | undefined>>;
+
+/** `TRUST_PROXY=true` only when the app runs behind a reverse proxy that sets X-Forwarded-For. */
+export function trustProxy(env: Env = process.env): boolean {
+  return env.TRUST_PROXY === "true";
+}
+
+/**
+ * Client address for the per-IP limits, or `null` when it cannot be known safely (P1b QA O-1).
+ *
+ * - `TRUST_PROXY=true`: the first `X-Forwarded-For` value (else `X-Real-IP`), as set by the proxy.
+ * - otherwise (default): forwarding headers are client-controlled and therefore ignored. Next.js
+ *   App Router handlers and server actions expose no socket address, so the result is `null` and
+ *   callers skip the per-IP limit — the per-phone / per-e-mail limits still apply.
+ * Never logged.
+ */
+export function clientIp(headers: Pick<Headers, "get">, env: Env = process.env): string | null {
+  if (!trustProxy(env)) return null;
   const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || headers.get("x-real-ip")?.trim() || "unknown";
+  return forwarded || headers.get("x-real-ip")?.trim() || null;
 }

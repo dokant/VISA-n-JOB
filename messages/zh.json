@@ -619,13 +619,14 @@
     "field": {
       "required": "请填写此项。",
       "invalidPhone": "请检查手机号码。",
-      "invalidCode": "请输入 6 位验证码。",
+      "invalidCode": "请输入 {length} 位验证码。",
       "invalidEmail": "请检查电子邮箱地址。",
       "invalidBizRegNo": "请输入 10 位营业执照号码。",
       "passwordTooShort": "密码至少需要 {min} 个字符。",
       "passwordTooLong": "密码太长。",
       "passwordMismatch": "两次输入的密码不一致。",
-      "tooLong": "输入内容太长。"
+      "tooLong": "输入内容太长。",
+      "bizRegNoChecksum": "营业执照号码无效，请再次确认。"
     },
     "auth": {
       "invalidCredentials": "电子邮箱或密码不正确。",
@@ -658,7 +659,7 @@
       },
       "code": {
         "label": "验证码",
-        "help": "请输入短信中的 6 位数字。"
+        "help": "请输入短信中的 {length} 位数字。"
       },
       "sendCode": "获取验证码",
       "sending": "正在发送…",

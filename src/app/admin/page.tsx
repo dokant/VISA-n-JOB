@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { SignOutButton } from "@/components/admin/sign-out-button";
+import { getSiteConfig } from "@/config/site.config";
 import { requireStaff } from "@/lib/admin/session";
 
 export const metadata: Metadata = { title: "대시보드" };
@@ -22,7 +23,7 @@ export default async function AdminHomePage() {
     <div className="min-h-dvh">
       <header className="border-b border-n200 bg-white">
         <div className="mx-auto flex max-w-site items-center justify-between gap-4 px-gutter py-4">
-          <p className="text-ui font-semibold text-navy">VISA n JOB 관리자</p>
+          <p className="text-ui font-semibold text-navy">{getSiteConfig().brand.wordmark} 관리자</p>
           <div className="flex items-center gap-3">
             <span className="text-dense text-n700" data-testid="admin-actor">
               {actor.displayName ?? "직원"} · {roleLabel}

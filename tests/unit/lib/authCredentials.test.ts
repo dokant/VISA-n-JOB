@@ -102,6 +102,31 @@ describe("R-118 staff sign-in", () => {
     expect(login.ok && login.user.totpEnrolled).toBe(true);
   });
 
+  it("O-3: a TOTP code cannot be used twice (same or older time step)", async () => {
+    const { user } = await createUser("ADMIN");
+    const e = await startTotpEnrollment(user.id);
+    if (e.status !== "PENDING") throw new Error("expected pending");
+    const code = totpCodeAt(e.secret, T0);
+    expect(await verifyStaffTotp({ userId: user.id, code, now: T0 })).toEqual({ ok: true });
+    // replay within the same step (a new session with the same code)
+    expect(await verifyStaffTotp({ userId: user.id, code, now: plusSec(T0, 5) })).toEqual({
+      ok: false,
+      code: "CODE_REUSED",
+    });
+    // replay in the next step: still within the drift window, still refused
+    expect(await verifyStaffTotp({ userId: user.id, code, now: plusSec(T0, 30) })).toEqual({
+      ok: false,
+      code: "CODE_REUSED",
+    });
+    // the next step's code works once
+    const next = totpCodeAt(e.secret, plusSec(T0, 30));
+    expect(await verifyStaffTotp({ userId: user.id, code: next, now: plusSec(T0, 31) })).toEqual({
+      ok: true,
+    });
+    const stored = await db.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(stored.totpLastStep).toBe(Math.floor(T0.getTime() / 30_000) + 1);
+  });
+
   it("R-129: TOTP attempts are limited per user", async () => {
     const { user } = await createUser("STAFF_VISA");
     const e = await startTotpEnrollment(user.id);
@@ -171,6 +196,44 @@ describe("R-123 employer sign-in", () => {
     expect(
       (await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: later })).ok,
     ).toBe(true);
+  });
+
+  it("O-7: only failures count for an e-mail and a successful sign-in clears them", async () => {
+    const { email } = await createUser("EMPLOYER");
+    const limit = RATE_LIMITS.loginPerIdentifier.limit;
+    // successful sign-ins never fill the per-identifier bucket
+    for (let i = 0; i < limit + 2; i++) {
+      const r = await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: T0 });
+      expect(r.ok).toBe(true);
+    }
+    // limit - 1 failures, then the owner signs in → counter cleared
+    for (let i = 0; i < limit - 1; i++) {
+      await authorizeEmployerPassword({ email, password: "bad", ip: ip(), now: T0 });
+    }
+    expect(
+      (await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: T0 })).ok,
+    ).toBe(true);
+    // a full new series of failures is needed before the account is limited again
+    for (let i = 0; i < limit; i++) {
+      expect(
+        await authorizeEmployerPassword({ email, password: "bad", ip: ip(), now: T0 }),
+      ).toEqual({ ok: false, code: "INVALID_CREDENTIALS" });
+    }
+    expect(
+      await authorizeEmployerPassword({ email, password: PASSWORD, ip: ip(), now: T0 }),
+    ).toMatchObject({ ok: false, code: "RATE_LIMITED" });
+  });
+
+  it("O-1: without a trusted client address only the per-identifier limit applies", async () => {
+    for (let i = 0; i < RATE_LIMITS.loginPerIp.limit + 3; i++) {
+      const r = await authorizeEmployerPassword({
+        email: randomEmail("noip"),
+        password: "x",
+        ip: null,
+        now: T0,
+      });
+      expect(r).toEqual({ ok: false, code: "INVALID_CREDENTIALS" });
+    }
   });
 
   it("R-129: one IP is limited across different e-mails", async () => {

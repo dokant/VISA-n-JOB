@@ -10,7 +10,7 @@
 import { Prisma } from "@prisma/client";
 
 import type { EmployerSignupInput } from "@/schemas/auth/auth";
-import { normalizeBizRegNo } from "@/schemas/auth/auth";
+import { validBizRegNo } from "@/schemas/auth/auth";
 
 import { normalizeEmail } from "./authCredentials";
 import { hmacHash } from "./crypto";
@@ -30,7 +30,7 @@ export function bizRegNoHashOf(digits: string): string {
 }
 
 export async function registerEmployer(input: EmployerSignupInput): Promise<EmployerSignupResult> {
-  const digits = normalizeBizRegNo(input.bizRegNo);
+  const digits = validBizRegNo(input.bizRegNo);
   if (!digits) return { ok: false, code: "INVALID_BIZ_REG_NO" };
   const bizRegNoHash = bizRegNoHashOf(digits);
   const email = normalizeEmail(input.email);

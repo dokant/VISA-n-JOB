@@ -619,13 +619,14 @@
     "field": {
       "required": "Iltimos, maydonni toʻldiring.",
       "invalidPhone": "Telefon raqamini tekshiring.",
-      "invalidCode": "6 xonali kodni kiriting.",
+      "invalidCode": "{length} xonali kodni kiriting.",
       "invalidEmail": "E-pochta manzilini tekshiring.",
       "invalidBizRegNo": "10 xonali korxona roʻyxat raqamini kiriting.",
       "passwordTooShort": "Parol kamida {min} belgidan iborat boʻlishi kerak.",
       "passwordTooLong": "Parol juda uzun.",
       "passwordMismatch": "Parollar bir xil emas.",
-      "tooLong": "Matn juda uzun."
+      "tooLong": "Matn juda uzun.",
+      "bizRegNoChecksum": "Korxona roʻyxat raqami notoʻgʻri. Raqamni qayta tekshiring."
     },
     "auth": {
       "invalidCredentials": "E-pochta yoki parol notoʻgʻri.",
@@ -658,7 +659,7 @@
       },
       "code": {
         "label": "Tasdiqlash kodi",
-        "help": "SMSdagi 6 xonali kodni kiriting."
+        "help": "SMSdagi {length} xonali kodni kiriting."
       },
       "sendCode": "Kod olish",
       "sending": "Yuborilmoqda…",

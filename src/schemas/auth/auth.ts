@@ -16,6 +16,7 @@ export const FIELD_ERROR_CODES = [
   "invalidCode",
   "invalidEmail",
   "invalidBizRegNo",
+  "bizRegNoChecksum",
   "passwordTooShort",
   "passwordTooLong",
   "passwordMismatch",
@@ -52,11 +53,39 @@ export function normalizeBizRegNo(input: string): string | null {
   return /^[0-9]{10}$/.test(digits) ? digits : null;
 }
 
+/** 국세청 사업자등록번호 검증식: digits 1~9 weighted 1,3,7,1,3,7,1,3,5 (P1b QA O-4). */
+const BIZ_REG_NO_WEIGHTS = [1, 3, 7, 1, 3, 7, 1, 3, 5] as const;
+
+/** Check digit (10th digit) for the first nine digits of a 사업자등록번호. */
+export function bizRegNoCheckDigit(firstNine: string): number {
+  let sum = 0;
+  BIZ_REG_NO_WEIGHTS.forEach((w, i) => {
+    sum += Number(firstNine[i]) * w;
+  });
+  sum += Math.floor((Number(firstNine[8]) * 5) / 10);
+  return (10 - (sum % 10)) % 10;
+}
+
+/** True when a normalised 10-digit number passes the checksum. */
+export function isValidBizRegNoChecksum(digits: string): boolean {
+  return /^[0-9]{10}$/.test(digits) && bizRegNoCheckDigit(digits) === Number(digits[9]);
+}
+
+/** Normalised digits when the format AND the checksum are valid, else null. */
+export function validBizRegNo(input: string): string | null {
+  const digits = normalizeBizRegNo(input);
+  return digits && isValidBizRegNoChecksum(digits) ? digits : null;
+}
+
 const bizRegNo = z
   .string()
   .trim()
   .min(1, "required")
-  .refine((v) => normalizeBizRegNo(v) !== null, "invalidBizRegNo");
+  .refine((v) => normalizeBizRegNo(v) !== null, "invalidBizRegNo")
+  .refine((v) => {
+    const digits = normalizeBizRegNo(v);
+    return digits === null || isValidBizRegNoChecksum(digits);
+  }, "bizRegNoChecksum");
 
 const code = z.string().trim().min(1, "required").max(40, "tooLong");
 

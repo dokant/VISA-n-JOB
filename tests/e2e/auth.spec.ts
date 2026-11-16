@@ -103,7 +103,10 @@ test.describe("R-118 admin 2FA", () => {
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/admin\/2fa\/verify$/);
     await expect(page.getByTestId("totp-secret")).toHaveCount(0);
-    await page.getByLabel("인증 앱의 6자리 코드").fill(totpCodeAt(secret));
+    // The setup code may still be current and would be refused as a replay (P1b QA O-3), so use
+    // the next time step's code (accepted within the one-step drift window).
+    const nextStepCode = totpCodeAt(secret, new Date(Date.now() + 30_000));
+    await page.getByLabel("인증 앱의 6자리 코드").fill(nextStepCode);
     await page.getByRole("button", { name: "확인" }).click();
     await expect(page).toHaveURL(/\/admin$/);
   });

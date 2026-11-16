@@ -9,6 +9,7 @@ import {
   consumeRateLimit,
   peekRateLimit,
   rateLimitSubject,
+  resetRateLimit,
   windowStartOf,
 } from "@/lib/rateLimit";
 
@@ -86,13 +87,33 @@ describe("R-129 rate limit", () => {
     expect(second.ok).toBe(false);
   });
 
-  it("subjects are hashes; client IP comes from proxy headers", () => {
+  it("subjects are hashes; client IP comes from proxy headers only with TRUST_PROXY=true", () => {
     expect(rateLimitSubject("203.0.113.9")).toMatch(/^[0-9a-f]{32}$/);
     expect(rateLimitSubject("203.0.113.9")).not.toContain("203");
-    expect(clientIp(new Headers({ "x-forwarded-for": "203.0.113.9, 10.0.0.1" }))).toBe(
+    const trusted = { TRUST_PROXY: "true" };
+    expect(clientIp(new Headers({ "x-forwarded-for": "203.0.113.9, 10.0.0.1" }), trusted)).toBe(
       "203.0.113.9",
     );
-    expect(clientIp(new Headers({ "x-real-ip": "198.51.100.2" }))).toBe("198.51.100.2");
-    expect(clientIp(new Headers())).toBe("unknown");
+    expect(clientIp(new Headers({ "x-real-ip": "198.51.100.2" }), trusted)).toBe("198.51.100.2");
+    expect(clientIp(new Headers(), trusted)).toBeNull();
+  });
+
+  it("O-1: without TRUST_PROXY forwarding headers are ignored (no per-IP subject)", () => {
+    const spoofed = new Headers({ "x-forwarded-for": "203.0.113.9", "x-real-ip": "198.51.100.2" });
+    expect(clientIp(spoofed, {})).toBeNull();
+    expect(clientIp(spoofed, { TRUST_PROXY: "false" })).toBeNull();
+    expect(clientIp(spoofed, { TRUST_PROXY: "1" })).toBeNull();
+  });
+
+  it("resetRateLimit clears every window of one key only", async () => {
+    const rule = { limit: 1, windowSec: 60 };
+    const key = `test:reset:${Date.now()}`;
+    const other = `${key}:other`;
+    await consumeRateLimit(key, rule, T0);
+    await consumeRateLimit(other, rule, T0);
+    expect((await peekRateLimit(key, rule, T0)).ok).toBe(false);
+    await resetRateLimit(key);
+    expect((await peekRateLimit(key, rule, T0)).ok).toBe(true);
+    expect((await peekRateLimit(other, rule, T0)).ok).toBe(false);
   });
 });

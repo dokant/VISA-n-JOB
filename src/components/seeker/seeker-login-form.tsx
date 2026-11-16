@@ -61,7 +61,8 @@ export function SeekerLoginForm({ next }: { next?: string }) {
     const key = `auth.${codeToKey(e.code)}`;
     return te.has(key) ? te(key, { seconds: e.retryAfterSec ?? 0 }) : te("auth.unknown");
   };
-  const fieldError = (code: string | undefined) => (code ? te(`field.${code}`) : undefined);
+  const fieldError = (code: string | undefined) =>
+    code ? te(`field.${code}`, { length: OTP_CODE_LENGTH }) : undefined;
 
   const send = (value: string) =>
     startTransition(async () => {
@@ -140,7 +141,7 @@ export function SeekerLoginForm({ next }: { next?: string }) {
         id={`${id}-code`}
         label={t("code.label")}
         required
-        help={t("code.help")}
+        help={t("code.help", { length: OTP_CODE_LENGTH })}
         error={fieldError(codeForm.formState.errors.code?.message)}
       >
         {(a11y) => (

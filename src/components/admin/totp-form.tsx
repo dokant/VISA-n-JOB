@@ -21,7 +21,10 @@ export function TotpForm({ submitLabel }: { submitLabel: string }) {
   return (
     <form action={action} className="grid gap-5.5" data-testid="totp-form">
       <div className="grid gap-1.75">
-        <Label htmlFor="totp-code">인증 앱의 6자리 코드</Label>
+        <Label htmlFor="totp-code">
+          인증 앱의 6자리 코드
+          <span className="ms-1 font-normal text-n500">(필수)</span>
+        </Label>
         <Input
           id="totp-code"
           name="code"

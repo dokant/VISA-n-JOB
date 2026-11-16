@@ -619,13 +619,14 @@
     "field": {
       "required": "Vui lòng nhập thông tin.",
       "invalidPhone": "Vui lòng kiểm tra số điện thoại.",
-      "invalidCode": "Nhập mã gồm 6 chữ số.",
+      "invalidCode": "Nhập mã gồm {length} chữ số.",
       "invalidEmail": "Vui lòng kiểm tra địa chỉ email.",
       "invalidBizRegNo": "Nhập số đăng ký kinh doanh gồm 10 chữ số.",
       "passwordTooShort": "Mật khẩu phải có ít nhất {min} ký tự.",
       "passwordTooLong": "Mật khẩu quá dài.",
       "passwordMismatch": "Hai mật khẩu không khớp.",
-      "tooLong": "Nội dung quá dài."
+      "tooLong": "Nội dung quá dài.",
+      "bizRegNoChecksum": "Số đăng ký kinh doanh không hợp lệ. Vui lòng kiểm tra lại."
     },
     "auth": {
       "invalidCredentials": "Email hoặc mật khẩu không đúng.",
@@ -658,7 +659,7 @@
       },
       "code": {
         "label": "Mã xác minh",
-        "help": "Nhập mã 6 chữ số trong tin nhắn."
+        "help": "Nhập mã {length} chữ số trong tin nhắn."
       },
       "sendCode": "Nhận mã",
       "sending": "Đang gửi…",

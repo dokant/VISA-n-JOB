@@ -46,12 +46,15 @@ export async function signUpEmployer(
   const parsed = employerSignupSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "VALIDATION" };
 
+  // Per-IP signup limit only when the client address is trusted (TRUST_PROXY, P1b QA O-1).
   const ip = clientIp(await headers());
-  const limited = await consumeRateLimit(
-    `signup:ip:${rateLimitSubject(ip)}`,
-    RATE_LIMITS.signupPerIp,
-  );
-  if (!limited.ok) return { ok: false, code: "RATE_LIMITED" };
+  if (ip) {
+    const limited = await consumeRateLimit(
+      `signup:ip:${rateLimitSubject(ip)}`,
+      RATE_LIMITS.signupPerIp,
+    );
+    if (!limited.ok) return { ok: false, code: "RATE_LIMITED" };
+  }
 
   const result = await registerEmployer(parsed.data);
   if (!result.ok) {
