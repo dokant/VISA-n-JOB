@@ -19,7 +19,7 @@ import type { Role } from "@prisma/client";
 import { authenticator } from "otplib";
 
 import { getSiteConfig } from "@/config/site.config";
-import { RATE_LIMITS, TOTP_PROOF_TTL_SEC } from "@/config/limits";
+import { RATE_LIMITS, SEEKER_SIGNUP_PROOF_TTL_SEC, TOTP_PROOF_TTL_SEC } from "@/config/limits";
 import type { Locale } from "@/i18n/locales";
 
 import { db } from "./db";
@@ -312,14 +312,35 @@ export function totpCodeAt(secret: string, now: Date = new Date()): string {
 
 // ─── Session upgrade proof ───────────────────────────────────────────────────
 
-function proofKey(): Buffer {
+type ProofPurpose = "totp-proof" | "seeker-signup";
+
+function proofKey(purpose: ProofPurpose): Buffer {
   const secret = process.env.AUTH_SECRET ?? "";
   if (secret.length < 32) throw new Error("AUTH_SECRET is not set (>= 32 characters)");
-  return createHmac("sha256", secret).update("visanjob:totp-proof").digest();
+  return createHmac("sha256", secret).update(`visanjob:${purpose}`).digest();
 }
 
-function sign(payload: string): string {
-  return createHmac("sha256", proofKey()).update(payload).digest("base64url");
+function sign(payload: string, purpose: ProofPurpose = "totp-proof"): string {
+  return createHmac("sha256", proofKey(purpose)).update(payload).digest("base64url");
+}
+
+function createProof(userId: string, ttlSec: number, purpose: ProofPurpose, now: Date): string {
+  const exp = Math.floor(now.getTime() / 1000) + ttlSec;
+  const payload = `${userId}.${exp}`;
+  return `${payload}.${sign(payload, purpose)}`;
+}
+
+/** The user id of a valid, unexpired proof, else null. */
+function readProof(proof: unknown, purpose: ProofPurpose, now: Date): string | null {
+  if (typeof proof !== "string") return null;
+  const parts = proof.split(".");
+  if (parts.length !== 3) return null;
+  const [id, expRaw, sig] = parts;
+  const exp = Number(expRaw);
+  if (!id || !Number.isInteger(exp) || exp < Math.floor(now.getTime() / 1000)) return null;
+  const expected = Buffer.from(sign(`${id}.${expRaw}`, purpose));
+  const given = Buffer.from(sig);
+  return expected.length === given.length && timingSafeEqual(expected, given) ? id : null;
 }
 
 /**
@@ -328,20 +349,37 @@ function sign(payload: string): string {
  * client-side session update (POST /api/auth/session) cannot fake the second factor.
  */
 export function createTotpProof(userId: string, now: Date = new Date()): string {
-  const exp = Math.floor(now.getTime() / 1000) + TOTP_PROOF_TTL_SEC;
-  const payload = `${userId}.${exp}`;
-  return `${payload}.${sign(payload)}`;
+  return createProof(userId, TOTP_PROOF_TTL_SEC, "totp-proof", now);
 }
 
 export function verifyTotpProof(proof: unknown, userId: string, now: Date = new Date()): boolean {
-  if (typeof proof !== "string") return false;
-  const parts = proof.split(".");
-  if (parts.length !== 3) return false;
-  const [id, expRaw, sig] = parts;
-  if (id !== userId) return false;
-  const exp = Number(expRaw);
-  if (!Number.isInteger(exp) || exp < Math.floor(now.getTime() / 1000)) return false;
-  const expected = Buffer.from(sign(`${id}.${expRaw}`));
-  const given = Buffer.from(sig);
-  return expected.length === given.length && timingSafeEqual(expected, given);
+  return readProof(proof, "totp-proof", now) === userId;
+}
+
+// ─── Seeker sign-in right after registration (R-105, R-106 Step 0) ───────────
+
+/**
+ * Proof created by the registration server action right after it verified the SIGNUP OTP and
+ * created the account. The action hands it straight to `signIn("seeker-signup")` on the server
+ * (it never reaches the browser); the OTP itself was already consumed by the registration.
+ */
+export function createSeekerSignupProof(userId: string, now: Date = new Date()): string {
+  return createProof(userId, SEEKER_SIGNUP_PROOF_TTL_SEC, "seeker-signup", now);
+}
+
+export async function authorizeSeekerSignupProof(
+  args: { proof: unknown } & Clock,
+): Promise<AuthResult> {
+  const userId = readProof(args.proof, "seeker-signup", args.now ?? new Date());
+  if (!userId) return { ok: false, code: "INVALID_CREDENTIALS" };
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true },
+  });
+  if (!user || user.role !== "SEEKER") return { ok: false, code: "NO_ACCOUNT" };
+  await db.user.update({ where: { id: user.id }, data: { lastLoginAt: args.now ?? new Date() } });
+  return {
+    ok: true,
+    user: { id: user.id, role: user.role, twoFactorVerified: false, totpEnrolled: false },
+  };
 }

@@ -55,3 +55,43 @@ export const STAFF_SESSION_MAX_AGE_SEC = 60 * 60 * 8;
 
 /** R-118: a verified-TOTP proof handed to the session update is valid this long. */
 export const TOTP_PROOF_TTL_SEC = 60;
+
+/** R-105 / R-106: the server-side sign-in proof right after registration is valid this long. */
+export const SEEKER_SIGNUP_PROOF_TTL_SEC = 60;
+
+// ─── Seeker registration (P1c: R-105 ~ R-113) ──────────────────────────────────────────────────
+
+/** R-111: length of a seeker's referral code (unambiguous upper-case letters and digits). */
+export const REFERRAL_CODE_LENGTH = 8;
+
+/** R-111: `?ref` / `?src` are kept in a cookie this long until registration. */
+export const REFERRAL_COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 30;
+
+/** R-105: the "프로필 완성" notice is sent this long after a quick signup (0 = right away). */
+export const PROFILE_COMPLETION_NOTICE_DELAY_SEC = 0;
+
+/** WO §7.3 Step 5: desired industries / regions — at most this many each. */
+export const DESIRED_MAX_SELECTIONS = 3;
+
+/** WO §7.3 Step 4: at most this many experience rows; months per row up to this value. */
+export const EXPERIENCE_MAX_ROWS = 10;
+export const EXPERIENCE_MAX_MONTHS = 600;
+
+/** WO §7.3 Step 5 desiredPayMin bands (monthly, before tax, KRW). Operator setting. */
+export const DESIRED_PAY_BANDS_KRW = [
+  2_000_000, 2_200_000, 2_400_000, 2_600_000, 2_800_000, 3_000_000, 3_500_000, 4_000_000,
+] as const;
+
+/** Step 1 birthYear options: ages from SEEKER_MIN_AGE to SEEKER_MAX_AGE (form range only). */
+export const SEEKER_MIN_AGE = 15;
+export const SEEKER_MAX_AGE = 75;
+
+/** Step 2 entryYear / stayExpiry / Step 3 graduationDate option ranges in years (form range only). */
+export const ENTRY_YEAR_RANGE = 40;
+export const STAY_EXPIRY_YEARS_AHEAD = 10;
+export const STAY_EXPIRY_YEARS_BACK = 2;
+export const GRADUATION_YEARS_AHEAD = 6;
+export const GRADUATION_YEARS_BACK = 30;
+
+/** WO §7.7 / R-213: stay expiry reminders (days before expiry) shown on /seeker/me/stay. */
+export const STAY_ALERT_DAYS = [90, 60, 30] as const;

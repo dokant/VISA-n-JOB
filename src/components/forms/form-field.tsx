@@ -19,6 +19,10 @@ type Props = {
   help?: string;
   /** Already translated error text. */
   error?: string;
+  /** Rendered after the label text (e.g. the DisclosureIcon of the wizard, SC-04). */
+  labelAddon?: ReactNode;
+  /** Label size: compact forms use text-label, wizard questions text-h3 (STANDARD 3.1). */
+  labelSize?: "compact" | "question";
   children: (a11y: FieldA11y) => ReactNode;
 };
 
@@ -26,16 +30,30 @@ type Props = {
  * One labelled form field (STANDARD 3.1 form / 3.3): label + "(필수)" text, control, help, error
  * right under the control (`role="alert"`), 7px inside spacing. The control gets id / aria-* props.
  */
-export function FormField({ id, label, required, help, error, children }: Props) {
+export function FormField({
+  id,
+  label,
+  required,
+  help,
+  error,
+  labelAddon,
+  labelSize = "compact",
+  children,
+}: Props) {
   const t = useTranslations("common.form");
   const helpId = help ? `${id}-help` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const describedBy = [errorId, helpId].filter(Boolean).join(" ") || undefined;
   return (
     <div className="grid gap-1.75">
-      <Label htmlFor={id}>
+      <Label
+        id={`${id}-label`}
+        htmlFor={id}
+        className={labelSize === "question" ? "text-h3 text-navy" : undefined}
+      >
         {label}
         {required ? <span className="ms-1 font-normal text-n500">{t("required")}</span> : null}
+        {labelAddon}
       </Label>
       {children({
         id,

@@ -3,6 +3,7 @@
  *
  * Three Credentials providers:
  *   seeker-otp        phone + OTP code        (R-104)
+ *   seeker-signup     server-made proof right after registration (R-105 / R-106 Step 0)
  *   employer-password e-mail + password       (R-123)
  *   staff-password    e-mail + password       (R-118) → twoFactorVerified=false until TOTP
  * The TOTP step upgrades the session with `unstable_update({ totpProof })`; the JWT callback accepts
@@ -19,6 +20,7 @@ import {
   type AuthResult,
   authorizeEmployerPassword,
   authorizeSeekerOtp,
+  authorizeSeekerSignupProof,
   authorizeStaffPassword,
   verifyTotpProof,
 } from "@/lib/authCredentials";
@@ -48,6 +50,13 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
         const parsed = seekerOtpVerifySchema.safeParse(credentials);
         if (!parsed.success) throw new AuthCodeError("INVALID_CREDENTIALS");
         return unwrap(await authorizeSeekerOtp({ ...parsed.data, ip: clientIp(request.headers) }));
+      },
+    }),
+    Credentials({
+      id: "seeker-signup",
+      credentials: { proof: {} },
+      async authorize(credentials) {
+        return unwrap(await authorizeSeekerSignupProof({ proof: credentials?.proof }));
       },
     }),
     Credentials({

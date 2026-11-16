@@ -167,10 +167,10 @@ model SeekerProfile {
   birthYear             Int? // 내부 전용
   gender                String? // 내부 전용(숙소 배정), 선택
   nationality           String? // ISO 3166-1 alpha-2, PC-3 nullable
-  sido                  String // Region.code (SIDO) — collected by quick signup
+  sido                  String? // Region.code (SIDO) — quick signup / wizard Step 1 (PC-3 nullable: wizard Step 0 creates the row)
   sigungu               String? // Region.code (SIGUNGU)
   // 체류
-  visaCode              String // VisaType.code — collected by quick signup
+  visaCode              String? // VisaType.code — quick signup / wizard Step 2 (PC-3 nullable)
   visaSubType           String?
   stayExpiry            DateTime?
   entryYear             Int?
@@ -207,7 +207,7 @@ model SeekerProfile {
   /// [+] Step 6 consultTime (다중 선택)
   consultTime           String[]
   // 운영 판정
-  track                 SeekerTrack
+  track                 SeekerTrack? // classifyTrack (R-108) once visaCode is known; null before Step 2 (PC-3)
   grade                 SeekerGrade      @default(B)
   /// [+] WO §7.4 E-7 계열 → true (from VisaType.needsVisaReview)
   needsVisaReview       Boolean          @default(false)
@@ -568,6 +568,10 @@ model VisaType {
   graduationWindowAutoConsult Boolean      @default(false)
   /// requires graduationDate in the wizard (WO §7.3 Step 3: D-2·D-10 필수)
   requiresGraduationDate      Boolean      @default(false)
+  /// [+] P1c: sub type codes offered in wizard Step 2 visaSubType (e.g. E-7-x). Admin-editable data.
+  subTypes                    String[]     @default([])
+  /// [+] P1c: offered as a Step 6 nextVisaGoal option (its subTypes when present, else its code)
+  nextGoal                    Boolean      @default(false)
   sortOrder                   Int          @default(0)
   active                      Boolean      @default(true)
   note                        String? // operator memo (WO §7.4 안내 요약)

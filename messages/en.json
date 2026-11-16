@@ -57,6 +57,34 @@
     "employerSignup": {
       "title": "Company sign-up",
       "description": "Create a VISA n JOB company account."
+    },
+    "seekerRegister": {
+      "title": "Job seeker registration",
+      "description": "Full registration with Visa&Job. Each step is saved automatically."
+    },
+    "seekerQuick": {
+      "title": "Quick registration",
+      "description": "Register in one minute with your language, visa, region and phone."
+    },
+    "seekerComplete": {
+      "title": "Registration complete",
+      "description": "Your registration is complete."
+    },
+    "seekerMe": {
+      "title": "My page",
+      "description": "See your grade, registration progress and consents."
+    },
+    "seekerStay": {
+      "title": "Stay expiry reminder",
+      "description": "Set up reminders before your stay expires."
+    },
+    "seekerReferral": {
+      "title": "My referral code",
+      "description": "Share your referral code with friends."
+    },
+    "seekerRecommended": {
+      "title": "Recommended jobs",
+      "description": "Jobs that fit your visa and preferences."
     }
   },
   "common": {
@@ -135,6 +163,9 @@
     },
     "form": {
       "required": "(required)"
+    },
+    "profileCompletion": {
+      "sms": "Your Visa&Job quick registration is done. Complete your profile to get better job matches: {path}"
     }
   },
   "nav": {
@@ -626,7 +657,14 @@
       "passwordTooLong": "The password is too long.",
       "passwordMismatch": "The passwords do not match.",
       "tooLong": "This is too long.",
-      "bizRegNoChecksum": "This is not a valid business registration number. Please check it again."
+      "bizRegNoChecksum": "This is not a valid business registration number. Please check it again.",
+      "mustConfirm": "Please tick the box to confirm.",
+      "consentRequired": "This consent is required to register.",
+      "tooMany": "You can choose up to {max}.",
+      "invalidValue": "Please check the selected value.",
+      "invalidMonth": "Please choose both the year and the month.",
+      "invalidDate": "Please check the date.",
+      "invalidReferralCode": "Please check the referral code."
     },
     "auth": {
       "invalidCredentials": "The e-mail or password is not correct.",
@@ -645,6 +683,12 @@
       "invalidBizRegNo": "Enter the 10-digit business registration number.",
       "validation": "Please check what you entered.",
       "unknown": "Something went wrong. Please try again."
+    },
+    "register": {
+      "phoneTaken": "This number is used by another account. Please request a consultation.",
+      "invalidReference": "Please choose your visa and region again.",
+      "noProfile": "We could not find your registration. Please sign in again.",
+      "validation": "Please check what you entered."
     }
   },
   "seeker": {
@@ -668,7 +712,502 @@
       "resendIn": "You can get a new code in {seconds} seconds",
       "changePhone": "Change number",
       "submit": "Sign in",
-      "submitting": "Checking…"
+      "submitting": "Checking…",
+      "registerFirst": "Not registered yet? Please do the quick registration first.",
+      "quickRegister": "Quick registration"
+    },
+    "grade": {
+      "label": "Grade {grade}",
+      "priority": "Priority"
+    },
+    "register": {
+      "common": {
+        "noSeekerFee": "No fees for job seekers",
+        "next": "Save and continue",
+        "back": "Back",
+        "saving": "Saving…",
+        "fixErrors": "Please check the marked fields.",
+        "yes": "Yes",
+        "no": "No",
+        "unknown": "I don't know",
+        "year": "Year",
+        "month": "Month",
+        "otherCountry": "Other country",
+        "otherLanguage": "Other language",
+        "subScreen": "{current}/{total}",
+        "changeVisa": "Enter visa details again"
+      },
+      "progress": {
+        "count": "{step}/{total}",
+        "saved": "Saved automatically",
+        "label": "Registration progress"
+      },
+      "disclosure": {
+        "private": "This information is not shown to employers",
+        "blind": "Shown to employers in blind form",
+        "summaryTitle": "What employers can see"
+      },
+      "blocked": {
+        "title": "Only people with a status of stay that allows work can register as job seekers",
+        "notRegistrable": "You cannot finish registration with the selected visa. Please request a stay consultation.",
+        "expired": "Your stay has expired. Please request a stay consultation.",
+        "noVisa": "There is no visa information. Please request a stay consultation.",
+        "cta": "Request a stay consultation"
+      },
+      "otp": {
+        "phone": {
+          "label": "Mobile number",
+          "help": "If it is not a Korean number, start with + and the country code.",
+          "placeholder": "010-0000-0000"
+        },
+        "send": "Get code",
+        "resend": "Send again",
+        "resendIn": "Send again in {seconds}s",
+        "code": {
+          "label": "Verification code",
+          "help": "Enter the {length}-digit code from the text message."
+        },
+        "sendFirst": "Please get a verification code first."
+      },
+      "step0": {
+        "title": "Get started",
+        "lead": "Choose your language and verify your phone.",
+        "notice": "Each step is saved automatically. Sign in later to continue where you stopped.",
+        "locale": {
+          "label": "Language",
+          "help": "All steps are shown in this language."
+        },
+        "referralCode": {
+          "label": "Referral code (if any)",
+          "help": "Enter the code if a friend gave you one."
+        },
+        "phone": "Mobile number",
+        "submit": "Verify and start",
+        "submitting": "Checking…",
+        "haveAccount": "Already registered? Sign in",
+        "quickInstead": "Use the 1-minute quick registration"
+      },
+      "step1": {
+        "title": "Basic information",
+        "lead": "Tell us your name and where you live.",
+        "legalName": {
+          "label": "Name (as in your passport)",
+          "help": "Enter your name in English exactly as in your passport."
+        },
+        "nationality": {
+          "label": "Nationality"
+        },
+        "region": {
+          "label": "Where you live now",
+          "help": "Employers only see the province / city."
+        },
+        "sido": "Province / city",
+        "sigungu": "District (optional)",
+        "sidoOnly": "Province / city of residence",
+        "messenger": {
+          "label": "Messenger for contact",
+          "help": "Only Visa&Job staff will contact you.",
+          "option": {
+            "KAKAO": "KakaoTalk",
+            "ZALO": "Zalo",
+            "WHATSAPP": "WhatsApp",
+            "TELEGRAM": "Telegram",
+            "WECHAT": "WeChat",
+            "VIBER": "Viber",
+            "NONE": "None"
+          }
+        },
+        "messengerId": "Messenger ID",
+        "email": {
+          "label": "E-mail"
+        },
+        "birthYear": {
+          "label": "Year of birth",
+          "help": "Used only inside Visa&Job."
+        },
+        "gender": {
+          "label": "Gender",
+          "help": "Used only for housing arrangements.",
+          "option": {
+            "MALE": "Male",
+            "FEMALE": "Female",
+            "OTHER": "Other",
+            "NO_ANSWER": "Prefer not to say"
+          }
+        }
+      },
+      "step2": {
+        "title": "Status of stay",
+        "lead": "Tell us about the visa you have now.",
+        "visaCode": {
+          "label": "Current visa",
+          "help": "If you are not sure, choose 'I don't know'. We will guide you to a consultation."
+        },
+        "visaSubType": {
+          "label": "Sub type"
+        },
+        "stayExpiry": {
+          "label": "Stay expiry (year and month)",
+          "help": "Employers only see a range of the remaining period."
+        },
+        "hasArc": {
+          "label": "Do you have a residence card?",
+          "help": "We do not ask for the number."
+        },
+        "entryYear": {
+          "label": "Year you came to Korea",
+          "help": "Employers only see the number of years in Korea."
+        },
+        "pendingApplication": {
+          "label": "Do you have a visa application in progress?"
+        },
+        "visaConfirm": {
+          "label": "I confirm that the stay information I entered is true"
+        },
+        "stayBand": "Remaining stay (range)",
+        "yearsInKorea": "Years in Korea"
+      },
+      "step3": {
+        "title": "Education and languages",
+        "lead": "Tell us about your education and Korean.",
+        "educationLevel": {
+          "label": "Highest education",
+          "option": {
+            "MIDDLE_OR_LESS": "Middle school or less",
+            "HIGH_SCHOOL": "High school",
+            "COLLEGE": "College",
+            "BACHELOR": "University",
+            "MASTER": "Master's",
+            "DOCTOR": "Doctorate"
+          }
+        },
+        "major": {
+          "label": "Major",
+          "help": "Employers only see the field of study."
+        },
+        "majorField": "Field of study",
+        "schoolName": {
+          "label": "School name (Korean university)",
+          "help": "Not shown to employers."
+        },
+        "graduationDate": {
+          "label": "Graduation (expected)",
+          "help": "Students (D-2, D-10) must enter this."
+        },
+        "topikLevel": {
+          "label": "TOPIK level",
+          "help": "Test of Proficiency in Korean.",
+          "option": {
+            "0": "None",
+            "1": "Level 1",
+            "2": "Level 2",
+            "3": "Level 3",
+            "4": "Level 4",
+            "5": "Level 5",
+            "6": "Level 6"
+          }
+        },
+        "kiipStage": {
+          "label": "Social Integration Program stage",
+          "help": "KIIP stage of the Ministry of Justice program.",
+          "option": {
+            "0": "None",
+            "1": "Stage 1",
+            "2": "Stage 2",
+            "3": "Stage 3",
+            "4": "Stage 4",
+            "5": "Stage 5"
+          }
+        },
+        "koreanSpeaking": {
+          "label": "Spoken Korean",
+          "help": "Choose the sentence that fits you best.",
+          "option": {
+            "1": "I can only say hello",
+            "2": "I can have simple daily talks",
+            "3": "I can talk about my work",
+            "4": "I can talk about difficult topics easily"
+          }
+        },
+        "otherLanguages": {
+          "label": "Other languages you speak"
+        }
+      },
+      "step4": {
+        "title": "Experience and skills",
+        "lead": "Tell us what work you have done and what you can do.",
+        "experiences": {
+          "label": "Work experience",
+          "help": "Employers only see the industry, role and period. Leave empty if none."
+        },
+        "experienceN": "Experience {n}",
+        "removeExperience": "Remove",
+        "addExperience": "Add experience",
+        "country": "Country",
+        "industry": "Industry",
+        "roleField": "Role",
+        "role": {
+          "option": {
+            "PRODUCTION": "Production",
+            "ASSEMBLY": "Assembly",
+            "WELDING": "Welding",
+            "MACHINE_OPERATION": "Machine operation",
+            "PACKING": "Packing",
+            "LOGISTICS": "Logistics",
+            "CONSTRUCTION": "Construction",
+            "AGRICULTURE": "Agriculture",
+            "FISHERY": "Fishery",
+            "CARE": "Care",
+            "FOOD_SERVICE": "Food service",
+            "CLEANING": "Cleaning",
+            "OFFICE": "Office work",
+            "IT": "IT",
+            "SALES": "Sales",
+            "INTERPRETATION": "Interpreting",
+            "OTHER": "Other"
+          }
+        },
+        "months": "Period (months)",
+        "employerName": "Company name",
+        "experienceSummary": "Experience (industry, role, period)",
+        "skills": {
+          "label": "Skills",
+          "option": {
+            "FORKLIFT": "Forklift driving",
+            "WELDING": "Welding",
+            "CNC": "CNC",
+            "ELECTRICAL": "Electrical",
+            "PAINTING": "Painting",
+            "ASSEMBLY": "Assembly",
+            "PACKING": "Packing",
+            "CARE": "Care work",
+            "COOKING": "Cooking",
+            "DRIVING": "Driving",
+            "COMPUTER": "Computer",
+            "OTHER": "Other"
+          }
+        },
+        "licenses": {
+          "label": "Licenses",
+          "option": {
+            "KR_DRIVER_LICENSE": "Korean driver's license",
+            "FORKLIFT_LICENSE": "Forklift license",
+            "WELDING_CERT": "Welding certificate",
+            "CARE_WORKER_CERT": "Care worker certificate",
+            "OTHER": "Other"
+          }
+        }
+      },
+      "step5": {
+        "title": "Work preferences",
+        "lead": "Tell us what kind of work you want.",
+        "jobSearchStatus": {
+          "label": "Job search status",
+          "option": {
+            "IMMEDIATE": "Available now",
+            "WITHIN_1M": "Available within a month",
+            "EMPLOYED_OPEN": "Working, open to a change",
+            "NOT_SEARCHING": "Not now"
+          }
+        },
+        "availableFrom": {
+          "label": "Date you can start"
+        },
+        "desiredIndustries": {
+          "label": "Preferred industries",
+          "help": "You can choose up to 3."
+        },
+        "desiredRegions": {
+          "label": "Preferred regions",
+          "help": "You can choose up to 3."
+        },
+        "anyRegion": "Anywhere",
+        "needDormitory": {
+          "label": "Do you need housing?"
+        },
+        "shiftOk": {
+          "label": "Can you work shifts or nights?",
+          "option": {
+            "YES": "Yes",
+            "NO": "No",
+            "CONDITIONAL": "Depends",
+            "UNKNOWN": "I don't know"
+          }
+        },
+        "desiredPayMin": {
+          "label": "Minimum monthly pay (before tax)",
+          "help": "Choose a range."
+        },
+        "payFrom": "{amount} or more",
+        "groupApply": {
+          "label": "Do you want to work together with a friend?"
+        },
+        "groupFriendCode": {
+          "label": "Friend's referral code",
+          "help": "Enter your friend's referral code if you have it."
+        }
+      },
+      "step6": {
+        "title": "Visa goal",
+        "lead": "Tell us which visa you want next. Employers do not see this.",
+        "nextVisaGoal": {
+          "label": "Visa you want next",
+          "help": "If you are not sure, choose 'I don't know'."
+        },
+        "wantsConsult": {
+          "label": "Request a free visa path consultation?",
+          "help": "An administrative scrivener checks it with you."
+        },
+        "consultTime": {
+          "label": "Good times for a consultation",
+          "option": {
+            "MORNING": "Morning",
+            "AFTERNOON": "Afternoon",
+            "EVENING": "Evening",
+            "WEEKEND": "Weekend"
+          }
+        }
+      },
+      "step7": {
+        "title": "Consent and finish",
+        "lead": "Check the consents and finish your registration.",
+        "privacyRequired": {
+          "label": "I agree to the collection and use of my personal information"
+        },
+        "blindProfile": {
+          "label": "I agree that a blind profile without my name and contacts is given to employers"
+        },
+        "marketing": {
+          "label": "I want to receive job and visa news"
+        },
+        "notice": {
+          "label": "I have read: \"No fees for job seekers\" and \"Contact with employers goes only through Visa&Job\""
+        },
+        "optional": "(optional)",
+        "readFull": "Read the full text",
+        "submit": "Finish registration"
+      }
+    },
+    "quick": {
+      "eyebrow": "Quick registration",
+      "title": "1-minute quick registration",
+      "lead": "Just your language, visa, region and phone. You can fill in the rest later.",
+      "noSeekerFee": "No fees for job seekers.",
+      "notice": "Contact with employers goes only through Visa&Job.",
+      "locale": "Language",
+      "visa": "Current visa",
+      "visaHelp": "If you are not sure, choose 'I don't know'. We will guide you to a consultation.",
+      "sido": "Province / city of residence",
+      "submit": "Verify and register",
+      "submitting": "Registering…",
+      "haveAccount": "Already registered? Sign in",
+      "fullInstead": "Use the full registration"
+    },
+    "complete": {
+      "eyebrow": "Registration complete",
+      "title": "You are registered",
+      "lead": "Visa&Job staff will check your details and contact you.",
+      "gradeTitle": "Current grade",
+      "upgrade": "Book a consultation to reach grade A. After your stay and Korean are checked you reach grade S and are recommended to employers first.",
+      "completeProfile": "Complete your profile to get jobs that fit you better.",
+      "completeProfileCta": "Complete my profile",
+      "nextTitle": "What to do next",
+      "referralTitle": "My referral code",
+      "referralLead": "Share it so your friends can register easily.",
+      "noSeekerFee": "No fees for job seekers.",
+      "contactNotice": "Contact with employers goes only through Visa&Job.",
+      "toMyPage": "Go to my page"
+    },
+    "next": {
+      "guide": {
+        "JOB_MATCH": "We will show you recommended jobs that fit your visa and preferences.",
+        "JOB_MATCH_CONSULT": "We plan your job and your change to E-7 together. A scrivener is preparing a consultation.",
+        "VISA_REVIEW": "Changing jobs needs a procedure. An administrative scrivener will check it.",
+        "CONSULT_ONLY": "We will guide you in a consultation on the work and career your visa allows.",
+        "FUTURE_POOL": "Changing workplaces goes through the Employment Center. Visa&Job helps you plan a long-term stay (such as E-7-4)."
+      },
+      "recommended": "See recommended jobs",
+      "consult": "Request a consultation",
+      "score": "E-7-4 score calculator",
+      "stay": "Set stay expiry reminders"
+    },
+    "referral": {
+      "eyebrow": "Referral",
+      "title": "My referral code",
+      "lead": "Introduce Visa&Job to your friends.",
+      "codeLabel": "Referral code",
+      "shareText": "Find work that fits your visa on Visa&Job. Referral code: {code}",
+      "shareTitle": "Visa&Job quick registration",
+      "share": "Share",
+      "copyLink": "Copy link",
+      "copied": "Copied",
+      "copiedHelp": "Link copied. Send it to your friend.",
+      "help": "When a friend registers with this link, your referral code is saved with it.",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "viber": "Viber",
+      "count": "People registered with my code: {count, plural, one {# person} other {# people}}",
+      "back": "Back to my page"
+    },
+    "me": {
+      "eyebrow": "Job seeker",
+      "title": "My page",
+      "lead": "See your grade, registration progress and consents.",
+      "gradeTitle": "My grade",
+      "gradeHelp": "Book a consultation to reach grade A. After your stay and Korean are checked you reach grade S.",
+      "visa": "Current visa",
+      "progressTitle": "Registration progress",
+      "progressDone": "You have finished the full registration.",
+      "progressCount": "Saved up to step {step} of {total}.",
+      "continue": "Continue registration",
+      "nextTitle": "What to do next",
+      "links": {
+        "stay": "Stay expiry reminder",
+        "referral": "My referral code"
+      },
+      "consents": {
+        "title": "My consents",
+        "lead": "You can revoke optional consents at any time.",
+        "type": {
+          "PRIVACY_REQUIRED": "Collection and use of personal information",
+          "BLIND_PROFILE": "Blind profile for employers",
+          "MARKETING": "Job and visa news",
+          "NOTICE": "Service notice"
+        },
+        "agreed": "Agreed",
+        "notAgreed": "Not agreed",
+        "revoke": "Revoke consent",
+        "revokeConfirm": "Revoke",
+        "cancel": "Cancel",
+        "close": "Close",
+        "confirmTitle": "Revoke this consent?",
+        "confirm": {
+          "BLIND_PROFILE": "You will be removed from employers' candidate lists right away. If you agree again, you will be shown again.",
+          "MARKETING": "We will stop sending job and visa news."
+        },
+        "grant": "Agree again",
+        "requiredNote": "This consent is required. To revoke it, please request a consultation.",
+        "error": "Something went wrong. Please try again."
+      }
+    },
+    "stay": {
+      "eyebrow": "Stay",
+      "title": "Stay expiry reminder",
+      "lead": "Tell us your stay expiry and we will remind you in time.",
+      "notice": "We send reminders {days} expiry, and an administrative scrivener checks your case.",
+      "dayBefore": "{days} days before",
+      "expiry": "Stay expiry (year and month)",
+      "optIn": "I want stay expiry reminders",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved.",
+      "error": "Could not save. Please try again.",
+      "back": "Back to my page"
+    },
+    "recommended": {
+      "eyebrow": "Recommended jobs",
+      "title": "Recommended jobs",
+      "description": "We are preparing jobs that fit your visa and preferences. If you have questions, please request a consultation."
     }
   },
   "employer": {

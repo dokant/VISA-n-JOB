@@ -10,6 +10,7 @@ import { codeToKey } from "@/components/forms/error-key";
 import { OTP_CODE_LENGTH } from "@/config/limits";
 import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import {
   type SeekerOtpRequestInput,
@@ -158,6 +159,13 @@ export function SeekerLoginForm({ next }: { next?: string }) {
         <p role="alert" className="text-caption text-error-text" data-testid="auth-error">
           {errorText(serverError)}
         </p>
+      ) : null}
+      {serverError?.code === "NO_ACCOUNT" ? (
+        <Button asChild variant="outline" className="w-full">
+          <Link href="/seeker/register/quick" data-testid="no-account-quick">
+            {t("quickRegister")}
+          </Link>
+        </Button>
       ) : null}
       <Button type="submit" variant="seeker" className="w-full" disabled={pending}>
         <LogIn aria-hidden="true" strokeWidth={1.5} />

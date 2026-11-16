@@ -11,6 +11,10 @@
  * - "만료" is a date check (stayExpiry in the past), not a row.
  * - D-2 graduation window (6 months) is a track condition stored as data (SC-05), not a legal number.
  *
+ * - `subTypes` (P1c) = sub type codes offered in wizard Step 2 (code names only, no legal values);
+ *   `nextGoal` (P1c) = offered as a Step 6 "다음에 원하는 비자" option (its sub types, else its code).
+ *   Examples from WO §7.3 (E-7-x, F-2-x; E-7-4, E-7-4R, F-2-R, F-5, F-4). TODO(operator): review.
+ *
  * TODO(operator): review notes / add other visa codes if needed (they default to OTHER handling).
  */
 import type { PrismaClient, SeekerTrack } from "@prisma/client";
@@ -26,6 +30,8 @@ export type VisaTypeSeed = {
   graduationWindowTrack?: SeekerTrack;
   graduationWindowAutoConsult?: boolean;
   requiresGraduationDate?: boolean;
+  subTypes?: string[];
+  nextGoal?: boolean;
   note: string;
 };
 
@@ -41,6 +47,8 @@ export const VISA_TYPES: VisaTypeSeed[] = [
     nameKey: "visaType.f2.name",
     defaultTrack: "JOB_MATCH",
     registrable: true,
+    subTypes: ["F-2-R", "F-2-7", "F-2-99"],
+    nextGoal: true,
     note: JOB_MATCH_NOTE,
   },
   {
@@ -48,6 +56,7 @@ export const VISA_TYPES: VisaTypeSeed[] = [
     nameKey: "visaType.f4.name",
     defaultTrack: "JOB_MATCH",
     registrable: true,
+    nextGoal: true,
     note: JOB_MATCH_NOTE,
   },
   {
@@ -55,6 +64,7 @@ export const VISA_TYPES: VisaTypeSeed[] = [
     nameKey: "visaType.f5.name",
     defaultTrack: "JOB_MATCH",
     registrable: true,
+    nextGoal: true,
     note: JOB_MATCH_NOTE,
   },
   {
@@ -108,6 +118,8 @@ export const VISA_TYPES: VisaTypeSeed[] = [
     defaultTrack: "JOB_MATCH",
     registrable: true,
     needsVisaReview: true,
+    subTypes: ["E-7-1", "E-7-2", "E-7-3", "E-7-4", "E-7-4R"],
+    nextGoal: true,
     note: "이직 시 절차가 필요합니다. 행정사가 확인합니다",
   },
   // E-9, E-10 → FUTURE_POOL (BR-07: 기업 비노출)
@@ -197,6 +209,8 @@ export async function seedVisaTypes(prisma: PrismaClient): Promise<number> {
       graduationWindowTrack: v.graduationWindowTrack ?? null,
       graduationWindowAutoConsult: v.graduationWindowAutoConsult ?? false,
       requiresGraduationDate: v.requiresGraduationDate ?? false,
+      subTypes: v.subTypes ?? [],
+      nextGoal: v.nextGoal ?? false,
       sortOrder: i + 1,
       note: v.note,
     };

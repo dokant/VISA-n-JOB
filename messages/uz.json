@@ -57,6 +57,34 @@
     "employerSignup": {
       "title": "Kompaniyani roʻyxatdan oʻtkazish",
       "description": "VISA n JOB kompaniya hisobini yarating."
+    },
+    "seekerRegister": {
+      "title": "Ish izlovchi roʻyxati",
+      "description": "Visa&Job’da toʻliq roʻyxatdan oʻtish. Har bir qadam avtomatik saqlanadi."
+    },
+    "seekerQuick": {
+      "title": "Tezkor roʻyxat",
+      "description": "Til, viza, hudud va telefon bilan 1 daqiqada roʻyxatdan oʻting."
+    },
+    "seekerComplete": {
+      "title": "Roʻyxat yakunlandi",
+      "description": "Siz roʻyxatdan oʻtdingiz."
+    },
+    "seekerMe": {
+      "title": "Mening sahifam",
+      "description": "Darajangiz, roʻyxat jarayoni va roziliklaringiz."
+    },
+    "seekerStay": {
+      "title": "Turish muddati eslatmasi",
+      "description": "Turish muddati tugashidan oldin eslatmani sozlang."
+    },
+    "seekerReferral": {
+      "title": "Mening tavsiya kodim",
+      "description": "Tavsiya kodingizni doʻstlaringizga ulashing."
+    },
+    "seekerRecommended": {
+      "title": "Tavsiya etilgan ishlar",
+      "description": "Vizangiz va istaklaringizga mos ishlar."
     }
   },
   "common": {
@@ -135,6 +163,9 @@
     },
     "form": {
       "required": "(majburiy)"
+    },
+    "profileCompletion": {
+      "sms": "Visa&Job’da tezkor roʻyxatdan oʻtdingiz. Mosroq ishlar uchun profilingizni toʻldiring: {path}"
     }
   },
   "nav": {
@@ -626,7 +657,14 @@
       "passwordTooLong": "Parol juda uzun.",
       "passwordMismatch": "Parollar bir xil emas.",
       "tooLong": "Matn juda uzun.",
-      "bizRegNoChecksum": "Korxona roʻyxat raqami notoʻgʻri. Raqamni qayta tekshiring."
+      "bizRegNoChecksum": "Korxona roʻyxat raqami notoʻgʻri. Raqamni qayta tekshiring.",
+      "mustConfirm": "Tasdiqlash uchun belgilang.",
+      "consentRequired": "Bu roʻyxatdan oʻtish uchun majburiy rozilik.",
+      "tooMany": "Koʻpi bilan {max} ta tanlash mumkin.",
+      "invalidValue": "Tanlangan qiymatni tekshiring.",
+      "invalidMonth": "Yil va oyni tanlang.",
+      "invalidDate": "Sanani tekshiring.",
+      "invalidReferralCode": "Tavsiya kodini tekshiring."
     },
     "auth": {
       "invalidCredentials": "E-pochta yoki parol notoʻgʻri.",
@@ -645,6 +683,12 @@
       "invalidBizRegNo": "10 xonali korxona roʻyxat raqamini kiriting.",
       "validation": "Kiritilgan maʼlumotlarni tekshiring.",
       "unknown": "Xatolik yuz berdi. Qayta urinib koʻring."
+    },
+    "register": {
+      "phoneTaken": "Bu raqam boshqa hisobda ishlatilmoqda. Maslahatga ariza bering.",
+      "invalidReference": "Viza va hududni qayta tanlang.",
+      "noProfile": "Roʻyxat maʼlumoti topilmadi. Qayta kiring.",
+      "validation": "Kiritilgan maʼlumotni tekshiring."
     }
   },
   "seeker": {
@@ -668,7 +712,502 @@
       "resendIn": "Yangi kodni {seconds} soniyadan keyin olishingiz mumkin",
       "changePhone": "Raqamni oʻzgartirish",
       "submit": "Kirish",
-      "submitting": "Tekshirilmoqda…"
+      "submitting": "Tekshirilmoqda…",
+      "registerFirst": "Hali roʻyxatdan oʻtmaganmisiz? Avval tezkor roʻyxatdan oʻting.",
+      "quickRegister": "Tezkor roʻyxat"
+    },
+    "grade": {
+      "label": "{grade} daraja",
+      "priority": "Ustuvor"
+    },
+    "register": {
+      "common": {
+        "noSeekerFee": "Ish izlovchilar uchun bepul",
+        "next": "Saqlash va davom etish",
+        "back": "Orqaga",
+        "saving": "Saqlanmoqda…",
+        "fixErrors": "Belgilangan maydonlarni tekshiring.",
+        "yes": "Ha",
+        "no": "Yoʻq",
+        "unknown": "Bilmayman",
+        "year": "Yil",
+        "month": "Oy",
+        "otherCountry": "Boshqa davlat",
+        "otherLanguage": "Boshqa til",
+        "subScreen": "{current}/{total}",
+        "changeVisa": "Viza maʼlumotini qayta kiritish"
+      },
+      "progress": {
+        "count": "{step}/{total}",
+        "saved": "Avtomatik saqlandi",
+        "label": "Roʻyxat jarayoni"
+      },
+      "disclosure": {
+        "private": "Bu maʼlumot korxonalarga koʻrsatilmaydi",
+        "blind": "Korxonalarga anonim koʻrinishda koʻrsatiladi",
+        "summaryTitle": "Korxonalar nimani koʻradi"
+      },
+      "blocked": {
+        "title": "Faqat ishlashga ruxsat beruvchi turish maqomi borlar ish izlovchi sifatida roʻyxatdan oʻta oladi",
+        "notRegistrable": "Tanlangan viza bilan roʻyxatni yakunlab boʻlmaydi. Turish boʻyicha maslahatga ariza bering.",
+        "expired": "Turish muddati tugagan. Turish boʻyicha maslahatga ariza bering.",
+        "noVisa": "Viza maʼlumoti yoʻq. Turish boʻyicha maslahatga ariza bering.",
+        "cta": "Turish boʻyicha maslahatga ariza"
+      },
+      "otp": {
+        "phone": {
+          "label": "Telefon raqami",
+          "help": "Koreya raqami boʻlmasa, + va davlat kodidan boshlang.",
+          "placeholder": "010-0000-0000"
+        },
+        "send": "Kod olish",
+        "resend": "Qayta yuborish",
+        "resendIn": "{seconds} soniyadan keyin qayta",
+        "code": {
+          "label": "Tasdiqlash kodi",
+          "help": "SMSdagi {length} xonali kodni kiriting."
+        },
+        "sendFirst": "Avval tasdiqlash kodini oling."
+      },
+      "step0": {
+        "title": "Boshlash",
+        "lead": "Tilni tanlang va telefoningizni tasdiqlang.",
+        "notice": "Har bir qadam avtomatik saqlanadi. Keyinroq kirib davom ettirishingiz mumkin.",
+        "locale": {
+          "label": "Til",
+          "help": "Barcha qadamlar shu tilda koʻrsatiladi."
+        },
+        "referralCode": {
+          "label": "Tavsiya kodi (boʻlsa)",
+          "help": "Doʻstingiz bergan kod boʻlsa, kiriting."
+        },
+        "phone": "Telefon raqami",
+        "submit": "Tasdiqlash va boshlash",
+        "submitting": "Tekshirilmoqda…",
+        "haveAccount": "Roʻyxatdan oʻtganmisiz? Kirish",
+        "quickInstead": "1 daqiqalik tezkor roʻyxat"
+      },
+      "step1": {
+        "title": "Asosiy maʼlumot",
+        "lead": "Ismingiz va yashash joyingizni kiriting.",
+        "legalName": {
+          "label": "Ism (pasportdagidek)",
+          "help": "Pasportdagi lotin yozuvidagi ismni aynan kiriting."
+        },
+        "nationality": {
+          "label": "Fuqarolik"
+        },
+        "region": {
+          "label": "Hozirgi yashash joyi",
+          "help": "Korxonalar faqat viloyat / shaharni koʻradi."
+        },
+        "sido": "Viloyat / shahar",
+        "sigungu": "Tuman (ixtiyoriy)",
+        "sidoOnly": "Yashash viloyati / shahri",
+        "messenger": {
+          "label": "Aloqa uchun messenjer",
+          "help": "Faqat Visa&Job xodimlari bogʻlanadi.",
+          "option": {
+            "KAKAO": "KakaoTalk",
+            "ZALO": "Zalo",
+            "WHATSAPP": "WhatsApp",
+            "TELEGRAM": "Telegram",
+            "WECHAT": "WeChat",
+            "VIBER": "Viber",
+            "NONE": "Ishlatmayman"
+          }
+        },
+        "messengerId": "Messenjer ID",
+        "email": {
+          "label": "Elektron pochta"
+        },
+        "birthYear": {
+          "label": "Tugʻilgan yil",
+          "help": "Faqat Visa&Job ichida ishlatiladi."
+        },
+        "gender": {
+          "label": "Jins",
+          "help": "Faqat yotoqxonaga joylashtirish uchun.",
+          "option": {
+            "MALE": "Erkak",
+            "FEMALE": "Ayol",
+            "OTHER": "Boshqa",
+            "NO_ANSWER": "Javob bermayman"
+          }
+        }
+      },
+      "step2": {
+        "title": "Turish maqomi",
+        "lead": "Hozirgi vizangiz haqida yozing.",
+        "visaCode": {
+          "label": "Hozirgi viza",
+          "help": "Ishonchingiz komil boʻlmasa, 'Bilmayman'ni tanlang. Maslahatga yoʻnaltiramiz."
+        },
+        "visaSubType": {
+          "label": "Kichik turi"
+        },
+        "stayExpiry": {
+          "label": "Turish muddati tugashi (yil, oy)",
+          "help": "Korxonalar faqat qolgan muddat oraligʻini koʻradi."
+        },
+        "hasArc": {
+          "label": "Chet ellik guvohnomangiz bormi?",
+          "help": "Raqamini soʻramaymiz."
+        },
+        "entryYear": {
+          "label": "Koreyaga kelgan yil",
+          "help": "Korxonalar faqat Koreyadagi yillar sonini koʻradi."
+        },
+        "pendingApplication": {
+          "label": "Koʻrib chiqilayotgan viza arizangiz bormi?"
+        },
+        "visaConfirm": {
+          "label": "Kiritgan turish maʼlumotlarim toʻgʻri ekanini tasdiqlayman"
+        },
+        "stayBand": "Qolgan turish muddati (oraliq)",
+        "yearsInKorea": "Koreyadagi yillar"
+      },
+      "step3": {
+        "title": "Taʼlim va tillar",
+        "lead": "Taʼlimingiz va koreys tili darajangizni kiriting.",
+        "educationLevel": {
+          "label": "Eng yuqori taʼlim",
+          "option": {
+            "MIDDLE_OR_LESS": "Oʻrta maktab yoki past",
+            "HIGH_SCHOOL": "Litsey / kollej (oʻrta)",
+            "COLLEGE": "Kollej (oliy)",
+            "BACHELOR": "Universitet",
+            "MASTER": "Magistratura",
+            "DOCTOR": "Doktorantura"
+          }
+        },
+        "major": {
+          "label": "Mutaxassislik",
+          "help": "Korxonalar faqat sohani koʻradi."
+        },
+        "majorField": "Mutaxassislik sohasi",
+        "schoolName": {
+          "label": "Taʼlim muassasasi (Koreya universiteti)",
+          "help": "Korxonalarga koʻrsatilmaydi."
+        },
+        "graduationDate": {
+          "label": "Bitirish (kutilayotgan) sanasi",
+          "help": "Talabalar (D-2, D-10) albatta kiritsin."
+        },
+        "topikLevel": {
+          "label": "TOPIK darajasi",
+          "help": "Koreys tili bilim testi.",
+          "option": {
+            "0": "Yoʻq",
+            "1": "1-daraja",
+            "2": "2-daraja",
+            "3": "3-daraja",
+            "4": "4-daraja",
+            "5": "5-daraja",
+            "6": "6-daraja"
+          }
+        },
+        "kiipStage": {
+          "label": "Ijtimoiy integratsiya dasturi bosqichi",
+          "help": "Adliya vazirligi KIIP dasturi bosqichi.",
+          "option": {
+            "0": "Yoʻq",
+            "1": "1-bosqich",
+            "2": "2-bosqich",
+            "3": "3-bosqich",
+            "4": "4-bosqich",
+            "5": "5-bosqich"
+          }
+        },
+        "koreanSpeaking": {
+          "label": "Koreys tilida soʻzlashuv",
+          "help": "Sizga eng mos gapni tanlang.",
+          "option": {
+            "1": "Faqat salomlasha olaman",
+            "2": "Oddiy kundalik suhbat qila olaman",
+            "3": "Ishda kerakli suhbatni qila olaman",
+            "4": "Qiyin mavzularda ham bemalol gaplashaman"
+          }
+        },
+        "otherLanguages": {
+          "label": "Boshqa biladigan tillar"
+        }
+      },
+      "step4": {
+        "title": "Tajriba va koʻnikmalar",
+        "lead": "Qilgan ishlaringiz va koʻnikmalaringizni kiriting.",
+        "experiences": {
+          "label": "Ish tajribasi",
+          "help": "Korxonalar faqat soha, lavozim va muddatni koʻradi. Boʻlmasa, boʻsh qoldiring."
+        },
+        "experienceN": "Tajriba {n}",
+        "removeExperience": "Oʻchirish",
+        "addExperience": "Tajriba qoʻshish",
+        "country": "Davlat",
+        "industry": "Soha",
+        "roleField": "Lavozim",
+        "role": {
+          "option": {
+            "PRODUCTION": "Ishlab chiqarish",
+            "ASSEMBLY": "Yigʻish",
+            "WELDING": "Payvandlash",
+            "MACHINE_OPERATION": "Dastgohda ishlash",
+            "PACKING": "Qadoqlash",
+            "LOGISTICS": "Logistika",
+            "CONSTRUCTION": "Qurilish",
+            "AGRICULTURE": "Qishloq xoʻjaligi",
+            "FISHERY": "Baliqchilik",
+            "CARE": "Parvarish",
+            "FOOD_SERVICE": "Ovqatlanish xizmati",
+            "CLEANING": "Tozalash",
+            "OFFICE": "Ofis ishi",
+            "IT": "IT",
+            "SALES": "Savdo",
+            "INTERPRETATION": "Tarjima",
+            "OTHER": "Boshqa"
+          }
+        },
+        "months": "Muddat (oy)",
+        "employerName": "Kompaniya nomi",
+        "experienceSummary": "Tajriba (soha, lavozim, muddat)",
+        "skills": {
+          "label": "Koʻnikmalar",
+          "option": {
+            "FORKLIFT": "Yuklagich haydash",
+            "WELDING": "Payvandlash",
+            "CNC": "CNC",
+            "ELECTRICAL": "Elektr",
+            "PAINTING": "Boʻyash",
+            "ASSEMBLY": "Yigʻish",
+            "PACKING": "Qadoqlash",
+            "CARE": "Parvarish",
+            "COOKING": "Ovqat pishirish",
+            "DRIVING": "Haydovchilik",
+            "COMPUTER": "Kompyuter",
+            "OTHER": "Boshqa"
+          }
+        },
+        "licenses": {
+          "label": "Guvohnomalar",
+          "option": {
+            "KR_DRIVER_LICENSE": "Koreya haydovchilik guvohnomasi",
+            "FORKLIFT_LICENSE": "Yuklagich guvohnomasi",
+            "WELDING_CERT": "Payvandchi sertifikati",
+            "CARE_WORKER_CERT": "Parvarishchi sertifikati",
+            "OTHER": "Boshqa"
+          }
+        }
+      },
+      "step5": {
+        "title": "Istalgan ish sharoitlari",
+        "lead": "Qanday ish istashingizni yozing.",
+        "jobSearchStatus": {
+          "label": "Ish qidirish holati",
+          "option": {
+            "IMMEDIATE": "Darhol mumkin",
+            "WITHIN_1M": "1 oy ichida",
+            "EMPLOYED_OPEN": "Ishlayapman, oʻzgartirishni oʻylayapman",
+            "NOT_SEARCHING": "Hozircha yoʻq"
+          }
+        },
+        "availableFrom": {
+          "label": "Ishni boshlash sanasi"
+        },
+        "desiredIndustries": {
+          "label": "Istalgan sohalar",
+          "help": "Koʻpi bilan 3 ta tanlang."
+        },
+        "desiredRegions": {
+          "label": "Istalgan hududlar",
+          "help": "Koʻpi bilan 3 ta tanlang."
+        },
+        "anyRegion": "Istalgan joy",
+        "needDormitory": {
+          "label": "Yotoqxona kerakmi?"
+        },
+        "shiftOk": {
+          "label": "Smenali yoki tungi ish mumkinmi?",
+          "option": {
+            "YES": "Mumkin",
+            "NO": "Qiyin",
+            "CONDITIONAL": "Shartga qarab",
+            "UNKNOWN": "Bilmayman"
+          }
+        },
+        "desiredPayMin": {
+          "label": "Eng kam oylik (soliqdan oldin)",
+          "help": "Oraliqni tanlang."
+        },
+        "payFrom": "{amount} dan",
+        "groupApply": {
+          "label": "Doʻstingiz bilan birga ishlashni xohlaysizmi?"
+        },
+        "groupFriendCode": {
+          "label": "Doʻstning tavsiya kodi",
+          "help": "Doʻstingiz kodi boʻlsa, kiriting."
+        }
+      },
+      "step6": {
+        "title": "Viza maqsadi",
+        "lead": "Keyingi istagan vizangizni yozing. Korxonalar buni koʻrmaydi.",
+        "nextVisaGoal": {
+          "label": "Keyingi istagan viza",
+          "help": "Ishonchingiz komil boʻlmasa, 'Bilmayman'ni tanlang."
+        },
+        "wantsConsult": {
+          "label": "Bepul viza yoʻli maslahatiga yozilasizmi?",
+          "help": "Maʼmuriy mutaxassis siz bilan tekshiradi."
+        },
+        "consultTime": {
+          "label": "Maslahat uchun qulay vaqt",
+          "option": {
+            "MORNING": "Ertalab",
+            "AFTERNOON": "Kunduzi",
+            "EVENING": "Kechqurun",
+            "WEEKEND": "Dam olish kunlari"
+          }
+        }
+      },
+      "step7": {
+        "title": "Rozilik va yakun",
+        "lead": "Roziliklarni tekshiring va roʻyxatni yakunlang.",
+        "privacyRequired": {
+          "label": "Shaxsiy maʼlumotlarni yigʻish va ishlatishga roziman"
+        },
+        "blindProfile": {
+          "label": "Ism va aloqasiz anonim profilim korxonalarga berilishiga roziman"
+        },
+        "marketing": {
+          "label": "Ish va viza yangiliklarini olishni xohlayman"
+        },
+        "notice": {
+          "label": "\"Ish izlovchilar uchun bepul\" va \"Korxonalar bilan aloqa faqat Visa&Job orqali\" eslatmasini oʻqidim"
+        },
+        "optional": "(ixtiyoriy)",
+        "readFull": "Toʻliq matn",
+        "submit": "Roʻyxatni yakunlash"
+      }
+    },
+    "quick": {
+      "eyebrow": "Tezkor roʻyxat",
+      "title": "1 daqiqalik tezkor roʻyxat",
+      "lead": "Faqat til, viza, hudud va telefonni tasdiqlash. Qolganini keyin toʻldirishingiz mumkin.",
+      "noSeekerFee": "Ish izlovchilar uchun bepul.",
+      "notice": "Korxonalar bilan aloqa faqat Visa&Job orqali.",
+      "locale": "Til",
+      "visa": "Hozirgi viza",
+      "visaHelp": "Ishonchingiz komil boʻlmasa, 'Bilmayman'ni tanlang. Maslahatga yoʻnaltiramiz.",
+      "sido": "Yashash viloyati / shahri",
+      "submit": "Tasdiqlash va roʻyxatdan oʻtish",
+      "submitting": "Roʻyxatga olinmoqda…",
+      "haveAccount": "Roʻyxatdan oʻtganmisiz? Kirish",
+      "fullInstead": "Toʻliq roʻyxatdan oʻtish"
+    },
+    "complete": {
+      "eyebrow": "Roʻyxat yakunlandi",
+      "title": "Siz roʻyxatdan oʻtdingiz",
+      "lead": "Visa&Job xodimi tekshirib, siz bilan bogʻlanadi.",
+      "gradeTitle": "Hozirgi daraja",
+      "upgrade": "Maslahatga yozilsangiz A daraja boʻlasiz. Turish va koreys tili tasdiqlangach S daraja boʻlib, korxonalarga birinchi navbatda tavsiya etilasiz.",
+      "completeProfile": "Mosroq ishlar uchun profilingizni toʻldiring.",
+      "completeProfileCta": "Profilni toʻldirish",
+      "nextTitle": "Keyingi qadamlar",
+      "referralTitle": "Mening tavsiya kodim",
+      "referralLead": "Ulashsangiz, doʻstlaringiz oson roʻyxatdan oʻtadi.",
+      "noSeekerFee": "Ish izlovchilar uchun bepul.",
+      "contactNotice": "Korxonalar bilan aloqa faqat Visa&Job orqali.",
+      "toMyPage": "Mening sahifamga"
+    },
+    "next": {
+      "guide": {
+        "JOB_MATCH": "Vizangiz va istaklaringizga mos tavsiya etilgan ishlarni koʻrsatamiz.",
+        "JOB_MATCH_CONSULT": "Ish va E-7 ga oʻtishni birga rejalashtiramiz. Mutaxassis maslahat tayyorlamoqda.",
+        "VISA_REVIEW": "Ish almashtirishda tartib kerak. Maʼmuriy mutaxassis tekshiradi.",
+        "CONSULT_ONLY": "Vizangiz ruxsat bergan ish va yoʻnalish haqida maslahatda tushuntiramiz.",
+        "FUTURE_POOL": "Ish joyini oʻzgartirish Bandlik markazi orqali boʻladi. Visa&Job uzoq muddatli turishga oʻtishni (masalan, E-7-4) rejalashtiradi."
+      },
+      "recommended": "Tavsiya etilgan ishlar",
+      "consult": "Maslahatga ariza",
+      "score": "E-7-4 ball kalkulyatori",
+      "stay": "Turish muddati eslatmasi"
+    },
+    "referral": {
+      "eyebrow": "Tavsiya",
+      "title": "Mening tavsiya kodim",
+      "lead": "Visa&Job’ni doʻstlaringizga tanishtiring.",
+      "codeLabel": "Tavsiya kodi",
+      "shareText": "Visa&Job’da vizangizga mos ish toping. Tavsiya kodi: {code}",
+      "shareTitle": "Visa&Job tezkor roʻyxat",
+      "share": "Ulashish",
+      "copyLink": "Havolani nusxalash",
+      "copied": "Nusxalandi",
+      "copiedHelp": "Havola nusxalandi. Doʻstingizga yuboring.",
+      "help": "Doʻstingiz shu havola orqali roʻyxatdan oʻtsa, kodingiz ham saqlanadi.",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "viber": "Viber",
+      "count": "Mening kodim bilan roʻyxatdan oʻtganlar: {count, plural, other {# kishi}}",
+      "back": "Mening sahifamga"
+    },
+    "me": {
+      "eyebrow": "Ish izlovchi",
+      "title": "Mening sahifam",
+      "lead": "Darajangiz, roʻyxat jarayoni va roziliklaringiz.",
+      "gradeTitle": "Mening darajam",
+      "gradeHelp": "Maslahatga yozilsangiz A daraja. Turish va koreys tili tasdiqlangach S daraja.",
+      "visa": "Hozirgi viza",
+      "progressTitle": "Roʻyxat jarayoni",
+      "progressDone": "Toʻliq roʻyxat yakunlandi.",
+      "progressCount": "{total} qadamdan {step}-qadamgacha saqlandi.",
+      "continue": "Roʻyxatni davom ettirish",
+      "nextTitle": "Keyingi qadamlar",
+      "links": {
+        "stay": "Turish muddati eslatmasi",
+        "referral": "Mening tavsiya kodim"
+      },
+      "consents": {
+        "title": "Roziliklarim",
+        "lead": "Ixtiyoriy roziliklarni istalgan vaqtda qaytarib olish mumkin.",
+        "type": {
+          "PRIVACY_REQUIRED": "Shaxsiy maʼlumotlarni yigʻish va ishlatish",
+          "BLIND_PROFILE": "Korxonalarga anonim profil",
+          "MARKETING": "Ish va viza yangiliklari",
+          "NOTICE": "Foydalanish eslatmasi"
+        },
+        "agreed": "Rozilik berilgan",
+        "notAgreed": "Rozilik yoʻq",
+        "revoke": "Rozilikni qaytarib olish",
+        "revokeConfirm": "Qaytarib olish",
+        "cancel": "Bekor qilish",
+        "close": "Yopish",
+        "confirmTitle": "Bu rozilik qaytarib olinsinmi?",
+        "confirm": {
+          "BLIND_PROFILE": "Darhol korxonalarning nomzodlar roʻyxatidan chiqasiz. Qayta rozilik bersangiz, yana koʻrinasiz.",
+          "MARKETING": "Ish va viza yangiliklarini yuborishni toʻxtatamiz."
+        },
+        "grant": "Qayta rozilik berish",
+        "requiredNote": "Bu majburiy rozilik. Qaytarib olish uchun maslahatga ariza bering.",
+        "error": "Bajarib boʻlmadi. Qayta urinib koʻring."
+      }
+    },
+    "stay": {
+      "eyebrow": "Turish",
+      "title": "Turish muddati eslatmasi",
+      "lead": "Turish muddatingizni kiriting, oldindan eslatamiz.",
+      "notice": "Muddat tugashidan {days} eslatma yuboramiz va maʼmuriy mutaxassis tekshiradi.",
+      "dayBefore": "{days} kun oldin",
+      "expiry": "Turish muddati tugashi (yil, oy)",
+      "optIn": "Turish muddati eslatmalarini olishni xohlayman",
+      "save": "Saqlash",
+      "saving": "Saqlanmoqda…",
+      "saved": "Saqlandi.",
+      "error": "Saqlab boʻlmadi. Qayta urinib koʻring.",
+      "back": "Mening sahifamga"
+    },
+    "recommended": {
+      "eyebrow": "Tavsiya etilgan ishlar",
+      "title": "Tavsiya etilgan ishlar",
+      "description": "Vizangiz va istaklaringizga mos ishlarni tayyorlayapmiz. Savollaringiz boʻlsa, maslahatga ariza bering."
     }
   },
   "employer": {

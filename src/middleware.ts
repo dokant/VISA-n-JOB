@@ -1,9 +1,16 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 
+import { REFERRAL_COOKIE_MAX_AGE_SEC } from "./config/limits";
 import { authConfig } from "./lib/authConfig";
 import { decideAdminAccess, isAdminPath } from "./lib/authGuard";
+import {
+  REF_COOKIE,
+  SRC_COOKIE,
+  normalizeReferralCode,
+  normalizeSourceChannel,
+} from "./lib/seeker/referral";
 import { routing } from "./i18n/routing";
 
 /**
@@ -15,7 +22,27 @@ const intl = createMiddleware(routing);
 const { auth } = NextAuth(authConfig);
 
 /** R-130 / WO §13: areas that must never be indexed (header in addition to meta + robots.txt). */
-const NOINDEX = /^\/(admin(\/|$)|[a-z]{2}\/(employer|seeker)\/(candidates|login|signup)(\/|$))/;
+const NOINDEX =
+  /^\/(admin(\/|$)|[a-z]{2}\/(employer|seeker)\/(candidates|login|signup|register|me)(\/|$))/;
+
+/**
+ * R-111: `?ref=코드&src=채널` on any page is kept in cookies until the seeker registers
+ * (src/lib/seeker/account.ts stores them as referredByCode / sourceChannel). Invalid values are
+ * ignored; the cookies hold no personal data.
+ */
+function keepEntryParams(request: NextRequest, response: NextResponse): void {
+  const ref = normalizeReferralCode(request.nextUrl.searchParams.get("ref"));
+  const src = normalizeSourceChannel(request.nextUrl.searchParams.get("src"));
+  const options = {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: REFERRAL_COOKIE_MAX_AGE_SEC,
+    secure: request.nextUrl.protocol === "https:",
+  };
+  if (ref) response.cookies.set(REF_COOKIE, ref, options);
+  if (src) response.cookies.set(SRC_COOKIE, src, options);
+}
 
 export default auth((request) => {
   const { pathname } = request.nextUrl;
@@ -30,6 +57,7 @@ export default auth((request) => {
     response.headers.set("Cache-Control", "no-store");
   } else {
     response = intl(request);
+    keepEntryParams(request, response);
   }
   if (NOINDEX.test(pathname)) response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;

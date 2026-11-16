@@ -57,6 +57,34 @@
     "employerSignup": {
       "title": "Đăng ký doanh nghiệp",
       "description": "Tạo tài khoản doanh nghiệp VISA n JOB."
+    },
+    "seekerRegister": {
+      "title": "Đăng ký tìm việc",
+      "description": "Đăng ký đầy đủ với Visa&Job. Mỗi bước được lưu tự động."
+    },
+    "seekerQuick": {
+      "title": "Đăng ký nhanh",
+      "description": "Đăng ký trong 1 phút với ngôn ngữ, visa, khu vực và điện thoại."
+    },
+    "seekerComplete": {
+      "title": "Hoàn tất đăng ký",
+      "description": "Bạn đã đăng ký xong."
+    },
+    "seekerMe": {
+      "title": "Trang của tôi",
+      "description": "Xem hạng, tiến độ đăng ký và các đồng ý của bạn."
+    },
+    "seekerStay": {
+      "title": "Nhắc hạn lưu trú",
+      "description": "Cài đặt nhắc nhở trước khi hết hạn lưu trú."
+    },
+    "seekerReferral": {
+      "title": "Mã giới thiệu của tôi",
+      "description": "Chia sẻ mã giới thiệu với bạn bè."
+    },
+    "seekerRecommended": {
+      "title": "Việc làm đề xuất",
+      "description": "Việc làm phù hợp với visa và mong muốn của bạn."
     }
   },
   "common": {
@@ -135,6 +163,9 @@
     },
     "form": {
       "required": "(bắt buộc)"
+    },
+    "profileCompletion": {
+      "sms": "Bạn đã đăng ký nhanh với Visa&Job. Hãy hoàn thiện hồ sơ để nhận gợi ý việc làm phù hợp hơn: {path}"
     }
   },
   "nav": {
@@ -626,7 +657,14 @@
       "passwordTooLong": "Mật khẩu quá dài.",
       "passwordMismatch": "Hai mật khẩu không khớp.",
       "tooLong": "Nội dung quá dài.",
-      "bizRegNoChecksum": "Số đăng ký kinh doanh không hợp lệ. Vui lòng kiểm tra lại."
+      "bizRegNoChecksum": "Số đăng ký kinh doanh không hợp lệ. Vui lòng kiểm tra lại.",
+      "mustConfirm": "Vui lòng đánh dấu để xác nhận.",
+      "consentRequired": "Đây là đồng ý bắt buộc để đăng ký.",
+      "tooMany": "Bạn có thể chọn tối đa {max}.",
+      "invalidValue": "Vui lòng kiểm tra lại lựa chọn.",
+      "invalidMonth": "Vui lòng chọn cả năm và tháng.",
+      "invalidDate": "Vui lòng kiểm tra lại ngày.",
+      "invalidReferralCode": "Vui lòng kiểm tra lại mã giới thiệu."
     },
     "auth": {
       "invalidCredentials": "Email hoặc mật khẩu không đúng.",
@@ -645,6 +683,12 @@
       "invalidBizRegNo": "Nhập số đăng ký kinh doanh gồm 10 chữ số.",
       "validation": "Vui lòng kiểm tra thông tin đã nhập.",
       "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
+    },
+    "register": {
+      "phoneTaken": "Số này đang được dùng cho tài khoản khác. Vui lòng đăng ký tư vấn.",
+      "invalidReference": "Vui lòng chọn lại visa và khu vực.",
+      "noProfile": "Không tìm thấy thông tin đăng ký. Vui lòng đăng nhập lại.",
+      "validation": "Vui lòng kiểm tra lại nội dung đã nhập."
     }
   },
   "seeker": {
@@ -668,7 +712,502 @@
       "resendIn": "Bạn có thể nhận mã mới sau {seconds} giây",
       "changePhone": "Đổi số",
       "submit": "Đăng nhập",
-      "submitting": "Đang kiểm tra…"
+      "submitting": "Đang kiểm tra…",
+      "registerFirst": "Chưa đăng ký? Hãy đăng ký nhanh trước.",
+      "quickRegister": "Đăng ký nhanh"
+    },
+    "grade": {
+      "label": "Hạng {grade}",
+      "priority": "Ưu tiên"
+    },
+    "register": {
+      "common": {
+        "noSeekerFee": "Người tìm việc không mất phí",
+        "next": "Lưu và tiếp tục",
+        "back": "Quay lại",
+        "saving": "Đang lưu…",
+        "fixErrors": "Vui lòng kiểm tra các mục được đánh dấu.",
+        "yes": "Có",
+        "no": "Không",
+        "unknown": "Không biết",
+        "year": "Năm",
+        "month": "Tháng",
+        "otherCountry": "Nước khác",
+        "otherLanguage": "Ngôn ngữ khác",
+        "subScreen": "{current}/{total}",
+        "changeVisa": "Nhập lại thông tin visa"
+      },
+      "progress": {
+        "count": "{step}/{total}",
+        "saved": "Đã tự động lưu",
+        "label": "Tiến độ đăng ký"
+      },
+      "disclosure": {
+        "private": "Thông tin này không được công khai cho doanh nghiệp",
+        "blind": "Được công khai ở dạng ẩn danh",
+        "summaryTitle": "Doanh nghiệp có thể xem gì"
+      },
+      "blocked": {
+        "title": "Chỉ người có tư cách lưu trú được phép làm việc mới có thể đăng ký tìm việc",
+        "notRegistrable": "Không thể hoàn tất đăng ký với visa đã chọn. Vui lòng đăng ký tư vấn lưu trú.",
+        "expired": "Thời hạn lưu trú đã hết. Vui lòng đăng ký tư vấn lưu trú.",
+        "noVisa": "Không có thông tin visa. Vui lòng đăng ký tư vấn lưu trú.",
+        "cta": "Đăng ký tư vấn lưu trú"
+      },
+      "otp": {
+        "phone": {
+          "label": "Số điện thoại",
+          "help": "Nếu không phải số Hàn Quốc, hãy nhập + và mã quốc gia.",
+          "placeholder": "010-0000-0000"
+        },
+        "send": "Nhận mã",
+        "resend": "Gửi lại",
+        "resendIn": "Gửi lại sau {seconds} giây",
+        "code": {
+          "label": "Mã xác thực",
+          "help": "Nhập mã {length} chữ số trong tin nhắn."
+        },
+        "sendFirst": "Vui lòng nhận mã xác thực trước."
+      },
+      "step0": {
+        "title": "Bắt đầu",
+        "lead": "Chọn ngôn ngữ và xác thực điện thoại.",
+        "notice": "Mỗi bước được lưu tự động. Đăng nhập sau để tiếp tục.",
+        "locale": {
+          "label": "Ngôn ngữ",
+          "help": "Mọi bước sẽ hiển thị bằng ngôn ngữ này."
+        },
+        "referralCode": {
+          "label": "Mã giới thiệu (nếu có)",
+          "help": "Nhập mã nếu bạn bè đã gửi cho bạn."
+        },
+        "phone": "Số điện thoại",
+        "submit": "Xác thực và bắt đầu",
+        "submitting": "Đang kiểm tra…",
+        "haveAccount": "Đã đăng ký? Đăng nhập",
+        "quickInstead": "Dùng đăng ký nhanh 1 phút"
+      },
+      "step1": {
+        "title": "Thông tin cơ bản",
+        "lead": "Cho chúng tôi biết tên và nơi bạn đang sống.",
+        "legalName": {
+          "label": "Họ tên (theo hộ chiếu)",
+          "help": "Nhập tên tiếng Anh đúng như trong hộ chiếu."
+        },
+        "nationality": {
+          "label": "Quốc tịch"
+        },
+        "region": {
+          "label": "Nơi ở hiện tại",
+          "help": "Doanh nghiệp chỉ thấy tỉnh / thành phố."
+        },
+        "sido": "Tỉnh / thành phố",
+        "sigungu": "Quận / huyện (không bắt buộc)",
+        "sidoOnly": "Tỉnh / thành phố cư trú",
+        "messenger": {
+          "label": "Ứng dụng nhắn tin để liên lạc",
+          "help": "Chỉ nhân viên Visa&Job liên lạc với bạn.",
+          "option": {
+            "KAKAO": "KakaoTalk",
+            "ZALO": "Zalo",
+            "WHATSAPP": "WhatsApp",
+            "TELEGRAM": "Telegram",
+            "WECHAT": "WeChat",
+            "VIBER": "Viber",
+            "NONE": "Không dùng"
+          }
+        },
+        "messengerId": "ID nhắn tin",
+        "email": {
+          "label": "Email"
+        },
+        "birthYear": {
+          "label": "Năm sinh",
+          "help": "Chỉ dùng nội bộ tại Visa&Job."
+        },
+        "gender": {
+          "label": "Giới tính",
+          "help": "Chỉ dùng để sắp xếp chỗ ở.",
+          "option": {
+            "MALE": "Nam",
+            "FEMALE": "Nữ",
+            "OTHER": "Khác",
+            "NO_ANSWER": "Không trả lời"
+          }
+        }
+      },
+      "step2": {
+        "title": "Tư cách lưu trú",
+        "lead": "Cho chúng tôi biết visa hiện tại của bạn.",
+        "visaCode": {
+          "label": "Visa hiện tại",
+          "help": "Nếu không chắc, hãy chọn 'Không biết'. Chúng tôi sẽ hướng dẫn tư vấn."
+        },
+        "visaSubType": {
+          "label": "Loại chi tiết"
+        },
+        "stayExpiry": {
+          "label": "Ngày hết hạn lưu trú (năm, tháng)",
+          "help": "Doanh nghiệp chỉ thấy khoảng thời gian còn lại."
+        },
+        "hasArc": {
+          "label": "Bạn có thẻ người nước ngoài không?",
+          "help": "Chúng tôi không hỏi số thẻ."
+        },
+        "entryYear": {
+          "label": "Năm nhập cảnh Hàn Quốc",
+          "help": "Doanh nghiệp chỉ thấy số năm ở Hàn Quốc."
+        },
+        "pendingApplication": {
+          "label": "Bạn có hồ sơ visa đang xử lý không?"
+        },
+        "visaConfirm": {
+          "label": "Tôi xác nhận thông tin lưu trú đã nhập là đúng sự thật"
+        },
+        "stayBand": "Thời gian lưu trú còn lại (khoảng)",
+        "yearsInKorea": "Số năm ở Hàn Quốc"
+      },
+      "step3": {
+        "title": "Học vấn và ngôn ngữ",
+        "lead": "Cho chúng tôi biết học vấn và trình độ tiếng Hàn.",
+        "educationLevel": {
+          "label": "Học vấn cao nhất",
+          "option": {
+            "MIDDLE_OR_LESS": "THCS trở xuống",
+            "HIGH_SCHOOL": "THPT",
+            "COLLEGE": "Cao đẳng",
+            "BACHELOR": "Đại học",
+            "MASTER": "Thạc sĩ",
+            "DOCTOR": "Tiến sĩ"
+          }
+        },
+        "major": {
+          "label": "Chuyên ngành",
+          "help": "Doanh nghiệp chỉ thấy lĩnh vực."
+        },
+        "majorField": "Lĩnh vực chuyên ngành",
+        "schoolName": {
+          "label": "Tên trường (đại học Hàn Quốc)",
+          "help": "Không công khai cho doanh nghiệp."
+        },
+        "graduationDate": {
+          "label": "Ngày tốt nghiệp (dự kiến)",
+          "help": "Du học sinh (D-2, D-10) bắt buộc nhập."
+        },
+        "topikLevel": {
+          "label": "Cấp TOPIK",
+          "help": "Kỳ thi năng lực tiếng Hàn.",
+          "option": {
+            "0": "Không có",
+            "1": "Cấp 1",
+            "2": "Cấp 2",
+            "3": "Cấp 3",
+            "4": "Cấp 4",
+            "5": "Cấp 5",
+            "6": "Cấp 6"
+          }
+        },
+        "kiipStage": {
+          "label": "Giai đoạn chương trình hội nhập xã hội",
+          "help": "Giai đoạn KIIP của Bộ Tư pháp.",
+          "option": {
+            "0": "Không có",
+            "1": "Giai đoạn 1",
+            "2": "Giai đoạn 2",
+            "3": "Giai đoạn 3",
+            "4": "Giai đoạn 4",
+            "5": "Giai đoạn 5"
+          }
+        },
+        "koreanSpeaking": {
+          "label": "Khả năng nói tiếng Hàn",
+          "help": "Chọn câu gần đúng nhất với bạn.",
+          "option": {
+            "1": "Chỉ chào hỏi được",
+            "2": "Nói chuyện hằng ngày đơn giản",
+            "3": "Nói được các việc cần khi làm việc",
+            "4": "Nói thoải mái cả chuyện khó"
+          }
+        },
+        "otherLanguages": {
+          "label": "Ngôn ngữ khác bạn biết"
+        }
+      },
+      "step4": {
+        "title": "Kinh nghiệm và kỹ năng",
+        "lead": "Cho chúng tôi biết công việc đã làm và kỹ năng của bạn.",
+        "experiences": {
+          "label": "Kinh nghiệm làm việc",
+          "help": "Doanh nghiệp chỉ thấy ngành, công việc và thời gian. Bỏ trống nếu không có."
+        },
+        "experienceN": "Kinh nghiệm {n}",
+        "removeExperience": "Xóa",
+        "addExperience": "Thêm kinh nghiệm",
+        "country": "Quốc gia",
+        "industry": "Ngành",
+        "roleField": "Công việc",
+        "role": {
+          "option": {
+            "PRODUCTION": "Sản xuất",
+            "ASSEMBLY": "Lắp ráp",
+            "WELDING": "Hàn",
+            "MACHINE_OPERATION": "Vận hành máy",
+            "PACKING": "Đóng gói",
+            "LOGISTICS": "Kho vận",
+            "CONSTRUCTION": "Xây dựng",
+            "AGRICULTURE": "Nông nghiệp",
+            "FISHERY": "Ngư nghiệp",
+            "CARE": "Chăm sóc",
+            "FOOD_SERVICE": "Dịch vụ ăn uống",
+            "CLEANING": "Vệ sinh",
+            "OFFICE": "Văn phòng",
+            "IT": "IT",
+            "SALES": "Bán hàng",
+            "INTERPRETATION": "Phiên dịch",
+            "OTHER": "Khác"
+          }
+        },
+        "months": "Thời gian (tháng)",
+        "employerName": "Tên công ty",
+        "experienceSummary": "Kinh nghiệm (ngành, công việc, thời gian)",
+        "skills": {
+          "label": "Kỹ năng",
+          "option": {
+            "FORKLIFT": "Lái xe nâng",
+            "WELDING": "Hàn",
+            "CNC": "CNC",
+            "ELECTRICAL": "Điện",
+            "PAINTING": "Sơn",
+            "ASSEMBLY": "Lắp ráp",
+            "PACKING": "Đóng gói",
+            "CARE": "Chăm sóc",
+            "COOKING": "Nấu ăn",
+            "DRIVING": "Lái xe",
+            "COMPUTER": "Máy tính",
+            "OTHER": "Khác"
+          }
+        },
+        "licenses": {
+          "label": "Chứng chỉ",
+          "option": {
+            "KR_DRIVER_LICENSE": "Bằng lái xe Hàn Quốc",
+            "FORKLIFT_LICENSE": "Chứng chỉ xe nâng",
+            "WELDING_CERT": "Chứng chỉ hàn",
+            "CARE_WORKER_CERT": "Chứng chỉ điều dưỡng",
+            "OTHER": "Khác"
+          }
+        }
+      },
+      "step5": {
+        "title": "Điều kiện làm việc mong muốn",
+        "lead": "Cho chúng tôi biết bạn muốn làm việc gì.",
+        "jobSearchStatus": {
+          "label": "Tình trạng tìm việc",
+          "option": {
+            "IMMEDIATE": "Có thể làm ngay",
+            "WITHIN_1M": "Trong vòng 1 tháng",
+            "EMPLOYED_OPEN": "Đang làm, muốn chuyển việc",
+            "NOT_SEARCHING": "Hiện chưa"
+          }
+        },
+        "availableFrom": {
+          "label": "Ngày có thể bắt đầu"
+        },
+        "desiredIndustries": {
+          "label": "Ngành mong muốn",
+          "help": "Chọn tối đa 3."
+        },
+        "desiredRegions": {
+          "label": "Khu vực mong muốn",
+          "help": "Chọn tối đa 3."
+        },
+        "anyRegion": "Ở đâu cũng được",
+        "needDormitory": {
+          "label": "Bạn có cần chỗ ở không?"
+        },
+        "shiftOk": {
+          "label": "Bạn có thể làm ca hoặc ca đêm không?",
+          "option": {
+            "YES": "Có",
+            "NO": "Khó",
+            "CONDITIONAL": "Tùy điều kiện",
+            "UNKNOWN": "Không biết"
+          }
+        },
+        "desiredPayMin": {
+          "label": "Lương tháng tối thiểu (trước thuế)",
+          "help": "Chọn theo khoảng."
+        },
+        "payFrom": "Từ {amount}",
+        "groupApply": {
+          "label": "Bạn muốn làm việc cùng bạn bè không?"
+        },
+        "groupFriendCode": {
+          "label": "Mã giới thiệu của bạn bè",
+          "help": "Nhập mã giới thiệu của bạn bè nếu có."
+        }
+      },
+      "step6": {
+        "title": "Mục tiêu visa",
+        "lead": "Cho chúng tôi biết visa bạn muốn tiếp theo. Doanh nghiệp không thấy thông tin này.",
+        "nextVisaGoal": {
+          "label": "Visa muốn có tiếp theo",
+          "help": "Nếu không chắc, hãy chọn 'Không biết'."
+        },
+        "wantsConsult": {
+          "label": "Đăng ký tư vấn lộ trình visa miễn phí?",
+          "help": "Hành chính sĩ sẽ cùng kiểm tra."
+        },
+        "consultTime": {
+          "label": "Thời gian có thể tư vấn",
+          "option": {
+            "MORNING": "Buổi sáng",
+            "AFTERNOON": "Buổi chiều",
+            "EVENING": "Buổi tối",
+            "WEEKEND": "Cuối tuần"
+          }
+        }
+      },
+      "step7": {
+        "title": "Đồng ý và hoàn tất",
+        "lead": "Kiểm tra nội dung đồng ý và hoàn tất đăng ký.",
+        "privacyRequired": {
+          "label": "Tôi đồng ý thu thập và sử dụng thông tin cá nhân"
+        },
+        "blindProfile": {
+          "label": "Tôi đồng ý cung cấp hồ sơ ẩn danh (không có tên, liên lạc) cho doanh nghiệp"
+        },
+        "marketing": {
+          "label": "Tôi muốn nhận tin việc làm và visa"
+        },
+        "notice": {
+          "label": "Tôi đã đọc: \"Người tìm việc không mất phí\" và \"Liên lạc với doanh nghiệp chỉ qua Visa&Job\""
+        },
+        "optional": "(không bắt buộc)",
+        "readFull": "Xem toàn văn",
+        "submit": "Hoàn tất đăng ký"
+      }
+    },
+    "quick": {
+      "eyebrow": "Đăng ký nhanh",
+      "title": "Đăng ký nhanh 1 phút",
+      "lead": "Chỉ cần ngôn ngữ, visa, khu vực và xác thực điện thoại. Phần còn lại có thể điền sau.",
+      "noSeekerFee": "Người tìm việc không mất phí.",
+      "notice": "Liên lạc với doanh nghiệp chỉ qua Visa&Job.",
+      "locale": "Ngôn ngữ",
+      "visa": "Visa hiện tại",
+      "visaHelp": "Nếu không chắc, hãy chọn 'Không biết'. Chúng tôi sẽ hướng dẫn tư vấn.",
+      "sido": "Tỉnh / thành phố cư trú",
+      "submit": "Xác thực và đăng ký",
+      "submitting": "Đang đăng ký…",
+      "haveAccount": "Đã đăng ký? Đăng nhập",
+      "fullInstead": "Dùng đăng ký đầy đủ"
+    },
+    "complete": {
+      "eyebrow": "Hoàn tất đăng ký",
+      "title": "Bạn đã đăng ký xong",
+      "lead": "Nhân viên Visa&Job sẽ kiểm tra và liên lạc với bạn.",
+      "gradeTitle": "Hạng hiện tại",
+      "upgrade": "Đặt lịch tư vấn để lên hạng A. Khi đã xác nhận lưu trú và tiếng Hàn, bạn lên hạng S và được ưu tiên giới thiệu cho doanh nghiệp.",
+      "completeProfile": "Hoàn thiện hồ sơ để nhận việc làm phù hợp hơn.",
+      "completeProfileCta": "Hoàn thiện hồ sơ",
+      "nextTitle": "Việc cần làm tiếp",
+      "referralTitle": "Mã giới thiệu của tôi",
+      "referralLead": "Chia sẻ để bạn bè đăng ký dễ dàng.",
+      "noSeekerFee": "Người tìm việc không mất phí.",
+      "contactNotice": "Liên lạc với doanh nghiệp chỉ qua Visa&Job.",
+      "toMyPage": "Đến trang của tôi"
+    },
+    "next": {
+      "guide": {
+        "JOB_MATCH": "Chúng tôi sẽ giới thiệu việc làm phù hợp với visa và mong muốn của bạn.",
+        "JOB_MATCH_CONSULT": "Chúng tôi cùng bạn lên kế hoạch việc làm và chuyển sang E-7. Hành chính sĩ đang chuẩn bị tư vấn.",
+        "VISA_REVIEW": "Khi chuyển việc cần làm thủ tục. Hành chính sĩ sẽ kiểm tra.",
+        "CONSULT_ONLY": "Chúng tôi sẽ tư vấn về công việc và định hướng phù hợp với visa của bạn.",
+        "FUTURE_POOL": "Việc đổi nơi làm việc thực hiện qua Trung tâm việc làm. Visa&Job giúp bạn lên kế hoạch lưu trú dài hạn (như E-7-4)."
+      },
+      "recommended": "Xem việc làm đề xuất",
+      "consult": "Đăng ký tư vấn",
+      "score": "Tính điểm E-7-4",
+      "stay": "Cài nhắc hạn lưu trú"
+    },
+    "referral": {
+      "eyebrow": "Giới thiệu",
+      "title": "Mã giới thiệu của tôi",
+      "lead": "Giới thiệu Visa&Job cho bạn bè.",
+      "codeLabel": "Mã giới thiệu",
+      "shareText": "Tìm việc phù hợp với visa của bạn trên Visa&Job. Mã giới thiệu: {code}",
+      "shareTitle": "Đăng ký nhanh Visa&Job",
+      "share": "Chia sẻ",
+      "copyLink": "Sao chép liên kết",
+      "copied": "Đã sao chép",
+      "copiedHelp": "Đã sao chép liên kết. Hãy gửi cho bạn bè.",
+      "help": "Khi bạn bè đăng ký qua liên kết này, mã giới thiệu của bạn được lưu kèm.",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "viber": "Viber",
+      "count": "Số người đăng ký bằng mã của tôi: {count, plural, other {# người}}",
+      "back": "Về trang của tôi"
+    },
+    "me": {
+      "eyebrow": "Người tìm việc",
+      "title": "Trang của tôi",
+      "lead": "Xem hạng, tiến độ đăng ký và các đồng ý của bạn.",
+      "gradeTitle": "Hạng của tôi",
+      "gradeHelp": "Đặt lịch tư vấn để lên hạng A. Khi đã xác nhận lưu trú và tiếng Hàn, bạn lên hạng S.",
+      "visa": "Visa hiện tại",
+      "progressTitle": "Tiến độ đăng ký",
+      "progressDone": "Bạn đã hoàn tất đăng ký đầy đủ.",
+      "progressCount": "Đã lưu đến bước {step} / {total}.",
+      "continue": "Tiếp tục đăng ký",
+      "nextTitle": "Việc cần làm tiếp",
+      "links": {
+        "stay": "Nhắc hạn lưu trú",
+        "referral": "Mã giới thiệu của tôi"
+      },
+      "consents": {
+        "title": "Các đồng ý của tôi",
+        "lead": "Bạn có thể rút lại các đồng ý không bắt buộc bất cứ lúc nào.",
+        "type": {
+          "PRIVACY_REQUIRED": "Thu thập và sử dụng thông tin cá nhân",
+          "BLIND_PROFILE": "Cung cấp hồ sơ ẩn danh cho doanh nghiệp",
+          "MARKETING": "Nhận tin việc làm và visa",
+          "NOTICE": "Xác nhận hướng dẫn sử dụng"
+        },
+        "agreed": "Đã đồng ý",
+        "notAgreed": "Chưa đồng ý",
+        "revoke": "Rút lại đồng ý",
+        "revokeConfirm": "Rút lại",
+        "cancel": "Hủy",
+        "close": "Đóng",
+        "confirmTitle": "Rút lại đồng ý này?",
+        "confirm": {
+          "BLIND_PROFILE": "Bạn sẽ bị loại khỏi danh sách ứng viên của doanh nghiệp ngay. Nếu đồng ý lại, bạn sẽ được hiển thị lại.",
+          "MARKETING": "Chúng tôi sẽ ngừng gửi tin việc làm và visa."
+        },
+        "grant": "Đồng ý lại",
+        "requiredNote": "Đây là đồng ý bắt buộc. Để rút lại, vui lòng đăng ký tư vấn.",
+        "error": "Không xử lý được. Vui lòng thử lại."
+      }
+    },
+    "stay": {
+      "eyebrow": "Lưu trú",
+      "title": "Nhắc hạn lưu trú",
+      "lead": "Cho chúng tôi biết ngày hết hạn lưu trú để được nhắc trước.",
+      "notice": "Chúng tôi gửi nhắc nhở {days} hết hạn và hành chính sĩ sẽ kiểm tra.",
+      "dayBefore": "{days} ngày trước",
+      "expiry": "Ngày hết hạn lưu trú (năm, tháng)",
+      "optIn": "Tôi muốn nhận nhắc hạn lưu trú",
+      "save": "Lưu",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu.",
+      "error": "Không lưu được. Vui lòng thử lại.",
+      "back": "Về trang của tôi"
+    },
+    "recommended": {
+      "eyebrow": "Việc làm đề xuất",
+      "title": "Việc làm đề xuất",
+      "description": "Chúng tôi đang chuẩn bị việc làm phù hợp với visa và mong muốn của bạn. Nếu có câu hỏi, hãy đăng ký tư vấn."
     }
   },
   "employer": {

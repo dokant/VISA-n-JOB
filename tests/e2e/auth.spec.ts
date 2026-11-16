@@ -232,7 +232,8 @@ test.describe("R-104 seeker OTP login", () => {
 
     await codeInput.fill("482913");
     await page.getByRole("button", { name: msg("vi", "seeker.login.submit") }).click();
-    await expect(page).toHaveURL(/\/vi$/);
+    // P1c: after sign-in the seeker lands on 마이페이지 (R-113)
+    await expect(page).toHaveURL(/\/vi\/seeker\/me$/);
   });
 
   test("an invalid phone number is rejected in the form", async ({ page }) => {

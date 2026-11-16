@@ -65,7 +65,7 @@ export async function signInSeeker(input: {
     }
     throw e;
   }
-  // P1c replaces the fallback with /seeker/me (마이페이지).
+  // After sign-in: the requested page, else 마이페이지 (R-113).
   const locale = toLocale(input.locale);
-  redirect(`/${locale}${safeNextPath(input.next, "")}`);
+  redirect(`/${locale}${safeNextPath(input.next, "/seeker/me")}`);
 }

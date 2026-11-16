@@ -24,14 +24,16 @@ export const FIELD_ERROR_CODES = [
 ] as const;
 export type FieldErrorCode = (typeof FIELD_ERROR_CODES)[number];
 
-const phone = z
+/** Phone input (any format normalizePhone accepts). Shared with the seeker registration forms. */
+export const phoneField = z
   .string()
   .trim()
   .min(1, "required")
   .max(32, "invalidPhone")
   .refine((v) => normalizePhone(v) !== null, "invalidPhone");
 
-const otpCode = z
+/** OTP code input. Shared with the seeker registration forms. */
+export const otpCodeField = z
   .string()
   .trim()
   .min(1, "required")
@@ -91,10 +93,10 @@ const code = z.string().trim().min(1, "required").max(40, "tooLong");
 
 // ─── Seeker phone OTP (R-104) ────────────────────────────────────────────────
 
-export const seekerOtpRequestSchema = z.object({ phone });
+export const seekerOtpRequestSchema = z.object({ phone: phoneField });
 export type SeekerOtpRequestInput = z.infer<typeof seekerOtpRequestSchema>;
 
-export const seekerOtpVerifySchema = z.object({ phone, code: otpCode });
+export const seekerOtpVerifySchema = z.object({ phone: phoneField, code: otpCodeField });
 export type SeekerOtpVerifyInput = z.infer<typeof seekerOtpVerifySchema>;
 
 /** OtpChallenge.purpose: SIGNUP (P1c 등록) / LOGIN. */

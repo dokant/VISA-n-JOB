@@ -57,6 +57,34 @@
     "employerSignup": {
       "title": "企业注册",
       "description": "创建 VISA n JOB 企业账户。"
+    },
+    "seekerRegister": {
+      "title": "求职登记",
+      "description": "在 Visa&Job 完成正式登记。每一步都会自动保存。"
+    },
+    "seekerQuick": {
+      "title": "快速登记",
+      "description": "只需语言、签证、地区和手机，1 分钟完成登记。"
+    },
+    "seekerComplete": {
+      "title": "登记完成",
+      "description": "您已完成登记。"
+    },
+    "seekerMe": {
+      "title": "我的页面",
+      "description": "查看等级、登记进度和同意事项。"
+    },
+    "seekerStay": {
+      "title": "滞留到期提醒",
+      "description": "设置滞留期限到期前的提醒。"
+    },
+    "seekerReferral": {
+      "title": "我的推荐码",
+      "description": "把推荐码分享给朋友。"
+    },
+    "seekerRecommended": {
+      "title": "推荐工作",
+      "description": "符合您签证和意向的工作。"
     }
   },
   "common": {
@@ -135,6 +163,9 @@
     },
     "form": {
       "required": "（必填）"
+    },
+    "profileCompletion": {
+      "sms": "您已在 Visa&Job 完成快速登记。完善个人资料可获得更合适的工作推荐：{path}"
     }
   },
   "nav": {
@@ -626,7 +657,14 @@
       "passwordTooLong": "密码太长。",
       "passwordMismatch": "两次输入的密码不一致。",
       "tooLong": "输入内容太长。",
-      "bizRegNoChecksum": "营业执照号码无效，请再次确认。"
+      "bizRegNoChecksum": "营业执照号码无效，请再次确认。",
+      "mustConfirm": "请勾选以确认。",
+      "consentRequired": "这是登记所需的必选同意。",
+      "tooMany": "最多可选 {max} 项。",
+      "invalidValue": "请检查所选内容。",
+      "invalidMonth": "请选择年份和月份。",
+      "invalidDate": "请检查日期。",
+      "invalidReferralCode": "请检查推荐码。"
     },
     "auth": {
       "invalidCredentials": "电子邮箱或密码不正确。",
@@ -645,6 +683,12 @@
       "invalidBizRegNo": "请输入 10 位营业执照号码。",
       "validation": "请检查输入的内容。",
       "unknown": "出现问题，请重试。"
+    },
+    "register": {
+      "phoneTaken": "该号码已被其他账户使用。请申请咨询。",
+      "invalidReference": "请重新选择签证和地区。",
+      "noProfile": "找不到登记信息。请重新登录。",
+      "validation": "请检查输入的内容。"
     }
   },
   "seeker": {
@@ -668,7 +712,502 @@
       "resendIn": "{seconds} 秒后可重新获取",
       "changePhone": "更换号码",
       "submit": "登录",
-      "submitting": "正在确认…"
+      "submitting": "正在确认…",
+      "registerFirst": "还没有登记？请先进行快速登记。",
+      "quickRegister": "快速登记"
+    },
+    "grade": {
+      "label": "{grade} 级",
+      "priority": "优先推荐"
+    },
+    "register": {
+      "common": {
+        "noSeekerFee": "求职者免费",
+        "next": "保存并继续",
+        "back": "上一步",
+        "saving": "正在保存…",
+        "fixErrors": "请检查标出的项目。",
+        "yes": "是",
+        "no": "否",
+        "unknown": "不清楚",
+        "year": "年",
+        "month": "月",
+        "otherCountry": "其他国家",
+        "otherLanguage": "其他语言",
+        "subScreen": "{current}/{total}",
+        "changeVisa": "重新填写签证信息"
+      },
+      "progress": {
+        "count": "{step}/{total}",
+        "saved": "已自动保存",
+        "label": "登记进度"
+      },
+      "disclosure": {
+        "private": "此信息不会向企业公开",
+        "blind": "以匿名方式向企业公开",
+        "summaryTitle": "企业可以看到的内容"
+      },
+      "blocked": {
+        "title": "只有持可就业滞留资格的人才能进行求职登记",
+        "notRegistrable": "所选签证无法完成求职登记。请申请滞留咨询。",
+        "expired": "滞留期限已过。请申请滞留咨询。",
+        "noVisa": "没有签证信息。请申请滞留咨询。",
+        "cta": "申请滞留咨询"
+      },
+      "otp": {
+        "phone": {
+          "label": "手机号码",
+          "help": "如果不是韩国号码，请以 + 和国家代码开头。",
+          "placeholder": "010-0000-0000"
+        },
+        "send": "获取验证码",
+        "resend": "重新发送",
+        "resendIn": "{seconds} 秒后可重新发送",
+        "code": {
+          "label": "验证码",
+          "help": "请输入短信中的 {length} 位数字。"
+        },
+        "sendFirst": "请先获取验证码。"
+      },
+      "step0": {
+        "title": "开始",
+        "lead": "选择语言并验证手机。",
+        "notice": "每一步都会自动保存。之后登录即可继续填写。",
+        "locale": {
+          "label": "使用语言",
+          "help": "所有步骤都会以此语言显示。"
+        },
+        "referralCode": {
+          "label": "推荐码（如有）",
+          "help": "如果朋友给了推荐码，请输入。"
+        },
+        "phone": "手机号码",
+        "submit": "验证并开始",
+        "submitting": "正在确认…",
+        "haveAccount": "已经登记？登录",
+        "quickInstead": "使用 1 分钟快速登记"
+      },
+      "step1": {
+        "title": "基本信息",
+        "lead": "请告诉我们您的姓名和居住地。",
+        "legalName": {
+          "label": "姓名（护照英文）",
+          "help": "请按护照上的英文姓名填写。"
+        },
+        "nationality": {
+          "label": "国籍"
+        },
+        "region": {
+          "label": "现居住地",
+          "help": "企业只能看到省 / 市。"
+        },
+        "sido": "省 / 市",
+        "sigungu": "区 / 郡（选填）",
+        "sidoOnly": "居住的省 / 市",
+        "messenger": {
+          "label": "联系用的即时通讯",
+          "help": "只有 Visa&Job 工作人员会联系您。",
+          "option": {
+            "KAKAO": "KakaoTalk",
+            "ZALO": "Zalo",
+            "WHATSAPP": "WhatsApp",
+            "TELEGRAM": "Telegram",
+            "WECHAT": "微信",
+            "VIBER": "Viber",
+            "NONE": "不使用"
+          }
+        },
+        "messengerId": "通讯账号",
+        "email": {
+          "label": "电子邮箱"
+        },
+        "birthYear": {
+          "label": "出生年份",
+          "help": "仅在 Visa&Job 内部使用。"
+        },
+        "gender": {
+          "label": "性别",
+          "help": "仅用于安排宿舍。",
+          "option": {
+            "MALE": "男",
+            "FEMALE": "女",
+            "OTHER": "其他",
+            "NO_ANSWER": "不回答"
+          }
+        }
+      },
+      "step2": {
+        "title": "滞留资格",
+        "lead": "请告诉我们您现在的签证。",
+        "visaCode": {
+          "label": "当前签证",
+          "help": "如果不确定，请选择'不清楚'。我们会为您安排咨询。"
+        },
+        "visaSubType": {
+          "label": "细分类型"
+        },
+        "stayExpiry": {
+          "label": "滞留到期（年、月）",
+          "help": "企业只能看到剩余期限的区间。"
+        },
+        "hasArc": {
+          "label": "您有外国人登录证吗？",
+          "help": "我们不会询问号码。"
+        },
+        "entryYear": {
+          "label": "入境韩国年份",
+          "help": "企业只能看到在韩年数。"
+        },
+        "pendingApplication": {
+          "label": "是否有正在办理的签证申请？"
+        },
+        "visaConfirm": {
+          "label": "我确认所填写的滞留信息属实"
+        },
+        "stayBand": "剩余滞留期限（区间）",
+        "yearsInKorea": "在韩年数"
+      },
+      "step3": {
+        "title": "学历和语言",
+        "lead": "请告诉我们您的学历和韩语水平。",
+        "educationLevel": {
+          "label": "最高学历",
+          "option": {
+            "MIDDLE_OR_LESS": "初中及以下",
+            "HIGH_SCHOOL": "高中",
+            "COLLEGE": "大专",
+            "BACHELOR": "本科",
+            "MASTER": "硕士",
+            "DOCTOR": "博士"
+          }
+        },
+        "major": {
+          "label": "专业",
+          "help": "企业只能看到专业领域。"
+        },
+        "majorField": "专业领域",
+        "schoolName": {
+          "label": "学校名称（韩国大学）",
+          "help": "不会向企业公开。"
+        },
+        "graduationDate": {
+          "label": "毕业（预计）时间",
+          "help": "留学生（D-2、D-10）必须填写。"
+        },
+        "topikLevel": {
+          "label": "TOPIK 等级",
+          "help": "韩国语能力考试。",
+          "option": {
+            "0": "无",
+            "1": "1 级",
+            "2": "2 级",
+            "3": "3 级",
+            "4": "4 级",
+            "5": "5 级",
+            "6": "6 级"
+          }
+        },
+        "kiipStage": {
+          "label": "社会融合项目完成阶段",
+          "help": "法务部社会融合项目（KIIP）阶段。",
+          "option": {
+            "0": "无",
+            "1": "第 1 阶段",
+            "2": "第 2 阶段",
+            "3": "第 3 阶段",
+            "4": "第 4 阶段",
+            "5": "第 5 阶段"
+          }
+        },
+        "koreanSpeaking": {
+          "label": "韩语会话水平",
+          "help": "请选择最接近的一项。",
+          "option": {
+            "1": "只会打招呼",
+            "2": "能进行简单的日常对话",
+            "3": "能进行工作所需的对话",
+            "4": "能轻松谈论难的话题"
+          }
+        },
+        "otherLanguages": {
+          "label": "其他会说的语言"
+        }
+      },
+      "step4": {
+        "title": "经历和技能",
+        "lead": "请告诉我们您做过的工作和会的技能。",
+        "experiences": {
+          "label": "工作经历",
+          "help": "企业只能看到行业、职务和期间。没有可以不填。"
+        },
+        "experienceN": "经历 {n}",
+        "removeExperience": "删除",
+        "addExperience": "添加经历",
+        "country": "国家",
+        "industry": "行业",
+        "roleField": "职务",
+        "role": {
+          "option": {
+            "PRODUCTION": "生产",
+            "ASSEMBLY": "组装",
+            "WELDING": "焊接",
+            "MACHINE_OPERATION": "机器操作",
+            "PACKING": "包装",
+            "LOGISTICS": "物流",
+            "CONSTRUCTION": "建筑",
+            "AGRICULTURE": "农业",
+            "FISHERY": "渔业",
+            "CARE": "护理",
+            "FOOD_SERVICE": "餐饮服务",
+            "CLEANING": "清洁",
+            "OFFICE": "办公",
+            "IT": "IT",
+            "SALES": "销售",
+            "INTERPRETATION": "翻译",
+            "OTHER": "其他"
+          }
+        },
+        "months": "期间（月）",
+        "employerName": "公司名称",
+        "experienceSummary": "经历（行业、职务、期间）",
+        "skills": {
+          "label": "技能",
+          "option": {
+            "FORKLIFT": "叉车驾驶",
+            "WELDING": "焊接",
+            "CNC": "CNC",
+            "ELECTRICAL": "电工",
+            "PAINTING": "涂装",
+            "ASSEMBLY": "组装",
+            "PACKING": "包装",
+            "CARE": "护理",
+            "COOKING": "烹饪",
+            "DRIVING": "驾驶",
+            "COMPUTER": "电脑",
+            "OTHER": "其他"
+          }
+        },
+        "licenses": {
+          "label": "资格证",
+          "option": {
+            "KR_DRIVER_LICENSE": "韩国驾照",
+            "FORKLIFT_LICENSE": "叉车执照",
+            "WELDING_CERT": "焊接资格",
+            "CARE_WORKER_CERT": "护理员资格",
+            "OTHER": "其他"
+          }
+        }
+      },
+      "step5": {
+        "title": "希望的工作条件",
+        "lead": "请告诉我们您想做什么样的工作。",
+        "jobSearchStatus": {
+          "label": "求职状态",
+          "option": {
+            "IMMEDIATE": "可立即上班",
+            "WITHIN_1M": "1 个月内可以",
+            "EMPLOYED_OPEN": "在职，考虑换工作",
+            "NOT_SEARCHING": "暂时不找"
+          }
+        },
+        "availableFrom": {
+          "label": "可开始工作日期"
+        },
+        "desiredIndustries": {
+          "label": "希望行业",
+          "help": "最多可选 3 项。"
+        },
+        "desiredRegions": {
+          "label": "希望地区",
+          "help": "最多可选 3 项。"
+        },
+        "anyRegion": "哪里都可以",
+        "needDormitory": {
+          "label": "需要宿舍吗？"
+        },
+        "shiftOk": {
+          "label": "可以倒班或夜班吗？",
+          "option": {
+            "YES": "可以",
+            "NO": "不行",
+            "CONDITIONAL": "看条件",
+            "UNKNOWN": "不清楚"
+          }
+        },
+        "desiredPayMin": {
+          "label": "希望最低月薪（税前）",
+          "help": "按区间选择。"
+        },
+        "payFrom": "{amount} 以上",
+        "groupApply": {
+          "label": "想和朋友一起工作吗？"
+        },
+        "groupFriendCode": {
+          "label": "朋友的推荐码",
+          "help": "如有朋友的推荐码请输入。"
+        }
+      },
+      "step6": {
+        "title": "签证目标",
+        "lead": "请告诉我们您下一步想要的签证。企业看不到此信息。",
+        "nextVisaGoal": {
+          "label": "下一步想要的签证",
+          "help": "如果不确定，请选择'不清楚'。"
+        },
+        "wantsConsult": {
+          "label": "申请免费签证路径咨询吗？",
+          "help": "行政士会和您一起确认。"
+        },
+        "consultTime": {
+          "label": "方便咨询的时间",
+          "option": {
+            "MORNING": "上午",
+            "AFTERNOON": "下午",
+            "EVENING": "晚上",
+            "WEEKEND": "周末"
+          }
+        }
+      },
+      "step7": {
+        "title": "同意与完成",
+        "lead": "确认同意内容并完成登记。",
+        "privacyRequired": {
+          "label": "我同意收集和使用个人信息"
+        },
+        "blindProfile": {
+          "label": "我同意向企业提供不含姓名和联系方式的匿名资料"
+        },
+        "marketing": {
+          "label": "我愿意接收工作和签证资讯"
+        },
+        "notice": {
+          "label": "我已确认\"求职者免费\"和\"与企业的联系只通过 Visa&Job 进行\"的说明"
+        },
+        "optional": "（选填）",
+        "readFull": "查看全文",
+        "submit": "完成登记"
+      }
+    },
+    "quick": {
+      "eyebrow": "快速登记",
+      "title": "1 分钟快速登记",
+      "lead": "只需语言、签证、地区和手机验证。其余内容可以稍后填写。",
+      "noSeekerFee": "求职者免费。",
+      "notice": "与企业的联系只通过 Visa&Job 进行。",
+      "locale": "使用语言",
+      "visa": "当前签证",
+      "visaHelp": "如果不确定，请选择'不清楚'。我们会为您安排咨询。",
+      "sido": "居住的省 / 市",
+      "submit": "验证并登记",
+      "submitting": "正在登记…",
+      "haveAccount": "已经登记？登录",
+      "fullInstead": "使用正式登记"
+    },
+    "complete": {
+      "eyebrow": "登记完成",
+      "title": "登记已完成",
+      "lead": "Visa&Job 工作人员确认后会与您联系。",
+      "gradeTitle": "当前等级",
+      "upgrade": "预约咨询即可升为 A 级；完成滞留和韩语确认后升为 S 级，成为企业优先推荐对象。",
+      "completeProfile": "完善个人资料，可获得更合适的工作。",
+      "completeProfileCta": "完善个人资料",
+      "nextTitle": "下一步",
+      "referralTitle": "我的推荐码",
+      "referralLead": "分享给朋友，朋友登记更方便。",
+      "noSeekerFee": "求职者免费。",
+      "contactNotice": "与企业的联系只通过 Visa&Job 进行。",
+      "toMyPage": "前往我的页面"
+    },
+    "next": {
+      "guide": {
+        "JOB_MATCH": "我们会为您推荐符合签证和意向的工作。",
+        "JOB_MATCH_CONSULT": "我们与您一起规划就业和转换 E-7。行政士正在准备咨询。",
+        "VISA_REVIEW": "换工作时需要办理手续。行政士会进行确认。",
+        "CONSULT_ONLY": "我们会通过咨询介绍您的签证可以做的工作和发展方向。",
+        "FUTURE_POOL": "变更工作单位需通过雇佣中心办理。Visa&Job 为您规划长期滞留转换（如 E-7-4）。"
+      },
+      "recommended": "查看推荐工作",
+      "consult": "申请咨询",
+      "score": "E-7-4 分数计算器",
+      "stay": "设置滞留到期提醒"
+    },
+    "referral": {
+      "eyebrow": "推荐",
+      "title": "我的推荐码",
+      "lead": "把 Visa&Job 介绍给朋友。",
+      "codeLabel": "推荐码",
+      "shareText": "在 Visa&Job 查找符合您签证的工作。推荐码：{code}",
+      "shareTitle": "Visa&Job 快速登记",
+      "share": "分享",
+      "copyLink": "复制链接",
+      "copied": "已复制",
+      "copiedHelp": "链接已复制，请发给朋友。",
+      "help": "朋友通过此链接登记时，会一并保存您的推荐码。",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "viber": "Viber",
+      "count": "使用我的推荐码登记的人数：{count, plural, other {# 人}}",
+      "back": "返回我的页面"
+    },
+    "me": {
+      "eyebrow": "求职者",
+      "title": "我的页面",
+      "lead": "查看等级、登记进度和同意事项。",
+      "gradeTitle": "我的等级",
+      "gradeHelp": "预约咨询即可升为 A 级；完成滞留和韩语确认后升为 S 级。",
+      "visa": "当前签证",
+      "progressTitle": "登记进度",
+      "progressDone": "正式登记已全部完成。",
+      "progressCount": "已保存到第 {step} 步（共 {total} 步）。",
+      "continue": "继续填写",
+      "nextTitle": "下一步",
+      "links": {
+        "stay": "滞留到期提醒",
+        "referral": "我的推荐码"
+      },
+      "consents": {
+        "title": "同意事项",
+        "lead": "选填同意可以随时撤回。",
+        "type": {
+          "PRIVACY_REQUIRED": "收集和使用个人信息",
+          "BLIND_PROFILE": "向企业提供匿名资料",
+          "MARKETING": "接收工作和签证资讯",
+          "NOTICE": "确认使用说明"
+        },
+        "agreed": "已同意",
+        "notAgreed": "未同意",
+        "revoke": "撤回同意",
+        "revokeConfirm": "撤回",
+        "cancel": "取消",
+        "close": "关闭",
+        "confirmTitle": "要撤回此同意吗？",
+        "confirm": {
+          "BLIND_PROFILE": "撤回后会立即从企业的候选名单中移除。再次同意后会重新显示。",
+          "MARKETING": "撤回后将不再发送工作和签证资讯。"
+        },
+        "grant": "重新同意",
+        "requiredNote": "这是必选同意。如需撤回，请申请咨询。",
+        "error": "处理失败，请重试。"
+      }
+    },
+    "stay": {
+      "eyebrow": "滞留",
+      "title": "滞留到期提醒",
+      "lead": "告诉我们滞留到期时间，我们会提前提醒您。",
+      "notice": "我们会在到期{days}发送提醒，并由行政士进行确认。",
+      "dayBefore": "前 {days} 天",
+      "expiry": "滞留到期（年、月）",
+      "optIn": "我要接收滞留到期提醒",
+      "save": "保存",
+      "saving": "正在保存…",
+      "saved": "已保存。",
+      "error": "保存失败，请重试。",
+      "back": "返回我的页面"
+    },
+    "recommended": {
+      "eyebrow": "推荐工作",
+      "title": "推荐工作",
+      "description": "我们正在准备符合您签证和意向的推荐工作。如有疑问，请申请咨询。"
     }
   },
   "employer": {
