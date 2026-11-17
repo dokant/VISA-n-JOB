@@ -13,7 +13,13 @@
  * (PLAN P2d 위험 "실제 SMTP로 잘못 발송").
  */
 import { createConsoleProvider } from "./console";
-import { createSmtpProvider, type LogLine, type MailTransport, smtpConfigFromEnv } from "./smtp";
+import {
+  createSmtpProvider,
+  type LogLine,
+  logByLevel,
+  type MailTransport,
+  smtpConfigFromEnv,
+} from "./smtp";
 import type { NotificationChannel, NotificationProvider } from "./types";
 
 export type {
@@ -60,7 +66,8 @@ export function selectNotificationProvider(
   } = {},
 ): ProviderSelection {
   const env = options.env ?? process.env;
-  const log: LogLine = options.log ?? ((line) => console.info(line));
+  // Default sink by level (QA P2e D-1): the SMTP adapter's failed-send lines stay console.warn.
+  const log: LogLine = options.log ?? logByLevel;
   const consoleProvider = createConsoleProvider(undefined, env.NODE_ENV);
   const smtp = smtpConfigFromEnv(env);
   const email = smtp.enabled

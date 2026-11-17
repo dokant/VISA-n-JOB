@@ -260,6 +260,35 @@ describe("R-214 SMTP adapter", () => {
     info.mockRestore();
     warn.mockRestore();
   });
+
+  it('selectNotificationProvider without log: a failed SMTP send (level "warn") → console.warn (QA P2e D-1)', async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const failing: MailTransport = {
+      sendMail: () => Promise.reject(Object.assign(new Error("x"), { code: "EENVELOPE" })),
+    };
+    const selection = selectNotificationProvider({
+      env: { SMTP_HOST: "smtp.qa.invalid", SMTP_FROM: "noreply@qa.invalid", NODE_ENV: "test" },
+      transport: failing,
+    });
+    // The start-up line is info.
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(info.mock.calls[0][0]))).toMatchObject({
+      level: "info",
+      event: "notification.provider",
+    });
+    const r = await selection.provider.send(email);
+    expect(r).toMatchObject({ ok: false, provider: "smtp", delivery: "FAILED" });
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(warn.mock.calls[0][0]))).toMatchObject({
+      level: "warn",
+      event: "notification.send",
+      provider: "smtp",
+      ok: false,
+    });
+    expect(String(warn.mock.calls[0][0])).not.toContain("seeker@example.com");
+  });
 });
 
 describe("R-214 / R-213 notification templates", () => {

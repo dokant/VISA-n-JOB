@@ -76,6 +76,22 @@ export type MailTransport = {
 
 export type LogLine = (line: string) => void;
 
+/**
+ * The default log sink (STANDARD 4.7 v2.22): a JSON line with `level: "warn"` or `"error"` goes to
+ * console.warn, any other line to console.info. Shared by `createSmtpProvider` and
+ * `selectNotificationProvider` so a failed send is a warning on every path (QA P2e D-1).
+ */
+export const logByLevel: LogLine = (line) => {
+  let level: unknown;
+  try {
+    level = (JSON.parse(line) as { level?: unknown }).level;
+  } catch {
+    level = undefined;
+  }
+  if (level === "warn" || level === "error") console.warn(line);
+  else console.info(line);
+};
+
 function buildTransport(config: SmtpConfig): MailTransport {
   return nodemailer.createTransport({
     host: config.host,
@@ -102,9 +118,7 @@ export function createSmtpProvider(
       ...outcome,
     });
     // Default sink by level: a failed send (`level: "warn"`) goes to console.warn.
-    if (options.log) options.log(line);
-    else if (outcome.ok) console.info(line);
-    else console.warn(line);
+    (options.log ?? logByLevel)(line);
   };
   return {
     name: "smtp",

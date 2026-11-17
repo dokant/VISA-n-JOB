@@ -71,14 +71,16 @@ pnpm db:stop             # 중지 (데이터는 .pgdata/에 남음)
 ```
 messages/            번역 (ko 원본, 모든 파일 첫 키 "_review": "native review required")
 prisma/              schema.prisma, migrations/, seed/
-scripts/             db.ts, i18n-check.ts, qa-static.ts (+ lib/)
+scripts/             db.ts, i18n-check.ts, qa-static.ts, worker.ts, build-terms-pdf.ts, lighthouse.ts (+ lib/)
 src/app/[locale]/    다국어 페이지 (next-intl, /admin·/api 제외)
-src/components/      ui/(shadcn), common/(LocaleSwitcher 등)
+src/app/admin, api/  관리자 화면(ko 고정), API 라우트
+src/components/      ui/(shadcn), common/, home/, 화면별 묶음
 src/config/          site.config.ts, flags.ts
-src/i18n/            routing.ts, request.ts, navigation.ts, locales.ts
-src/lib/             utils.ts, fonts.ts, db.ts (Prisma 싱글턴)
-src/fonts/           Pretendard woff2 + OFL.txt
-tests/unit, tests/e2e, tests/setup (Vitest 테스트 DB)
+src/i18n/            routing.ts, request.ts, navigation.ts, locales.ts, dateTime.ts
+src/lib/             utils.ts, fonts.ts, fontsZh.ts, db.ts (Prisma 싱글턴), audit.ts, crypto.ts,
+                     serializers/, notifications/, visa-engine/, files/ 등 도메인 모듈
+src/fonts/           Pretendard woff2 + OFL.txt (미사용 보관, SC-11)
+tests/unit, tests/e2e (support/ 포함), tests/setup (Vitest 테스트 DB)
 ```
 
 ## 설정
@@ -92,10 +94,11 @@ tests/unit, tests/e2e, tests/setup (Vitest 테스트 DB)
 
 `src/lib/fonts.ts`(STANDARD 2.3):
 
-- Pretendard 1.3.9 — `next/font/local`, `src/fonts/Pretendard-{Regular,Medium,SemiBold,Bold}.subset.woff2`.
-  공식 npm `pretendard@1.3.9` `dist/web/static/woff2-subset`(KS X 1001 한글 2,350자 전부 포함, 2,780자) 파일을 복사했다. 라이선스 SIL OFL 1.1(`src/fonts/OFL.txt`). npm 패키지는 의존성으로 두지 않는다.
-- Inter(latin, latin-ext, vietnamese, cyrillic, cyrillic-ext)·Noto Sans SC(zh만) — `next/font/google`, 빌드 시 받아 자체 호스팅(빌드에 인터넷 필요).
-- 로케일별 1순위: ko=Pretendard, en·vi·ru·uz=Inter, zh=Noto Sans SC (`src/app/globals.css`).
+- Noto Sans KR(가변 굵기) — ko 1순위. `next/font/google`, `preload: false`(DECISIONS SC-11, STANDARD 2.3·S-03·S-04).
+- Inter(latin, latin-ext, vietnamese, cyrillic, cyrillic-ext) — en·vi·ru·uz 1순위, ko의 라틴 글자. `next/font/google`.
+- Noto Sans SC — zh에서만(`src/lib/fontsZh.ts`, zh 페이지만 불러옴). `next/font/google`.
+- 모두 빌드 시 받아 자체 호스팅한다(빌드에 인터넷 필요). 로케일별 글꼴 순서는 `src/app/globals.css`.
+- Pretendard 1.3.9 파일(`src/fonts/*.subset.woff2`, SIL OFL 1.1 `src/fonts/OFL.txt`)은 **미사용 보관(SC-11)**이다. /ko 모바일 Lighthouse 성능 미달로 Noto Sans KR로 바꿨고, 되돌릴 때를 위해 파일만 남겼다. import하지 않는다.
 
 ## 번역
 
@@ -122,9 +125,10 @@ pnpm db:reset && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm i18n:
 | 기능 플래그 | `FEATURE_DEMAND_MAP`, `FEATURE_PUBLIC_JOBS`, `FEATURE_REFERRAL_REWARD`, `FEATURE_EMPLOYER_CANDIDATES`                                                                                                                                                                                                                       |
 | 운영 주체   | `SITE_BRAND_WORDMARK`, `SITE_BRAND_NAME_KO`, `SITE_BRAND_TAGLINE`, `SITE_ADMIN_SCRIVENER_OFFICE_NAME`, `SITE_BUSINESS_REG_NO`, `SITE_ADMIN_SCRIVENER_REG_NO`, `SITE_JOB_PLACEMENT_NAME`, `SITE_JOB_PLACEMENT_REG_NO`, `SITE_REPRESENTATIVE`, `SITE_ADDRESS`, `SITE_PHONE`, `SITE_EMAIL`, `SITE_URL`, `SITE_OPERATOR_MOBILE` |
 | DB          | `DATABASE_URL`, `PG_DATA_DIR`, `PG_TEST_DATA_DIR`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_SAMPLE_SEEKERS`                                                                                                                                                                                                         |
+| 저장소      | `PRIVATE_STORAGE_DIR` (비공개 업로드 경로, 기본 `storage/private/`, R-210)                                                                                                                                                                                                                                                  |
 | 보안        | `ENCRYPTION_KEYS`, `HASH_KEY`, `AUTH_SECRET`, `TRUST_PROXY`, `INGEST_API_KEY`                                                                                                                                                                                                                                               |
 | 이메일      | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                                                                                                                                                                                                                              |
-| 테스트·측정 | `E2E_PORT`, `E2E_WORKERS`, `LH_PORT`, `CHROME_PATH`                                                                                                                                                                                                                                                                         |
+| 테스트·측정 | `E2E_PORT`, `E2E_WORKERS`, `E2E_DEMAND_URL`, `E2E_JOBS_PORT`, `E2E_CANDIDATES_PORT`, `LH_PORT`, `CHROME_PATH`                                                                                                                                                                                                               |
 
 ### 기능 플래그 4종 (WO §16)
 
@@ -155,9 +159,21 @@ N-05 감사 로그 묶음(PII 열람·내보내기(PC-14 함수 단위)·등급 
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 채팅(구직자↔기업 메시지, 웹소켓) UI·API | 없음                                                                                                                                                                                      |
 | 기업의 구직자 연락처 열람 UI·API        | 없음. 기업 응답은 `blindSeeker`·`interviewDisclosure`(동의 건 실명만, 연락처 없음, PC-1)만 거침, `qa:static`·WO15-02 검사. 연락처 복호 열람은 관리자 화면 직원 전용(R-122, PII_VIEW 기록) |
-| 이메일 전달(구직자·기업 사이 메일 중계) | 없음. 알림은 운영자 → 구직자 템플릿(상태 확인·체류 만료·면접 동의 요청)과 직원 알림(STAFF 채널)뿐                                                                                         |
+| 이메일 전달(구직자·기업 사이 메일 중계) | 없음. 알림은 운영자 → 구직자 템플릿(OTP·프로필 완성 안내·상태 확인·체류 만료·면접 동의 요청)과 직원 알림(STAFF 채널)뿐                                                                    |
 | 외부 링크 공유                          | 없음. **예외(PC-9)**: 구직자 본인 추천 코드 링크의 Web Share·링크 복사·WhatsApp/Telegram/Viber 공유 URL(`referral-share.tsx`) — 상대방 연락처를 주고받는 경로가 아님                      |
 | 운영자 연락처(`tel:`·`mailto:`)         | 푸터·내비·최종 CTA의 운영자 대표 연락처만(BR-01 허용, 휴대전화 비공개 Q-06)                                                                                                               |
+
+### 사람 승인 필요 (Gate 4 이후)
+
+아래는 코드가 하지 않고 사람이 승인·실행해야 하는 일이다(PLAN "승인 필요 지점").
+
+| 승인 지점 | 내용                                                         | 담당               | 위치                                                                   |
+| --------- | ------------------------------------------------------------ | ------------------ | ---------------------------------------------------------------------- |
+| A-3       | 실제 SMTP·SMS 자격 증명 설정과 첫 외부 발송                  | 운영자             | `.env`의 `SMTP_*`(SMS 실제 어댑터는 Phase 3), `src/lib/notifications/` |
+| A-5       | 기능 플래그 4종 켜기(법무 확인 후)                           | 운영자·법무        | `.env`의 `FEATURE_*`, `src/config/flags.ts`                            |
+| A-6       | 규칙·점수표 실제 값 입력과 PUBLISHED 게시                    | 행정사             | 관리자 화면 규칙·점수표 메뉴(`/admin`)                                 |
+| A-7       | 약관·동의서·고지 문구 확정, 실제 규칙 문구, 번역 원어민 검수 | 법무·행정사·운영자 | `messages/*.json`(`_review`), 약관·동의서 문서, 규칙 문구 키           |
+| A-8       | 실서버 배포·도메인·운영 DB(서울 리전)                        | 운영자             | 배포 환경, `SITE_URL`·`TRUST_PROXY`·`DATABASE_URL`                     |
 
 ### 알려진 한계 (Gate 4 보고 대상)
 
@@ -166,4 +182,20 @@ N-05 감사 로그 묶음(PII 열람·내보내기(PC-14 함수 단위)·등급 
 - 시·군·구·인구감소지역은 에이전트 초안(`isSample`·검토 필요, PC-6), 전공 분야 코드(Q-24)·KSIC 중분류(Q-12, null)는 운영자 검토 대기.
 - SMS 실제 채널 없음, 이메일은 `SMTP_*` 설정 전 콘솔 기록만: 콘솔만 보낸 상태 확인은 14일 무응답 비활성화·강등 근거가 아니다(Q-27).
 - 카카오·Zalo 공유는 Phase 3(PC-9), CSV 내보내기(PC-14)·직원 계정 관리 화면(PC-15)은 범위 밖.
-- 약관·동의서·고지 문구는 [전문가 검토 필요] 초안, 번역은 원어민 검수 전(`_review`).
+- 약관·동의서·고지 문구는 [전문가 검토 필요] 초안, 번역은 원어민 검수 전(`_review`, PLAN A-7).
+
+Gate 4 법무 확인 목록:
+
+- 구인 의뢰 담당자 개인정보 수집 고지에 수집 동의 체크박스를 둘지(DECISIONS Q-12 ③, 현재 고지 문구에 [전문가 검토 필요] 표시).
+- 면접 실명 제공 동의서의 "기간: 이 면접 건이 끝날 때까지" 해석(DECISIONS Q-25, 현재 결과 기록·취소 시 실명 제공 종료).
+- THIRD_PARTY_INTERVIEW 동의서에 받는 기업(수령자)이 적혀 있지 않음(BR-03, P2c).
+
+Gate 4 운영·배포 확인 목록(STATE.md·DECISIONS 기록 모음):
+
+- OTP 5회 오류 시 번호 잠금(R-104 규정대로 유지, P1c O-7).
+- `/admin` 리디렉트가 localhost를 가리킬 수 있음 — 배포 전 `TRUST_PROXY`·`SITE_URL` 확인(P1c O-9).
+- 전공 분야 코드(MAJOR_FIELDS) 운영자 검토(Q-24, P2b).
+- 수집 리드로 공고를 만들 때 생기는 중복 Company 병합(Q-17 ①).
+- 리드 원본(rawJson, 직원 전용)에 숫자형 전화번호·메신저 ID가 남을 수 있음(P1d O-9·O-10).
+- 개발 DB 초기화 여부(누적 E2E 데이터, P2a).
+- 실제 SMTP(A-3)와 실제 규칙 문구(A-7) 전에는 상태 확인이 콘솔 기록뿐이고, SMS 실제 채널이 없어 이메일 없는 구직자는 자동 비활성화 대상이 아님(Q-27, P2d).

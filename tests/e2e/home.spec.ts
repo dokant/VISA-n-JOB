@@ -112,3 +112,33 @@ test.describe("S-58 reduced motion", () => {
     }
   });
 });
+
+// S-62 / STANDARD 2.7 Reveal 6 (DECISIONS Q-28): the hero H1 and lead paragraph are the first-screen
+// LCP candidates, so they are drawn in place from the start, also after `js-reveal` is on <html>.
+// The hero badge and button row keep their reveal.
+test("S-62: hero H1 and lead have no reveal and rest at transform none under js-reveal", async ({
+  page,
+}) => {
+  await page.goto("/ko");
+  await expect(page.locator("html")).toHaveClass(/js-reveal/);
+  const hero = page.getByTestId("home-hero");
+  const h1 = hero.locator("h1#hero-title");
+  const lead = h1.locator("xpath=following-sibling::p[1]");
+  for (const el of [h1, lead]) {
+    await expect(el).toBeVisible();
+    const s = await el.evaluate((node) => {
+      const cs = getComputedStyle(node);
+      const style = (node as HTMLElement).style;
+      return {
+        reveal: node.classList.contains("reveal"),
+        revealY: style.getPropertyValue("--reveal-y"),
+        delay: style.transitionDelay,
+        transform: cs.transform,
+        opacity: cs.opacity,
+      };
+    });
+    expect(s).toEqual({ reveal: false, revealY: "", delay: "", transform: "none", opacity: "1" });
+  }
+  // Other hero elements keep the reveal contract.
+  expect(await hero.locator(".reveal").count()).toBeGreaterThanOrEqual(2);
+});

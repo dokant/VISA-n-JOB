@@ -119,4 +119,18 @@ describe("notifications/console", () => {
       expect(maskLink(plain)).toBe(plain);
     }
   });
+
+  it("maskLink masks a scheme-less www. link too (QA P2e O-3)", () => {
+    const token = "eyJpZCI6ImNtMTIzIn0~c2lnbmF0dXJl";
+    expect(maskLink(`www.x.test/ko/seeker/still-searching/${token}`)).toBe(
+      "www.x.test/ko/seeker/still-searching/***",
+    );
+    expect(maskLink(`열기 www.x.test/ko/seeker/still-searching/${token}?sig=zz, 감사`)).toBe(
+      "열기 www.x.test/ko/seeker/still-searching/***?sig=***, 감사",
+    );
+    expect(maskLink(`see https://www.x.test/api/files/abc123.sig now`)).toBe(
+      "see https://www.x.test/api/files/*** now",
+    );
+    expect(maskLink("mail a@www.x.test")).toBe("mail a@www.x.test");
+  });
 });

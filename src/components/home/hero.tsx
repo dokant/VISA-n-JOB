@@ -71,20 +71,14 @@ export async function Hero() {
               </span>
               <span className="min-w-0">{t("badge")}</span>
             </span>
-            <h1
-              id="hero-title"
-              className="reveal text-display text-white"
-              style={{ ["--reveal-y" as string]: "26px" }}
-            >
+            {/* H1 and lead are the first-screen LCP candidates: no reveal (STANDARD 2.7-6, Q-28). */}
+            <h1 id="hero-title" className="text-display text-white">
               <span className="block">{t("titleLine1")}</span>
               <span className="block">
                 {t("titleLine2")} <em className="vj-grad-text not-italic">{t("titleEmphasis")}</em>
               </span>
             </h1>
-            <p
-              className="reveal mt-6 max-w-155 text-lead text-white/66"
-              style={{ ["--reveal-y" as string]: "22px", transitionDelay: "0.08s" }}
-            >
+            <p className="mt-6 max-w-155 text-lead text-white/66">
               <span lang="en">{t("subLatin")}</span>
               <br />
               {t("sub")}

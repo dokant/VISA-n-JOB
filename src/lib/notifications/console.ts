@@ -47,9 +47,14 @@ function maskOneLink(value: string): string {
 
 /**
  * A link inside a sentence (QA P2d O-1): an `http(s)://` URL anywhere, or a `/path` that starts the
- * value or follows white space / an opening bracket or quote. Ends at white space, quotes or brackets.
+ * value or follows white space / an opening bracket or quote, or a scheme-less `www.` link (QA P2e
+ * O-3, masked like an absolute link and printed without the added scheme). Ends at white space,
+ * quotes or brackets.
  */
-const EMBEDDED_LINK = /https?:\/\/[^\s"'<>()[\]{}]+|(?<=^|[\s("'[{<])\/[^\s"'<>()[\]{}]*/gi;
+const EMBEDDED_LINK =
+  /https?:\/\/[^\s"'<>()[\]{}]+|(?<![\w./@-])www\.[^\s"'<>()[\]{}]+|(?<=^|[\s("'[{<])\/[^\s"'<>()[\]{}]*/gi;
+/** A link without a scheme that starts with `www.` (QA P2e O-3). */
+const WWW_LINK = /^www\./i;
 /** Sentence punctuation right after a link stays outside the masked part. */
 const TRAILING_PUNCT = /[.,;:!?]+$/;
 
@@ -64,7 +69,9 @@ export function maskLink(value: string): string {
   return value.replace(EMBEDDED_LINK, (match) => {
     const punct = TRAILING_PUNCT.exec(match)?.[0] ?? "";
     const link = punct ? match.slice(0, -punct.length) : match;
-    return link === "" || link === "/" ? match : maskOneLink(link) + punct;
+    if (link === "" || link === "/") return match;
+    if (WWW_LINK.test(link)) return maskOneLink(`http://${link}`).replace(/^http:\/\//, "") + punct;
+    return maskOneLink(link) + punct;
   });
 }
 

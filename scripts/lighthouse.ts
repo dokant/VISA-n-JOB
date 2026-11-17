@@ -9,6 +9,8 @@
  *    spawning the full chrome.exe from Node fails with "spawn UNKNOWN", the headless shell works.
  * 3. Writes .lighthouse/{page}-{run}.json and .lighthouse/summary.json, prints a table and exits 1
  *    when any median is below performance 85 or accessibility 90.
+ *    A failed run prints its exit reason, the Chrome binary used, a CHROME_PATH hint and the tail of
+ *    the Lighthouse log (QA P2e O-1).
  * Usage: tsx scripts/lighthouse.ts [--skip-build] [--runs N]
  */
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
@@ -77,7 +79,12 @@ function chromePath(): string {
   return full;
 }
 
-function runLighthouse(url: string, file: string): LhReport {
+/**
+ * Runs the Lighthouse CLI once. Its log is captured (not printed) and shown only when the run fails,
+ * together with the Chrome binary used and how to point CHROME_PATH at another one (QA P2e O-1:
+ * `--quiet` used to hide the reason, so a failure printed only "lighthouse failed").
+ */
+function runLighthouse(url: string, file: string, chrome: string): LhReport {
   const r = spawnSync(
     process.execPath,
     [
@@ -86,11 +93,33 @@ function runLighthouse(url: string, file: string): LhReport {
       "--output=json",
       `--output-path=${file}`,
       "--only-categories=performance,accessibility",
-      "--quiet",
     ],
-    { env: { ...process.env, CHROME_PATH: chromePath() }, stdio: "inherit" },
+    {
+      env: { ...process.env, CHROME_PATH: chrome },
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    },
   );
-  if (r.status !== 0) throw new Error(`lighthouse failed for ${url}`);
+  if (r.status !== 0 || r.error) {
+    const log = [r.stdout ?? "", r.stderr ?? ""].join("\n").trim().split(/\r?\n/);
+    const reason = r.error
+      ? `spawn error: ${r.error.message}`
+      : `exit status ${r.status ?? "null"}${r.signal ? `, signal ${r.signal}` : ""}`;
+    console.error(
+      [
+        `lighthouse failed for ${url} (${reason})`,
+        `Chrome: ${chrome}${process.env.CHROME_PATH ? " (CHROME_PATH)" : ""}${existsSync(chrome) ? "" : " — file not found"}`,
+        "Hint: set CHROME_PATH to a Chrome / Chromium binary. On Windows, spawning the full",
+        "      chrome.exe from Node can fail with 'spawn UNKNOWN'; Playwright's headless shell works:",
+        "      CHROME_PATH=%LOCALAPPDATA%/ms-playwright/chromium_headless_shell-<ver>/chrome-headless-shell-win64/chrome-headless-shell.exe",
+        "      (install it with `pnpm exec playwright install chromium`).",
+        "--- lighthouse log (last 40 lines) ---",
+        ...log.slice(-40),
+      ].join("\n"),
+    );
+    throw new Error(`lighthouse failed for ${url} (${reason})`);
+  }
   return JSON.parse(readFileSync(file, "utf8")) as LhReport;
 }
 
@@ -116,6 +145,8 @@ async function main(): Promise<number> {
     // Warm up every page once (first request compiles caches).
     for (const p of PAGES) await fetch(BASE + p);
 
+    const chrome = chromePath();
+    console.log(`lighthouse: Chrome ${chrome}`);
     const summary: Array<Record<string, unknown>> = [];
     let failed = false;
     for (const p of PAGES) {
@@ -125,7 +156,7 @@ async function main(): Promise<number> {
       let lcpNode = "";
       for (let i = 1; i <= RUNS; i++) {
         const name = `${p.replace(/\//g, "_").replace(/^_/, "")}-${i}.json`;
-        const report = runLighthouse(BASE + p, path.join(OUT, name));
+        const report = runLighthouse(BASE + p, path.join(OUT, name), chrome);
         perf.push(report.categories.performance.score ?? 0);
         a11y.push(report.categories.accessibility.score ?? 0);
         lcp.push(report.audits["largest-contentful-paint"]?.numericValue ?? 0);
