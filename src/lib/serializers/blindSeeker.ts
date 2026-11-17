@@ -167,6 +167,11 @@ export type BlindSeekerContext = {
   now?: Date;
   /** From `groupApplySizes` (query layer); null / missing = not applying with friends. */
   groupApplySize?: number | null;
+  /**
+   * VisaType codes (P2b QA O-5). When given, `convertibleVisa` passes only when it is one of them,
+   * so the API sends exactly what the candidate card can show (an unknown code becomes null).
+   */
+  visaCodes?: ReadonlySet<string>;
 };
 
 /** A reference code (VisaType / Region / Industry / ISO code). Anything else is not passed on. */
@@ -203,6 +208,15 @@ export function isBlindPublicId(value: unknown): value is string {
 
 function code(value: string | null | undefined): string | null {
   return typeof value === "string" && CODE.test(value) ? value : null;
+}
+
+function knownVisa(
+  value: string | null | undefined,
+  visaCodes: ReadonlySet<string> | undefined,
+): string | null {
+  const c = code(value);
+  if (c === null || visaCodes === undefined) return c;
+  return visaCodes.has(c) ? c : null;
 }
 
 function oneOf(list: readonly string[], value: string | null | undefined): string | null {
@@ -308,7 +322,7 @@ export function serializeBlindSeeker(
     grade: gradeOf(row.grade),
     verifiedVisa: row.verifiedVisa === true,
     verifiedKorean: row.verifiedKorean === true,
-    convertibleVisa: code(row.convertibleVisa),
+    convertibleVisa: knownVisa(row.convertibleVisa, ctx.visaCodes),
     convertibleAt: month(row.convertibleAt),
   };
   assertBlindKeys(out);

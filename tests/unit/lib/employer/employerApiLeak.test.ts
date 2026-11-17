@@ -166,6 +166,13 @@ describe("R-206 employer API contact leak harness", () => {
     const filteredText = await body(candidatesEntry, filtered);
     expect(filteredText).toContain(toBlindPublicId(seekers[0].publicId));
     expect(filteredText).not.toContain(toBlindPublicId(seekers[2].publicId)); // E-9
+    // P2b QA O-5: the tag is not a VisaType code, so the API sends convertibleVisa null (as the card)
+    expect(filteredText).not.toContain(t);
+    const filteredBody = JSON.parse(filteredText) as {
+      candidates: { publicId: string; convertibleVisa: string | null }[];
+    };
+    expect(filteredBody.candidates.length).toBeGreaterThan(0);
+    for (const c of filteredBody.candidates) expect(c.convertibleVisa).toBeNull();
     // the whole list (SAMPLE seekers and every row other tests wrote)
     const all = await getCandidates();
     expect(all.status).toBe(200);

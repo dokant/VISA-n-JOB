@@ -96,6 +96,15 @@ export async function groupApplySizes(
   return sizes;
 }
 
+/**
+ * Active VisaType codes (P2b QA O-5): `convertibleVisa` outside this set is sent as null, the same
+ * rule as the candidate card (src/components/employer/candidate-view.ts shows active types only).
+ */
+export async function activeVisaCodes(client: Client = db): Promise<ReadonlySet<string>> {
+  const rows = await client.visaType.findMany({ where: { active: true }, select: { code: true } });
+  return new Set(rows.map((r) => r.code));
+}
+
 const LIST_SELECT = {
   ...BLIND_SEEKER_SELECT,
   id: true,
@@ -118,8 +127,9 @@ export async function queryCandidates(
     select: LIST_SELECT,
   });
   const groups = await groupApplySizes(rows, client);
+  const visaCodes = await activeVisaCodes(client);
   return rows.map((row) =>
-    serializeBlindSeeker(row, { now, groupApplySize: groups.get(row.id) ?? null }),
+    serializeBlindSeeker(row, { now, groupApplySize: groups.get(row.id) ?? null, visaCodes }),
   );
 }
 

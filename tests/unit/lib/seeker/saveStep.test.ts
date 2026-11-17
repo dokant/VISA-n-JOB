@@ -55,7 +55,7 @@ describe("R-106 / R-107 step saves", () => {
     expect(raw.legalNameEnc).not.toContain("NGUYEN");
   });
 
-  it("Q-24: Step 3a 전공 분야 is an optional code; free text or an unknown code is refused", async () => {
+  it("R-106 / Q-24: Step 3a 전공 분야 is an optional code; free text or an unknown code is refused", async () => {
     const userId = await wizardAccount();
     const a = await answers();
     await save(userId, "1", a["1"]);

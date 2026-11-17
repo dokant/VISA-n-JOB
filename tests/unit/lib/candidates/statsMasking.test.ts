@@ -38,7 +38,7 @@ const groupsOf = (ns: number[]): CandidateStatGroup[] =>
 /** The whole published value, cell order included (the order must not rank masked cells). */
 const published = (ns: number[]) => maskCandidateStats(groupsOf(ns), MIN);
 
-describe("PC-11 candidate stats: masked cells cannot be derived", () => {
+describe("R-205 / PC-11 candidate stats: masked cells cannot be derived", () => {
   it("a cell under the minimum is masked, and the total is hidden whenever a cell is", () => {
     for (const ns of tables()) {
       const out = maskCandidateStats(groupsOf(ns), MIN);

@@ -154,6 +154,16 @@ describe("R-204 blindSeeker serializer", () => {
     expect(experienceSummaryOf(null)).toEqual([]);
   });
 
+  it("R-205 / P2b QA O-5: convertibleVisa outside the VisaType codes is sent as null", () => {
+    const visaCodes = new Set(["E-7-4", "F-2"]);
+    const of = (convertibleVisa: string | null) =>
+      serializeBlindSeeker({ ...FIXTURE, convertibleVisa }, { now: NOW, visaCodes })
+        .convertibleVisa;
+    expect(of("E-7-4")).toBe("E-7-4");
+    expect(of("QAR2V-tag")).toBeNull();
+    expect(of(null)).toBeNull();
+  });
+
   it("stay bands (WO §7.3, 3 bands): this month = M0_6, 12+ months = M12_PLUS, unknown = UNKNOWN", () => {
     const at = (stayExpiry: Date | null) =>
       serializeBlindSeeker({ ...FIXTURE, stayExpiry }, { now: NOW }).stayRemainingBand;
