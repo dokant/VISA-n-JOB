@@ -20,6 +20,7 @@ import {
   SEEKER_S_ACTIVE_CONFIRM_DAYS,
   SIGNED_URL_TTL_SEC,
 } from "@/config/limits";
+import { formatDate, formatDateTime, formatMonth } from "@/i18n/dateTime";
 import type { GradeRequirement } from "@/lib/admin/seekerReview";
 import type { CallOutcome } from "@/schemas/admin/leads";
 
@@ -255,35 +256,25 @@ export function adminActionError(code: string): string {
   return ERROR_TEXT[code] ?? "문제가 생겼습니다. 다시 시도해 주세요.";
 }
 
-const dateFmt = new Intl.DateTimeFormat("ko-KR", {
-  timeZone: "Asia/Seoul",
+/**
+ * Dates in admin screens go through the common formatter (src/i18n/dateTime.ts, STANDARD 3.5 v2.19,
+ * Q-26): KST, "2026. 01. 05.", times on the 24-hour clock ("2026. 01. 05. 18:58").
+ */
+const ADMIN_DATE: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
-});
-const dateTimeFmt = new Intl.DateTimeFormat("ko-KR", {
-  timeZone: "Asia/Seoul",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-const monthFmt = new Intl.DateTimeFormat("ko-KR", {
-  timeZone: "UTC",
-  year: "numeric",
-  month: "2-digit",
-});
+};
 
 export function fmtDate(d: Date | null | undefined): string {
-  return d ? dateFmt.format(d) : "—";
+  return d ? formatDate("ko", d, { date: ADMIN_DATE }) : "—";
 }
 export function fmtDateTime(d: Date | null | undefined): string {
-  return d ? dateTimeFmt.format(d) : "—";
+  return d ? formatDateTime("ko", d, { date: ADMIN_DATE }) : "—";
 }
 /** Stored months (stayExpiry etc.) are the 1st 00:00 UTC of the month. */
 export function fmtMonth(d: Date | null | undefined): string {
-  return d ? monthFmt.format(d) : "—";
+  return d ? formatMonth("ko", d, { month: "2-digit" }) : "—";
 }
 /** 원화 (STANDARD 3.5·S-32: `Intl` currency KRW, 관리자는 ko-KR 고정). */
 const wonFmt = new Intl.NumberFormat("ko-KR", {

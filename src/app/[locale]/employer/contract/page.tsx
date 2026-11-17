@@ -1,6 +1,6 @@
 import { ArrowRight, FileDown, FileCheck } from "lucide-react";
 import type { Metadata } from "next";
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ScopedIntlProvider } from "@/components/common/scoped-intl-provider";
 import { ContractForm } from "@/components/employer/contract-form";
@@ -8,6 +8,7 @@ import { TermsDocument } from "@/components/employer/terms-document";
 import { Button } from "@/components/ui/button";
 import { isFeatureEnabled } from "@/config/flags";
 import { PageShell } from "@/components/public/page-shell";
+import { formatDate } from "@/i18n/dateTime";
 import { Link, redirect } from "@/i18n/navigation";
 import {
   STAFF_RECORDED_CONTRACT,
@@ -47,7 +48,6 @@ export default async function EmployerContractPage({ params }: Props) {
     return null;
   }
   const t = await getTranslations("employer.contract");
-  const format = await getFormatter();
   const status = await contractStatusOf(employer.companyId);
   const version = currentTermsVersion();
   const candidatesOn = isFeatureEnabled("FEATURE_EMPLOYER_CANDIDATES");
@@ -88,7 +88,7 @@ export default async function EmployerContractPage({ params }: Props) {
             <ul className="grid gap-1 text-dense text-n700">
               <li>
                 {t("signed.date", {
-                  date: format.dateTime(status.signedAt, { dateStyle: "long" }),
+                  date: formatDate(locale, status.signedAt, { dateStyle: "long" }),
                 })}
               </li>
               <li>

@@ -89,7 +89,7 @@ export default async function EmployerCandidatesPage({ params, searchParams }: P
       <div className="grid gap-8">
         <NoticeBox>{t("notice")}</NoticeBox>
         <CandidateFiltersForm
-          values={filters}
+          values={"filters" in result ? result.filters : filters}
           visaOptions={ref.visaOptions}
           stayOptions={ref.stayOptions}
           industryOptions={ref.industryOptions}

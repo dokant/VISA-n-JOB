@@ -10,7 +10,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { runSeed } from "../../../prisma/seed/index";
 import { SIDO, sigunguCode } from "../../../prisma/seed/regions";
-import { testPrisma } from "./helpers";
+import { TEST_TAG_NOTE, testPrisma } from "./helpers";
 
 const prisma = testPrisma();
 afterAll(() => prisma.$disconnect());
@@ -67,7 +67,8 @@ describe("R-007 seed", () => {
   });
 
   it("R-007: VisaType.defaultTrack matches the WO §7.4 table", async () => {
-    const rows = await prisma.visaType.findMany();
+    // rows registered by unit tests as filter tags (candidateFixtures.registerTagCode) are not seed data
+    const rows = await prisma.visaType.findMany({ where: { NOT: { note: TEST_TAG_NOTE } } });
     const actual = Object.fromEntries(rows.map((r) => [r.code, r.defaultTrack]));
     expect(actual).toEqual(WO_7_4);
   });

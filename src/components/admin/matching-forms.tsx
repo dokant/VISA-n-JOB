@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
-import { type ChangeEvent, useActionState, useState, useTransition } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useActionState,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import { INTRO_CONFIRM_HINT, adminActionError } from "@/app/admin/_i18n/ko";
 import { Button } from "@/components/ui/button";
@@ -119,14 +126,37 @@ export function RecommendButton({
   );
 }
 
-/** 면접 일정 잡기 (KST date + time, place shown to the company — no contacts). */
+/**
+ * 면접 일정 잡기 (KST date + time, place shown to the company — no contacts). Submitted by hand (not
+ * `<form action>`) so a refused save (e.g. a contact in the place) keeps what was typed; a success
+ * clears the form (P2d 선행 A-6).
+ */
 export function InterviewCreateForm({ recommendationId }: { recommendationId: string }) {
-  const [state, action, pending] = useActionState<AdminActionState, FormData>(
-    createInterviewAction,
-    null,
-  );
+  const formRef = useRef<HTMLFormElement>(null);
+  const [, startTransition] = useTransition();
+  const [state, action, pending] = useActionState<AdminActionState, FormData>(async (prev, fd) => {
+    let r: AdminActionState;
+    try {
+      r = await createInterviewAction(prev, fd);
+    } catch (e) {
+      unstable_rethrow(e); // redirects (expired staff session) still go through
+      r = { ok: false, code: "ACTION_FAILED" };
+    }
+    if (r?.ok) formRef.current?.reset();
+    return r;
+  }, null);
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(() => action(fd));
+  };
   return (
-    <form action={action} className="grid gap-5.5" data-testid="interview-create-form">
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      className="grid gap-5.5"
+      data-testid="interview-create-form"
+    >
       <input type="hidden" name="recommendationId" value={recommendationId} />
       <div className="grid gap-5.5 md:grid-cols-3">
         <div className="grid gap-1.75">
@@ -169,11 +199,22 @@ export function InterviewStatusForms({
     confirmInterviewAction,
     null,
   );
+  const [cancelOpen, setCancelOpen] = useState(false);
+  // The dialog stays open while cancelling; a failure (e.g. 다시 로그인) is shown inside it and only a
+  // success closes it (P2d 선행 A-4).
   const [cancelState, cancel, cancelling] = useActionState<AdminActionState, FormData>(
-    cancelInterviewAction,
+    async (prev, fd) => {
+      try {
+        const r = await cancelInterviewAction(prev, fd);
+        if (r?.ok) setCancelOpen(false);
+        return r;
+      } catch (e) {
+        unstable_rethrow(e); // redirects (expired staff session) still go through
+        return { ok: false, code: "ACTION_FAILED" };
+      }
+    },
     null,
   );
-  const [cancelOpen, setCancelOpen] = useState(false);
   if (status === "CANCELLED") return null;
   return (
     <div className="grid gap-2">
@@ -206,10 +247,7 @@ export function InterviewStatusForms({
               화면의 실명 표시도 이 면접 건에서는 끝납니다.
             </DialogDescription>
             <form
-              action={(fd) => {
-                setCancelOpen(false);
-                cancel(fd);
-              }}
+              action={cancel}
               className="flex flex-wrap justify-end gap-2"
               data-testid="interview-cancel-form"
             >
@@ -229,6 +267,7 @@ export function InterviewStatusForms({
                 면접 취소
               </Button>
             </form>
+            {cancelState && !cancelState.ok ? <ActionFeedback state={cancelState} /> : null}
           </DialogContent>
         </Dialog>
       </div>
@@ -236,7 +275,9 @@ export function InterviewStatusForms({
         state={confirmState}
         okText="면접을 확정했습니다. 구직자에게 동의를 요청했습니다."
       />
-      <ActionFeedback state={cancelState} okText="면접을 취소했습니다." />
+      {cancelState?.ok ? (
+        <ActionFeedback state={cancelState} okText="면접을 취소했습니다." />
+      ) : null}
     </div>
   );
 }

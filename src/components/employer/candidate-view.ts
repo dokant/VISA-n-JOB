@@ -1,6 +1,7 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 
 import { STAY_REMAINING_BANDS } from "@/config/limits";
+import { formatDate, formatMonth } from "@/i18n/dateTime";
 import type { StayRemainingBand } from "@/lib/candidates/stayBand";
 import { getIndustries, getSidoRegions, getVisaTypes } from "@/lib/referenceData";
 import type { BlindSeeker } from "@/lib/serializers/blindSeeker";
@@ -101,13 +102,7 @@ export async function loadCandidateViews(
     }
   };
   const monthText = (ym: string | null) =>
-    ym
-      ? format.dateTime(new Date(`${ym}-01T00:00:00Z`), {
-          year: "numeric",
-          month: "long",
-          timeZone: "UTC",
-        })
-      : unanswered;
+    ym ? formatMonth(locale, new Date(`${ym}-01T00:00:00Z`)) : unanswered;
   const money = (n: number) =>
     format.number(n, { style: "currency", currency: "KRW", maximumFractionDigits: 0 });
 
@@ -188,8 +183,7 @@ export async function loadCandidateViews(
               {
                 key: "availableFrom",
                 label: c("availableFrom"),
-                value: format.dateTime(new Date(`${s.availableFrom}T00:00:00Z`), {
-                  dateStyle: "medium",
+                value: formatDate(locale, new Date(`${s.availableFrom}T00:00:00Z`), {
                   timeZone: "UTC",
                 }),
               },

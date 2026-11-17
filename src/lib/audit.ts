@@ -67,6 +67,20 @@ export class AuditInputError extends Error {
 const FORBIDDEN_META_KEY = /(Enc|password|secret|token|otp|totp)$/i;
 
 /**
+ * Contact field names (STANDARD 4.8 v2.19: `phone`, `email`, `messengerId`, `messengerType` …) are never
+ * meta keys — not even with an id-looking value. Checked before the identifier exemption, so
+ * `messengerId` (which ends in "Id") is refused instead of exempted (P2d 선행 A-3). Matches the field
+ * name alone or as a camelCase part (`contactPhone`, `phoneHash`, `seekerEmail`, `messengerIds`).
+ */
+const CONTACT_META_KEY =
+  /(^|[a-z])(phone|Phone|email|Email|e-mail|mail|Mail|messenger|Messenger|mobile|Mobile|kakao|Kakao|zalo|Zalo|telegram|Telegram|whatsapp|Whatsapp|WhatsApp|wechat|Wechat|WeChat|viber|Viber)([A-Z_]|s?$)/;
+
+/** True when `key` names a contact field (refused as a meta key). Exported for tests. */
+export function isContactMetaKey(key: string): boolean {
+  return CONTACT_META_KEY.test(key);
+}
+
+/**
  * P2c QA run 2 F-1: database ids in meta (`seekerId`, `interviewId`, `publicIds` …) are random
  * strings, and a cuid such as "cmwj193vm000a6mewt3fb51zr" reads as a messenger id ("fb" + digits)
  * to the contact detector. A value is exempt from the contact check only when BOTH hold:
@@ -100,7 +114,7 @@ export function assertSafeMeta(value: unknown, path = "", idKey = false): void {
   }
   if (value !== null && typeof value === "object") {
     for (const [key, v] of Object.entries(value)) {
-      if (FORBIDDEN_META_KEY.test(key)) {
+      if (FORBIDDEN_META_KEY.test(key) || isContactMetaKey(key)) {
         throw new AuditInputError(`meta${path}.${key} must not be logged`);
       }
       assertSafeMeta(v, `${path}.${key}`, ID_META_KEY.test(key));

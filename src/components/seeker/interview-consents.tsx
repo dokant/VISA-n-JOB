@@ -56,21 +56,29 @@ export function InterviewConsents({
   const te = useTranslations("errors.auth");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
-  // "auth": the session ended (UNAUTHENTICATED) → 다시 로그인 안내; "retry": anything else.
-  const [error, setError] = useState<"auth" | "retry" | null>(null);
+  // "auth": the session ended (UNAUTHENTICATED) → 다시 로그인 안내; "ended": the interview ended
+  // meanwhile (INTERVIEW_ENDED, Q-25); "retry": anything else. `inDialog`: started from the revoke
+  // confirmation dialog, so the message is shown inside it (P2d 선행 A-4).
+  type ErrorKind = "auth" | "ended" | "retry";
+  const [error, setError] = useState<{ kind: ErrorKind; inDialog: boolean } | null>(null);
 
+  const kindOf = (code: string): ErrorKind =>
+    code === "UNAUTHENTICATED" ? "auth" : code === "INTERVIEW_ENDED" ? "ended" : "retry";
   const answer = (interviewId: string, action: "agree" | "decline" | "revoke") =>
     startTransition(async () => {
       setError(null);
+      const inDialog = action === "revoke";
       try {
         const r = await answerInterviewConsent({ interviewId, action, locale });
         if (r.ok) window.location.reload();
-        else setError(r.code === "UNAUTHENTICATED" ? "auth" : "retry");
+        else setError({ kind: kindOf(r.code), inDialog });
       } catch {
         // P2c QA F-1: a thrown server action must not replace the page with an error screen.
-        setError("retry");
+        setError({ kind: "retry", inDialog });
       }
     });
+  const errorText = (kind: ErrorKind) =>
+    kind === "auth" ? te("unauthenticated") : kind === "ended" ? t("endedNote") : t("error");
 
   return (
     <div className="grid gap-4" data-testid="interview-consents">
@@ -134,7 +142,11 @@ export function InterviewConsents({
                   </Button>
                 ) : null}
                 {item.state === "AGREED" ? (
-                  <Dialog>
+                  <Dialog
+                    onOpenChange={(open) => {
+                      if (!open) setError(null);
+                    }}
+                  >
                     <DialogTrigger asChild>
                       <Button variant="outline" size="sm" data-testid="interview-consent-revoke">
                         {t("revoke")}
@@ -156,6 +168,15 @@ export function InterviewConsents({
                           {t("revokeConfirm")}
                         </Button>
                       </div>
+                      {error?.inDialog ? (
+                        <p
+                          role="alert"
+                          className="text-caption text-error-text"
+                          data-testid="interview-consent-dialog-error"
+                        >
+                          {errorText(error.kind)}
+                        </p>
+                      ) : null}
                     </DialogContent>
                   </Dialog>
                 ) : null}
@@ -164,9 +185,9 @@ export function InterviewConsents({
           );
         })}
       </ul>
-      {error ? (
+      {error && !error.inDialog ? (
         <p role="alert" className="text-caption text-error-text">
-          {error === "auth" ? te("unauthenticated") : t("error")}
+          {errorText(error.kind)}
         </p>
       ) : null}
     </div>

@@ -133,14 +133,46 @@ export async function queryCandidates(
   );
 }
 
+/**
+ * P2d 선행 A-5: the free-form code filters (`visa`, `convertible`, `industry`) are kept only when they
+ * are codes of the reference lists (VisaType, Industry); any other value is dropped (`""`) —
+ * ignored by the query and never written to the audit meta, so an odd query string cannot make the
+ * audit write (contact check) fail. The other filters are fixed lists already (schema).
+ */
+export async function knownCandidateFilters(
+  filters: CandidateFilters,
+  client: Client = db,
+): Promise<CandidateFilters> {
+  const needsVisa = filters.visa !== "" || filters.convertible !== "";
+  const [visaCodes, industries] = await Promise.all([
+    needsVisa
+      ? client.visaType
+          .findMany({ select: { code: true } })
+          .then((rows) => new Set(rows.map((r) => r.code)))
+      : Promise.resolve(new Set<string>()),
+    filters.industry !== ""
+      ? client.industry
+          .findMany({ select: { code: true } })
+          .then((rows) => new Set(rows.map((r) => r.code)))
+      : Promise.resolve(new Set<string>()),
+  ]);
+  return {
+    ...filters,
+    visa: visaCodes.has(filters.visa) ? filters.visa : "",
+    convertible: visaCodes.has(filters.convertible) ? filters.convertible : "",
+    industry: industries.has(filters.industry) ? filters.industry : "",
+  };
+}
+
 function filterMeta(filters: CandidateFilters): Prisma.InputJsonObject {
   return Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== ""));
 }
 
+/** `filters` = the filters actually applied (unknown codes dropped, `knownCandidateFilters`). */
 export type BrowseResult =
-  | { ok: true; candidates: BlindSeeker[]; remaining: number }
+  | { ok: true; candidates: BlindSeeker[]; remaining: number; filters: CandidateFilters }
   | { ok: false; code: "NOT_CONTRACTED" }
-  | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number };
+  | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number; filters: CandidateFilters };
 
 export async function browseCandidates(
   args: {
@@ -151,9 +183,10 @@ export async function browseCandidates(
   client: Client = db,
 ): Promise<BrowseResult> {
   const now = args.now ?? new Date();
-  const { actor, filters } = args;
+  const { actor } = args;
   const access = await candidateAccessOf(actor.companyId, client);
   if (access.level !== "LIST") return { ok: false, code: "NOT_CONTRACTED" };
+  const filters = await knownCandidateFilters(args.filters, client);
 
   const view = await consumeCandidateView(actor.companyId, now, client);
   if (!view.ok) {
@@ -171,7 +204,7 @@ export async function browseCandidates(
       },
       client,
     );
-    return { ok: false, code: "RATE_LIMITED", retryAfterSec: view.retryAfterSec };
+    return { ok: false, code: "RATE_LIMITED", retryAfterSec: view.retryAfterSec, filters };
   }
 
   const candidates = await queryCandidates(filters, now, client);
@@ -189,5 +222,5 @@ export async function browseCandidates(
     },
     client,
   );
-  return { ok: true, candidates, remaining: view.remaining };
+  return { ok: true, candidates, remaining: view.remaining, filters };
 }

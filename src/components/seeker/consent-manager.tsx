@@ -29,19 +29,24 @@ export function ConsentManager({ items }: { items: ConsentItem[] }) {
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
   // "auth": the session ended (UNAUTHENTICATED) → 다시 로그인 안내; "retry": anything else.
-  const [error, setError] = useState<"auth" | "retry" | null>(null);
+  // `inDialog`: the failed action was started from the confirmation dialog, so the message is shown
+  // inside that dialog (P2d 선행 A-4) instead of behind its overlay.
+  const [error, setError] = useState<{ kind: "auth" | "retry"; inDialog: boolean } | null>(null);
 
   const change = (type: RevocableConsent, action: "revoke" | "grant") =>
     startTransition(async () => {
       setError(null);
+      const inDialog = action === "revoke";
       try {
         const r = await changeConsent({ type, action, locale });
         if (r.ok) window.location.reload();
-        else setError(r.code === "UNAUTHENTICATED" ? "auth" : "retry");
+        else setError({ kind: r.code === "UNAUTHENTICATED" ? "auth" : "retry", inDialog });
       } catch {
-        setError("retry");
+        setError({ kind: "retry", inDialog });
       }
     });
+  const errorText = (kind: "auth" | "retry") =>
+    kind === "auth" ? te("unauthenticated") : t("error");
 
   return (
     <ul className="grid gap-3" data-testid="consent-list">
@@ -62,7 +67,11 @@ export function ConsentManager({ items }: { items: ConsentItem[] }) {
               </Badge>
             </div>
             {revocable && item.active ? (
-              <Dialog>
+              <Dialog
+                onOpenChange={(open) => {
+                  if (!open) setError(null);
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" data-testid={`revoke-${item.type}`}>
                     {t("revoke")}
@@ -84,6 +93,15 @@ export function ConsentManager({ items }: { items: ConsentItem[] }) {
                       {t("revokeConfirm")}
                     </Button>
                   </div>
+                  {error?.inDialog ? (
+                    <p
+                      role="alert"
+                      className="text-caption text-error-text"
+                      data-testid="consent-dialog-error"
+                    >
+                      {errorText(error.kind)}
+                    </p>
+                  ) : null}
                 </DialogContent>
               </Dialog>
             ) : null}
@@ -102,9 +120,9 @@ export function ConsentManager({ items }: { items: ConsentItem[] }) {
           </li>
         );
       })}
-      {error ? (
+      {error && !error.inDialog ? (
         <li role="alert" className="text-caption text-error-text">
-          {error === "auth" ? te("unauthenticated") : t("error")}
+          {errorText(error.kind)}
         </li>
       ) : null}
     </ul>

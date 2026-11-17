@@ -1,6 +1,6 @@
 import { CalendarCheck, CalendarClock, CalendarX, CircleDashed, UserCheck } from "lucide-react";
 import type { Metadata } from "next";
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { NoticeBox } from "@/components/legal/notice-box";
 import { PageShell } from "@/components/public/page-shell";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { isFeatureEnabled } from "@/config/flags";
+import { formatDate, formatDateTime } from "@/i18n/dateTime";
 import { Link, redirect } from "@/i18n/navigation";
 import { loadEmployerRequests } from "@/lib/employer/interviews";
 import { currentEmployer } from "@/lib/employer/session";
@@ -59,16 +60,9 @@ export default async function EmployerRequestsPage({ params }: Props) {
     return null;
   }
   const t = await getTranslations("employer.requests");
-  const format = await getFormatter();
   const data = await loadEmployerRequests(employer);
-  const day = (iso: string) =>
-    format.dateTime(new Date(iso), { dateStyle: "medium", timeZone: "Asia/Seoul" });
-  const when = (iso: string) =>
-    format.dateTime(new Date(iso), {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "Asia/Seoul",
-    });
+  const day = (iso: string) => formatDate(locale, new Date(iso));
+  const when = (iso: string) => formatDateTime(locale, new Date(iso));
   // Same short label as the candidate card (candidate-view.ts), so the two screens match.
   const shortId = (id: string) => id.slice(0, 6).toUpperCase();
 

@@ -81,4 +81,37 @@ describe("R-205 GET /api/employer/candidates", () => {
     expect(logs).toHaveLength(2);
     expect(logs[1].meta).toMatchObject({ refused: "DAILY_LIMIT" });
   });
+
+  it("P2d 선행 A-5: filter codes outside the VisaType / Industry lists are ignored (200, not in the audit meta)", async () => {
+    process.env.FEATURE_EMPLOYER_CANDIDATES = "true";
+    const t = tag("route-odd");
+    const seeker = await candidate(t);
+    const c = await company({ verified: true, contracted: true });
+    session.actor = c;
+    // code-shaped values that the contact detector reads as messenger ids, and plain unknown codes
+    for (const q of [
+      `?convertible=${t}&visa=fb12345678&industry=kakao1234`,
+      `?convertible=${t}&visa=ZZ-99&industry=NOT_AN_INDUSTRY`,
+    ]) {
+      const res = await get(q);
+      expect(res.status).toBe(200);
+      const body = (await res.json()) as { candidates: { publicId: string }[] };
+      expect(body.candidates.map((x) => x.publicId)).toEqual([toBlindPublicId(seeker.publicId)]);
+    }
+    const logs = await db.auditLog.findMany({
+      where: { action: "CANDIDATE_BULK_VIEW", entityId: c.companyId },
+    });
+    expect(logs).toHaveLength(2);
+    for (const l of logs)
+      expect((l.meta as { filters: unknown }).filters).toEqual({ convertible: t });
+
+    // a listed code is kept (F-4 is a seeded VisaType)
+    const kept = await get(`?convertible=${t}&visa=F-4`);
+    expect(kept.status).toBe(200);
+    const last = await db.auditLog.findFirstOrThrow({
+      where: { action: "CANDIDATE_BULK_VIEW", entityId: c.companyId },
+      orderBy: { at: "desc" },
+    });
+    expect((last.meta as { filters: unknown }).filters).toEqual({ convertible: t, visa: "F-4" });
+  });
 });

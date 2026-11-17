@@ -10,7 +10,8 @@
  * - Revoking sets `revokedAt` (never deletes) and writes AuditLog CONSENT_REVOKE in the same
  *   transaction (BR-15). The company stops seeing the name at once: disclosure reads the consent on
  *   every request (src/lib/serializers/interviewDisclosure.ts).
- * - Only the seeker of the interview can answer, and only while the interview is CONFIRMED.
+ * - Only the seeker of the interview can answer, and only while the interview is CONFIRMED and not
+ *   ended (INTERVIEW_ENDED once a final result is recorded or it is cancelled, Q-25).
  * Seeker-facing data (`listInterviewConsentRequests`) carries no company name, address or contact
  * (BR-03): date, industry and 시·도 only.
  */
@@ -91,8 +92,14 @@ export async function listInterviewConsentRequests(
   });
 }
 
+/**
+ * INTERVIEW_ENDED (P2d 선행 A-2, Q-25): the interview has a final result or was cancelled — agreeing or
+ * declining is refused on the server even when an old screen still shows the buttons. Revoking an
+ * earlier consent stays possible (철회는 언제든).
+ */
 export type InterviewConsentResult =
-  { ok: true; changed: boolean } | { ok: false; code: "NOT_FOUND" | "INTERVIEW_STATE" };
+  | { ok: true; changed: boolean }
+  | { ok: false; code: "NOT_FOUND" | "INTERVIEW_STATE" | "INTERVIEW_ENDED" };
 
 /** The interview when it belongs to this seeker user (any status), else null. */
 async function ownInterview(tx: Tx | Client, userId: string, interviewId: string) {
@@ -101,8 +108,17 @@ async function ownInterview(tx: Tx | Client, userId: string, interviewId: string
   }
   return tx.interview.findFirst({
     where: { id: interviewId, recommendation: { seeker: { userId } } },
-    select: { id: true, status: true },
+    select: { id: true, status: true, result: true },
   });
+}
+
+/** Why an agree / decline answer is refused for this interview, or null when it may be answered. */
+function answerRefusal(iv: {
+  status: string;
+  result: string | null;
+}): "INTERVIEW_ENDED" | "INTERVIEW_STATE" | null {
+  if (interviewEnded(iv)) return "INTERVIEW_ENDED";
+  return iv.status === "CONFIRMED" ? null : "INTERVIEW_STATE";
 }
 
 export async function agreeInterviewConsent(
@@ -113,7 +129,8 @@ export async function agreeInterviewConsent(
   return client.$transaction(async (tx) => {
     const iv = await ownInterview(tx, args.userId, args.interviewId);
     if (!iv) return { ok: false, code: "NOT_FOUND" };
-    if (iv.status !== "CONFIRMED") return { ok: false, code: "INTERVIEW_STATE" };
+    const refused = answerRefusal(iv);
+    if (refused) return { ok: false, code: refused };
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`consent:${iv.id}`}))`;
     const active = await tx.consent.findFirst({
       where: { userId: args.userId, type: INTERVIEW_CONSENT, interviewId: iv.id, revokedAt: null },
@@ -196,7 +213,8 @@ export async function declineInterviewConsent(
   return client.$transaction(async (tx) => {
     const iv = await ownInterview(tx, args.userId, args.interviewId);
     if (!iv) return { ok: false, code: "NOT_FOUND" };
-    if (iv.status !== "CONFIRMED") return { ok: false, code: "INTERVIEW_STATE" };
+    const refused = answerRefusal(iv);
+    if (refused) return { ok: false, code: refused };
     await revokeActive(tx, { ...args, now, reason: "DECLINE" });
     await tx.interview.update({ where: { id: iv.id }, data: { consentDeclinedAt: now } });
     return { ok: true, changed: true };

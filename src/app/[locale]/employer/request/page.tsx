@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ScopedIntlProvider } from "@/components/common/scoped-intl-provider";
 import { JobRequestForm } from "@/components/employer/job-request-form";
@@ -7,6 +7,7 @@ import { JobRequestList } from "@/components/employer/job-request-list";
 import { ExpertReviewMark } from "@/components/legal/expert-review-mark";
 import { NoticeBox } from "@/components/legal/notice-box";
 import { PageShell } from "@/components/public/page-shell";
+import { formatDate } from "@/i18n/dateTime";
 import { redirect } from "@/i18n/navigation";
 import { db } from "@/lib/db";
 import { listCompanyRequests } from "@/lib/employer/jobRequest";
@@ -49,7 +50,6 @@ export default async function EmployerRequestPage({ params }: Props) {
   const tKo = await getTranslations({ locale: "ko", namespace: "employer.request" });
   const tl = await getTranslations("legal");
   const tr = await getTranslations();
-  const format = await getFormatter();
   const [company, sidos, sigungus, requests] = await Promise.all([
     db.company.findUnique({
       where: { id: employer.companyId },
@@ -95,7 +95,7 @@ export default async function EmployerRequestPage({ params }: Props) {
             title: r.title ?? t("list.untitled"),
             requestedAt: r.requestedAt
               ? t("list.requestedAt", {
-                  date: format.dateTime(r.requestedAt, { dateStyle: "medium" }),
+                  date: formatDate(locale, r.requestedAt),
                 })
               : "",
             status:

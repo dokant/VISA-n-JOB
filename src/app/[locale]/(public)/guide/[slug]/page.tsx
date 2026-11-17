@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ExpertReviewMark } from "@/components/legal/expert-review-mark";
 import { PageShell } from "@/components/public/page-shell";
+import { formatDate } from "@/i18n/dateTime";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { listGuideSlugs, loadGuide } from "@/lib/guide";
@@ -42,9 +43,8 @@ export default async function GuidePage({ params }: Props) {
   if (!guide) notFound();
 
   const t = await getTranslations("public.guide");
-  const format = await getFormatter();
   const fm = guide.frontmatter;
-  const updated = format.dateTime(new Date(fm.updatedAt + "T00:00:00+09:00"), {
+  const updated = formatDate(locale, new Date(fm.updatedAt + "T00:00:00+09:00"), {
     dateStyle: "long",
   });
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { type FormEvent, useActionState, useRef, useState } from "react";
+import { unstable_rethrow } from "next/navigation";
+import { type FormEvent, useActionState, useRef, useState, useTransition } from "react";
 
 import { CALL_FINAL_CONFIRM, CALL_OUTCOME_LABEL } from "@/app/admin/_i18n/ko";
 import { Button } from "@/components/ui/button";
@@ -31,50 +32,63 @@ import { ActionFeedback } from "./action-feedback";
  * 재접촉금지로 가는 결과(고용 의사 없음·재접촉 거부)는 되돌릴 수 없어 확인 다이얼로그를 거친다(Q-14).
  */
 export function LeadCallForm({ leadId }: { leadId: string }) {
-  const [state, action, pending] = useActionState<AdminActionState, FormData>(
-    recordCallAction,
-    null,
-  );
   const formRef = useRef<HTMLFormElement>(null);
-  const [confirmFinal, setConfirmFinal] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
+  const [dialogError, setDialogError] = useState<AdminActionState>(null);
+  const [, startTransition] = useTransition();
+  // The form is submitted by hand (not `<form action>`) so a failed save keeps what was typed and the
+  // chosen outcome (no automatic form reset); a success clears the form. A final outcome is saved
+  // with the confirmation dialog open: a failure is shown inside the dialog and only a success
+  // closes it (P2d 선행 A-4).
+  const [state, action, pending] = useActionState<AdminActionState, FormData>(async (prev, fd) => {
+    const fromDialog = fd.get("confirmFinal") === "yes";
+    let r: AdminActionState;
+    try {
+      r = await recordCallAction(prev, fd);
+    } catch (e) {
+      unstable_rethrow(e); // redirects (expired staff session) still go through
+      r = { ok: false, code: "ACTION_FAILED" };
+    }
+    if (r?.ok) {
+      setAskOpen(false);
+      formRef.current?.reset();
+    } else if (fromDialog) {
+      setDialogError(r);
+    }
+    return r;
+  }, null);
+
+  function submit(fd: FormData) {
+    startTransition(() => action(fd));
+  }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
-    const outcome = new FormData(e.currentTarget).get("outcome");
-    if (isCallOutcome(outcome) && isFinalCallOutcome(outcome) && !confirmFinal) {
-      e.preventDefault();
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const outcome = fd.get("outcome");
+    if (isCallOutcome(outcome) && isFinalCallOutcome(outcome)) {
+      setDialogError(null);
       setAskOpen(true);
+      return;
     }
+    submit(fd);
   }
 
   function confirmAndSubmit() {
-    setConfirmFinal(true);
-    setAskOpen(false);
-    // Submit after the hidden `confirmFinal=yes` field has rendered.
-    requestAnimationFrame(() => formRef.current?.requestSubmit());
+    if (!formRef.current) return;
+    const fd = new FormData(formRef.current);
+    fd.set("confirmFinal", "yes");
+    submit(fd);
   }
 
   return (
-    <form
-      ref={formRef}
-      action={action}
-      onSubmit={onSubmit}
-      className="grid gap-4"
-      data-testid="call-form"
-    >
+    <form ref={formRef} onSubmit={onSubmit} className="grid gap-4" data-testid="call-form">
       <input type="hidden" name="leadId" value={leadId} />
-      <input type="hidden" name="confirmFinal" value={confirmFinal ? "yes" : ""} />
       <div className="grid gap-1.75">
         <Label htmlFor="call-outcome">
           통화 결과<span className="ms-1 font-normal text-n500">(필수)</span>
         </Label>
-        <NativeSelect
-          id="call-outcome"
-          name="outcome"
-          required
-          defaultValue=""
-          onChange={() => setConfirmFinal(false)}
-        >
+        <NativeSelect id="call-outcome" name="outcome" required defaultValue="">
           <option value="" disabled>
             선택하세요
           </option>
@@ -98,7 +112,7 @@ export function LeadCallForm({ leadId }: { leadId: string }) {
           통화 기록 저장
         </Button>
       </div>
-      <ActionFeedback state={state} okText="통화 기록을 저장했습니다." />
+      {askOpen ? null : <ActionFeedback state={state} okText="통화 기록을 저장했습니다." />}
       <Dialog open={askOpen} onOpenChange={setAskOpen}>
         <DialogContent closeLabel={CALL_FINAL_CONFIRM.cancel} data-testid="call-final-confirm">
           <DialogTitle>{CALL_FINAL_CONFIRM.title}</DialogTitle>
@@ -118,6 +132,7 @@ export function LeadCallForm({ leadId }: { leadId: string }) {
               {CALL_FINAL_CONFIRM.confirm}
             </Button>
           </div>
+          <ActionFeedback state={dialogError} />
         </DialogContent>
       </Dialog>
     </form>

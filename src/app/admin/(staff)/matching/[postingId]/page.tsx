@@ -5,13 +5,19 @@ import { notFound } from "next/navigation";
 
 import { JOB_SEARCH_LABEL, SEEKER_GRADE_LABEL, fmtCount } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
+import { MATCHING_CANDIDATE_MAX } from "@/config/limits";
 import { RecommendButton } from "@/components/admin/matching-forms";
 import { Badge } from "@/components/ui/badge";
 import { requireStaff } from "@/lib/admin/session";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { ANY_REGION } from "@/lib/seeker/options";
-import { type MatchScope, getMatchPosting, matchCandidates } from "@/lib/recommendations/matching";
+import {
+  type MatchScope,
+  countMatchCandidates,
+  getMatchPosting,
+  matchCandidates,
+} from "@/lib/recommendations/matching";
 
 export const metadata: Metadata = { title: "공고별 적합 구직자" };
 export const dynamic = "force-dynamic";
@@ -53,8 +59,9 @@ export default async function MatchingPostingPage({ params, searchParams }: Prop
   const scope: MatchScope = (await searchParams).scope === "visa" ? "visa" : "strict";
   const posting = await getMatchPosting(postingId);
   if (!posting) notFound();
-  const [candidates, sidos, industries] = await Promise.all([
+  const [candidates, total, sidos, industries] = await Promise.all([
     matchCandidates(posting, scope),
+    countMatchCandidates(posting, scope),
     db.region.findMany({ where: { level: "SIDO" }, select: { code: true, nameKo: true } }),
     db.industry.findMany({ select: { code: true, nameKo: true } }),
   ]);
@@ -94,9 +101,19 @@ export default async function MatchingPostingPage({ params, searchParams }: Prop
         </Link>
       </nav>
 
-      <p className="text-dense text-n700" data-testid="match-count">
-        적합 구직자 {fmtCount(candidates.length, "명")}
-      </p>
+      <div className="grid gap-1">
+        <p className="text-dense text-n700" data-testid="match-count" data-total={total}>
+          적합 구직자 전체 {fmtCount(total, "명")}
+          {total > candidates.length ? ` · 상위 ${fmtCount(candidates.length, "명")} 표시` : ""}
+        </p>
+        {total > candidates.length ? (
+          <p className="text-caption text-n500" data-testid="match-truncated">
+            목록은 한 번에 {fmtCount(MATCHING_CANDIDATE_MAX, "명")}까지 보여
+            줍니다(우선순위·등급·최근 갱신 순). 나머지 구직자는 구직자 검토 화면에서 찾을 수
+            있습니다.
+          </p>
+        ) : null}
+      </div>
       {candidates.length === 0 ? (
         <p className="text-dense text-n500">조건에 맞는 구직자가 없습니다.</p>
       ) : (

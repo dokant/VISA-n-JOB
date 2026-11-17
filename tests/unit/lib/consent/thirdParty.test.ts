@@ -320,6 +320,54 @@ describe("R-211 THIRD_PARTY_INTERVIEW per-interview consent", () => {
     expect((await auditRows(interview.id, "PII_VIEW")).length).toBe(views);
   });
 
+  it("P2d 선행 A-2 / Q-25: an ended interview refuses agree and decline on the server (INTERVIEW_ENDED); revoke still works", async () => {
+    const setup = await matchSetup("C5");
+    const s = await matchSeeker(setup);
+    const actor = { id: setup.employer.id, companyId: setup.employer.companyId };
+    const answer = (interviewId: string) => ({
+      agree: () => agreeInterviewConsent({ userId: s.userId, interviewId, locale: "ko", ip: null }),
+      decline: () => declineInterviewConsent({ userId: s.userId, interviewId }),
+    });
+
+    // final results end the interview: no new consent, no decline, no name
+    for (const result of DISCLOSURE_ENDING_RESULTS) {
+      const { interview } = await recommendedInterview(setup, s.id, "CONFIRMED");
+      await recordInterviewResult({ interviewId: interview.id, attended: true, result });
+      expect(await answer(interview.id).agree()).toEqual({ ok: false, code: "INTERVIEW_ENDED" });
+      expect(await answer(interview.id).decline()).toEqual({
+        ok: false,
+        code: "INTERVIEW_ENDED",
+      });
+      expect(
+        await db.consent.count({ where: { userId: s.userId, interviewId: interview.id } }),
+      ).toBe(0);
+      const row = await db.interview.findUniqueOrThrow({ where: { id: interview.id } });
+      expect(row.consentDeclinedAt).toBeNull();
+    }
+
+    // a confirmed then cancelled interview: also INTERVIEW_ENDED
+    const { interview: cancelled } = await recommendedInterview(setup, s.id, "CONFIRMED");
+    await db.interview.update({
+      where: { id: cancelled.id },
+      data: { status: "CANCELLED", cancelledAt: new Date() },
+    });
+    expect(await answer(cancelled.id).agree()).toEqual({ ok: false, code: "INTERVIEW_ENDED" });
+    expect(await answer(cancelled.id).decline()).toEqual({ ok: false, code: "INTERVIEW_ENDED" });
+
+    // "결과 대기" (PENDING) does not end it: agreeing still works
+    const { interview: pending } = await recommendedInterview(setup, s.id, "CONFIRMED");
+    await recordInterviewResult({ interviewId: pending.id, attended: true, result: "PENDING" });
+    expect(await answer(pending.id).agree()).toEqual({ ok: true, changed: true });
+
+    // an earlier consent can still be revoked after the end (철회는 언제든)
+    await recordInterviewResult({ interviewId: pending.id, attended: true, result: "HIRED" });
+    expect(await revokeInterviewConsent({ userId: s.userId, interviewId: pending.id })).toEqual({
+      ok: true,
+      changed: true,
+    });
+    expect(await apiText(actor)).not.toContain(LEAK_NAME);
+  });
+
   it("Q-25: interviewEnded — cancelled or a final result ends it, PENDING or nothing does not", () => {
     expect(interviewEnded({ status: "CONFIRMED", result: null })).toBe(false);
     expect(interviewEnded({ status: "CONFIRMED", result: "PENDING" })).toBe(false);

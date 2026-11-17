@@ -14,7 +14,7 @@ import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { phoneHashOf } from "@/lib/otp";
 
-import { uniq } from "../../db/helpers";
+import { TEST_TAG_NOTE, uniq } from "../../db/helpers";
 
 export const LEAK_NAME = "NGUYEN LEAKTEST";
 export const LEAK_EMAIL = "leak.seeker@example.test";
@@ -64,9 +64,32 @@ export type SeekerOver = Partial<Prisma.SeekerProfileUncheckedCreateInput> & {
   blindProfile?: "GIVEN" | "REVOKED" | "NONE";
 };
 
+/**
+ * P2d 선행 A-5: the employer filters keep only codes of the VisaType list, so a test tag used as the
+ * "전환 가능 비자" filter must be a VisaType code. It is registered as an inactive, non-status,
+ * non-registrable row (never offered on any screen, sent to employers as null — P2b QA O-5).
+ */
+export async function registerTagCode(code: string): Promise<void> {
+  await db.visaType.upsert({
+    where: { code },
+    create: {
+      code,
+      nameKey: "visaType.other.name",
+      defaultTrack: null,
+      registrable: false,
+      isStatusCode: false,
+      active: false,
+      sortOrder: 9999,
+      note: TEST_TAG_NOTE,
+    },
+    update: {},
+  });
+}
+
 /** An employer-visible seeker (grade A, JOB_MATCH, ACTIVE, finished, BLIND_PROFILE given). */
 export async function candidate(convertibleTag: string, over: SeekerOver = {}) {
   const { blindProfile = "GIVEN", ...data } = over;
+  await registerTagCode(convertibleTag);
   const phone = `+8210${randomInt(10_000_000, 99_999_999)}`;
   const user = await db.user.create({
     data: { role: "SEEKER", phoneEnc: phone, phoneHash: phoneHashOf(phone) },

@@ -88,7 +88,7 @@ describe("R-205 browseCandidates", () => {
     // 23:30 KST the same day → still the same window
     const late = new Date("2031-05-20T14:30:00.000Z");
     const refused = await browseCandidates({ actor: c, filters, now: late });
-    expect(refused).toEqual({ ok: false, code: "RATE_LIMITED", retryAfterSec: 30 * 60 });
+    expect(refused).toEqual({ ok: false, code: "RATE_LIMITED", retryAfterSec: 30 * 60, filters });
 
     const logs = await views(c.companyId);
     expect(logs).toHaveLength(CANDIDATE_VIEWS_PER_DAY + 1);

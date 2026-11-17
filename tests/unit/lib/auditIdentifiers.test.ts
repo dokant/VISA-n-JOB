@@ -10,7 +10,13 @@ import { randomInt, randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { listAdminCompanies, setCompanyVerified } from "@/lib/admin/companies";
-import { AuditInputError, assertSafeMeta, isIdentifierValue, writeAudit } from "@/lib/audit";
+import {
+  AuditInputError,
+  assertSafeMeta,
+  isContactMetaKey,
+  isIdentifierValue,
+  writeAudit,
+} from "@/lib/audit";
 import { agreeInterviewConsent, revokeInterviewConsent } from "@/lib/consent/thirdParty";
 import { db } from "@/lib/db";
 import { loadEmployerRequests } from "@/lib/employer/interviews";
@@ -121,6 +127,54 @@ describe("F-1 audit meta identifiers", () => {
     expect(() => assertSafeMeta({ note: "전화 010-1234-5678" })).toThrow(AuditInputError);
     // secret keys are refused whatever the value
     expect(() => assertSafeMeta({ phoneEnc: detected })).toThrow(/must not be logged/);
+  });
+
+  it("P2d 선행 A-3: contact field names are refused as meta keys, even `messengerId` with a cuid value", () => {
+    const id = contactLikeCuid("ig1234", false);
+    for (const key of [
+      "phone",
+      "email",
+      "messengerId",
+      "messengerIds",
+      "messengerType",
+      "messenger",
+      "contactPhone",
+      "phoneHash",
+      "seekerEmail",
+      "mobile",
+      "kakaoId",
+      "zaloId",
+      "telegramId",
+      "whatsappId",
+      "wechatId",
+      "viberId",
+    ]) {
+      expect(isContactMetaKey(key)).toBe(true);
+      expect(() => assertSafeMeta({ [key]: id })).toThrow(/must not be logged/);
+      expect(() => assertSafeMeta({ nested: { [key]: [id] } })).toThrow(AuditInputError);
+      expect(() => assertSafeMeta({ [key]: "NONE" })).toThrow(AuditInputError);
+    }
+    // identifier and ordinary keys used by the app are not contact names
+    for (const key of [
+      "id",
+      "seekerId",
+      "companyIds",
+      "interviewId",
+      "verifiedBy",
+      "retiredIds",
+      "fields",
+      "filters",
+      "reason",
+      "type",
+      "change",
+      "templateKey",
+      "channel",
+    ]) {
+      expect(isContactMetaKey(key)).toBe(false);
+    }
+    expect(() =>
+      assertSafeMeta({ seekerId: id, fields: ["phoneEnc", "messengerIdEnc"] }),
+    ).not.toThrow();
   });
 
   it("100,000 random cuids all pass assertSafeMeta under an id key", () => {

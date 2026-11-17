@@ -1,7 +1,8 @@
-import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { ExpertReviewMark } from "@/components/legal/expert-review-mark";
 import { PageShell } from "@/components/public/page-shell";
+import { formatDate } from "@/i18n/dateTime";
 
 const SECTION_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6", "s7"] as const;
 /** Date the drafts were written (shown as "초안 작성일"). */
@@ -18,13 +19,12 @@ export async function LegalDocument({ doc }: Props) {
   const t = await getTranslations(`legal.${doc}`);
   const tKo = await getTranslations({ locale: "ko", namespace: `legal.${doc}` });
   const tl = await getTranslations("legal");
-  const format = await getFormatter();
   const bilingual = locale !== "ko";
 
   return (
     <PageShell
       title={t("title")}
-      lead={tl("draftDate", { date: format.dateTime(DRAFT_DATE, { dateStyle: "long" }) })}
+      lead={tl("draftDate", { date: formatDate(locale, DRAFT_DATE, { dateStyle: "long" }) })}
       afterHeader={<ExpertReviewMark />}
       narrow={!bilingual}
     >

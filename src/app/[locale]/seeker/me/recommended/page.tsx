@@ -1,6 +1,6 @@
 import { ArrowRight, CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
 import type { Metadata } from "next";
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ComingSoon } from "@/components/common/coming-soon";
 import { PostingCard } from "@/components/jobs/posting-card";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { isFeatureEnabled } from "@/config/flags";
+import { formatDate, formatDateTime } from "@/i18n/dateTime";
 import { Link, redirect } from "@/i18n/navigation";
 import { getIndustries, getSidoRegions } from "@/lib/referenceData";
 import { ownRecommendations, recommendedPostingsFor } from "@/lib/seeker/recommended";
@@ -56,7 +57,6 @@ export default async function SeekerRecommendedPage({ params }: Props) {
   }
   const t = await getTranslations("seeker.recommended");
   const tAll = await getTranslations();
-  const format = await getFormatter();
   const publicJobs = isFeatureEnabled("FEATURE_PUBLIC_JOBS");
 
   const [postings, mine, sidos, industries] = await Promise.all([
@@ -68,9 +68,8 @@ export default async function SeekerRecommendedPage({ params }: Props) {
   const postingViews = postings ? await loadPostingViews(postings) : [];
   const sidoName = new Map(sidos.map((s) => [s.code, tAll(s.nameKey)]));
   const industryName = new Map(industries.map((i) => [i.code, tAll(i.nameKey)]));
-  const day = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeZone: "Asia/Seoul" });
-  const when = (d: Date) =>
-    format.dateTime(d, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" });
+  const day = (d: Date) => formatDate(locale, d);
+  const when = (d: Date) => formatDateTime(locale, d);
 
   return (
     <PageShell eyebrow={t("eyebrow")} title={t("title")} lead={t("lead")}>

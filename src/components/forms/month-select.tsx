@@ -1,14 +1,15 @@
 "use client";
 
-import { useFormatter, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { Ref } from "react";
 
 import type { FieldA11y } from "@/components/forms/form-field";
 import { NativeSelect } from "@/components/ui/native-select";
+import { formatMonthName } from "@/i18n/dateTime";
 
 /**
  * Month picker = year select + month select (STANDARD 3.1: no calendar). Value "YYYY-MM" or "".
- * Month names come from the locale formatter (next-intl `Intl`).
+ * Month names come from the common date formatter (src/i18n/dateTime.ts, `Intl`).
  */
 export function MonthSelect({
   a11y,
@@ -29,7 +30,7 @@ export function MonthSelect({
   name: string;
 }) {
   const t = useTranslations("seeker.register.common");
-  const format = useFormatter();
+  const locale = useLocale();
   const [year = "", month = ""] = value ? value.split("-") : [];
   const years: number[] = [];
   const step = fromYear <= toYear ? 1 : -1;
@@ -68,7 +69,7 @@ export function MonthSelect({
           const m = String(i + 1).padStart(2, "0");
           return (
             <option key={m} value={m}>
-              {format.dateTime(new Date(Date.UTC(2000, i, 1)), { month: "long", timeZone: "UTC" })}
+              {formatMonthName(locale, i)}
             </option>
           );
         })}

@@ -12,3 +12,6 @@ export function uniq(prefix: string): string {
   seq += 1;
   return `${prefix}-${Date.now().toString(36)}-${process.pid}-${seq}`;
 }
+
+/** Note of VisaType rows that unit tests register as filter tags (candidateFixtures.registerTagCode). */
+export const TEST_TAG_NOTE = "TEST_TAG (unit test isolation code, not a visa)";

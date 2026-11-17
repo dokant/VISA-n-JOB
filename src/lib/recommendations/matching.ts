@@ -139,6 +139,21 @@ export async function listMatchPostings(client: Client = db, take = MATCHING_CAN
   });
 }
 
+/**
+ * Number of all eligible seekers for one posting (the list shows at most MATCHING_CANDIDATE_MAX —
+ * the page says "상위 n명 표시" when there are more, P2d 선행 A-7).
+ */
+export function countMatchCandidates(
+  posting: MatchPosting,
+  scope: MatchScope = "strict",
+  now: Date = new Date(),
+  client: Client = db,
+): Promise<number> {
+  return client.seekerProfile.count({
+    where: { AND: [eligibleCandidateWhere(now), postingMatchWhere(posting, scope)] },
+  });
+}
+
 /** Eligible seekers for one posting, best match first. */
 export async function matchCandidates(
   posting: MatchPosting,

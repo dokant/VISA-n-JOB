@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ScopedIntlProvider } from "@/components/common/scoped-intl-provider";
 import { PageShell } from "@/components/public/page-shell";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { VisaLabel } from "@/components/visa/visa-label";
+import { formatDateTime } from "@/i18n/dateTime";
 import { Link, redirect } from "@/i18n/navigation";
 import { listInterviewConsentRequests } from "@/lib/consent/thirdParty";
 import { db } from "@/lib/db";
@@ -56,7 +57,6 @@ export default async function SeekerMePage({ params }: Props) {
   let interviewConsent: ReactNode = null;
   if (interviewRequests.length > 0) {
     const tAll = await getTranslations();
-    const format = await getFormatter();
     const [sidos, industries, docs] = await Promise.all([
       getSidoRegions(),
       getIndustries(),
@@ -64,8 +64,7 @@ export default async function SeekerMePage({ params }: Props) {
     ]);
     const sidoName = new Map(sidos.map((s) => [s.code, tAll(s.nameKey)]));
     const industryName = new Map(industries.map((i) => [i.code, tAll(i.nameKey)]));
-    const when = (d: Date) =>
-      format.dateTime(d, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" });
+    const when = (d: Date) => formatDateTime(locale, d);
     interviewConsent = (
       <Card className="grid content-start gap-4 lg:col-span-2" data-testid="interview-consent-card">
         <h2 className="text-h3 text-navy">{t("interviewConsent.title")}</h2>

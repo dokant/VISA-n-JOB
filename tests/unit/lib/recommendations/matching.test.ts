@@ -14,6 +14,7 @@ import {
   INTERVIEW_CONSENT_TEMPLATE,
 } from "@/lib/recommendations/interviews";
 import {
+  countMatchCandidates,
   listOpenInterestRequests,
   matchCandidates,
   recommendForInterest,
@@ -51,6 +52,10 @@ describe("R-209 matching", () => {
     // nothing personal is selected for the staff list
     const text = JSON.stringify(strict);
     expect(text).not.toMatch(/legalName|phone|email|messenger/i);
+
+    // P2d 선행 A-7: the total count of the same conditions (the list itself is capped)
+    expect(await countMatchCandidates(setup.posting, "strict")).toBe(2);
+    expect(await countMatchCandidates(setup.posting, "visa")).toBe(4);
   });
 
   it("R-209: 추천 실행 re-checks eligibility on the server and marks the 면접 신청 RECOMMENDED", async () => {
