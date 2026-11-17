@@ -145,6 +145,13 @@ describe("R-125 submitJobRequestAction", () => {
       "문의 010-1234-2026.12",
       "문의 010-5678-2026.12.01",
       "문의 010 1234 2026.12",
+      // QA run 5 D-6 (run 6 rule: a digit outside the date makes the window strict)
+      "문의 0101234 2026.12.01",
+      "문의 0101234-2026.12",
+      "문의 0105678 2026.12.01",
+      "문의 021201 2026.12",
+      // QA run 5 O-3: a number disguised as a 년월일 date
+      "문의 02 2026년 12월 01일",
     ]) {
       expect(await submitJobRequestAction(await input({ detail })), detail).toEqual({
         ok: false,

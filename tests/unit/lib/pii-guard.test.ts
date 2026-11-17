@@ -669,8 +669,9 @@ const QA4_DESIGNATED_BYPASSES: [string, ContactType][] = [
   ["82101-2345678", "PHONE_INTL"],
   ["일당 82 10-1234-5678", "PHONE_INTL"],
   ["2026.12.01 010-1234-5678", "PHONE_LOCAL"],
-  // detected since 09438f0 as "950000 010-1234" (82/84/… country-code reading); kept as is in run 5
-  ["일당 820000~950000 010-1234-5678", "PHONE_INTL"],
+  // run 6 (QA run 5 O-2): the amounts of a range stand alone, so the number is read from its own
+  // first digit (010-1234-5678, PHONE_LOCAL) instead of "950000 010-1234" (PHONE_INTL, run 5)
+  ["일당 820000~950000 010-1234-5678", "PHONE_LOCAL"],
   ["근무 2026.12.01~2027.01.31 문의 01012345678", "PHONE_LOCAL"],
 ];
 const QA4_D5 = [
@@ -776,13 +777,173 @@ describe("P2a run 5: QA run 4 lists (D-5 and kept results)", () => {
     );
   });
 
-  it("QA run 4 O-1 limits: results recorded", () => {
+  it("QA run 4 O-1 limits: results recorded (run 6 rule)", () => {
     // amount cue + "~" between two complete numbers: an amount range, not a number
     expect(detectContacts("일당 84912 ~ 345678")).toEqual([]);
-    // month 13 is not a date; "01" + 2027.01.31 is not read because "01" is not a phone prefix
-    expect(detectContacts("2026.13.01~2027.01.31")).toEqual([]);
-    // "01" is not an allocated Korean prefix (01x needs three digits), so "01" + date stays negative
-    expect(detectContacts("생산직 01 2026.12.01")).toEqual([]);
-    expect(detectContacts("생산직 01 2026.12.01 단기")).toEqual([]);
+    // run 6: month 13 is not a date, so the window is not dates only and is read strictly:
+    // "01~2027.01.31" = 0120270131 (a 10-digit number starting with 0)
+    expect(detectContacts("2026.13.01~2027.01.31").map((f) => f.value)).toEqual(["01~2027.01.31"]);
+    // run 6: "01" is a digit outside the date, so "01 2026.12.01" = 0120261201 is a number
+    expect(detectContacts("생산직 01 2026.12.01").map((f) => f.value)).toEqual(["01 2026.12.01"]);
+    expect(maskContacts("생산직 01 2026.12.01 단기")).toBe("생산직 *** 단기");
+  });
+});
+
+// ── P2a run 6 (Q-20): one date rule — a window is skipped only when it is dates alone ──────────
+// Lists from .workflow/qa/phase-P2a-run-5.md: D-6 (4), item 3 variants (28 + function level),
+// O-3 (년월일), O-1 (zero-padded list numbers, strict side accepted), O-2 (mask after an amount range).
+const QA5_D6 = [
+  "문의 0101234 2026.12.01",
+  "문의 0101234-2026.12",
+  "문의 0105678 2026.12.01",
+  "문의 021201 2026.12",
+];
+const QA5_VARIANTS = [
+  "문의 031 2026.12.01",
+  "문의 051-2026-12-01",
+  "문의 070 2026 12 01",
+  "문의 1588 2026.12",
+  "문의 1588-2026.12.01",
+  "문의 031-1234-2026.12.01",
+  "문의 051-123-2026.12",
+  "문의 070-1234-2026.12.01",
+  "문의 02 1234 2026.12.01",
+  "문의 010-1234-2026.12.01",
+  "문의 010-1234-2026-12-01",
+  "문의 010-1234-2026/12/01",
+  "문의 010 1234 2026 12 01",
+  "문의 010.1234.2026.12.01",
+  "문의 010-1234-2026년 12월",
+  "문의 010-1234-1999.12.31",
+  "문의 +82 10-1234-2026.12",
+  "문의 82 10 1234 2026.12",
+  "문의 010/1234/2026.12",
+  "문의 010ㅡ1234ㅡ2026.12",
+  "문의 010→1234→2026.12",
+  "문의 010 ㅡ 1234 ㅡ 2026.12",
+  "문의 010•1234•2026.12",
+  "문의 010/1234/2026/12/01",
+  "문의 010→1234→2026→12→01",
+  "문의 02ㅡ1201ㅡ2026.12",
+  "문의 02→2026.12.01",
+  "문의 ０１０-１２３４-２０２６.１２",
+];
+const QA5_VARIANTS_FUNCTION_LEVEL = [
+  "032 2026.12.01",
+  "064 2026.12.01",
+  "055 2026.12.01",
+  "080 2026.12.01",
+  "0505 2026.12.01",
+  "011 2026.12.01",
+  "016 2026.12.01",
+  "010-9876-2099.01.31",
+  "010-1234-1900.01",
+  "010~1234~2026.12",
+  "010★1234★2026.12",
+  "010—1234—2026.12",
+  "010​1234​2026.12",
+  "010-1234-2026。12",
+  "0082 10 1234 2026.12",
+  "010-12342026.12",
+  "01012342026.12.01",
+];
+const QA5_KOREAN_DATE_DISGUISE = ["문의 02 2026년 12월 01일", "문의 010 2026년 12월 01일"];
+const RUN6_NEGATIVE = [
+  "근무 17:00 (2026.12.01~2027.01.31)",
+  "3명 2026.12.01~2027.01.31",
+  "2교대 2026.12.01 시작",
+  "2026.12.01~2027.01.31 3명",
+  "2026.12.01~2027.01.31 (2개월)",
+  "2026.12.01~2027.01.31 30일",
+  "2026.12.01~2027.01.31 09:00 출근",
+  "근무 2026.12.01~2027.01.31 3 명",
+  "2026년 12월 01일~2027년 01월 31일 2교대",
+  "2026년 12월 010",
+];
+
+describe("P2a run 6 (Q-20): dates are skipped only when the whole window is dates", () => {
+  const expectPhone = (texts: string[]) => {
+    for (const text of texts) {
+      const found = detectContacts(text);
+      expect(found, text).toHaveLength(1);
+      expect(found[0].type, text).toMatch(/^PHONE_/);
+      // no 4 or more phone digits left after masking
+      expect(maskContacts(text).replace(/20\d\d|19\d\d/g, ""), text).not.toMatch(/\d{4}/);
+    }
+  };
+
+  it("QA run 5 D-6: a glued prefix + exchange whose last group is a year is detected (4)", () => {
+    expectPhone(QA5_D6);
+    expect(QA5_D6.map((t) => maskContacts(t))).toEqual([
+      "문의 ***.12.01",
+      "문의 ***.12",
+      "문의 ***.12.01",
+      "문의 ***.12",
+    ]);
+  });
+
+  it("QA run 5 item 3: the 28 D-5 variants and the function-level forms are detected", () => {
+    expect(QA5_VARIANTS).toHaveLength(28);
+    expectPhone([...QA5_VARIANTS, ...QA5_VARIANTS_FUNCTION_LEVEL]);
+  });
+
+  it("QA run 5 O-3: a number disguised as a YYYY년 MM월 DD일 date is detected", () => {
+    expectPhone(QA5_KOREAN_DATE_DISGUISE);
+    expect(maskContacts("문의 02 2026년 12월 01일 끝")).toBe("문의 ***일 끝");
+    expect(maskContacts("문의 010 2026년 12월 01일")).toBe("문의 ***일");
+    // 년월일 date ranges and a 년월일 date before a number stay as they are
+    expect(maskContacts("2026년 12월 010-1234-5678")).toBe("2026년 12월 ***");
+  });
+
+  it("'01' + date is read strictly (two forms)", () => {
+    expectPhone(["생산직 01 2026.12.01", "생산직 01 2026.12.01 단기"]);
+  });
+
+  it("times and counts beside a date period are not part of the window", () => {
+    for (const text of RUN6_NEGATIVE) {
+      expect(detectContacts(text), text).toEqual([]);
+      expect(maskContacts(text), text).toBe(text);
+    }
+  });
+
+  it("a number beside a time or a count is still a number", () => {
+    // the count / time is cut out only when the rest is dates alone
+    expect(detectContacts("문의 02 2026.12.01 3명")).toHaveLength(1);
+    expect(detectContacts("2026.12.01 01012345678명")).toHaveLength(1);
+    expect(detectContacts("근무 17:00 문의 010-1234-5678")).toHaveLength(1);
+    expect(detectContacts("010-1234-5678명")).toHaveLength(1);
+  });
+
+  it("QA run 5 O-1: zero-padded list numbers right before a date are refused (strict side kept)", () => {
+    for (const text of [
+      "순번 02 2026.12.01 입사",
+      "02. 2026.12.01 교육",
+      "(02) 2026.12.01 입사",
+      "인원 02 2026.12.01",
+      "01. 2026.12.01 입사 02. 2027.01.31 종료",
+      "No.02 2026.12.01",
+      "02 2026.12.01~2027.01.31",
+    ]) {
+      expect(detectContacts(text).length, text).toBeGreaterThan(0);
+    }
+    for (const text of [
+      "1. 2026.12.01 입사",
+      "No.3 2026.12.01",
+      "02월 2026년",
+      "2. 2026.12.01 교육",
+      "02명 2026.12.01 입사",
+      "02번 2026.12.01",
+      "1) 2026.12.01 2) 2027.01.31",
+      "02 2026년 12월 입사",
+    ]) {
+      expect(detectContacts(text), text).toEqual([]);
+    }
+  });
+
+  it("QA run 5 O-2: a number right after an amount range is masked whole, the range is kept", () => {
+    expect(maskContacts("일당 820000~950000 010-1234-5678")).toBe("일당 820000~950000 ***");
+    expect(maskContacts("일당 820000~950000원 010-1234-5678")).toBe("일당 820000~950000원 ***");
+    expect(maskContacts("월급 2500000~3100000 010-1234-5678")).toBe("월급 2500000~3100000 ***");
+    expect(maskContacts("일당 820000 ~ 950000 02-123-4567 끝")).toBe("일당 820000 ~ 950000 *** 끝");
   });
 });

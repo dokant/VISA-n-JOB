@@ -200,6 +200,37 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     );
   });
 
+  it("BR-14 (P2a QA run 5 D-6, O-2, O-3): glued prefixes before a date and numbers after an amount range are masked whole", async () => {
+    const d6 = [
+      "문의 0101234 2026.12.01",
+      "문의 0101234-2026.12",
+      "문의 0105678 2026.12.01",
+      "문의 021201 2026.12",
+    ];
+    const item = leadItem({
+      title: "일당 820000~950000 010-1234-5678",
+      memo: `${d6.join(" / ")} / 문의 02 2026년 12월 01일 / 근무 17:00 (2026.12.01~2027.01.31) 끝`,
+    });
+    const res = await post([item]);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as Body).created).toBe(1);
+    const row = await prisma.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(row.title).toBe("일당 820000~950000 ***");
+    const raw = JSON.stringify(row.rawJson);
+    expect(raw).toContain(
+      "문의 ***.12.01 / 문의 ***.12 / 문의 ***.12.01 / 문의 ***.12 / 문의 ***일 / 근무 17:00 (2026.12.01~2027.01.31) 끝",
+    );
+    // no 4 or more phone digits left (the kept date period and the amount range aside)
+    const rest = `${row.title} ${raw}`
+      .replace("2026.12.01~2027.01.31", "")
+      .replace(/820000~950000/g, "");
+    for (const tail of ["1234", "5678", "1201", "0101234", "021201"]) {
+      expect(rest).not.toContain(tail);
+    }
+  });
+
   it("R-115: a DO_NOT_CONTACT lead keeps its grade when collected again", async () => {
     const item = leadItem();
     await post([item]);
