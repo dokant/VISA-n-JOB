@@ -40,6 +40,21 @@ export async function createCandidate(
   tag: string,
   over: { grade?: "S" | "A"; visaCode?: string; track?: "JOB_MATCH" | "FUTURE_POOL" } = {},
 ) {
+  // P2d 선행 A-5: filter codes outside the VisaType list are ignored, so the tag is registered as an
+  // inactive, non-status VisaType (never offered on a public screen, sent to companies as null).
+  await db.visaType.upsert({
+    where: { code: tag },
+    create: {
+      code: tag,
+      nameKey: "visaType.other.name",
+      registrable: false,
+      isStatusCode: false,
+      active: false,
+      sortOrder: 9999,
+      note: "E2E filter tag (candidate isolation), not a visa",
+    },
+    update: {},
+  });
   const user = await db.user.create({ data: { role: "SEEKER" } });
   const profile = await db.seekerProfile.create({
     data: {
