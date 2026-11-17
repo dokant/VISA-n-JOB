@@ -1,7 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 import { signInNewStaff } from "./support/adminDb";
-import { createE2eVisa, ruleAudit, ruleRow, sampleDraftIds, scoreTableRow } from "./support/p2dDb";
+import {
+  createE2eVisa,
+  ruleAudit,
+  ruleRow,
+  ruleVisaCode,
+  sampleDraftIds,
+  scoreTableRow,
+} from "./support/p2dDb";
 import { isolate, waitForHydration } from "./support/seekerFlow";
 import { p2dShot } from "./support/shots";
 
@@ -137,4 +144,23 @@ test("QA O-4: SAMPLE rule / score table drafts show no 게시 button (the server
   await page.goto(`/admin/score-tables/${tableId}`);
   await expect(page.getByTestId("admin-score-table")).toHaveAttribute("data-status", "DRAFT");
   await expect(page.getByTestId("table-publish")).toHaveCount(0);
+});
+
+test("QA P2d O-5: a sample rule's unlisted visa stays selected; saving it is refused, nothing changes", async ({
+  page,
+}) => {
+  const { ruleId, ruleVisa } = await sampleDraftIds();
+  expect(ruleId).not.toBeNull();
+  const id = ruleId as string;
+  const visa = ruleVisa as string;
+  await signInNewStaff(page, "STAFF_VISA");
+  await page.goto(`/admin/rules/${id}`);
+  await waitForHydration(page, "visa-rule-form");
+  const select = page.getByLabel("비자", { exact: true });
+  // the stored value (e.g. SAMPLE-1, not a VisaType) is selected, not the first listed visa
+  await expect(select).toHaveValue(visa);
+  await page.getByTestId("visa-rule-save").click();
+  await expect(page.getByTestId("action-error")).toHaveAttribute("data-code", /^UNKNOWN_/);
+  await expect(select).toHaveValue(visa);
+  expect(await ruleVisaCode(id)).toBe(visa);
 });

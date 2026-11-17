@@ -9,7 +9,10 @@
 import path from "node:path";
 
 function log(entry: Record<string, unknown>): void {
-  console.info(JSON.stringify({ at: new Date().toISOString(), ...entry }));
+  const line = JSON.stringify({ at: new Date().toISOString(), ...entry });
+  // `level: "warn"` lines (e.g. status_check.transition_disabled) go to stderr via console.warn.
+  if (entry.level === "warn") console.warn(line);
+  else console.info(line);
 }
 
 async function main(): Promise<void> {

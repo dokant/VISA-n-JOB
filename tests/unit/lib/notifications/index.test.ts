@@ -242,6 +242,24 @@ describe("R-214 SMTP adapter", () => {
     expect(JSON.parse(logs[0])).toMatchObject({ ok: false, error: "EENVELOPE" });
     expect(logs[0]).not.toContain("seeker@example.com");
   });
+
+  it('default log sink: a sent message → console.info, a failed one (level "warn") → console.warn', async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const transport = nodemailer.createTransport({ jsonTransport: true });
+    const provider = createSmtpProvider(config.config, { transport });
+    await provider.send(email);
+    await provider.send({ ...email, channel: "SMS" });
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(info.mock.calls[0][0]))).toMatchObject({ level: "info", ok: true });
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(warn.mock.calls[0][0]))).toMatchObject({
+      level: "warn",
+      error: "CHANNEL_UNSUPPORTED",
+    });
+    info.mockRestore();
+    warn.mockRestore();
+  });
 });
 
 describe("R-214 / R-213 notification templates", () => {

@@ -66,8 +66,21 @@ export function ruleAudit(entityId: string) {
 /** A seeded SAMPLE draft rule and score table (QA O-4: their pages offer no 게시 button). */
 export async function sampleDraftIds() {
   const [rule, table] = await Promise.all([
-    db.visaRule.findFirst({ where: { isSample: true, status: "DRAFT" }, select: { id: true } }),
+    db.visaRule.findFirst({
+      where: { isSample: true, status: "DRAFT" },
+      select: { id: true, visaCode: true },
+    }),
     db.scoreTable.findFirst({ where: { isSample: true, status: "DRAFT" }, select: { id: true } }),
   ]);
-  return { ruleId: rule?.id ?? null, tableId: table?.id ?? null };
+  return {
+    ruleId: rule?.id ?? null,
+    ruleVisa: rule?.visaCode ?? null,
+    tableId: table?.id ?? null,
+  };
+}
+
+/** Stored visa code of a rule version (P2e 선행 O-5: a refused save must not change it). */
+export async function ruleVisaCode(id: string): Promise<string | null> {
+  const row = await db.visaRule.findUnique({ where: { id }, select: { visaCode: true } });
+  return row?.visaCode ?? null;
 }

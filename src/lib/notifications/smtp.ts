@@ -90,20 +90,22 @@ export function createSmtpProvider(
   options: { transport?: MailTransport; log?: LogLine } = {},
 ): NotificationProvider {
   let transport = options.transport ?? null;
-  const log: LogLine = options.log ?? ((line) => console.info(line));
-  const record = (message: NotificationMessage, outcome: Record<string, unknown>) =>
-    log(
-      JSON.stringify({
-        level: outcome.ok ? "info" : "warn",
-        event: "notification.send",
-        provider: "smtp",
-        channel: message.channel,
-        to: maskRecipient(message.to),
-        templateKey: message.templateKey,
-        locale: message.locale,
-        ...outcome,
-      }),
-    );
+  const record = (message: NotificationMessage, outcome: Record<string, unknown>) => {
+    const line = JSON.stringify({
+      level: outcome.ok ? "info" : "warn",
+      event: "notification.send",
+      provider: "smtp",
+      channel: message.channel,
+      to: maskRecipient(message.to),
+      templateKey: message.templateKey,
+      locale: message.locale,
+      ...outcome,
+    });
+    // Default sink by level: a failed send (`level: "warn"`) goes to console.warn.
+    if (options.log) options.log(line);
+    else if (outcome.ok) console.info(line);
+    else console.warn(line);
+  };
   return {
     name: "smtp",
     async send(message: NotificationMessage): Promise<SendResult> {

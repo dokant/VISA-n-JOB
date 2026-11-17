@@ -7,7 +7,8 @@
  *   STANDARD 4.7 "개발용 콘솔 OTP 어댑터" exception) are printed only outside production.
  * - Links in params are always masked, whatever NODE_ENV is (QA P2d O-2: the worker runs without
  *   NODE_ENV, and a still-searching link works for 14 days): only the origin and the route words of
- *   the path stay; token / id segments and query values become `***` (`maskLink`).
+ *   the path stay; token / id segments and query values become `***` (`maskLink`). Links inside a
+ *   sentence are found and masked too (QA P2d O-1).
  */
 import { randomUUID } from "node:crypto";
 
@@ -25,13 +26,8 @@ const ROUTE_WORD = /^[a-z]+(?:-[a-z]+)*$/;
 const MAX_ROUTE_WORD = 24;
 const LINK = /^(?:https?:\/\/|\/)/i;
 
-/**
- * "https://site/ko/seeker/still-searching/eyJ…~sig" → "https://site/ko/seeker/still-searching/***".
- * Every path segment that is not a short route word (tokens, ids, signatures) and every query value
- * is replaced; the fragment is dropped. Values that are not links are returned unchanged.
- */
-export function maskLink(value: string): string {
-  if (!LINK.test(value)) return value;
+/** Masks one link (the whole string is the link). */
+function maskOneLink(value: string): string {
   const absolute = /^https?:\/\//i.test(value);
   let url: URL;
   try {
@@ -47,6 +43,29 @@ export function maskLink(value: string): string {
     .join("/");
   const query = [...url.searchParams.keys()].map((k) => `${encodeURIComponent(k)}=***`).join("&");
   return `${absolute ? url.origin : ""}${path}${query ? `?${query}` : ""}`;
+}
+
+/**
+ * A link inside a sentence (QA P2d O-1): an `http(s)://` URL anywhere, or a `/path` that starts the
+ * value or follows white space / an opening bracket or quote. Ends at white space, quotes or brackets.
+ */
+const EMBEDDED_LINK = /https?:\/\/[^\s"'<>()[\]{}]+|(?<=^|[\s("'[{<])\/[^\s"'<>()[\]{}]*/gi;
+/** Sentence punctuation right after a link stays outside the masked part. */
+const TRAILING_PUNCT = /[.,;:!?]+$/;
+
+/**
+ * "https://site/ko/seeker/still-searching/eyJ…~sig" → "https://site/ko/seeker/still-searching/***".
+ * Every path segment that is not a short route word (tokens, ids, signatures) and every query value
+ * is replaced; the fragment is dropped. A value that is one link is masked as a whole; any other
+ * value has each link found inside it masked the same way (QA P2d O-1), the rest unchanged.
+ */
+export function maskLink(value: string): string {
+  if (LINK.test(value) && !/\s/.test(value)) return maskOneLink(value);
+  return value.replace(EMBEDDED_LINK, (match) => {
+    const punct = TRAILING_PUNCT.exec(match)?.[0] ?? "";
+    const link = punct ? match.slice(0, -punct.length) : match;
+    return link === "" || link === "/" ? match : maskOneLink(link) + punct;
+  });
 }
 
 function maskParams(params: NotificationMessage["params"]): Record<string, string | number> {

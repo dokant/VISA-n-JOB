@@ -97,4 +97,26 @@ describe("notifications/console", () => {
     expect(maskLink("123456")).toBe("123456");
     expect(maskLink("hello world")).toBe("hello world");
   });
+
+  it("maskLink masks links inside a sentence too (QA P2d O-1), keeping the words around them", () => {
+    const token = "eyJpZCI6ImNtMTIzIn0~c2lnbmF0dXJl";
+    expect(maskLink(`see https://x.test/ko/seeker/still-searching/${token} soon`)).toBe(
+      "see https://x.test/ko/seeker/still-searching/*** soon",
+    );
+    expect(maskLink(`확인: https://x.test/vi/seeker/still-searching/${token}.`)).toBe(
+      "확인: https://x.test/vi/seeker/still-searching/***.",
+    );
+    expect(maskLink(`open /ko/seeker/still-searching/${token}?email=a@b.test now`)).toBe(
+      "open /ko/seeker/still-searching/***?email=*** now",
+    );
+    expect(maskLink(`(https://x.test/api/files/abc123.sig?sig=zz), /ko/seeker/me`)).toBe(
+      "(https://x.test/api/files/***?sig=***), /ko/seeker/me",
+    );
+    expect(maskLink(`/ko/seeker/still-searching/${token} and more`)).toBe(
+      "/ko/seeker/still-searching/*** and more",
+    );
+    for (const plain of ["a/b c", "3/4 done", "no links here", "50% / 2"]) {
+      expect(maskLink(plain)).toBe(plain);
+    }
+  });
 });

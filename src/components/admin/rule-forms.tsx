@@ -64,6 +64,20 @@ function useManualAction(action: Action, onOk?: () => void) {
   return { state, pending, submit, onSubmit };
 }
 
+/**
+ * Keeps a stored value that is not in the option list (e.g. the seed SAMPLE rule's visa "SAMPLE-1",
+ * QA P2d O-5): it is shown as the selected first option instead of the browser silently selecting
+ * the first listed option, so a save never changes it unnoticed. The server still refuses such a
+ * value (UNKNOWN_VISA / UNKNOWN_INDUSTRY / UNKNOWN_MESSAGE_KEY) until the 행정사 picks a listed one.
+ */
+export function withCurrentOption(options: Option[], current: string): Option[] {
+  if (current === "" || options.some((o) => o.value === current)) return options;
+  return [
+    { value: current, label: `${current} (현재 값 · 목록에 없음, 저장하려면 바꾸세요)` },
+    ...options,
+  ];
+}
+
 export type VisaRuleFormValues = {
   visaCode: string;
   industryCode: string;
@@ -104,7 +118,7 @@ export function VisaRuleForm({
             <option value="" disabled>
               선택하세요
             </option>
-            {visas.map((o) => (
+            {withCurrentOption(visas, values.visaCode).map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
@@ -115,7 +129,7 @@ export function VisaRuleForm({
           <Label htmlFor={`${p}-industry`}>업종 (선택, 비우면 모든 업종)</Label>
           <NativeSelect id={`${p}-industry`} name="industryCode" defaultValue={values.industryCode}>
             <option value="">모든 업종</option>
-            {industries.map((o) => (
+            {withCurrentOption(industries, values.industryCode).map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
@@ -140,7 +154,7 @@ export function VisaRuleForm({
             required
             defaultValue={values.messageKey}
           >
-            {messages.map((o) => (
+            {withCurrentOption(messages, values.messageKey).map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>

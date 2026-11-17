@@ -67,7 +67,7 @@ export type JobOptions = {
   provider?: NotificationProvider;
   /** Origin of the link; default SITE_URL (site.config). */
   siteUrl?: string;
-  /** JSON log line sink; default console.info. */
+  /** JSON log line sink; default console.warn (the only line it writes is the `level: "warn"` one). */
   log?: JobLog;
 };
 
@@ -226,7 +226,7 @@ export async function runStatusCheck(
 ): Promise<StatusCheckResult> {
   const client = options.client ?? db;
   const scope = options.scope ?? {};
-  const log: JobLog = options.log ?? ((line) => console.info(line));
+  const log: JobLog = options.log ?? ((line) => console.warn(line));
   const result: StatusCheckResult = {
     sent: 0,
     sentSimulated: 0,
