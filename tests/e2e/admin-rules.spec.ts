@@ -130,7 +130,9 @@ test("QA O-4: SAMPLE rule / score table drafts show no 게시 button (the server
   await signInNewStaff(page, "STAFF_VISA");
   await page.goto(`/admin/rules/${ruleId}`);
   await expect(page.getByTestId("admin-rule")).toHaveAttribute("data-status", "DRAFT");
-  await expect(page.getByText("__sample", { exact: false })).toBeVisible();
+  await expect(
+    page.getByText("샘플 규칙은 구조만 보여 주는 예시입니다", { exact: false }),
+  ).toBeVisible();
   await expect(page.getByTestId("rule-publish")).toHaveCount(0);
   await page.goto(`/admin/score-tables/${tableId}`);
   await expect(page.getByTestId("admin-score-table")).toHaveAttribute("data-status", "DRAFT");
