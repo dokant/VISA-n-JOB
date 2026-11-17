@@ -155,7 +155,9 @@ describe("R-213 stay expiry reminders", () => {
       stayAlertOptIn: true,
       status: "BLOCKED",
     });
-    const none = await candidate(tag("se"), { stayExpiry: null, stayAlertOptIn: true });
+    // grade B: never an employer-visible candidate (a seeker without expiry would count in every
+    // future-dated candidate statistic of other test files)
+    const none = await candidate(tag("se"), { stayExpiry: null, stayAlertOptIn: true, grade: "B" });
     const { sent, provider } = captureProvider();
     const r = await runStayExpiryAlerts(kstMidnightBefore(90), {
       scope: { id: { in: [quiet.id, blocked.id, none.id] } },
