@@ -43,10 +43,20 @@ test.describe("R-117 flag on", () => {
       expect(mainButtons).toHaveLength(2);
       expect(await page.locator("body").innerText()).not.toMatch(/지원하기|\bApply\b/);
 
-      // No leads in the development database → every 시·도 is "자료 부족" (masked)
-      await expect(table.locator("tbody tr").first()).toContainText(
-        msg(locale, "public.demand.table.insufficient"),
-      );
+      // Masked cells (fewer than 5 leads) say "자료 부족" and show no count. Which cells are masked
+      // depends on the leads other tests of the same run created (P2e clean run: a fresh database
+      // passed 5 SEOUL·C leads mid-run), so the check holds for any data instead of assuming none.
+      const insufficient = msg(locale, "public.demand.table.insufficient");
+      const rows = table.locator("tbody tr");
+      await expect(rows.first()).toBeVisible();
+      const masked = table.locator('tbody tr[data-masked="true"]');
+      for (let i = 0; i < (await masked.count()); i++) {
+        await expect(masked.nth(i).locator("td").nth(1)).toHaveText(insufficient);
+      }
+      const open = table.locator('tbody tr[data-masked="false"]');
+      for (let i = 0; i < (await open.count()); i++) {
+        await expect(open.nth(i).locator("td").nth(1)).not.toHaveText(insufficient);
+      }
     });
   }
 
