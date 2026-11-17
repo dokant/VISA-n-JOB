@@ -6,14 +6,21 @@ import { describe, expect, it } from "vitest";
 
 import { db } from "@/lib/db";
 import {
+  candidateFilterWhere,
   eligibleCandidateIds,
   eligibleCandidateWhere,
   isEligibleCandidate,
 } from "@/lib/candidates/eligible";
 import { grantConsent, revokeConsent } from "@/lib/seeker/consent";
 import { isStayExpired, notExpiredFrom } from "@/lib/visa-engine/classifyTrack";
+import {
+  type CandidateFilters,
+  EMPTY_CANDIDATE_FILTERS,
+  parseCandidateFilters,
+} from "@/schemas/employer/candidates";
 
 import { fillSteps, save, wizardAccount } from "../seeker/seekerFixtures";
+import { candidate, tag } from "./candidateFixtures";
 
 const ALL = { privacyRequired: true, blindProfile: true, marketing: true, notice: true };
 
@@ -107,5 +114,98 @@ describe("R-113 candidate eligibility (query layer)", () => {
     });
     expect(isStayExpired(new Date("2027-02-01T00:00:00.000Z"), now)).toBe(true);
     expect(isStayExpired(notExpiredFrom(now), now)).toBe(false);
+  });
+});
+
+describe("R-205 candidate query (P2b): active job search and the 8 filters", () => {
+  const ids = async (t: string, filters: Partial<CandidateFilters> = {}, now = new Date()) =>
+    (
+      await db.seekerProfile.findMany({
+        where: {
+          AND: [
+            eligibleCandidateWhere(now),
+            candidateFilterWhere({ ...EMPTY_CANDIDATE_FILTERS, convertible: t, ...filters }, now),
+          ],
+        },
+        select: { id: true },
+      })
+    )
+      .map((r) => r.id)
+      .sort();
+
+  it("BR-06: NOT_SEARCHING or an unanswered job search status is not shown", async () => {
+    const t = tag("jss");
+    const active = await candidate(t, { jobSearchStatus: "EMPLOYED_OPEN" });
+    await candidate(t, { jobSearchStatus: "NOT_SEARCHING" });
+    await candidate(t, { jobSearchStatus: null });
+    expect(await ids(t)).toEqual([active.id]);
+  });
+
+  it("WO15-06: E-9 (FUTURE_POOL), grade B and revoked BLIND_PROFILE never pass, whatever the filter", async () => {
+    const t = tag("excl");
+    const ok = await candidate(t);
+    await candidate(t, { visaCode: "E-9", track: "FUTURE_POOL" });
+    await candidate(t, { grade: "B" });
+    await candidate(t, { blindProfile: "REVOKED" });
+    await candidate(t, { blindProfile: "NONE" });
+    expect(await ids(t)).toEqual([ok.id]);
+    expect(await ids(t, { visa: "E-9" })).toEqual([]);
+  });
+
+  it("R-205: each of the 8 filters narrows the list (WO §9.3)", async () => {
+    const now = new Date("2030-06-10T03:00:00.000Z");
+    const t = tag("flt");
+    const industries = await db.industry.findMany({ take: 2, orderBy: { code: "asc" } });
+    const base = await candidate(t, {
+      visaCode: "F-4",
+      stayExpiry: new Date(Date.UTC(2031, 2, 1)), // 9 months → M6_12
+      topikLevel: 2,
+      skills: ["FORKLIFT"],
+      needDormitory: false,
+      shiftOk: "NO",
+    });
+    const other = await candidate(t, {
+      visaCode: "H-2",
+      stayExpiry: new Date(Date.UTC(2033, 0, 1)), // 31 months → M24_PLUS
+      topikLevel: 5,
+      skills: ["WELDING"],
+      needDormitory: true,
+      shiftOk: "YES",
+    });
+    await db.workExperience.updateMany({
+      where: { seekerId: other.id },
+      data: { industryCode: industries[1].code },
+    });
+    await db.workExperience.updateMany({
+      where: { seekerId: base.id },
+      data: { industryCode: industries[0].code },
+    });
+    const both = [base.id, other.id].sort();
+    expect(await ids(t, {}, now)).toEqual(both);
+    expect(await ids(t, { visa: "H-2" }, now)).toEqual([other.id]);
+    expect(await ids(t, { stay: "M6_12" }, now)).toEqual([base.id]);
+    expect(await ids(t, { stay: "M24_PLUS" }, now)).toEqual([other.id]);
+    expect(await ids(t, { topik: "3" }, now)).toEqual([other.id]);
+    expect(await ids(t, { industry: industries[0].code }, now)).toEqual([base.id]);
+    expect(await ids(t, { skill: "WELDING" }, now)).toEqual([other.id]);
+    expect(await ids(t, { dormitory: "NO" }, now)).toEqual([base.id]);
+    expect(await ids(t, { shift: "YES" }, now)).toEqual([other.id]);
+    expect(await ids(t, { convertible: tag("none") }, now)).toEqual([]);
+  });
+
+  it("filters from a query string: unknown values are dropped, not errors", () => {
+    const f = parseCandidateFilters(
+      new URLSearchParams("visa=F-4&stay=M6_12&topik=9&skill=HACKING&dormitory=YES&shift=UNKNOWN"),
+    );
+    expect(f).toEqual({
+      ...EMPTY_CANDIDATE_FILTERS,
+      visa: "F-4",
+      stay: "M6_12",
+      dormitory: "YES",
+    });
+    expect(parseCandidateFilters({ visa: ["E-7", "F-4"], industry: "<script>" })).toMatchObject({
+      visa: "E-7",
+      industry: "",
+    });
   });
 });

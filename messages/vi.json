@@ -101,6 +101,10 @@
     "jobDetail": {
       "title": "Chi tiết việc làm đề xuất",
       "description": "Việc làm ẩn danh đã được nhân viên VISA n JOB kiểm tra."
+    },
+    "employerContract": {
+      "title": "Hợp đồng dịch vụ tuyển dụng",
+      "description": "Dành cho doanh nghiệp: đồng ý điều khoản dịch vụ tuyển dụng."
     }
   },
   "common": {
@@ -1517,6 +1521,151 @@
           "verified": "Đã xác minh",
           "closed": "Đã kết thúc"
         }
+      }
+    },
+    "candidates": {
+      "eyebrow": "Dành cho doanh nghiệp",
+      "title": "Ứng viên ẩn danh",
+      "lead": "Doanh nghiệp đã được xác minh và ký hợp đồng xem thông tin ứng viên không có tên và liên lạc.",
+      "notice": "Không thể liên lạc trực tiếp với ứng viên. Hãy gửi yêu cầu phỏng vấn, người phụ trách VISA n JOB sẽ sắp xếp lịch.",
+      "remaining": "Lượt xem còn lại hôm nay: {count}",
+      "count": "{count} ứng viên",
+      "listLabel": "Danh sách ứng viên",
+      "empty": "Không có ứng viên phù hợp. Hãy thử bộ lọc khác.",
+      "limited": {
+        "title": "Đã hết lượt xem hôm nay",
+        "body": "Danh sách ứng viên xem được tối đa {limit} lần mỗi ngày. Vui lòng quay lại vào ngày mai."
+      },
+      "filters": {
+        "title": "Bộ lọc",
+        "submit": "Áp dụng bộ lọc",
+        "reset": "Đặt lại",
+        "any": "Tất cả",
+        "visa": "Visa",
+        "stay": "Thời gian lưu trú còn lại",
+        "topik": "Tiếng Hàn (TOPIK)",
+        "topikMin": "Cấp {level} trở lên",
+        "industry": "Ngành đã làm",
+        "skill": "Kỹ năng",
+        "dormitory": "Cần chỗ ở",
+        "shift": "Làm ca / làm đêm",
+        "convertible": "Visa có thể chuyển đổi"
+      },
+      "stayBand": {
+        "under": "Dưới {max} tháng",
+        "range": "{min}–{max} tháng",
+        "over": "Từ {min} tháng trở lên",
+        "unknown": "Chưa kiểm tra"
+      },
+      "card": {
+        "id": "Ứng viên {id}",
+        "nationality": "Quốc tịch",
+        "sido": "Nơi ở",
+        "visa": "Visa",
+        "stay": "Thời gian lưu trú còn lại",
+        "yearsInKorea": "Thời gian ở Hàn Quốc",
+        "years": "{count} năm",
+        "education": "Học vấn",
+        "graduation": "Tốt nghiệp",
+        "majorField": "Lĩnh vực chuyên ngành",
+        "topik": "TOPIK",
+        "kiip": "Chương trình hội nhập xã hội",
+        "speaking": "Nói tiếng Hàn",
+        "languages": "Ngôn ngữ khác",
+        "experience": "Kinh nghiệm",
+        "experienceItem": "{industry} · {role} · {months} tháng",
+        "skills": "Kỹ năng",
+        "licenses": "Chứng chỉ",
+        "jobSearch": "Tình trạng tìm việc",
+        "availableFrom": "Có thể bắt đầu từ",
+        "desiredIndustries": "Ngành mong muốn",
+        "desiredRegions": "Khu vực mong muốn",
+        "anyRegion": "Ở đâu cũng được",
+        "dormitory": "Cần chỗ ở",
+        "shift": "Làm ca / làm đêm",
+        "desiredPay": "Lương tháng tối thiểu mong muốn",
+        "payFrom": "Từ {amount}",
+        "group": "Cùng bạn bè",
+        "groupSize": "{count} người cùng tìm việc",
+        "convertible": "Visa có thể chuyển đổi",
+        "convertibleAt": "Dự kiến {date}",
+        "convertibleNote": "Đánh giá của chuyên viên hành chính",
+        "verifiedVisa": "Đã kiểm tra visa",
+        "verifiedKorean": "Đã kiểm tra tiếng Hàn",
+        "yes": "Có",
+        "no": "Không",
+        "none": "Không có",
+        "notAnswered": "Chưa trả lời"
+      },
+      "interview": {
+        "cta": "Yêu cầu phỏng vấn",
+        "pending": "Đang gửi…",
+        "done": "Đã gửi yêu cầu phỏng vấn. Người phụ trách VISA n JOB sẽ báo lịch cho bạn.",
+        "already": "Bạn đã gửi yêu cầu phỏng vấn cho ứng viên này.",
+        "requested": "Đã yêu cầu phỏng vấn",
+        "error": {
+          "notFound": "Hiện không thể xem ứng viên này. Vui lòng tải lại danh sách.",
+          "notContracted": "Chỉ doanh nghiệp đã xác minh và ký hợp đồng mới yêu cầu phỏng vấn được.",
+          "unauthenticated": "Vui lòng đăng nhập lại.",
+          "unknown": "Không gửi được yêu cầu. Vui lòng thử lại."
+        }
+      },
+      "stats": {
+        "title": "Thống kê ứng viên",
+        "lead": "Sau khi doanh nghiệp được xác minh và ký hợp đồng, bạn có thể xem danh sách ứng viên ẩn danh. Hiện chỉ hiển thị thống kê.",
+        "total": "Ứng viên hiện có",
+        "people": "{count} người",
+        "masked": "Dưới {min}",
+        "caption": "Số ứng viên theo khu vực và hạng",
+        "region": "Khu vực",
+        "grade": "Hạng",
+        "count": "Số ứng viên",
+        "noRegion": "Chưa nhập khu vực",
+        "empty": "Chưa có ứng viên để hiển thị.",
+        "maskNote": "Ô dưới {min} người được ẩn số.",
+        "verified": "Đã xác minh doanh nghiệp",
+        "unverified": "Đang chờ xác minh doanh nghiệp",
+        "contracted": "Đã ký hợp đồng",
+        "notContracted": "Chưa ký hợp đồng",
+        "contractCta": "Ký hợp đồng dịch vụ tuyển dụng",
+        "verifyNote": "Người phụ trách VISA n JOB hoàn tất xác minh sau khi kiểm tra thông tin kinh doanh."
+      }
+    },
+    "contract": {
+      "eyebrow": "Dành cho doanh nghiệp",
+      "title": "Hợp đồng dịch vụ tuyển dụng",
+      "lead": "Đọc và đồng ý điều khoản để hoàn tất hợp đồng. Ủy quyền thủ tục lưu trú là lựa chọn riêng, không bắt buộc.",
+      "documentLabel": "Điều khoản dịch vụ tuyển dụng",
+      "downloadPdf": "Tải điều khoản (PDF)",
+      "downloadKoPdf": "Tải bản gốc tiếng Hàn (PDF)",
+      "terms": {
+        "label": "Tôi đồng ý với điều khoản dịch vụ tuyển dụng",
+        "required": "(bắt buộc)"
+      },
+      "mandate": {
+        "label": "Tôi đồng ý ủy quyền thủ tục lưu trú của người được tuyển cho Văn phòng hành chính Korea Visa",
+        "optional": "(tùy chọn)",
+        "help": "Không đồng ý thì hợp đồng vẫn hoàn tất."
+      },
+      "submit": "Đồng ý và ký hợp đồng",
+      "submitting": "Đang lưu…",
+      "signed": {
+        "title": "Đã ký hợp đồng",
+        "date": "Ngày ký {date}",
+        "version": "Điều khoản {version}",
+        "staffRecorded": "Hợp đồng do người phụ trách VISA n JOB ghi nhận",
+        "mandateYes": "Ủy quyền thủ tục lưu trú: đồng ý",
+        "mandateNo": "Ủy quyền thủ tục lưu trú: không đồng ý (tùy chọn)"
+      },
+      "next": {
+        "candidates": "Xem ứng viên ẩn danh",
+        "pending": "Bạn có thể xem danh sách ứng viên ẩn danh sau khi người phụ trách VISA n JOB xác minh doanh nghiệp."
+      },
+      "error": {
+        "termsRequired": "Cần đồng ý điều khoản để ký hợp đồng.",
+        "alreadySigned": "Hợp đồng đã được ký. Vui lòng tải lại.",
+        "unauthenticated": "Vui lòng đăng nhập lại.",
+        "unknown": "Không lưu được. Vui lòng thử lại."
       }
     }
   }

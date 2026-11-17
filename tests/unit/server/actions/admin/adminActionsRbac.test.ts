@@ -25,6 +25,7 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 const seekers = await import("@/server/actions/admin/seekers");
 const leads = await import("@/server/actions/admin/leads");
 const postings = await import("@/server/actions/admin/postings");
+const companies = await import("@/server/actions/admin/companies");
 
 afterAll(() => db.$disconnect());
 beforeEach(() => {
@@ -210,5 +211,40 @@ describe("admin server actions — permission matrix", () => {
     const f = createForm();
     f.set("leadId", c.id);
     expect(await postings.createPostingAction(null, f)).toEqual({ ok: false, code: "LEAD_NOT_A" });
+  });
+
+  it("R-218 / Q-08: company verification and contract need company:verify (STAFF_PLACEMENT·ADMIN)", async () => {
+    const c = await db.company.create({
+      data: { nameEnc: "권한 테스트 기업", industryCode: "C", sido: "SEOUL" },
+    });
+    const verify = () =>
+      companies.setCompanyVerifiedAction(null, fd({ companyId: c.id, verified: "true" }));
+    const contract = () =>
+      companies.setCompanyContractAction(null, fd({ companyId: c.id, signedOn: "2026-11-19" }));
+    expect(await verify()).toEqual(UNAUTHENTICATED);
+    await as("STAFF_VISA");
+    expect(await verify()).toEqual(FORBIDDEN);
+    expect(await contract()).toEqual(FORBIDDEN);
+    expect(await auditRows(c.id)).toHaveLength(0);
+
+    await as("STAFF_PLACEMENT");
+    expect(await verify()).toMatchObject({ ok: true });
+    expect(await contract()).toMatchObject({ ok: true });
+    expect(
+      await companies.setCompanyContractAction(
+        null,
+        fd({ companyId: c.id, signedOn: "19-11-2026" }),
+      ),
+    ).toEqual({ ok: false, code: "INVALID_INPUT" });
+    const row = await db.company.findUniqueOrThrow({ where: { id: c.id } });
+    expect(row.verified).toBe(true);
+    expect(row.contractSignedAt?.toISOString()).toBe("2026-11-18T15:00:00.000Z");
+    expect(await auditRows(c.id, "COMPANY_VERIFY")).toHaveLength(2);
+
+    await as("ADMIN");
+    expect(
+      await companies.setCompanyVerifiedAction(null, fd({ companyId: c.id, verified: "false" })),
+    ).toMatchObject({ ok: true });
+    expect(await auditRows(c.id, "COMPANY_VERIFY")).toHaveLength(3);
   });
 });

@@ -101,6 +101,10 @@
     "jobDetail": {
       "title": "Recommended job details",
       "description": "A blind job listing checked by VISA n JOB staff."
+    },
+    "employerContract": {
+      "title": "Recruitment service contract",
+      "description": "For companies: agree to the recruitment service terms."
     }
   },
   "common": {
@@ -1517,6 +1521,151 @@
           "verified": "Verified",
           "closed": "Closed"
         }
+      }
+    },
+    "candidates": {
+      "eyebrow": "For companies",
+      "title": "Blind candidates",
+      "lead": "Verified companies with a contract see candidate information without names or contact details.",
+      "notice": "You cannot contact candidates directly. Send an interview request and a VISA n JOB manager will arrange the schedule.",
+      "remaining": "Views left today: {count}",
+      "count": "{count} candidates",
+      "listLabel": "Candidate list",
+      "empty": "No candidates match these conditions. Try other filters.",
+      "limited": {
+        "title": "You reached today's view limit",
+        "body": "The candidate list can be viewed up to {limit} times a day. Please come back tomorrow."
+      },
+      "filters": {
+        "title": "Filters",
+        "submit": "Show results",
+        "reset": "Reset",
+        "any": "All",
+        "visa": "Visa",
+        "stay": "Stay time left",
+        "topik": "Korean (TOPIK)",
+        "topikMin": "Level {level} or higher",
+        "industry": "Work experience industry",
+        "skill": "Skill",
+        "dormitory": "Needs housing",
+        "shift": "Shift / night work",
+        "convertible": "Convertible visa"
+      },
+      "stayBand": {
+        "under": "Under {max} months",
+        "range": "{min}–{max} months",
+        "over": "{min} months or more",
+        "unknown": "Not checked yet"
+      },
+      "card": {
+        "id": "Candidate {id}",
+        "nationality": "Nationality",
+        "sido": "Lives in",
+        "visa": "Visa",
+        "stay": "Stay time left",
+        "yearsInKorea": "Years in Korea",
+        "years": "{count} years",
+        "education": "Education",
+        "graduation": "Graduation",
+        "majorField": "Field of study",
+        "topik": "TOPIK",
+        "kiip": "Social Integration Program",
+        "speaking": "Spoken Korean",
+        "languages": "Other languages",
+        "experience": "Work experience",
+        "experienceItem": "{industry} · {role} · {months} months",
+        "skills": "Skills",
+        "licenses": "Licenses",
+        "jobSearch": "Job search status",
+        "availableFrom": "Can start from",
+        "desiredIndustries": "Desired industries",
+        "desiredRegions": "Desired regions",
+        "anyRegion": "Anywhere",
+        "dormitory": "Needs housing",
+        "shift": "Shift / night work",
+        "desiredPay": "Minimum monthly pay wanted",
+        "payFrom": "{amount} or more",
+        "group": "With friends",
+        "groupSize": "{count} people looking together",
+        "convertible": "Convertible visa",
+        "convertibleAt": "Expected {date}",
+        "convertibleNote": "Administrative agent's assessment",
+        "verifiedVisa": "Visa checked",
+        "verifiedKorean": "Korean checked",
+        "yes": "Yes",
+        "no": "No",
+        "none": "None",
+        "notAnswered": "No answer"
+      },
+      "interview": {
+        "cta": "Request interview",
+        "pending": "Sending…",
+        "done": "Interview request sent. A VISA n JOB manager will tell you the schedule.",
+        "already": "You already sent an interview request for this candidate.",
+        "requested": "Interview requested",
+        "error": {
+          "notFound": "This candidate cannot be shown now. Please reload the list.",
+          "notContracted": "Only verified companies with a contract can request interviews.",
+          "unauthenticated": "Please sign in again.",
+          "unknown": "The request could not be sent. Please try again."
+        }
+      },
+      "stats": {
+        "title": "Candidate summary",
+        "lead": "After company verification and the contract you can see the blind candidate list. For now only a summary is shown.",
+        "total": "Candidates available now",
+        "people": "{count} people",
+        "masked": "Fewer than {min}",
+        "caption": "Candidates by region and grade",
+        "region": "Region",
+        "grade": "Grade",
+        "count": "Candidates",
+        "noRegion": "Region not given",
+        "empty": "There are no candidates to show yet.",
+        "maskNote": "Numbers below {min} are hidden.",
+        "verified": "Company verified",
+        "unverified": "Company verification pending",
+        "contracted": "Contract signed",
+        "notContracted": "No contract yet",
+        "contractCta": "Sign the recruitment service contract",
+        "verifyNote": "A VISA n JOB manager completes company verification after checking your business information."
+      }
+    },
+    "contract": {
+      "eyebrow": "For companies",
+      "title": "Recruitment service contract",
+      "lead": "Read and agree to the terms to complete the contract. Delegating stay work is a separate, optional choice.",
+      "documentLabel": "Recruitment service terms",
+      "downloadPdf": "Download the terms (PDF)",
+      "downloadKoPdf": "Download the Korean original (PDF)",
+      "terms": {
+        "label": "I agree to the recruitment service terms",
+        "required": "(required)"
+      },
+      "mandate": {
+        "label": "I agree to delegate the stay work of hired job seekers to Korea Visa Administrative Agent Office",
+        "optional": "(optional)",
+        "help": "The contract is complete even if you do not agree."
+      },
+      "submit": "Agree and sign",
+      "submitting": "Saving…",
+      "signed": {
+        "title": "The contract is signed",
+        "date": "Signed on {date}",
+        "version": "Terms {version}",
+        "staffRecorded": "Contract recorded by a VISA n JOB manager",
+        "mandateYes": "Delegation of stay work: agreed",
+        "mandateNo": "Delegation of stay work: not agreed (optional)"
+      },
+      "next": {
+        "candidates": "See blind candidates",
+        "pending": "You can see the blind candidate list after a VISA n JOB manager verifies your company."
+      },
+      "error": {
+        "termsRequired": "You need to agree to the terms to sign.",
+        "alreadySigned": "The contract is already signed. Please reload.",
+        "unauthenticated": "Please sign in again.",
+        "unknown": "Could not save. Please try again."
       }
     }
   }

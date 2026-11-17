@@ -1,0 +1,95 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`R-204 blindSeeker serializer > R-204 snapshot: key list and values of a fixed profile > keys 1`] = `
+[
+  "publicId",
+  "nationality",
+  "sido",
+  "visaCode",
+  "visaSubType",
+  "stayRemainingBand",
+  "yearsInKorea",
+  "educationLevel",
+  "majorField",
+  "graduationDate",
+  "topikLevel",
+  "kiipStage",
+  "koreanSpeaking",
+  "otherLanguages",
+  "experienceSummary",
+  "skills",
+  "licenses",
+  "jobSearchStatus",
+  "availableFrom",
+  "desiredIndustries",
+  "desiredRegions",
+  "needDormitory",
+  "shiftOk",
+  "desiredPayMin",
+  "groupApplySize",
+  "grade",
+  "verifiedVisa",
+  "verifiedKorean",
+  "convertibleVisa",
+  "convertibleAt",
+]
+`;
+
+exports[`R-204 blindSeeker serializer > R-204 snapshot: key list and values of a fixed profile > values 1`] = `
+{
+  "availableFrom": "2027-04-01",
+  "convertibleAt": "2027-09",
+  "convertibleVisa": "E-7-4",
+  "desiredIndustries": [
+    "C",
+  ],
+  "desiredPayMin": 2800000,
+  "desiredRegions": [
+    "CHUNGNAM",
+    "ANY",
+  ],
+  "educationLevel": "BACHELOR",
+  "experienceSummary": [
+    {
+      "industry": "C",
+      "months": 30,
+      "role": "WELDING",
+    },
+    {
+      "industry": "F",
+      "months": 12,
+      "role": "OTHER",
+    },
+  ],
+  "grade": "S",
+  "graduationDate": "2016-06",
+  "groupApplySize": 2,
+  "jobSearchStatus": "WITHIN_1M",
+  "kiipStage": 3,
+  "koreanSpeaking": 3,
+  "licenses": [
+    "FORKLIFT_LICENSE",
+  ],
+  "majorField": null,
+  "nationality": "UZ",
+  "needDormitory": true,
+  "otherLanguages": [
+    "ru",
+    "en",
+  ],
+  "publicId": "bvctdsfrgqhpgnjmmkkjphqgrfsdtcvb",
+  "shiftOk": "CONDITIONAL",
+  "sido": "CHUNGNAM",
+  "skills": [
+    "WELDING",
+    "FORKLIFT",
+  ],
+  "stayRemainingBand": "M6_12",
+  "topikLevel": 4,
+  "verifiedKorean": true,
+  "verifiedVisa": true,
+  "visaCode": "H-2",
+  "visaSubType": null,
+  "yearsInKorea": 8,
+}
+`;

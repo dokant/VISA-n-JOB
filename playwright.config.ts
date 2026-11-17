@@ -9,6 +9,9 @@ process.env.E2E_DEMAND_URL = demandURL;
 /** Server with FEATURE_PUBLIC_JOBS=true (P2a R-202 / R-203; tests read it from E2E_JOBS_PORT). */
 const JOBS_PORT = PORT + 2;
 process.env.E2E_JOBS_PORT = String(JOBS_PORT);
+/** Server with FEATURE_EMPLOYER_CANDIDATES=true (P2b R-205 / R-207; tests read E2E_CANDIDATES_PORT). */
+const CANDIDATES_PORT = PORT + 3;
+process.env.E2E_CANDIDATES_PORT = String(CANDIDATES_PORT);
 
 // E2E runs against a production build (PLAN P0a task 5).
 // `next` resolves from node_modules/.bin because `pnpm test:e2e` puts it on PATH.
@@ -69,6 +72,17 @@ export default defineConfig({
       command: `next start --hostname 127.0.0.1 --port ${JOBS_PORT}`,
       url: `http://127.0.0.1:${JOBS_PORT}/ko/jobs`,
       env: { FEATURE_PUBLIC_JOBS: "true", TRUST_PROXY: "true" },
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+    {
+      // Same build with FEATURE_EMPLOYER_CANDIDATES on (R-205 / R-207 / R-208 flag-on checks). The
+      // default server keeps it off, so the SC-07 default (ComingSoon, API 404) runs there.
+      command: `next start --hostname 127.0.0.1 --port ${CANDIDATES_PORT}`,
+      url: `http://127.0.0.1:${CANDIDATES_PORT}/ko`,
+      env: { FEATURE_EMPLOYER_CANDIDATES: "true", TRUST_PROXY: "true" },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       stdout: "pipe",

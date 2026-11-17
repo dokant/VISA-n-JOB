@@ -119,7 +119,8 @@ export default async function setup(project: TestProject): Promise<() => Promise
 
   const prisma = new PrismaClient({ datasourceUrl: url });
   try {
-    await runSeed(prisma);
+    // R-204: the test database also holds the SAMPLE seekers (blind serializer / candidate tests).
+    await runSeed(prisma, { sampleSeekers: true });
   } finally {
     await prisma.$disconnect();
   }

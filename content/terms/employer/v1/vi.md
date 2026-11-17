@@ -1,0 +1,81 @@
+# Điều khoản dịch vụ tuyển dụng (dành cho doanh nghiệp)
+
+[전문가 검토 필요] (Cần chuyên gia xem xét) Điều khoản này là bản nháp, sẽ được hoàn thiện sau khi chuyên gia pháp lý xem xét.
+
+## Điều 1 Mục đích
+
+Điều khoản này quy định điều kiện sử dụng dịch vụ tuyển dụng mà VISA n JOB (doanh nghiệp giới thiệu việc làm có thu phí) cung cấp cho doanh nghiệp.
+
+## Điều 2 Nội dung dịch vụ
+
+- Xem ứng viên ẩn danh: VISA n JOB chỉ cung cấp thông tin ứng viên không có tên và liên lạc cho doanh nghiệp đã được xác minh và đã ký hợp đồng.
+- Yêu cầu phỏng vấn và sắp xếp phỏng vấn: doanh nghiệp có thể yêu cầu phỏng vấn ứng viên, VISA n JOB sắp xếp lịch.
+
+## Điều 3 Không liên lạc trực tiếp
+
+Mọi liên lạc giữa doanh nghiệp và người tìm việc chỉ qua VISA n JOB. Doanh nghiệp không yêu cầu thông tin liên lạc của người tìm việc và không liên lạc trực tiếp.
+
+## Điều 4 Phí giới thiệu
+
+- Khi tuyển dụng thành công, doanh nghiệp trả phí giới thiệu trong giới hạn luật định. Số tiền và cách tính theo trang phí dịch vụ và hợp đồng riêng.
+- VISA n JOB không thu phí giới thiệu của người tìm việc.
+
+## Điều 5 Tuyển dụng trực tiếp sau khi được giới thiệu
+
+Nếu doanh nghiệp tuyển người tìm việc do VISA n JOB giới thiệu mà không qua VISA n JOB trong vòng 12 tháng kể từ ngày giới thiệu, doanh nghiệp trả phí giới thiệu theo Điều 4.
+
+## Điều 6 Bảo vệ thông tin ứng viên
+
+- Doanh nghiệp chỉ dùng thông tin ứng viên để xem xét tuyển dụng và không đưa cho người khác.
+- Việc xem danh sách ứng viên được ghi lại và số lần xem mỗi ngày có giới hạn.
+
+## Điều 7 Ủy quyền thủ tục lưu trú (tùy chọn)
+
+- Doanh nghiệp tự quyết định có ủy quyền thủ tục lưu trú của người được tuyển cho Văn phòng hành chính Korea Visa hay không. Sự đồng ý này được hỏi riêng; không ủy quyền thì hợp đồng theo điều khoản này vẫn có hiệu lực.
+- Khi ủy quyền: nếu việc thay đổi tư cách lưu trú không được chấp thuận, sẽ nộp hồ sơ lại. Nếu người được tuyển nghỉ việc trong vòng 3 tháng, sẽ giới thiệu người khác.
+
+## Điều 8 Thay đổi điều khoản
+
+Khi thay đổi điều khoản, ngày áp dụng và nội dung thay đổi được thông báo trước.
+
+---
+
+## Bản gốc tiếng Hàn
+
+구인 서비스 이용약관 (기업용)
+
+### 제1조 목적
+
+이 약관은 비자앤잡(유료직업소개사업)이 기업에 제공하는 구인 서비스의 이용 조건을 정합니다.
+
+### 제2조 서비스 내용
+
+- 블라인드 후보 열람: 비자앤잡이 검증과 계약을 마친 기업에 실명과 연락처를 뺀 후보 정보만 제공합니다.
+- 면접 요청과 면접 주선: 기업은 후보에게 면접을 요청할 수 있고, 비자앤잡이 일정을 조율합니다.
+
+### 제3조 직접 연락 금지
+
+기업과 구직자 사이의 연락은 비자앤잡을 통해서만 진행합니다. 기업은 구직자의 연락처를 요구하거나 직접 연락하지 않습니다.
+
+### 제4조 소개요금
+
+- 채용이 성사되면 기업은 법정 한도 이내의 소개요금을 냅니다. 금액과 계산 방법은 수수료 안내 페이지와 개별 계약서에 따릅니다.
+- 비자앤잡은 구직자에게 소개요금을 받지 않습니다.
+
+### 제5조 추천 후 직접 채용
+
+비자앤잡이 추천한 구직자를 추천일부터 12개월 안에 비자앤잡을 거치지 않고 채용하면, 기업은 제4조의 소개요금을 냅니다.
+
+### 제6조 후보 정보의 보호
+
+- 기업은 후보 정보를 채용 검토 목적으로만 쓰고 다른 사람에게 주지 않습니다.
+- 후보 목록 열람은 기록되며, 하루 열람 횟수에 한도가 있습니다.
+
+### 제7조 체류 업무 위임 (선택)
+
+- 채용한 구직자의 체류 업무를 코리아비자 행정사사무소에 위임할지는 기업이 따로 정합니다. 위임 동의는 이 약관 동의와 별도로 받으며, 위임하지 않아도 이 약관에 따른 계약은 성립합니다.
+- 위임한 경우: 체류자격 변경 등이 허가되지 않으면 다시 신청합니다. 채용한 구직자가 3개월 안에 퇴사하면 다른 구직자를 다시 소개합니다.
+
+### 제8조 약관의 변경
+
+약관을 바꿀 때에는 시행일과 변경 내용을 미리 알립니다.

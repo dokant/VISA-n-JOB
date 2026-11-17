@@ -23,7 +23,7 @@ const { auth } = NextAuth(authConfig);
 
 /** R-130 / WO §13: areas that must never be indexed (header in addition to meta + robots.txt). */
 const NOINDEX =
-  /^\/(admin(\/|$)|[a-z]{2}\/(employer|seeker)\/(candidates|login|signup|register|me|request)(\/|$))/;
+  /^\/(admin(\/|$)|[a-z]{2}\/(employer|seeker)\/(candidates|contract|login|signup|register|me|request)(\/|$))/;
 
 /**
  * R-111: `?ref=코드&src=채널` on any page is kept in cookies until the seeker registers

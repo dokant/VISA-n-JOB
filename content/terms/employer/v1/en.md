@@ -1,0 +1,81 @@
+# Recruitment Service Terms (for companies)
+
+[전문가 검토 필요] (Expert review required) These terms are a draft. They will be finalised after review by a legal expert.
+
+## Article 1 Purpose
+
+These terms set the conditions of the recruitment service that VISA n JOB (a fee-charging job placement business) provides to companies.
+
+## Article 2 Services
+
+- Blind candidate list: VISA n JOB shows candidate information without names or contact details only to companies it has verified and that have a contract.
+- Interview requests and arrangements: a company may request an interview with a candidate, and VISA n JOB arranges the schedule.
+
+## Article 3 No direct contact
+
+All contact between a company and a job seeker goes through VISA n JOB. The company does not ask for a job seeker's contact details and does not contact the job seeker directly.
+
+## Article 4 Placement fee
+
+- When a hire is made, the company pays a placement fee within the legal limit. The amount and how it is calculated follow the fee page and the individual contract.
+- VISA n JOB does not charge job seekers a placement fee.
+
+## Article 5 Direct hiring after a recommendation
+
+If the company hires a job seeker recommended by VISA n JOB without going through VISA n JOB within 12 months of the recommendation, the company pays the placement fee in Article 4.
+
+## Article 6 Protection of candidate information
+
+- The company uses candidate information only to review hiring and does not give it to anyone else.
+- Views of the candidate list are recorded, and the number of views per day is limited.
+
+## Article 7 Delegation of stay (visa) work (optional)
+
+- The company decides separately whether to delegate the stay work of a hired job seeker to Korea Visa Administrative Agent Office. This consent is asked separately from these terms; the contract under these terms is valid without it.
+- If delegated: when a change of status of stay or similar is not approved, the application is made again. If the hired job seeker leaves within 3 months, another job seeker is introduced.
+
+## Article 8 Changes to the terms
+
+When the terms change, the effective date and the changes are announced in advance.
+
+---
+
+## Korean original
+
+구인 서비스 이용약관 (기업용)
+
+### 제1조 목적
+
+이 약관은 비자앤잡(유료직업소개사업)이 기업에 제공하는 구인 서비스의 이용 조건을 정합니다.
+
+### 제2조 서비스 내용
+
+- 블라인드 후보 열람: 비자앤잡이 검증과 계약을 마친 기업에 실명과 연락처를 뺀 후보 정보만 제공합니다.
+- 면접 요청과 면접 주선: 기업은 후보에게 면접을 요청할 수 있고, 비자앤잡이 일정을 조율합니다.
+
+### 제3조 직접 연락 금지
+
+기업과 구직자 사이의 연락은 비자앤잡을 통해서만 진행합니다. 기업은 구직자의 연락처를 요구하거나 직접 연락하지 않습니다.
+
+### 제4조 소개요금
+
+- 채용이 성사되면 기업은 법정 한도 이내의 소개요금을 냅니다. 금액과 계산 방법은 수수료 안내 페이지와 개별 계약서에 따릅니다.
+- 비자앤잡은 구직자에게 소개요금을 받지 않습니다.
+
+### 제5조 추천 후 직접 채용
+
+비자앤잡이 추천한 구직자를 추천일부터 12개월 안에 비자앤잡을 거치지 않고 채용하면, 기업은 제4조의 소개요금을 냅니다.
+
+### 제6조 후보 정보의 보호
+
+- 기업은 후보 정보를 채용 검토 목적으로만 쓰고 다른 사람에게 주지 않습니다.
+- 후보 목록 열람은 기록되며, 하루 열람 횟수에 한도가 있습니다.
+
+### 제7조 체류 업무 위임 (선택)
+
+- 채용한 구직자의 체류 업무를 코리아비자 행정사사무소에 위임할지는 기업이 따로 정합니다. 위임 동의는 이 약관 동의와 별도로 받으며, 위임하지 않아도 이 약관에 따른 계약은 성립합니다.
+- 위임한 경우: 체류자격 변경 등이 허가되지 않으면 다시 신청합니다. 채용한 구직자가 3개월 안에 퇴사하면 다른 구직자를 다시 소개합니다.
+
+### 제8조 약관의 변경
+
+약관을 바꿀 때에는 시행일과 변경 내용을 미리 알립니다.

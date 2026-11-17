@@ -101,6 +101,10 @@
     "jobDetail": {
       "title": "Tavsiya etilgan ish tafsilotlari",
       "description": "VISA n JOB xodimlari tekshirgan anonim ish oʻrni."
+    },
+    "employerContract": {
+      "title": "Ishga yollash xizmati shartnomasi",
+      "description": "Kompaniyalar uchun: ishga yollash xizmati shartlariga rozilik."
     }
   },
   "common": {
@@ -1517,6 +1521,151 @@
           "verified": "Tekshirilgan",
           "closed": "Yopilgan"
         }
+      }
+    },
+    "candidates": {
+      "eyebrow": "Kompaniyalar uchun",
+      "title": "Anonim nomzodlar",
+      "lead": "Tekshirilgan va shartnoma tuzgan kompaniyalar nomzod maʼlumotlarini ism va aloqa maʼlumotlarisiz koʻradi.",
+      "notice": "Nomzod bilan toʻgʻridan-toʻgʻri bogʻlanib boʻlmaydi. Suhbat soʻrovini yuboring — VISA n JOB masʼul xodimi vaqtni kelishtiradi.",
+      "remaining": "Bugun qolgan koʻrishlar: {count}",
+      "count": "Nomzodlar: {count}",
+      "listLabel": "Nomzodlar roʻyxati",
+      "empty": "Bu shartlarga mos nomzod yoʻq. Boshqa filtrlarni tanlang.",
+      "limited": {
+        "title": "Bugungi koʻrish chegarasi tugadi",
+        "body": "Nomzodlar roʻyxatini kuniga {limit} martagacha koʻrish mumkin. Ertaga qayta kiring."
+      },
+      "filters": {
+        "title": "Filtrlar",
+        "submit": "Filtrlarni qoʻllash",
+        "reset": "Tozalash",
+        "any": "Hammasi",
+        "visa": "Viza",
+        "stay": "Qolgan yashash muddati",
+        "topik": "Koreys tili (TOPIK)",
+        "topikMin": "{level}-daraja va yuqori",
+        "industry": "Ish tajribasi sohasi",
+        "skill": "Koʻnikma",
+        "dormitory": "Turar joy kerak",
+        "shift": "Smenali / tungi ish",
+        "convertible": "Oʻtish mumkin boʻlgan viza"
+      },
+      "stayBand": {
+        "under": "{max} oydan kam",
+        "range": "{min}–{max} oy",
+        "over": "{min} oy va undan koʻp",
+        "unknown": "Hali tekshirilmagan"
+      },
+      "card": {
+        "id": "Nomzod {id}",
+        "nationality": "Fuqarolik",
+        "sido": "Yashash hududi",
+        "visa": "Viza",
+        "stay": "Qolgan yashash muddati",
+        "yearsInKorea": "Koreyada",
+        "years": "{count} yil",
+        "education": "Taʼlim",
+        "graduation": "Bitirgan",
+        "majorField": "Mutaxassislik sohasi",
+        "topik": "TOPIK",
+        "kiip": "Ijtimoiy integratsiya dasturi",
+        "speaking": "Koreyscha soʻzlashuv",
+        "languages": "Boshqa tillar",
+        "experience": "Ish tajribasi",
+        "experienceItem": "{industry} · {role} · {months} oy",
+        "skills": "Koʻnikmalar",
+        "licenses": "Guvohnomalar",
+        "jobSearch": "Ish qidirish holati",
+        "availableFrom": "Ishni boshlash sanasi",
+        "desiredIndustries": "Istalgan sohalar",
+        "desiredRegions": "Istalgan hududlar",
+        "anyRegion": "Istalgan joy",
+        "dormitory": "Turar joy kerak",
+        "shift": "Smena / tungi",
+        "desiredPay": "Istalgan eng kam oylik",
+        "payFrom": "{amount} dan",
+        "group": "Doʻstlar bilan",
+        "groupSize": "{count} kishi birga ish qidiradi",
+        "convertible": "Oʻtish mumkin boʻlgan viza",
+        "convertibleAt": "Kutilmoqda: {date}",
+        "convertibleNote": "Maʼmuriy agent bahosi",
+        "verifiedVisa": "Viza tekshirilgan",
+        "verifiedKorean": "Koreys tili tekshirilgan",
+        "yes": "Ha",
+        "no": "Yoʻq",
+        "none": "Yoʻq",
+        "notAnswered": "Javob yoʻq"
+      },
+      "interview": {
+        "cta": "Suhbat soʻrash",
+        "pending": "Yuborilmoqda…",
+        "done": "Suhbat soʻrovi yuborildi. VISA n JOB masʼul xodimi vaqtni maʼlum qiladi.",
+        "already": "Bu nomzodga suhbat soʻrovi allaqachon yuborilgan.",
+        "requested": "Suhbat soʻralgan",
+        "error": {
+          "notFound": "Hozir bu nomzodni koʻrib boʻlmaydi. Roʻyxatni yangilang.",
+          "notContracted": "Faqat tekshirilgan va shartnoma tuzgan kompaniyalar suhbat soʻray oladi.",
+          "unauthenticated": "Qayta kiring.",
+          "unknown": "Soʻrov yuborilmadi. Qayta urinib koʻring."
+        }
+      },
+      "stats": {
+        "title": "Nomzodlar statistikasi",
+        "lead": "Kompaniya tekshiruvi va shartnomadan keyin anonim nomzodlar roʻyxatini koʻrasiz. Hozircha faqat statistika koʻrsatiladi.",
+        "total": "Hozir mavjud nomzodlar",
+        "people": "{count} kishi",
+        "masked": "{min} dan kam",
+        "caption": "Hudud va daraja boʻyicha nomzodlar",
+        "region": "Hudud",
+        "grade": "Daraja",
+        "count": "Nomzodlar",
+        "noRegion": "Hudud kiritilmagan",
+        "empty": "Hozircha koʻrsatiladigan nomzod yoʻq.",
+        "maskNote": "{min} dan kam sonlar yashiriladi.",
+        "verified": "Kompaniya tekshirilgan",
+        "unverified": "Kompaniya tekshiruvi kutilmoqda",
+        "contracted": "Shartnoma tuzilgan",
+        "notContracted": "Shartnoma yoʻq",
+        "contractCta": "Ishga yollash shartnomasini tuzish",
+        "verifyNote": "VISA n JOB masʼul xodimi biznes maʼlumotlarini tekshirgach, kompaniya tekshiruvini yakunlaydi."
+      }
+    },
+    "contract": {
+      "eyebrow": "Kompaniyalar uchun",
+      "title": "Ishga yollash xizmati shartnomasi",
+      "lead": "Shartlarni oʻqib rozilik bildirsangiz, shartnoma tuziladi. Yashash ishlarini topshirish — alohida ixtiyoriy tanlov.",
+      "documentLabel": "Ishga yollash xizmati shartlari",
+      "downloadPdf": "Shartlarni yuklab olish (PDF)",
+      "downloadKoPdf": "Koreyscha asl matnni yuklab olish (PDF)",
+      "terms": {
+        "label": "Ishga yollash xizmati shartlariga roziman",
+        "required": "(majburiy)"
+      },
+      "mandate": {
+        "label": "Ishga olingan ish izlovchilarning yashash ishlarini Korea Visa maʼmuriy agentligi idorasiga topshirishga roziman",
+        "optional": "(ixtiyoriy)",
+        "help": "Rozilik bermasangiz ham shartnoma tuziladi."
+      },
+      "submit": "Rozilik berib shartnoma tuzish",
+      "submitting": "Saqlanmoqda…",
+      "signed": {
+        "title": "Shartnoma tuzildi",
+        "date": "Shartnoma sanasi {date}",
+        "version": "Shartlar {version}",
+        "staffRecorded": "VISA n JOB masʼul xodimi qayd etgan shartnoma",
+        "mandateYes": "Yashash ishlarini topshirish: rozilik berilgan",
+        "mandateNo": "Yashash ishlarini topshirish: rozilik berilmagan (ixtiyoriy)"
+      },
+      "next": {
+        "candidates": "Anonim nomzodlarni koʻrish",
+        "pending": "VISA n JOB masʼul xodimi kompaniyani tekshirgach, anonim nomzodlar roʻyxatini koʻrasiz."
+      },
+      "error": {
+        "termsRequired": "Shartnoma uchun shartlarga rozilik kerak.",
+        "alreadySigned": "Shartnoma allaqachon tuzilgan. Sahifani yangilang.",
+        "unauthenticated": "Qayta kiring.",
+        "unknown": "Saqlanmadi. Qayta urinib koʻring."
       }
     }
   }

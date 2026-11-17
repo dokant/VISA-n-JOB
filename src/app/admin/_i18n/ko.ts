@@ -32,6 +32,7 @@ export const NAV = [
   { href: "/admin/seekers", label: "구직자 검토" },
   { href: "/admin/leads", label: "리드 칸반" },
   { href: "/admin/postings", label: "블라인드 공고" },
+  { href: "/admin/companies", label: "기업 검증" },
 ] as const;
 
 export const SEEKER_GRADE_LABEL: Record<SeekerGrade, string> = {
@@ -164,6 +165,8 @@ const ERROR_TEXT: Record<string, string> = {
   UNKNOWN_INDUSTRY: "목록에 있는 업종만 고를 수 있습니다.",
   POSTING_STATE: "지금 상태에서는 할 수 없는 작업입니다. 새로고침해 주세요.",
   NOT_VERIFIED: "직원 검증(검증자·검증 시각)이 끝나지 않은 공고는 공개할 수 없습니다.",
+  // P2b 기업 검증·계약 등록 (R-218)
+  SAME_STATE: "이미 그 상태입니다. 새로고침해 주세요.",
 };
 
 export function adminActionError(code: string): string {

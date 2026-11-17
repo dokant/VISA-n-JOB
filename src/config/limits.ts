@@ -180,3 +180,29 @@ export const POSTING_PAY_MAX_KRW = 100_000_000;
 
 /** R-202: the public /jobs list shows at most this many postings (newest first). */
 export const PUBLIC_POSTING_LIST_MAX = 50;
+
+// ─── Blind candidates and contract (P2b: R-204 ~ R-208, R-218) ──────────────────────────────
+
+/**
+ * R-204 / WO §7.5 `stayRemainingBand`: months left until the stay expiry month, shown to employers
+ * as a band (never the expiry month itself). Lower bound inclusive, upper bound exclusive; the last
+ * band has no upper bound. 운영 수치: 운영자가 조정한다 (display buckets, not a legal value — BR-12).
+ */
+export const STAY_REMAINING_BANDS = [
+  { code: "M0_6", minMonths: 0, maxMonths: 6 },
+  { code: "M6_12", minMonths: 6, maxMonths: 12 },
+  { code: "M12_24", minMonths: 12, maxMonths: 24 },
+  { code: "M24_PLUS", minMonths: 24, maxMonths: null },
+] as const;
+
+/** R-207 / WO §9.3: candidate list views per company per day (KST); the next one is refused (429). */
+export const CANDIDATE_VIEWS_PER_DAY = 100;
+
+/** R-205: candidates shown per list view (S first, then the most recently updated). */
+export const CANDIDATE_LIST_MAX = 30;
+
+/** R-205 / DECISIONS PC-11: summary cells with fewer seekers than this are masked (수요 지도와 동일). */
+export const CANDIDATE_STATS_MIN_SAMPLE = DEMAND_MIN_SAMPLE;
+
+/** R-218: companies listed at most on /admin/companies (newest first). */
+export const ADMIN_COMPANY_LIST_MAX = ADMIN_LIST_MAX;

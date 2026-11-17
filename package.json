@@ -30,7 +30,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "terms:pdf": "tsx scripts/build-terms-pdf.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.2",

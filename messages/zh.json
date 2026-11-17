@@ -101,6 +101,10 @@
     "jobDetail": {
       "title": "推荐工作详情",
       "description": "经 VISA n JOB 工作人员确认的匿名职位。"
+    },
+    "employerContract": {
+      "title": "招聘服务合同",
+      "description": "企业专用：同意招聘服务使用条款。"
     }
   },
   "common": {
@@ -1517,6 +1521,151 @@
           "verified": "已核实",
           "closed": "已结束"
         }
+      }
+    },
+    "candidates": {
+      "eyebrow": "企业专用",
+      "title": "匿名候选人",
+      "lead": "已完成验证并签约的企业可查看不含姓名和联系方式的候选人信息。",
+      "notice": "不能直接联系候选人。发送面试邀请后，由 VISA n JOB 负责人协调时间。",
+      "remaining": "今日剩余浏览次数：{count}",
+      "count": "候选人 {count} 名",
+      "listLabel": "候选人列表",
+      "empty": "没有符合条件的候选人。请更换筛选条件。",
+      "limited": {
+        "title": "今日浏览次数已用完",
+        "body": "候选人列表每天最多可浏览 {limit} 次。请明天再来。"
+      },
+      "filters": {
+        "title": "筛选",
+        "submit": "应用筛选",
+        "reset": "重置",
+        "any": "全部",
+        "visa": "签证",
+        "stay": "剩余滞留期限",
+        "topik": "韩语（TOPIK）",
+        "topikMin": "{level}级以上",
+        "industry": "工作经历行业",
+        "skill": "技能",
+        "dormitory": "需要住宿",
+        "shift": "倒班 / 夜班",
+        "convertible": "可转换签证"
+      },
+      "stayBand": {
+        "under": "不足 {max} 个月",
+        "range": "{min}–{max} 个月",
+        "over": "{min} 个月以上",
+        "unknown": "尚未确认"
+      },
+      "card": {
+        "id": "候选人 {id}",
+        "nationality": "国籍",
+        "sido": "居住地区",
+        "visa": "签证",
+        "stay": "剩余滞留期限",
+        "yearsInKorea": "在韩时间",
+        "years": "{count} 年",
+        "education": "学历",
+        "graduation": "毕业",
+        "majorField": "专业领域",
+        "topik": "TOPIK",
+        "kiip": "社会融合项目",
+        "speaking": "韩语会话",
+        "languages": "其他语言",
+        "experience": "工作经历",
+        "experienceItem": "{industry} · {role} · {months} 个月",
+        "skills": "技能",
+        "licenses": "证书",
+        "jobSearch": "求职状态",
+        "availableFrom": "可开始工作日期",
+        "desiredIndustries": "希望行业",
+        "desiredRegions": "希望地区",
+        "anyRegion": "哪里都可以",
+        "dormitory": "需要住宿",
+        "shift": "倒班 / 夜班",
+        "desiredPay": "希望最低月薪",
+        "payFrom": "{amount} 以上",
+        "group": "与朋友一起",
+        "groupSize": "{count} 人一起求职",
+        "convertible": "可转换签证",
+        "convertibleAt": "预计 {date}",
+        "convertibleNote": "行政士判定",
+        "verifiedVisa": "签证已确认",
+        "verifiedKorean": "韩语已确认",
+        "yes": "是",
+        "no": "否",
+        "none": "无",
+        "notAnswered": "未回答"
+      },
+      "interview": {
+        "cta": "面试邀请",
+        "pending": "发送中…",
+        "done": "已发送面试邀请。VISA n JOB 负责人将告知您日程。",
+        "already": "您已向该候选人发送过面试邀请。",
+        "requested": "已发送面试邀请",
+        "error": {
+          "notFound": "目前无法查看该候选人。请刷新列表。",
+          "notContracted": "只有已完成验证并签约的企业才能发送面试邀请。",
+          "unauthenticated": "请重新登录。",
+          "unknown": "未能发送邀请。请重试。"
+        }
+      },
+      "stats": {
+        "title": "候选人统计",
+        "lead": "完成企业验证并签约后，可以查看匿名候选人列表。目前只显示统计。",
+        "total": "目前可查看的候选人",
+        "people": "{count} 名",
+        "masked": "不足 {min} 名",
+        "caption": "按地区和等级的候选人数",
+        "region": "地区",
+        "grade": "等级",
+        "count": "候选人数",
+        "noRegion": "未填写地区",
+        "empty": "暂无可显示的候选人。",
+        "maskNote": "不足 {min} 名的数字不显示。",
+        "verified": "企业已验证",
+        "unverified": "企业待验证",
+        "contracted": "已签约",
+        "notContracted": "未签约",
+        "contractCta": "签订招聘服务合同",
+        "verifyNote": "VISA n JOB 负责人确认营业信息后完成企业验证。"
+      }
+    },
+    "contract": {
+      "eyebrow": "企业专用",
+      "title": "招聘服务合同",
+      "lead": "阅读并同意条款即完成签约。委托滞留业务为另行选择的可选项。",
+      "documentLabel": "招聘服务使用条款",
+      "downloadPdf": "下载条款（PDF）",
+      "downloadKoPdf": "下载韩文原文（PDF）",
+      "terms": {
+        "label": "我同意招聘服务使用条款",
+        "required": "（必填）"
+      },
+      "mandate": {
+        "label": "我同意将所录用求职者的滞留业务委托给 Korea Visa 行政士事务所",
+        "optional": "（可选）",
+        "help": "不同意也可完成签约。"
+      },
+      "submit": "同意并签约",
+      "submitting": "保存中…",
+      "signed": {
+        "title": "已完成签约",
+        "date": "签约日期 {date}",
+        "version": "条款 {version}",
+        "staffRecorded": "由 VISA n JOB 负责人登记的合同",
+        "mandateYes": "委托滞留业务：已同意",
+        "mandateNo": "委托滞留业务：未同意（可选项）"
+      },
+      "next": {
+        "candidates": "查看匿名候选人",
+        "pending": "VISA n JOB 负责人完成企业验证后即可查看匿名候选人列表。"
+      },
+      "error": {
+        "termsRequired": "需要同意条款才能签约。",
+        "alreadySigned": "已完成签约。请刷新页面。",
+        "unauthenticated": "请重新登录。",
+        "unknown": "未能保存。请重试。"
       }
     }
   }
