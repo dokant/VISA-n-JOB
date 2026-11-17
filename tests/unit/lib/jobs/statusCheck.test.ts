@@ -198,11 +198,11 @@ describe("R-213 30-day status check", () => {
     const { sent, provider } = captureProvider();
     await runStatusCheck(T0, { scope: { id: s.id }, provider, siteUrl: SITE });
     const token = tokenOf(sent[0]);
-    const [body, sig] = token.split(".");
-    const forged = `${Buffer.from(JSON.stringify({ s: s.id, t: T0.getTime(), e: 9_999_999_999 })).toString("base64url")}.${sig}`;
+    const [body, sig] = token.split("~");
+    const forged = `${Buffer.from(JSON.stringify({ s: s.id, t: T0.getTime(), e: 9_999_999_999 })).toString("base64url")}~${sig}`;
     expect(verifyStillSearchingToken(forged, T0)).toEqual({ ok: false, reason: "BAD_SIGNATURE" });
     expect(await stillSearchingState(forged, T0)).toBe("INVALID");
-    expect(await stillSearchingState(`${body}.x`, T0)).toBe("INVALID");
+    expect(await stillSearchingState(`${body}~x`, T0)).toBe("INVALID");
     expect(await stillSearchingState("not-a-token", T0)).toBe("INVALID");
     expect(await stillSearchingState(token, at(14, -1))).toBe("ASK");
     expect(await stillSearchingState(token, at(14))).toBe("EXPIRED");

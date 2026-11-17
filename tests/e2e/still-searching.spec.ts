@@ -54,9 +54,9 @@ test("R-213: a forged or broken link is refused in every locale (no error page)"
   page,
 }, info) => {
   const { token } = await createStatusCheckSeeker();
-  const [body] = token.split(".");
+  const [body] = token.split("~");
   for (const locale of ["ko", "en", "vi", "ru", "zh", "uz"]) {
-    await page.goto(`/${locale}/seeker/still-searching/${body}.${"A".repeat(43)}`);
+    await page.goto(`/${locale}/seeker/still-searching/${body}~${"A".repeat(43)}`);
     await expect(page.getByTestId("still-searching")).toHaveAttribute("data-state", "INVALID");
     await expect(page.getByText("Application error")).toHaveCount(0);
   }

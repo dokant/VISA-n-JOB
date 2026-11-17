@@ -3,7 +3,7 @@
  *
  * The 30-day status check (src/lib/jobs/statusCheck.ts) sends a link
  * `/{locale}/seeker/still-searching/{token}`. The token is signed, not stored:
- *   token = base64url(JSON { s: seekerId, t: sentAt ms, e: expiry unix s }) + "." + HMAC-SHA256
+ *   token = base64url(JSON { s: seekerId, t: sentAt ms, e: expiry unix s }) + "~" + HMAC-SHA256 ("~", not ".": a path with a dot skips the middleware matcher)
  *   (crypto.hmacSign, purpose "still-searching", key derived from HASH_KEY).
  * - It is valid until `sentAt + STATUS_CHECK_REPLY_DAYS` (the same 14 days after which the seeker
  *   becomes INACTIVE), and only for the check it was sent with: the seeker's `statusCheckSentAt`
@@ -21,7 +21,7 @@ type Client = typeof db;
 
 const SIGN_PURPOSE = "still-searching";
 const DAY_MS = 86_400_000;
-const TOKEN = /^[A-Za-z0-9_-]{10,400}\.[A-Za-z0-9_-]{43}$/;
+const TOKEN = /^[A-Za-z0-9_-]{10,400}~[A-Za-z0-9_-]{43}$/;
 
 export type StillSearchingPayload = { s: string; t: number; e: number };
 
@@ -32,7 +32,7 @@ export function signStillSearchingToken(seekerId: string, sentAt: Date): string 
     e: Math.floor((sentAt.getTime() + STATUS_CHECK_REPLY_DAYS * DAY_MS) / 1000),
   };
   const body = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
-  return `${body}.${hmacSign(SIGN_PURPOSE, body)}`;
+  return `${body}~${hmacSign(SIGN_PURPOSE, body)}`;
 }
 
 /** Path of the answer page (the job prefixes the site origin). */
@@ -58,7 +58,7 @@ function isPayload(v: unknown): v is StillSearchingPayload {
 
 export function verifyStillSearchingToken(token: string, now: Date = new Date()): TokenCheck {
   if (typeof token !== "string" || !TOKEN.test(token)) return { ok: false, reason: "MALFORMED" };
-  const [body, signature] = token.split(".");
+  const [body, signature] = token.split("~");
   if (!signaturesEqual(signature, hmacSign(SIGN_PURPOSE, body))) {
     return { ok: false, reason: "BAD_SIGNATURE" };
   }
