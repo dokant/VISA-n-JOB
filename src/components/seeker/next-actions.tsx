@@ -22,6 +22,12 @@ export function trackGuide(
 }
 
 /**
+ * Long labels (ru "Напоминание о сроке пребывания") wrap inside the pill instead of running past the
+ * card at 375px (N-04, found by the P2e D-3 clipped-control check). One-line labels keep 52px.
+ */
+const WRAP = "h-auto min-h-13 max-w-full py-2 text-center whitespace-normal";
+
+/**
  * Track-specific next actions (R-112, WO §7.3 완료 화면): 추천 일자리 보기 / 상담 신청 /
  * 체류 만료 알림 설정, plus the E-7-4 calculator for FUTURE_POOL (WO §7.4).
  */
@@ -36,7 +42,7 @@ export function NextActions({ guide }: { guide: TrackGuide }) {
       </p>
       <div className="flex flex-wrap gap-2">
         {jobMatch ? (
-          <Button asChild variant="seeker">
+          <Button asChild variant="seeker" className={WRAP}>
             <Link href="/seeker/me/recommended" data-testid="action-recommended">
               <Briefcase aria-hidden="true" strokeWidth={1.5} />
               {t("recommended")}
@@ -45,7 +51,7 @@ export function NextActions({ guide }: { guide: TrackGuide }) {
           </Button>
         ) : null}
         {!jobMatch || guide !== "JOB_MATCH" ? (
-          <Button asChild variant={jobMatch ? "outline" : "seeker"}>
+          <Button asChild variant={jobMatch ? "outline" : "seeker"} className={WRAP}>
             <Link href={CONSULT_HREF} data-testid="action-consult">
               <MessageCircle aria-hidden="true" strokeWidth={1.5} />
               {t("consult")}
@@ -53,14 +59,14 @@ export function NextActions({ guide }: { guide: TrackGuide }) {
           </Button>
         ) : null}
         {guide === "FUTURE_POOL" ? (
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className={WRAP}>
             <Link href="/score/e74" data-testid="action-score">
               <Calculator aria-hidden="true" strokeWidth={1.5} />
               {t("score")}
             </Link>
           </Button>
         ) : null}
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" className={WRAP}>
           <Link href="/seeker/me/stay" data-testid="action-stay">
             <Bell aria-hidden="true" strokeWidth={1.5} />
             {t("stay")}
