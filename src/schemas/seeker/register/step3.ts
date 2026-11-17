@@ -5,17 +5,22 @@ import {
   KIIP_STAGES,
   KOREAN_SPEAKING_LEVELS,
   LANGUAGE_CODES,
+  MAJOR_FIELDS,
   TOPIK_LEVELS,
 } from "@/lib/seeker/options";
 
-import { choice, multiChoice, optionalMonth, optionalText } from "./fields";
+import { choice, multiChoice, optionalChoice, optionalMonth, optionalText } from "./fields";
 
 /**
  * Wizard Step 3 학력과 언어 (WO §7.3), shown on two sub screens (SC-01): 3a 학력, 3b 언어.
  * graduationDate is required for visas whose VisaType row says so (D-2·D-10): `step3aSchemaFor`.
+ * majorField (Q-24) is an optional code from MAJOR_FIELDS — the value employers see; the free-text
+ * major is staff-only (BR-14).
  */
 export const step3Schema = z.object({
   educationLevel: choice(EDUCATION_LEVELS),
+  // optional key too: a client that does not send it (older page) saves "not answered"
+  majorField: optionalChoice(MAJOR_FIELDS).optional(),
   major: optionalText(100),
   schoolName: optionalText(100),
   graduationDate: optionalMonth,
@@ -28,6 +33,7 @@ export type Step3Input = z.input<typeof step3Schema>;
 
 export const step3aSchema = step3Schema.pick({
   educationLevel: true,
+  majorField: true,
   major: true,
   schoolName: true,
   graduationDate: true,

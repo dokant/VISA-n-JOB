@@ -70,7 +70,7 @@ exports[`R-204 blindSeeker serializer > R-204 snapshot: key list and values of a
   "licenses": [
     "FORKLIFT_LICENSE",
   ],
-  "majorField": null,
+  "majorField": "ENGINEERING",
   "nationality": "UZ",
   "needDormitory": true,
   "otherLanguages": [

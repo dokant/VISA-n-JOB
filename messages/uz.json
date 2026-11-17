@@ -988,11 +988,29 @@
             "DOCTOR": "Doktorantura"
           }
         },
-        "major": {
-          "label": "Mutaxassislik",
-          "help": "Korxonalar faqat sohani koʻradi."
+        "majorField": {
+          "label": "Mutaxassislik sohasi",
+          "help": "Eng yaqin sohani tanlang. Kompaniyalar faqat shu sohani ko‘radi.",
+          "option": {
+            "GENERIC": "Umumiy ta’lim (mutaxassisliksiz)",
+            "EDUCATION": "Ta’lim",
+            "ARTS_HUMANITIES": "San’at va gumanitar fanlar",
+            "SOCIAL_SCIENCES": "Ijtimoiy fanlar, jurnalistika va axborot",
+            "BUSINESS_LAW": "Biznes, boshqaruv va huquq",
+            "NATURAL_SCIENCES": "Tabiiy fanlar, matematika va statistika",
+            "ICT": "Axborot-kommunikatsiya texnologiyalari (AKT)",
+            "ENGINEERING": "Muhandislik, ishlab chiqarish va qurilish",
+            "AGRICULTURE": "Qishloq, o‘rmon, baliq xo‘jaligi va veterinariya",
+            "HEALTH_WELFARE": "Sog‘liqni saqlash va ijtimoiy ta’minot",
+            "SERVICES": "Xizmatlar (turizm, transport, xavfsizlik va b.)",
+            "OTHER": "Boshqa",
+            "UNKNOWN": "Bilmayman"
+          }
         },
-        "majorField": "Mutaxassislik sohasi",
+        "major": {
+          "label": "Mutaxassislik nomi",
+          "help": "Kompaniyalarga ko‘rinmaydi."
+        },
         "schoolName": {
           "label": "Taʼlim muassasasi (Koreya universiteti)",
           "help": "Korxonalarga koʻrsatilmaydi."
@@ -1623,12 +1641,14 @@
         "noRegion": "Hudud kiritilmagan",
         "empty": "Hozircha koʻrsatiladigan nomzod yoʻq.",
         "maskNote": "{min} dan kam sonlar yashiriladi.",
+        "withheldNote": "Biror katak yashirilgan bo‘lsa, yashirin sonni hisoblab bo‘lmasligi uchun umumiy jami ham ko‘rsatilmaydi.",
         "verified": "Kompaniya tekshirilgan",
         "unverified": "Kompaniya tekshiruvi kutilmoqda",
         "contracted": "Shartnoma tuzilgan",
         "notContracted": "Shartnoma yoʻq",
         "contractCta": "Ishga yollash shartnomasini tuzish",
-        "verifyNote": "VISA n JOB masʼul xodimi biznes maʼlumotlarini tekshirgach, kompaniya tekshiruvini yakunlaydi."
+        "verifyNote": "VISA n JOB masʼul xodimi biznes maʼlumotlarini tekshirgach, kompaniya tekshiruvini yakunlaydi.",
+        "withheld": "—"
       }
     },
     "contract": {

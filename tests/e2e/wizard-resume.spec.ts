@@ -6,6 +6,7 @@ import { uniqueIp, uniquePhone } from "./support/authDb";
 import { msg } from "./support/messages";
 import { ageOtpChallenges, monthFromNow, seekerProfileByPhone } from "./support/seekerDb";
 import { chip, isolate, loginUi, verifyPhone, waitForHydration } from "./support/seekerFlow";
+import { p2bShot } from "./support/shots";
 
 // R-106 정식 위저드 / R-107 자동 저장·재진입: Step 3까지 작성 → 새 세션 재로그인 → Step 4에서 재개,
 // 입력값 유지. P1C_SHOTS=<dir> saves 375px screenshots of each screen (QA evidence, N-04).
@@ -90,7 +91,12 @@ test("R-106 R-107: Step 0~3 saved → new session → resumes at Step 4 with the
     .getByTestId("wizard-step-3a")
     .getByLabel(new RegExp(`^${t("step3.major.label")}`))
     .fill("Mechanical");
+  // Q-24: 전공 분야 (code, shown to companies); 전공명 stays staff-only (disclosure summary)
+  const s3a = page.getByTestId("wizard-step-3a");
+  await s3a.locator('select[name="majorField"]').selectOption("ENGINEERING");
+  await expect(s3a.getByTestId("disclosure-summary")).toContainText(t("step3.majorField.label"));
   await shot(page, info, "step3a");
+  await p2bShot(page, info, "wizard_3a", "mobile-375");
   await next(page, /step=3&sub=b$/);
   await chip(page, t("step3.topikLevel.label"), t("step3.topikLevel.option.3")).click();
   await chip(page, t("step3.kiipStage.label"), t("step3.kiipStage.option.0")).click();
@@ -108,6 +114,7 @@ test("R-106 R-107: Step 0~3 saved → new session → resumes at Step 4 with the
     track: "JOB_MATCH",
     needsVisaReview: true,
     educationLevel: "BACHELOR",
+    majorField: "ENGINEERING",
     topikLevel: 3,
   });
 
@@ -135,6 +142,8 @@ test("R-106 R-107: Step 0~3 saved → new session → resumes at Step 4 with the
   await fresh.goto(`/${L}/seeker/register?step=2`);
   await expect(fresh.getByTestId("visa-select")).toHaveValue("E-7");
   await expect(fresh.locator('select[name="stayExpiry-year"]')).toHaveValue(exp.year);
+  await fresh.goto(`/${L}/seeker/register?step=3&sub=a`);
+  await expect(fresh.locator('select[name="majorField"]')).toHaveValue("ENGINEERING");
   // a later step than the resume point cannot be opened directly
   await fresh.goto(`/${L}/seeker/register?step=6`);
   await expect(fresh.getByTestId("wizard-screen")).toHaveAttribute("data-step", "4");

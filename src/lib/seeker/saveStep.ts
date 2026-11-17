@@ -219,6 +219,7 @@ async function saveStep3a(p: SeekerProfile, input: unknown, ctx: Ctx): Promise<S
   if (!track.registrable) return { ok: false, code: "BLOCKED", reason: track.reason };
   await update(p.id, {
     educationLevel: v.educationLevel,
+    majorField: v.majorField || null,
     major: textOrNull(v.major),
     schoolNameEnc: textOrNull(v.schoolName),
     graduationDate,

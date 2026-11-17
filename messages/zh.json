@@ -988,11 +988,29 @@
             "DOCTOR": "博士"
           }
         },
-        "major": {
-          "label": "专业",
-          "help": "企业只能看到专业领域。"
+        "majorField": {
+          "label": "专业领域",
+          "help": "请选择最接近的领域。企业只能看到这个领域。",
+          "option": {
+            "GENERIC": "普通课程（无专业）",
+            "EDUCATION": "教育",
+            "ARTS_HUMANITIES": "艺术与人文",
+            "SOCIAL_SCIENCES": "社会科学、新闻与信息",
+            "BUSINESS_LAW": "商业、管理与法律",
+            "NATURAL_SCIENCES": "自然科学、数学与统计",
+            "ICT": "信息通信技术（ICT）",
+            "ENGINEERING": "工程、制造与建筑",
+            "AGRICULTURE": "农林渔业与兽医",
+            "HEALTH_WELFARE": "卫生与福利",
+            "SERVICES": "服务（旅游、运输、安保等）",
+            "OTHER": "其他",
+            "UNKNOWN": "不清楚"
+          }
         },
-        "majorField": "专业领域",
+        "major": {
+          "label": "专业名称",
+          "help": "企业看不到。"
+        },
         "schoolName": {
           "label": "学校名称（韩国大学）",
           "help": "不会向企业公开。"
@@ -1623,12 +1641,14 @@
         "noRegion": "未填写地区",
         "empty": "暂无可显示的候选人。",
         "maskNote": "不足 {min} 名的数字不显示。",
+        "withheldNote": "有被隐藏的格子时，总数也会隐藏，以免反推出隐藏的数字。",
         "verified": "企业已验证",
         "unverified": "企业待验证",
         "contracted": "已签约",
         "notContracted": "未签约",
         "contractCta": "签订招聘服务合同",
-        "verifyNote": "VISA n JOB 负责人确认营业信息后完成企业验证。"
+        "verifyNote": "VISA n JOB 负责人确认营业信息后完成企业验证。",
+        "withheld": "—"
       }
     },
     "contract": {

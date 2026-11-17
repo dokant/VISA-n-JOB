@@ -988,11 +988,29 @@
             "DOCTOR": "Doctorate"
           }
         },
-        "major": {
-          "label": "Major",
-          "help": "Employers only see the field of study."
+        "majorField": {
+          "label": "Field of study",
+          "help": "Choose the closest field. Companies see only this field.",
+          "option": {
+            "GENERIC": "General programme (no major)",
+            "EDUCATION": "Education",
+            "ARTS_HUMANITIES": "Arts and humanities",
+            "SOCIAL_SCIENCES": "Social sciences, journalism and information",
+            "BUSINESS_LAW": "Business, administration and law",
+            "NATURAL_SCIENCES": "Natural sciences, mathematics and statistics",
+            "ICT": "Information and communication technology (ICT)",
+            "ENGINEERING": "Engineering, manufacturing and construction",
+            "AGRICULTURE": "Agriculture, forestry, fisheries and veterinary",
+            "HEALTH_WELFARE": "Health and welfare",
+            "SERVICES": "Services (tourism, transport, security, etc.)",
+            "OTHER": "Other",
+            "UNKNOWN": "Not sure"
+          }
         },
-        "majorField": "Field of study",
+        "major": {
+          "label": "Major name",
+          "help": "Not shown to companies."
+        },
         "schoolName": {
           "label": "School name (Korean university)",
           "help": "Not shown to employers."
@@ -1623,12 +1641,14 @@
         "noRegion": "Region not given",
         "empty": "There are no candidates to show yet.",
         "maskNote": "Numbers below {min} are hidden.",
+        "withheldNote": "When a cell is hidden, the overall total is hidden too, so the hidden number cannot be worked out.",
         "verified": "Company verified",
         "unverified": "Company verification pending",
         "contracted": "Contract signed",
         "notContracted": "No contract yet",
         "contractCta": "Sign the recruitment service contract",
-        "verifyNote": "A VISA n JOB manager completes company verification after checking your business information."
+        "verifyNote": "A VISA n JOB manager completes company verification after checking your business information.",
+        "withheld": "—"
       }
     },
     "contract": {

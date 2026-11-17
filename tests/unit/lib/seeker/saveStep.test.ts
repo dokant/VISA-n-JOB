@@ -55,6 +55,34 @@ describe("R-106 / R-107 step saves", () => {
     expect(raw.legalNameEnc).not.toContain("NGUYEN");
   });
 
+  it("Q-24: Step 3a 전공 분야 is an optional code; free text or an unknown code is refused", async () => {
+    const userId = await wizardAccount();
+    const a = await answers();
+    await save(userId, "1", a["1"]);
+    await save(userId, "2", a["2"]);
+    expect((await profileOf(userId)).majorField).toBeNull();
+    expect(await save(userId, "3a", a["3a"])).toMatchObject({ ok: true });
+    expect(await profileOf(userId)).toMatchObject({
+      majorField: "ENGINEERING",
+      major: "Mechanical",
+    });
+    for (const bad of ["Mechanical engineering", "CNC", "engineering"]) {
+      expect(await save(userId, "3a", { ...a["3a"], majorField: bad })).toMatchObject({
+        ok: false,
+        code: "VALIDATION",
+      });
+    }
+    // not answered ("" or a missing key) is stored as null
+    expect((await save(userId, "3a", { ...a["3a"], majorField: "" })).ok).toBe(true);
+    expect((await profileOf(userId)).majorField).toBeNull();
+    const { majorField: _omit, ...withoutKey } = a["3a"];
+    void _omit;
+    expect((await save(userId, "3a", { ...withoutKey })).ok).toBe(true);
+    expect((await profileOf(userId)).majorField).toBeNull();
+    expect((await save(userId, "3a", { ...a["3a"], majorField: "UNKNOWN" })).ok).toBe(true);
+    expect((await profileOf(userId)).majorField).toBe("UNKNOWN");
+  });
+
   it("steps cannot be skipped and invalid answers return field codes", async () => {
     const userId = await wizardAccount();
     const a = await answers();

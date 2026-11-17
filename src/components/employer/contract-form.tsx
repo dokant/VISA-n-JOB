@@ -48,8 +48,8 @@ export function ContractForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="grid gap-5" data-testid="contract-form">
-      <div className="grid gap-1.5">
+    <form onSubmit={onSubmit} noValidate className="grid gap-5.5" data-testid="contract-form">
+      <div className="grid gap-1.75">
         <label
           htmlFor={`${id}-terms`}
           className="flex min-h-11 cursor-pointer items-start gap-3 py-2.5 text-dense text-navy"
@@ -75,7 +75,7 @@ export function ContractForm() {
         ) : null}
       </div>
 
-      <div className="grid gap-1.5 rounded-sm border border-n200 bg-n50 px-3.5 py-2">
+      <div className="grid gap-1.75 rounded-sm border border-n200 bg-n50 px-3.5 py-2">
         <label
           htmlFor={`${id}-mandate`}
           className="flex min-h-11 cursor-pointer items-start gap-3 py-2.5 text-dense text-navy"

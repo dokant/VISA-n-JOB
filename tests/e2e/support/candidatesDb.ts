@@ -48,6 +48,7 @@ export async function createCandidate(
       legalNameEnc: HIDDEN_NAME,
       emailEnc: HIDDEN_EMAIL,
       major: "free text major 010-3333-4444",
+      majorField: "ENGINEERING",
       birthYear: 1993,
       gender: "FEMALE",
       nationality: "VN",

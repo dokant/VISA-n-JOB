@@ -166,7 +166,7 @@ describe("R-205 candidate query (P2b): active job search and the 8 filters", () 
     });
     const other = await candidate(t, {
       visaCode: "H-2",
-      stayExpiry: new Date(Date.UTC(2033, 0, 1)), // 31 months → M24_PLUS
+      stayExpiry: new Date(Date.UTC(2033, 0, 1)), // 31 months → M12_PLUS
       topikLevel: 5,
       skills: ["WELDING"],
       needDormitory: true,
@@ -184,7 +184,10 @@ describe("R-205 candidate query (P2b): active job search and the 8 filters", () 
     expect(await ids(t, {}, now)).toEqual(both);
     expect(await ids(t, { visa: "H-2" }, now)).toEqual([other.id]);
     expect(await ids(t, { stay: "M6_12" }, now)).toEqual([base.id]);
-    expect(await ids(t, { stay: "M24_PLUS" }, now)).toEqual([other.id]);
+    expect(await ids(t, { stay: "M12_PLUS" }, now)).toEqual([other.id]);
+    expect(await ids(t, { stay: "M0_6" }, now)).toEqual([]);
+    // WO §7.3: three bands only — the old finer codes are unknown values, dropped (no filter)
+    expect(await ids(t, { stay: "M24_PLUS" as never }, now)).toEqual(both);
     expect(await ids(t, { topik: "3" }, now)).toEqual([other.id]);
     expect(await ids(t, { industry: industries[0].code }, now)).toEqual([base.id]);
     expect(await ids(t, { skill: "WELDING" }, now)).toEqual([other.id]);

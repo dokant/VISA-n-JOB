@@ -28,8 +28,8 @@
  *   code, months), longest first. Company name and country are not included.
  * - `groupApplySize`: number of seekers applying together (computed by the query layer from the
  *   friend codes, `groupApplySizes`); null when the seeker does not apply with friends.
- * - `majorField`: always null for now. The wizard stores the major as free text (`major`), which
- *   is never shown to employers (BR-14); a coded major-field list does not exist yet.
+ * - `majorField`: the coded 전공 분야 from wizard Step 3a (`MAJOR_FIELDS`, DECISIONS Q-24), only
+ *   when the stored value is in that list. The free-text `major` is never selected (BR-14).
  */
 import type { Prisma } from "@prisma/client";
 
@@ -39,6 +39,7 @@ import {
   JOB_SEARCH_STATUSES,
   LANGUAGE_CODES,
   LICENSES,
+  MAJOR_FIELDS,
   SHIFT_OK_VALUES,
   SKILLS,
 } from "@/lib/seeker/options";
@@ -89,6 +90,7 @@ export const BLIND_SEEKER_SELECT = {
   stayExpiry: true,
   entryYear: true,
   educationLevel: true,
+  majorField: true,
   graduationDate: true,
   topikLevel: true,
   kiipStage: true,
@@ -130,7 +132,8 @@ type FieldTypes = {
   stayRemainingBand: StayRemainingBand;
   yearsInKorea: number | null;
   educationLevel: string | null;
-  majorField: null;
+  /** MAJOR_FIELDS code */
+  majorField: string | null;
   /** "YYYY-MM" */
   graduationDate: string | null;
   topikLevel: number | null;
@@ -283,7 +286,7 @@ export function serializeBlindSeeker(
     stayRemainingBand: stayRemainingBandOf(row.stayExpiry, now),
     yearsInKorea: yearsInKoreaOf(row.entryYear, now),
     educationLevel: oneOf(EDUCATION_LEVELS, row.educationLevel),
-    majorField: null,
+    majorField: oneOf(MAJOR_FIELDS, row.majorField),
     graduationDate: month(row.graduationDate),
     topikLevel: intOrNull(row.topikLevel),
     kiipStage: intOrNull(row.kiipStage),

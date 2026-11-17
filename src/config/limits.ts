@@ -186,13 +186,14 @@ export const PUBLIC_POSTING_LIST_MAX = 50;
 /**
  * R-204 / WO §7.5 `stayRemainingBand`: months left until the stay expiry month, shown to employers
  * as a band (never the expiry month itself). Lower bound inclusive, upper bound exclusive; the last
- * band has no upper bound. 운영 수치: 운영자가 조정한다 (display buckets, not a legal value — BR-12).
+ * band has no upper bound. WO §7.3 fixes the employer-facing bands to three: under 6 months /
+ * 6~12 months / 1 year or more — do not split them further (that would show employers more than
+ * WO allows). Display buckets, not a legal value (BR-12).
  */
 export const STAY_REMAINING_BANDS = [
   { code: "M0_6", minMonths: 0, maxMonths: 6 },
   { code: "M6_12", minMonths: 6, maxMonths: 12 },
-  { code: "M12_24", minMonths: 12, maxMonths: 24 },
-  { code: "M24_PLUS", minMonths: 24, maxMonths: null },
+  { code: "M12_PLUS", minMonths: 12, maxMonths: null },
 ] as const;
 
 /** R-207 / WO §9.3: candidate list views per company per day (KST); the next one is refused (429). */

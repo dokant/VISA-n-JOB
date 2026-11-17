@@ -19,6 +19,7 @@ import {
 } from "./support/candidatesDb";
 import { msg } from "./support/messages";
 import { isolate, waitForHydration } from "./support/seekerFlow";
+import { p2bShot } from "./support/shots";
 
 // P2b: R-205 blind candidates (FEATURE_EMPLOYER_CANDIDATES), R-207 면접 요청, R-208 계약 동의,
 // R-218 관리자 기업 검증. Checks read the database (no reliance on what earlier runs left behind).
@@ -73,7 +74,7 @@ test.describe("R-205 / R-207 /employer/candidates (flag on)", () => {
 
   test("R-205 / R-218: a company without verification or contract sees the summary only", async ({
     page,
-  }) => {
+  }, info) => {
     const tag = e2eTag();
     await createCandidate(tag);
     const { email } = await createCandidateEmployer({ verified: false, contracted: false });
@@ -88,13 +89,25 @@ test.describe("R-205 / R-207 /employer/candidates (flag on)", () => {
     );
     await expect(page.getByTestId("candidate-card")).toHaveCount(0);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    // S-27: grades as GradeBadge; PC-11: a masked cell hides the total too (no subtraction)
+    const rows = page.getByTestId("stats-table").locator("tbody tr");
+    await expect(rows.first()).toBeVisible();
+    await expect(rows.getByTestId("grade-badge")).toHaveCount(await rows.count());
+    const total = page.getByTestId("stats-total");
+    if ((await rows.and(page.locator('[data-masked="true"]')).count()) > 0) {
+      await expect(total).toHaveAttribute("data-total-mask", "HAS_MASKED_CELL");
+      await expect(total).toHaveText(msg("ko", "employer.candidates.stats.withheld"));
+    } else {
+      await expect(total).toHaveAttribute("data-total-mask", "none");
+    }
+    await p2bShot(page.getByTestId("candidate-stats"), info, "stats");
     await noContacts(page);
     await noHorizontalScroll(page);
   });
 
   test("R-205 / R-207 / WO15-06: blind list (E-9 excluded), 면접 요청, view logged", async ({
     page,
-  }) => {
+  }, info) => {
     const tag = e2eTag();
     const s = await createCandidate(tag, { grade: "S" });
     const a = await createCandidate(tag);
@@ -111,6 +124,12 @@ test.describe("R-205 / R-207 /employer/candidates (flag on)", () => {
     await expect(cards.nth(1)).toHaveAttribute("data-public-id", toBlindPublicId(a.publicId));
     await expect(page.locator(`[data-public-id="${toBlindPublicId(e9.publicId)}"]`)).toHaveCount(0);
     await expect(cards.nth(0).getByTestId("grade-badge")).toHaveAttribute("data-grade", "S");
+    // Q-24: the coded 전공 분야 is shown; S-16: a convertible code outside VisaType is not shown raw
+    await expect(cards.nth(0)).toContainText(
+      msg("ko", "seeker.register.step3.majorField.option.ENGINEERING"),
+    );
+    await expect(cards.nth(0)).not.toContainText(tag);
+    await p2bShot(cards.nth(0), info, "candidate_card");
     await expect(page.getByTestId("notice-box")).toHaveText(
       msg("ko", "employer.candidates.notice"),
     );
@@ -166,7 +185,7 @@ test.describe("R-208 /employer/contract", () => {
   test("R-208: terms required, mandate optional — the contract completes without it", async ({
     page,
     request,
-  }) => {
+  }, info) => {
     const { email, companyId } = await createCandidateEmployer();
     await loginEmployer(page, email, "/employer/contract");
     const doc = page.getByTestId("terms-document");
@@ -183,6 +202,7 @@ test.describe("R-208 /employer/contract", () => {
     await page.getByTestId("contract-submit").click();
     await expect(page.getByText(msg("ko", "employer.contract.error.termsRequired"))).toBeVisible();
     await expect(page.getByTestId("contract-terms")).toBeFocused();
+    await p2bShot(page.getByTestId("contract-form"), info, "contract_form");
     expect((await companyRow(companyId)).contractSignedAt).toBeNull();
 
     await page.getByTestId("contract-terms").click();

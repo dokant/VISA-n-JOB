@@ -988,11 +988,29 @@
             "DOCTOR": "Tiến sĩ"
           }
         },
-        "major": {
-          "label": "Chuyên ngành",
-          "help": "Doanh nghiệp chỉ thấy lĩnh vực."
+        "majorField": {
+          "label": "Lĩnh vực chuyên ngành",
+          "help": "Chọn lĩnh vực gần nhất. Doanh nghiệp chỉ thấy lĩnh vực này.",
+          "option": {
+            "GENERIC": "Chương trình phổ thông (không có chuyên ngành)",
+            "EDUCATION": "Giáo dục",
+            "ARTS_HUMANITIES": "Nghệ thuật và nhân văn",
+            "SOCIAL_SCIENCES": "Khoa học xã hội, báo chí và thông tin",
+            "BUSINESS_LAW": "Kinh doanh, hành chính và luật",
+            "NATURAL_SCIENCES": "Khoa học tự nhiên, toán và thống kê",
+            "ICT": "Công nghệ thông tin và truyền thông (ICT)",
+            "ENGINEERING": "Kỹ thuật, sản xuất và xây dựng",
+            "AGRICULTURE": "Nông, lâm, ngư nghiệp và thú y",
+            "HEALTH_WELFARE": "Y tế và phúc lợi",
+            "SERVICES": "Dịch vụ (du lịch, vận tải, an ninh...)",
+            "OTHER": "Khác",
+            "UNKNOWN": "Không rõ"
+          }
         },
-        "majorField": "Lĩnh vực chuyên ngành",
+        "major": {
+          "label": "Tên chuyên ngành",
+          "help": "Doanh nghiệp không thấy."
+        },
         "schoolName": {
           "label": "Tên trường (đại học Hàn Quốc)",
           "help": "Không công khai cho doanh nghiệp."
@@ -1623,12 +1641,14 @@
         "noRegion": "Chưa nhập khu vực",
         "empty": "Chưa có ứng viên để hiển thị.",
         "maskNote": "Ô dưới {min} người được ẩn số.",
+        "withheldNote": "Khi có ô bị ẩn, tổng số cũng được ẩn để không thể tính ngược ra con số đã ẩn.",
         "verified": "Đã xác minh doanh nghiệp",
         "unverified": "Đang chờ xác minh doanh nghiệp",
         "contracted": "Đã ký hợp đồng",
         "notContracted": "Chưa ký hợp đồng",
         "contractCta": "Ký hợp đồng dịch vụ tuyển dụng",
-        "verifyNote": "Người phụ trách VISA n JOB hoàn tất xác minh sau khi kiểm tra thông tin kinh doanh."
+        "verifyNote": "Người phụ trách VISA n JOB hoàn tất xác minh sau khi kiểm tra thông tin kinh doanh.",
+        "withheld": "—"
       }
     },
     "contract": {

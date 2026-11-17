@@ -19,7 +19,8 @@ export type CandidateView = {
   verifiedKorean: boolean;
   visa: CandidateVisa | null;
   visaSubType: string | null;
-  convertible: { visa: CandidateVisa | null; code: string; at: string | null } | null;
+  /** Only a visa in the reference table (VisaLabel, S-16); an unknown code is never shown raw. */
+  convertible: { visa: CandidateVisa; at: string | null } | null;
   facts: CandidateFact[];
   experience: string[];
 };
@@ -110,6 +111,15 @@ export async function loadCandidateViews(
   const money = (n: number) =>
     format.number(n, { style: "currency", currency: "KRW", maximumFractionDigits: 0 });
 
+  const convertibleOf = (s: BlindSeeker): CandidateView["convertible"] => {
+    const visa = s.convertibleVisa ? visaOf.get(s.convertibleVisa) : undefined;
+    if (!visa) return null;
+    return {
+      visa,
+      at: s.convertibleAt ? c("convertibleAt", { date: monthText(s.convertibleAt) }) : null,
+    };
+  };
+
   return candidates
     .filter((s): s is BlindSeeker & { grade: "S" | "A" } => s.grade === "S" || s.grade === "A")
     .map((s) => {
@@ -130,6 +140,11 @@ export async function loadCandidateViews(
           key: "education",
           label: c("education"),
           value: s.educationLevel ? opt("step3.educationLevel", s.educationLevel) : unanswered,
+        },
+        {
+          key: "majorField",
+          label: c("majorField"),
+          value: s.majorField ? opt("step3.majorField", s.majorField) : unanswered,
         },
         ...(s.graduationDate
           ? [{ key: "graduation", label: c("graduation"), value: monthText(s.graduationDate) }]
@@ -237,13 +252,7 @@ export async function loadCandidateViews(
         verifiedKorean: s.verifiedKorean,
         visa: s.visaCode ? (visaOf.get(s.visaCode) ?? null) : null,
         visaSubType: s.visaSubType,
-        convertible: s.convertibleVisa
-          ? {
-              visa: visaOf.get(s.convertibleVisa) ?? null,
-              code: s.convertibleVisa,
-              at: s.convertibleAt ? c("convertibleAt", { date: monthText(s.convertibleAt) }) : null,
-            }
-          : null,
+        convertible: convertibleOf(s),
         facts,
         experience,
       };

@@ -63,6 +63,7 @@ export function wizardValues(
     },
     "3a": {
       educationLevel: str(p.educationLevel),
+      majorField: str(p.majorField) as Step3aInput["majorField"],
       major: str(p.major),
       schoolName: str(p.schoolNameEnc),
       graduationDate: dateToMonth(p.graduationDate),

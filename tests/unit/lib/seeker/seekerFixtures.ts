@@ -108,6 +108,7 @@ export async function answers(
     },
     "3a": {
       educationLevel: "BACHELOR",
+      majorField: "ENGINEERING",
       major: "Mechanical",
       schoolName: "",
       graduationDate: opts.graduationDate ?? "",

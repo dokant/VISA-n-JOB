@@ -1,7 +1,7 @@
 import { BadgeCheck, CircleDashed, FileCheck, FileX, TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
 
-import { fmtDate, fmtDateTime, isoDay } from "@/app/admin/_i18n/ko";
+import { fmtCount, fmtDate, fmtDateTime, isoDay } from "@/app/admin/_i18n/ko";
 import { CompanyContractForm, CompanyVerifyForm } from "@/components/admin/company-forms";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
 import { Badge } from "@/components/ui/badge";
@@ -83,7 +83,7 @@ export default async function CompaniesPage() {
                     </span>
                     <span className="block text-caption text-n500">
                       {industryName.get(c.industryCode) ?? c.industryCode} ·{" "}
-                      {sidoName.get(c.sido) ?? c.sido} · 가입 계정 {c.accounts}개 · 등록{" "}
+                      {sidoName.get(c.sido) ?? c.sido} · 가입 계정 수 {fmtCount(c.accounts)} · 등록{" "}
                       {fmtDate(c.createdAt)}
                     </span>
                   </td>

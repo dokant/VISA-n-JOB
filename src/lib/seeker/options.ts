@@ -80,6 +80,39 @@ export const EDUCATION_LEVELS = [
   "DOCTOR",
 ] as const;
 
+/**
+ * Step 3a 전공 분야 (WO §7.5 `majorField`, DECISIONS Q-24). The only major value employers see;
+ * the free-text `major` stays staff-only (BR-14).
+ *
+ * 운영자 검토 필요: not a legal value (BR-12), and not fixed by the operator either. The codes are
+ * the eleven broad fields (00~10) of UNESCO ISCED-F 2013, the international classification of
+ * fields of education, plus OTHER / UNKNOWN — a draft for the operator to confirm or change
+ * (`MAJOR_FIELDS_SOURCE`). Changing the list later only needs this array and the option messages;
+ * stored values outside it are not passed to employers (`blindSeeker.ts`).
+ */
+export const MAJOR_FIELDS = [
+  "GENERIC", // 00 Generic programmes (일반 과정, 전공 없음)
+  "EDUCATION", // 01
+  "ARTS_HUMANITIES", // 02
+  "SOCIAL_SCIENCES", // 03 Social sciences, journalism and information
+  "BUSINESS_LAW", // 04 Business, administration and law
+  "NATURAL_SCIENCES", // 05 Natural sciences, mathematics and statistics
+  "ICT", // 06
+  "ENGINEERING", // 07 Engineering, manufacturing and construction
+  "AGRICULTURE", // 08 Agriculture, forestry, fisheries and veterinary
+  "HEALTH_WELFARE", // 09
+  "SERVICES", // 10
+  "OTHER",
+  "UNKNOWN",
+] as const;
+
+/** Where `MAJOR_FIELDS` comes from and its review state (Q-24: operator review pending). */
+export const MAJOR_FIELDS_SOURCE = {
+  basis: "UNESCO ISCED-F 2013 broad fields (00-10) + OTHER / UNKNOWN",
+  reviewStatus: "OPERATOR_REVIEW_REQUIRED",
+  decision: "DECISIONS Q-24",
+} as const;
+
 /** TOPIK: 0 = 없음, 1~6급. */
 export const TOPIK_LEVELS = ["0", "1", "2", "3", "4", "5", "6"] as const;
 /** 사회통합프로그램: 0 = 없음, 1~5단계. */

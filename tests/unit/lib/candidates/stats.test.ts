@@ -32,7 +32,9 @@ describe("R-205 candidateStats (PC-11 masking)", () => {
 
     const stats = await candidateStats(now);
     expect(stats.minSample).toBe(n);
-    expect(stats.total).toBe(n + n - 1);
+    // one cell is masked → the total is hidden too (total − JEJU would give ULSAN back, PC-11)
+    expect(stats.total).toBeNull();
+    expect(stats.totalMask).toBe("HAS_MASKED_CELL");
     expect(stats.cells).toEqual([
       { sido: "JEJU", grade: "A", count: n },
       { sido: "ULSAN", grade: "S", count: null },
@@ -46,6 +48,26 @@ describe("R-205 candidateStats (PC-11 masking)", () => {
     await candidate(tag("stats-small"), { stayExpiry: new Date(Date.UTC(2095, 3, 1)) });
     const stats = await candidateStats(now);
     expect(stats.total).toBeNull();
+    expect(stats.totalMask).toBe("HAS_MASKED_CELL");
     expect(stats.cells.every((c) => c.count === null)).toBe(true);
+  });
+
+  it("the total is shown when no cell is masked", async () => {
+    const now = new Date(Date.UTC(2097, 0, 15, 3));
+    const far = new Date(Date.UTC(2097, 5, 1));
+    const t = tag("stats-open");
+    const n = CANDIDATE_STATS_MIN_SAMPLE;
+    for (let i = 0; i < n; i++)
+      await candidate(t, { sido: "GANGWON", grade: "S", stayExpiry: far });
+    for (let i = 0; i < n + 1; i++) {
+      await candidate(t, { sido: "GANGWON", grade: "A", stayExpiry: far });
+    }
+    const stats = await candidateStats(now);
+    expect(stats.totalMask).toBeNull();
+    expect(stats.total).toBe(2 * n + 1);
+    expect(stats.cells).toEqual([
+      { sido: "GANGWON", grade: "A", count: n + 1 },
+      { sido: "GANGWON", grade: "S", count: n },
+    ]);
   });
 });

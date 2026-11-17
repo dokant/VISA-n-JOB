@@ -91,15 +91,11 @@ export function CandidateCard({
             {t("convertible")} · {t("convertibleNote")}
           </p>
           <p className="flex flex-wrap items-center gap-2 text-dense text-navy">
-            {candidate.convertible.visa ? (
-              <VisaLabel
-                code={candidate.convertible.visa.code}
-                nameKey={candidate.convertible.visa.nameKey}
-                showCode={candidate.convertible.visa.isStatusCode}
-              />
-            ) : (
-              <span>{candidate.convertible.code}</span>
-            )}
+            <VisaLabel
+              code={candidate.convertible.visa.code}
+              nameKey={candidate.convertible.visa.nameKey}
+              showCode={candidate.convertible.visa.isStatusCode}
+            />
             {candidate.convertible.at ? (
               <span className="text-caption text-n700">{candidate.convertible.at}</span>
             ) : null}

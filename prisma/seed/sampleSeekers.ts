@@ -38,6 +38,8 @@ type SampleSeeker = {
   birthYear: number;
   gender: string;
   major: string;
+  /** Q-24 전공 분야 code (MAJOR_FIELDS) — the only major value employers see. */
+  majorField: string;
   educationLevel: string;
   topikLevel: number;
   kiipStage: number;
@@ -73,6 +75,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1994,
     gender: "MALE",
     major: "Mechanical engineering, Tashkent",
+    majorField: "ENGINEERING",
     educationLevel: "BACHELOR",
     topikLevel: 4,
     kiipStage: 3,
@@ -106,6 +109,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1990,
     gender: "FEMALE",
     major: "Nursing",
+    majorField: "HEALTH_WELFARE",
     educationLevel: "COLLEGE",
     topikLevel: 2,
     kiipStage: 1,
@@ -138,6 +142,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1988,
     gender: "NO_ANSWER",
     major: "Hanoi University of Industry — welding",
+    majorField: "ENGINEERING",
     educationLevel: "HIGH_SCHOOL",
     topikLevel: 3,
     kiipStage: 5,
@@ -171,6 +176,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1997,
     gender: "MALE",
     major: "",
+    majorField: "GENERIC",
     educationLevel: "HIGH_SCHOOL",
     topikLevel: 2,
     kiipStage: 0,
@@ -202,6 +208,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1992,
     gender: "FEMALE",
     major: "Business administration",
+    majorField: "BUSINESS_LAW",
     educationLevel: "BACHELOR",
     topikLevel: 5,
     kiipStage: 4,
@@ -233,6 +240,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1985,
     gender: "MALE",
     major: "Logistics",
+    majorField: "SERVICES",
     educationLevel: "COLLEGE",
     topikLevel: 6,
     kiipStage: 5,
@@ -265,6 +273,7 @@ export const SAMPLE_SEEKERS: readonly SampleSeeker[] = [
     birthYear: 1999,
     gender: "FEMALE",
     major: "Agriculture",
+    majorField: "AGRICULTURE",
     educationLevel: "BACHELOR",
     topikLevel: 3,
     kiipStage: 2,
@@ -295,9 +304,18 @@ export async function seedSampleSeekers(
   for (const s of SAMPLE_SEEKERS) {
     const exists = await prisma.seekerProfile.findUnique({
       where: { referralCode: s.referralCode },
-      select: { id: true },
+      select: { id: true, majorField: true },
     });
-    if (exists) continue;
+    if (exists) {
+      // P2b run 2 (Q-24): rows seeded before majorField existed get the code (sample rows only).
+      if (exists.majorField === null) {
+        await prisma.seekerProfile.update({
+          where: { id: exists.id },
+          data: { majorField: s.majorField },
+        });
+      }
+      continue;
+    }
     await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({ data: { role: "SEEKER", locale: "ko" } });
       await tx.seekerProfile.create({
@@ -318,6 +336,7 @@ export async function seedSampleSeekers(
           birthYear: s.birthYear,
           gender: s.gender,
           educationLevel: s.educationLevel,
+          majorField: s.majorField,
           major: s.major || null,
           graduationDate: monthsAhead(now, -60),
           topikLevel: s.topikLevel,

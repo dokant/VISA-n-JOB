@@ -1,6 +1,7 @@
 import { ArrowRight, BadgeCheck, CircleDashed, FileCheck, FileX } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 
+import { GradeBadge } from "@/components/seeker/grade-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -10,7 +11,8 @@ import { getSidoRegions } from "@/lib/referenceData";
 
 /**
  * 요약 통계 (WO §9.3 "아니면 요약 통계만", R-205, R-218, PC-11): counts per 시·도 × 등급, cells under
- * the minimum sample masked. Shown to signed-in companies that are not verified or have no contract,
+ * the minimum sample masked, and the total hidden while any cell is masked (no subtraction gives a
+ * masked value back — `maskCandidateStats`). Shown to signed-in companies that are not verified or have no contract,
  * with what is still missing. No candidate row or field is shown here.
  */
 export async function CandidateStatsView({
@@ -21,7 +23,6 @@ export async function CandidateStatsView({
   access: CandidateAccess;
 }) {
   const t = await getTranslations("employer.candidates.stats");
-  const tg = await getTranslations("seeker.grade");
   const tr = await getTranslations();
   const format = await getFormatter();
   const sidos = await getSidoRegions();
@@ -76,9 +77,16 @@ export async function CandidateStatsView({
           <h2 id="stats-total" className="text-dense font-semibold text-n700">
             {t("total")}
           </h2>
-          <p className="text-metric text-navy tabular-nums" data-testid="stats-total">
-            {count(stats.total)}
+          <p
+            className="text-metric text-navy tabular-nums"
+            data-testid="stats-total"
+            data-total-mask={stats.totalMask ?? "none"}
+          >
+            {stats.totalMask === "HAS_MASKED_CELL" ? t("withheld") : count(stats.total)}
           </p>
+          {stats.totalMask === "HAS_MASKED_CELL" ? (
+            <p className="text-caption text-n700">{t("withheldNote")}</p>
+          ) : null}
         </div>
         {stats.cells.length === 0 ? (
           <p className="text-dense text-n700">{t("empty")}</p>
@@ -109,7 +117,9 @@ export async function CandidateStatsView({
                     <td className="px-4 py-3 text-navy">
                       {c.sido ? (sidoName.get(c.sido) ?? c.sido) : t("noRegion")}
                     </td>
-                    <td className="px-4 py-3 text-navy">{tg("label", { grade: c.grade })}</td>
+                    <td className="px-4 py-3">
+                      <GradeBadge grade={c.grade} />
+                    </td>
                     <td className="px-4 py-3 text-end text-navy tabular-nums">{count(c.count)}</td>
                   </tr>
                 ))}

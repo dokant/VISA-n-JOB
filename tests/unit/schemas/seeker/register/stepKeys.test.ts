@@ -71,6 +71,12 @@ const WO_7_3 = {
   quick: ["locale", "visaCode", "sido", "phone", "privacyRequired", "blindProfile", "notice"],
 } as const;
 
+/**
+ * Keys added by a recorded decision on top of WO §7.3 (kept apart so the WO list stays verbatim).
+ * Q-24: Step 3a 전공 분야 code — WO §7.5 `majorField` needs a coded value (BR-14).
+ */
+const DECIDED_EXTRA = { step3: ["majorField"] } as const;
+
 /** OTP code field that belongs to the phone question (WO "휴대폰 번호 + OTP 인증"). */
 const OTP_FIELD = "code";
 
@@ -83,7 +89,7 @@ describe("R-106 WO §7.3 key checklist", () => {
     expect(without(keys(step0Schema.shape), OTP_FIELD)).toEqual(sorted(WO_7_3.step0));
     expect(keys(step1Schema.shape)).toEqual(sorted(WO_7_3.step1));
     expect(keys(step2Schema.shape)).toEqual(sorted(WO_7_3.step2));
-    expect(keys(step3Schema.shape)).toEqual(sorted(WO_7_3.step3));
+    expect(keys(step3Schema.shape)).toEqual(sorted([...WO_7_3.step3, ...DECIDED_EXTRA.step3]));
     expect(keys(step4Schema.shape)).toEqual(sorted(WO_7_3.step4));
     expect(keys(experienceSchema.shape)).toEqual(sorted(WO_7_3.experience));
     expect(keys(step5Schema.shape)).toEqual(sorted(WO_7_3.step5));
@@ -94,7 +100,8 @@ describe("R-106 WO §7.3 key checklist", () => {
 
   it("SC-01: Step 3 and 5 are split into two sub screens that together cover the step", () => {
     const s3 = [...keys(step3aSchema.shape), ...keys(step3bSchema.shape)].sort();
-    expect(s3).toEqual(sorted(WO_7_3.step3));
+    expect(s3).toEqual(sorted([...WO_7_3.step3, ...DECIDED_EXTRA.step3]));
+    expect(keys(step3aSchema.shape)).toContain("majorField");
     const s5a = ["jobSearchStatus", "availableFrom", "desiredIndustries", "desiredRegions"];
     const s5 = [...s5a, ...keys(step5bSchema.shape)].sort();
     expect(s5).toEqual(sorted(WO_7_3.step5));
@@ -123,6 +130,8 @@ describe("R-106 WO §7.3 key checklist", () => {
     for (const [screen, fields] of Object.entries(screens)) {
       expect(count(fields), screen).toBeLessThanOrEqual(7);
     }
+    // Q-24: 3a = 최종 학력, 전공 분야, 전공명, 학교명, 졸업(예정)일
+    expect(count(keys(step3aSchema.shape))).toBe(5);
   });
 
   it("BR-13: no residence-card or passport number field in any registration schema", () => {

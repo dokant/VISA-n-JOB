@@ -70,12 +70,12 @@ export function CandidateFiltersForm({
   return (
     <form
       method="get"
-      className="grid gap-5 rounded-md border border-border bg-white p-6 shadow-1"
+      className="grid gap-5.5 rounded-md border border-border bg-white p-6 shadow-1"
       data-testid="candidate-filters"
       aria-label={t("title")}
     >
       <h2 className="text-h3 text-navy">{t("title")}</h2>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5.5 sm:grid-cols-2 lg:grid-cols-4">
         {fields.map((f) => (
           <div key={f.key} className="grid content-start gap-1.75">
             <Label htmlFor={`filter-${f.key}`}>{f.label}</Label>

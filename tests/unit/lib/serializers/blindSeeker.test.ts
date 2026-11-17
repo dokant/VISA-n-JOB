@@ -82,6 +82,7 @@ const FIXTURE: BlindSeekerRow = {
   stayExpiry: month(2028, 1), // 10 months after March 2027
   entryYear: 2019,
   educationLevel: "BACHELOR",
+  majorField: "ENGINEERING",
   graduationDate: month(2016, 6),
   topikLevel: 4,
   kiipStage: 3,
@@ -128,7 +129,15 @@ describe("R-204 blindSeeker serializer", () => {
       { industry: "F", role: "OTHER", months: 12 },
     ]);
     expect(out.groupApplySize).toBe(2);
-    expect(out.majorField).toBeNull();
+    expect(out.majorField).toBe("ENGINEERING");
+    // only a MAJOR_FIELDS code is passed on (Q-24); anything else (free text) becomes null
+    const majorOf = (majorField: string | null) =>
+      serializeBlindSeeker({ ...FIXTURE, majorField }, { now: NOW }).majorField;
+    expect(majorOf("OTHER")).toBe("OTHER");
+    expect(majorOf("UNKNOWN")).toBe("UNKNOWN");
+    expect(majorOf("Mechanical engineering")).toBeNull();
+    expect(majorOf("CNC")).toBeNull();
+    expect(majorOf(null)).toBeNull();
     // free text in lists is dropped (BR-14)
     expect(out.otherLanguages).toEqual(["ru", "en"]);
     expect(out.skills).toEqual(["WELDING", "FORKLIFT"]);
@@ -145,14 +154,16 @@ describe("R-204 blindSeeker serializer", () => {
     expect(experienceSummaryOf(null)).toEqual([]);
   });
 
-  it("stay bands: this month = M0_6, unknown expiry = UNKNOWN, 24+ months = M24_PLUS", () => {
+  it("stay bands (WO §7.3, 3 bands): this month = M0_6, 12+ months = M12_PLUS, unknown = UNKNOWN", () => {
     const at = (stayExpiry: Date | null) =>
       serializeBlindSeeker({ ...FIXTURE, stayExpiry }, { now: NOW }).stayRemainingBand;
     expect(at(month(2027, 3))).toBe("M0_6");
     expect(at(month(2027, 8))).toBe("M0_6");
     expect(at(month(2027, 9))).toBe("M6_12");
-    expect(at(month(2028, 3))).toBe("M12_24");
-    expect(at(month(2029, 3))).toBe("M24_PLUS");
+    expect(at(month(2028, 2))).toBe("M6_12"); // 11 months
+    expect(at(month(2028, 3))).toBe("M12_PLUS"); // 12 months
+    expect(at(month(2029, 3))).toBe("M12_PLUS"); // 24 months: no finer band (WO §7.3)
+    expect(at(month(2040, 1))).toBe("M12_PLUS");
     expect(at(null)).toBe("UNKNOWN");
   });
 
@@ -201,6 +212,17 @@ describe("R-204 blindSeeker serializer", () => {
           expect(json).not.toContain(secret);
         }
       }
+    }
+    // Q-24: the SAMPLE seekers carry a coded 전공 분야, passed on as is; their free-text major is not
+    const sampleRows = await db.seekerProfile.findMany({
+      where: { sourceChannel: SAMPLE_SEEKER_CHANNEL },
+      select: BLIND_SEEKER_SELECT,
+    });
+    const majors = sampleRows.map((r) => serializeBlindSeeker(r).majorField).sort();
+    expect(majors).toEqual(SAMPLE_SEEKERS.map((s) => s.majorField).sort());
+    for (const r of sampleRows) {
+      const json = JSON.stringify(serializeBlindSeeker(r));
+      for (const s of SAMPLE_SEEKERS) if (s.major) expect(json).not.toContain(s.major);
     }
   });
 

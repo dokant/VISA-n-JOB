@@ -35,6 +35,7 @@ import {
   KIIP_STAGES,
   KOREAN_SPEAKING_LEVELS,
   LANGUAGE_CODES,
+  MAJOR_FIELDS,
   MESSENGER_TYPES,
   TOPIK_LEVELS,
   UNKNOWN,
@@ -552,10 +553,29 @@ export function Step3aForm({ values, reference, backHref }: Props<Step3aInput>) 
         )}
       </FormField>
       <FormField
+        id={`${id}-majorField`}
+        label={s.label("majorField")}
+        labelSize="question"
+        labelAddon={icon("blind")}
+        help={s.help("majorField")}
+        error={fieldError(e.majorField?.message)}
+      >
+        {(a11y) => (
+          <NativeSelect {...a11y} {...form.register("majorField")}>
+            <option value="">{tc("common.select.placeholder")}</option>
+            {MAJOR_FIELDS.map((v) => (
+              <option key={v} value={v}>
+                {s.option("majorField", v)}
+              </option>
+            ))}
+          </NativeSelect>
+        )}
+      </FormField>
+      <FormField
         id={`${id}-major`}
         label={s.label("major")}
         labelSize="question"
-        labelAddon={icon("blind")}
+        labelAddon={icon("private")}
         help={s.help("major")}
         error={fieldError(e.major?.message)}
       >
@@ -600,8 +620,8 @@ export function Step3aForm({ values, reference, backHref }: Props<Step3aInput>) 
       </FormField>
       <WizardNav backHref={backHref} pending={pending} state={state}>
         <DisclosureSummary
-          blind={[s.label("educationLevel"), s.text("majorField"), s.label("graduationDate")]}
-          hidden={[s.label("schoolName")]}
+          blind={[s.label("educationLevel"), s.label("majorField"), s.label("graduationDate")]}
+          hidden={[s.label("major"), s.label("schoolName")]}
         />
       </WizardNav>
       <span className="sr-only">

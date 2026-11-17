@@ -170,7 +170,7 @@ describe("R-206 employer API contact leak harness", () => {
     const all = await getCandidates();
     expect(all.status).toBe(200);
     await body(candidatesEntry, all);
-    for (const q of ["?visa=F-4&stay=M12_24&topik=1", "?skill=WELDING&dormitory=YES&shift=YES"]) {
+    for (const q of ["?visa=F-4&stay=M12_PLUS&topik=1", "?skill=WELDING&dormitory=YES&shift=YES"]) {
       await body(candidatesEntry, await getCandidates(q));
     }
     session.actor = statsCompany;

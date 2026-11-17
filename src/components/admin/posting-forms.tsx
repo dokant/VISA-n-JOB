@@ -106,7 +106,7 @@ export function PostingCreateForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-5" data-testid="posting-create-form">
+    <form onSubmit={onSubmit} className="grid gap-5.5" data-testid="posting-create-form">
       <input type="hidden" name="leadId" value={leadId} />
       <Field
         id="posting-title"
@@ -119,7 +119,7 @@ export function PostingCreateForm({
       <Field id="posting-role" label="직무" required>
         <Input id="posting-role" name="role" required maxLength={POSTING_ROLE_MAX} />
       </Field>
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5.5 md:grid-cols-2">
         <Field id="posting-sido" label="시·도" required>
           <NativeSelect
             id="posting-sido"
@@ -168,7 +168,7 @@ export function PostingCreateForm({
           ))}
         </NativeSelect>
       </Field>
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-5.5 md:grid-cols-3">
         <Field id="posting-pay-min" label="월 급여 최저(원, 세전)" required>
           <Input
             id="posting-pay-min"
@@ -203,7 +203,7 @@ export function PostingCreateForm({
           />
         </Field>
       </div>
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5.5 md:grid-cols-2">
         <Field id="posting-dormitory" label="숙소" required>
           <NativeSelect id="posting-dormitory" name="dormitory" required defaultValue="">
             <option value="" disabled>

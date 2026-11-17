@@ -187,7 +187,8 @@ model SeekerProfile {
   visaConfirmedAt       DateTime?
   // 학력
   educationLevel        String?
-  major                 String?
+  majorField            String? // Q-24: MAJOR_FIELDS code (src/lib/seeker/options.ts), shown to employers
+  major                 String? // free text, staff only (BR-14)
   schoolNameEnc         String?
   graduationDate        DateTime?
   // 언어
