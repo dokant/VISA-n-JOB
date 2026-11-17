@@ -10,6 +10,10 @@
  * times, head counts, visa codes, postal codes and business hours are not contacts.
  * Exception (Q-21): a time or a count written right next to a date ("17:00 (2026.12.01~…)",
  * "2026.12.01~2027.01.31 3명") is checked strictly and may be refused — an accepted false positive.
+ * Exception (Q-22): an amount range written without commas ("일당 820000~950000원") is checked
+ * strictly like any other digit run (accepted false positive); the writer uses commas or 만원
+ * ("일당 820,000~950,000원", "일당 82만~95만원"). A mobile / area number with extra digits glued on
+ * ("010-1234-56780") is found too (QA run 7 D-9).
  *
  * Use on employer free-text before saving (reject with `assertNoContacts` or store `maskContacts`).
  */
@@ -408,20 +412,13 @@ function joinKoreanDates(text: string, dates: Array<[number, number]>): string {
   return out + text.slice(cursor);
 }
 
-// O-1: "일당 820000 ~ 950000" was read as 82 + 0000950000 (an international number). Two complete
-// numbers (5+ digits, no leading 0) joined by a range sign are a range, not one number, when
-//   - the sign is ~ 〜 → ⟶ and both numbers end in 0 (won amounts are rounded), or
-//   - an amount cue is next to them (일당·일급·월급·시급·주급·연봉·급여·임금·수당·₩·KRW before,
-//     원·만원·₩·KRW right after, or ₩ inside the separator) — then also for - – —.
-// Both amounts of a range stand alone: neither starts nor ends a phone window, so a number right
-// after a range ("일당 820000~950000 010-1234-5678") is read from its own first digit (run 5 O-2).
-// Real international numbers keep short groups ("+82 10 1234 5678", "0082 10 …") and are not split.
-const RANGE_STRONG = /[~〜→⟶⇒]/u;
-const RANGE_DASH = /[-‐-―−]/u;
-const COMPLETE_NUMBER = /^[1-9]\d{4,}$/;
-const AMOUNT_CUE_BEFORE =
-  /(?:일당|일급|월급|시급|주급|연봉|급여|임금|수당|보수|₩|KRW)[^\d]{0,6}$/iu;
-const AMOUNT_CUE_AFTER = /^\s*(?:만\s*)?(?:원|₩|KRW)/iu;
+// Run 8 (Q-22, human decision): there is NO amount-range exception. Runs 4–7 split two complete
+// numbers joined by a range sign ("일당 820000~950000원") out of the window and checked each alone;
+// that let complete numbers through ("일당 +82 1012345678~950000원", "일당 02 12345670~950000원" —
+// QA run 7 D-8), because the prefix and the subscriber number were then checked apart. A comma-less
+// amount range is therefore checked strictly like any other run (accepted false positive:
+// "일당 820000~950000원" = 82-0000950000); the writer uses commas or 만원 instead
+// ("일당 820,000~950,000원", "일당 82만~95만원"), which never join digit groups.
 
 type Group = {
   start: number;
@@ -430,25 +427,6 @@ type Group = {
   /** inside a date token */
   date: boolean;
 };
-
-function isAmountRange(
-  left: Group,
-  right: Group,
-  run: string,
-  offset: number,
-  text: string,
-): boolean {
-  if (left.date || right.date) return false;
-  if (!COMPLETE_NUMBER.test(left.digits) || !COMPLETE_NUMBER.test(right.digits)) return false;
-  const sep = run.slice(left.end, right.start);
-  const strong = RANGE_STRONG.test(sep);
-  if (!strong && !RANGE_DASH.test(sep)) return false;
-  const before = text.slice(Math.max(0, offset + left.start - 12), offset + left.start);
-  const after = text.slice(offset + right.end, offset + right.end + 6);
-  const cue = AMOUNT_CUE_BEFORE.test(before) || AMOUNT_CUE_AFTER.test(after) || sep.includes("₩");
-  if (cue) return true;
-  return strong && left.digits.endsWith("0") && right.digits.endsWith("0");
-}
 
 // A mobile number with one extra digit glued in front, written in mobile grouping
 // ("2010.1234.5678" = 2 + 010-1234-5678). Year lists ("2019-2020-2021") are not numbers.
@@ -460,14 +438,61 @@ function isPrefixedMobile(groups: Group[]): boolean {
   return /^\d01[016789]$/.test(a) && /^\d{3,4}$/.test(b) && /^\d{4}$/.test(c);
 }
 
+// ── Numbers with extra digits glued on (P2a run 8, QA run 7 D-9) ─────────────────────────────
+// "010-1234-56780", "0101234567890", "010-1234-56789명": a mobile number (01[016789] + 7–8 digits,
+// separators allowed) with more digits glued after it. The strict check classifies a window by its
+// exact digit count, so one extra digit hid the number. A number is now also found when it is
+// CONTAINED in the window:
+//   - a group that STARTS with a contained prefix, followed (inside the window) by at least the
+//     prefix's minimum number of digits, is a number whatever digits follow;
+//   - a mobile prefix 01X glued to the END of a longer group counts when it stands in mobile
+//     grouping ("9010-1234-56789": next group 3–4 digits, then a group starting with 4 digits), or
+//     when the whole mobile number is glued inside that one group ("90101234567890").
+// Contained prefixes: mobile 01[016789] (10 digits), Seoul 02 (9), area 0[3-6][1-5] (10), 070 (11),
+// 050X (11). Not contained: 15xx / 16xx / 18xx (glued amounts such as "15440000" would become
+// numbers). The match runs from the group holding the prefix to the group where the minimum is
+// reached, so the glued extra digits are masked with the number.
+const CONTAINED_PREFIXES: ReadonlyArray<[RegExp, number]> = [
+  [/^01[016789]/, 10],
+  [/^070/, 11],
+  [/^050\d/, 11],
+  [/^02/, 9],
+  [/^0[3-6][1-5]/, 10],
+];
+
+/** Index of the last group of a number contained in the window from group `i`, or -1. */
+function containedNumberEnd(groups: Group[], i: number): number {
+  const g = groups[i];
+  for (const [prefix, min] of CONTAINED_PREFIXES) {
+    if (!prefix.test(g.digits)) continue;
+    let count = 0;
+    for (let j = i; j < groups.length; j++) {
+      count += groups[j].digits.length;
+      if (count >= min) return j;
+    }
+  }
+  // a mobile prefix glued to the end of a longer group; year lists ("2019-2020-2021",
+  // "2016~2017 3000명") are not numbers, so the middle group must not be a year
+  if (/\d01[016789]\d{7}/.test(g.digits)) return i;
+  const middle = groups[i + 1]?.digits ?? "";
+  if (
+    /\d01[016789]$/.test(g.digits) &&
+    /^\d{3,4}$/.test(middle) &&
+    !/^(?:19|20)\d{2}$/.test(middle) &&
+    /^\d{4}/.test(groups[i + 2]?.digits ?? "")
+  ) {
+    return i + 2;
+  }
+  return -1;
+}
+
 /**
- * A run may join neighbouring numbers ("06236 / 02-123-4567"). Amount ranges cut the run into
- * windows first; each window is then either all dates (skipped) or checked strictly.
+ * A run may join neighbouring numbers ("06236 / 02-123-4567"). Q-20: a run of dates alone is
+ * skipped; any other run is checked strictly as one window.
  */
 function findPhonesInRun(
   run: string,
   offset: number,
-  text: string,
   dates: Array<[number, number]>,
   out: ContactMatch[],
 ): void {
@@ -477,57 +502,43 @@ function findPhonesInRun(
     const date = dates.some(([s, e]) => offset + start >= s && offset + end <= e);
     return { start, end, digits: g[0], date };
   });
-  const amount = groups.map(
-    (g, k) =>
-      (k > 0 && isAmountRange(groups[k - 1], g, run, offset, text)) ||
-      (k < groups.length - 1 && isAmountRange(g, groups[k + 1], run, offset, text)),
-  );
-  let from = 0;
-  for (let k = 0; k <= groups.length; k++) {
-    if (k < groups.length && !amount[k]) continue;
-    if (k > from) checkWindow(run, offset, groups.slice(from, k), from === 0, out);
-    if (k < groups.length) checkWindow(run, offset, [groups[k]], k === 0, out);
-    from = k + 1;
-  }
-}
-
-function checkWindow(
-  run: string,
-  offset: number,
-  groups: Group[],
-  first: boolean,
-  out: ContactMatch[],
-): void {
   // Q-20: a window of dates alone (with range / separator signs) is not a phone. Q-21: anything
   // else — including a time or a count with a unit next to the dates — makes the window strict.
+  // Q-22: so does a comma-less amount range.
   if (groups.every((g) => g.date)) return;
-  scanGroups(run, offset, groups, first, out);
+  scanGroups(run, offset, groups, out);
 }
 
-/** Strict check: windows of consecutive groups, left to right, longest first. */
-function scanGroups(
-  run: string,
-  offset: number,
-  groups: Group[],
-  first: boolean,
-  out: ContactMatch[],
-): void {
-  let i = 0;
-  while (i < groups.length) {
-    let next = i + 1;
+/**
+ * Strict check. From EVERY group the longest window of consecutive groups that is a number is
+ * reported, and a number contained in the window (D-9) too. Run 8: windows starting inside an
+ * earlier match are no longer skipped; overlapping matches are merged later (`mergeOverlaps`), so
+ * the mask covers every digit of every reading ("일당 820000~010-1234-5678" = 82-0000010-1234 and
+ * 010-1234-5678 → one mask over both).
+ */
+function scanGroups(run: string, offset: number, groups: Group[], out: ContactMatch[]): void {
+  for (let i = 0; i < groups.length; i++) {
     for (let j = groups.length - 1; j >= i; j--) {
       // keep a leading "+" only for the first group of the run
-      const from = i === 0 && first ? 0 : groups[i].start;
+      const from = i === 0 ? 0 : groups[i].start;
       const value = run.slice(from, groups[j].end);
       const type =
         classifyDigits(value) ?? (isPrefixedMobile(groups.slice(i, j + 1)) ? "PHONE_LOCAL" : null);
       if (type) {
         out.push({ type, value, start: offset + from, end: offset + groups[j].end });
-        next = j + 1;
         break;
       }
     }
-    i = next;
+    const last = containedNumberEnd(groups, i);
+    if (last >= 0) {
+      const from = groups[i].start;
+      out.push({
+        type: "PHONE_LOCAL",
+        value: run.slice(from, groups[last].end),
+        start: offset + from,
+        end: offset + groups[last].end,
+      });
+    }
   }
 }
 
@@ -537,7 +548,7 @@ function findPhones(text: string, out: ContactMatch[]): void {
   const joined = joinKoreanDates(lookalike, dates);
   for (const m of joined.matchAll(DIGIT_RUN)) {
     const found: ContactMatch[] = [];
-    findPhonesInRun(m[0], m.index, joined, dates, found);
+    findPhonesInRun(m[0], m.index, dates, found);
     // report the original characters ("o1o-…"), not the normalised digits
     for (const f of found) out.push({ ...f, value: text.slice(f.start, f.end) });
   }

@@ -159,13 +159,14 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     expect(JSON.stringify(row.rawJson)).not.toMatch(/1234|٢٣٤/);
   });
 
-  it("BR-14 (P2a QA run 3 D-4, O-1): date ranges and amount ranges are kept, only the number is masked", async () => {
+  it("BR-14 (P2a QA run 3 D-4, run 8 Q-22): date ranges and amounts with commas are kept, only the number is masked", async () => {
     const dates =
       "근무 2026.12.01~2027.01.31 / 2026.12.01 ~ 2027.01.31 / 2026-12-01~2027-01-31 / " +
       "2026. 12. 01 ~ 2027. 01. 31 / 2026/12/01→2027/01/31";
     const item = leadItem({
-      title: "단기 2026.12.01~2027.01.31 일당 820000~950000원",
-      memo: `${dates} 일당 820000 ~ 950000 문의 010 2026.12.01 끝`,
+      // run 8 (Q-22): amounts written with commas; a comma-less range is read strictly
+      title: "단기 2026.12.01~2027.01.31 일당 820,000~950,000원",
+      memo: `${dates} 일당 820,000 ~ 950,000 문의 010 2026.12.01 끝 / 일당 820000~950000원`,
     });
     const res = await post([item]);
     expect(res.status).toBe(200);
@@ -173,8 +174,10 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     const row = await prisma.jobLead.findUniqueOrThrow({
       where: { sourceRef: item.sourceRef as string },
     });
-    expect(row.title).toBe("단기 2026.12.01~2027.01.31 일당 820000~950000원");
-    expect(JSON.stringify(row.rawJson)).toContain(`${dates} 일당 820000 ~ 950000 문의 *** 끝`);
+    expect(row.title).toBe("단기 2026.12.01~2027.01.31 일당 820,000~950,000원");
+    expect(JSON.stringify(row.rawJson)).toContain(
+      `${dates} 일당 820,000 ~ 950,000 문의 *** 끝 / 일당 ***원`,
+    );
   });
 
   it("BR-14 (P2a QA run 4 D-5): phone prefixes next to a date and numbers ending in a year are masked", async () => {
@@ -217,13 +220,15 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     const row = await prisma.jobLead.findUniqueOrThrow({
       where: { sourceRef: item.sourceRef as string },
     });
-    expect(row.title).toBe("일당 820000~950000 ***");
+    // run 8 (Q-22): the comma-less range is itself read as a number; one mask covers both
+    expect(row.title).toBe("일당 ***");
     const raw = JSON.stringify(row.rawJson);
     expect(raw).toContain(
       "문의 ***.12.01 / 문의 ***.12 / 문의 ***.12.01 / 문의 ***.12 / 문의 ***일 / ",
     );
     // run 7 (Q-21): a time next to a date period is checked strictly — accepted false positive
-    expect(raw).toContain("근무 17:***.31) 끝");
+    // run 8: every overlapping reading is masked ("01~2027.01.31" = 0120270131 too)
+    expect(raw).toContain("근무 17:***) 끝");
     // no 4 or more phone digits left (the kept date period and the amount range aside)
     const rest = `${row.title} ${raw}`
       .replace("2026.12.01~2027.01.31", "")
@@ -266,6 +271,42 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     for (const tail of ["1234", "5678", "0101234"]) {
       expect(rest).not.toContain(tail);
     }
+  });
+
+  it("BR-14 (P2a QA run 7 D-8, D-9, Q-22): numbers in amount ranges and with glued digits are masked", async () => {
+    const d8 = [
+      "일당 +82 1012345678~950000원",
+      "일당 02 12345670~950000원",
+      "급여 +84 912345678~950000원",
+      "일당 +86 13812345678~950000원",
+      "월급 +82 1012345678-3000000원",
+    ];
+    const d9 = ["문의 010-1234-56780", "0101234567890", "문의 010-1234-56789명"];
+    const item = leadItem({
+      title: "일당 +82 1012345678~950000원",
+      memo: [...d8, ...d9].join(" 다음 "),
+      nested: { note: "문의 010-1234-56789명, 일당 820,000~950,000원" },
+    });
+    const res = await post([item]);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as Body).created).toBe(1);
+    const row = await prisma.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(row.title).toBe("일당 ***~950000원");
+    const raw = JSON.stringify(row.rawJson);
+    expect(raw).toContain(
+      "일당 ***~950000원 다음 일당 ***~950000원 다음 급여 ***~950000원 다음 일당 ***~950000원 다음 월급 ***-3000000원 다음 문의 *** 다음 *** 다음 문의 ***명",
+    );
+    // amounts written with commas are kept
+    expect(raw).toContain("문의 ***명, 일당 820,000~950,000원");
+    // no 4 or more phone digits left (the amounts aside)
+    const stored = row.rawJson as { memo: string; nested: { note: string } };
+    const rest = `${row.title} ${stored.memo} ${stored.nested.note}`.replace(
+      /950000|3000000|820,000|950,000/g,
+      "",
+    );
+    expect(rest).not.toMatch(/\d{4}/);
   });
 
   it("R-115: a DO_NOT_CONTACT lead keeps its grade when collected again", async () => {

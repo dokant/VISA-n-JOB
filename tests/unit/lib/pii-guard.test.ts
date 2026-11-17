@@ -69,7 +69,8 @@ const POSITIVE: Record<string, [string, ContactType][]> = {
     ["82101~2345678", "PHONE_INTL"], // ~ but the numbers do not end in 0
     ["2026.12.01→010→1234→5678", "PHONE_LOCAL"],
     ["2026. 12. 01 ~ 2027. 01. 31 문의 010 1234 5678", "PHONE_LOCAL"],
-    ["일당 820000 ~ 950000, 010-1234-5678", "PHONE_LOCAL"],
+    // run 8 (Q-22): written with commas — a comma-less range is itself refused (accepted false positive)
+    ["일당 820,000 ~ 950,000, 010-1234-5678", "PHONE_LOCAL"],
   ],
   email: [
     ["hong@naver.com", "EMAIL"],
@@ -420,13 +421,12 @@ const NEGATIVE: Record<string, string[]> = {
     "2019-2020-2021 수상",
     "입사 2026.12.01 · 수습 3개월 · 2027.03.01 정규직",
   ],
-  "P2a O-1 amount ranges without commas": [
-    "일당 820000 ~ 950000",
-    "일당 820000~950000원",
-    "일당 820000 ~ 950000원",
+  // run 8 (Q-22): no amount-range exception. "일당 820000 ~ 950000", "일당 820000~950000원",
+  // "일당 820000 ~ 950000원" and "₩820000~₩950000" read as 82-0000950000 and moved to
+  // RUN8_Q22_ACCEPTED_FALSE_POSITIVES; the ranges below are not a number under the strict check.
+  "P2a O-1 amount ranges without commas (not a number when read strictly)": [
     "월급 2500000-3100000원",
     "월급 2500000 ~ 3100000",
-    "₩820000~₩950000",
     "82000 ~ 95000",
     "시급 10030~12000원",
     "연봉 36000000 → 42000000",
@@ -543,13 +543,13 @@ describe("R-012 pii-guard", () => {
 
   it("P2a QA run 3 D-4: date tokens use the same input offsets as the phone they sit next to", () => {
     const text =
-      "２０２６．１２．０１～２０２７．０１．３１ 문의 ０１０ 1234 5678, 일당 820000~950000원";
+      "２０２６．１２．０１～２０２７．０１．３１ 문의 ０１０ 1234 5678, 일당 820,000~950,000원";
     const found = detectContacts(text);
     expect(found).toHaveLength(1);
     expect(found[0]).toMatchObject({ type: "PHONE_LOCAL", value: "０１０ 1234 5678" });
     expect(text.slice(found[0].start, found[0].end)).toBe("０１０ 1234 5678");
     expect(maskContacts(text)).toBe(
-      "２０２６．１２．０１～２０２７．０１．３１ 문의 ***, 일당 820000~950000원",
+      "２０２６．１２．０１～２０２７．０１．３１ 문의 ***, 일당 820,000~950,000원",
     );
     // a date glued to a number is masked with it
     expect(maskContacts("앞 010 2026.12.01 뒤 2026.12.01~2027.01.31")).toBe(
@@ -625,6 +625,13 @@ const QA4_AMOUNT_RANGES = [
   "시급 10030 ~ 12000원",
   "일당 820000→950000원",
 ];
+// run 8 (Q-22): the four that read as 82-0000950000 under the strict check
+const QA4_AMOUNT_RANGES_Q22_REFUSED = [
+  "일당 820000 ~ 950000",
+  "일당 820000~950000원",
+  "일당 820000〜950000원",
+  "일당 820000→950000원",
+];
 const QA4_ORDINARY = [
   "2026-12-01 입사, 2026.12.15 교육",
   "월 2,500,000원~3,100,000원",
@@ -668,9 +675,11 @@ const QA4_DESIGNATED_BYPASSES: [string, ContactType][] = [
   ["82101-2345678", "PHONE_INTL"],
   ["일당 82 10-1234-5678", "PHONE_INTL"],
   ["2026.12.01 010-1234-5678", "PHONE_LOCAL"],
-  // run 6 (QA run 5 O-2): the amounts of a range stand alone, so the number is read from its own
-  // first digit (010-1234-5678, PHONE_LOCAL) instead of "950000 010-1234" (PHONE_INTL, run 5)
-  ["일당 820000~950000 010-1234-5678", "PHONE_LOCAL"],
+  // run 8 (Q-22): no amount-range exception — "820000~950000" (82-0000950000) and
+  // "950000 010-1234" (95-0000101234) are also read as numbers and overlap the phone, so the one
+  // merged span starts at the range and keeps its type (PHONE_INTL). Still one span, still refused;
+  // run 6 read it from the phone's own first digit (PHONE_LOCAL) only because of the exception.
+  ["일당 820000~950000 010-1234-5678", "PHONE_INTL"],
   ["근무 2026.12.01~2027.01.31 문의 01012345678", "PHONE_LOCAL"],
 ];
 const QA4_D5 = [
@@ -739,9 +748,14 @@ describe("P2a run 5: QA run 4 lists (D-5 and kept results)", () => {
     expectNegative([...QA4_DATE_PERIODS, ...QA4_DATE_FIELDS]);
   });
 
-  it("QA run 4 item 3: comma-less amount ranges stay negative (7)", () => {
+  it("QA run 4 item 3 (run 8, Q-22): comma-less amount ranges are read strictly (4 refused, 3 not)", () => {
     expect(QA4_AMOUNT_RANGES).toHaveLength(7);
-    expectNegative(QA4_AMOUNT_RANGES);
+    // moved to RUN8_Q22_ACCEPTED_FALSE_POSITIVES (accepted false positives, refused)
+    expect(QA4_AMOUNT_RANGES.filter((t) => detectContacts(t).length > 0)).toEqual(
+      QA4_AMOUNT_RANGES_Q22_REFUSED,
+    );
+    // not a number under the strict check (14 / 16 / 10 digits, no phone prefix): still negative
+    expectNegative(QA4_AMOUNT_RANGES.filter((t) => !QA4_AMOUNT_RANGES_Q22_REFUSED.includes(t)));
   });
 
   it("QA run 4 item 7: ordinary phrases stay negative (31)", () => {
@@ -778,8 +792,8 @@ describe("P2a run 5: QA run 4 lists (D-5 and kept results)", () => {
   });
 
   it("QA run 4 O-1 limits: results recorded (run 6 rule)", () => {
-    // amount cue + "~" between two complete numbers: an amount range, not a number
-    expect(detectContacts("일당 84912 ~ 345678")).toEqual([]);
+    // run 8 (Q-22): no amount-range exception — "84912 ~ 345678" = +84 912 345 678 is a number
+    expect(detectContacts("일당 84912 ~ 345678").map((f) => f.type)).toEqual(["PHONE_INTL"]);
     // run 6: month 13 is not a date, so the window is not dates only and is read strictly:
     // "01~2027.01.31" = 0120270131 (a 10-digit number starting with 0)
     expect(detectContacts("2026.13.01~2027.01.31").map((f) => f.value)).toEqual(["01~2027.01.31"]);
@@ -941,11 +955,16 @@ describe("P2a run 6 (Q-20): dates are skipped only when the whole window is date
     }
   });
 
-  it("QA run 5 O-2: a number right after an amount range is masked whole, the range is kept", () => {
-    expect(maskContacts("일당 820000~950000 010-1234-5678")).toBe("일당 820000~950000 ***");
-    expect(maskContacts("일당 820000~950000원 010-1234-5678")).toBe("일당 820000~950000원 ***");
+  it("QA run 5 O-2 (run 8, Q-22): a number after an amount range is masked whole", () => {
+    // the comma-less range is itself read as a number (Q-22), and every reading is masked —
+    // overlapping readings are merged into one mask
+    expect(maskContacts("일당 820000~950000 010-1234-5678")).toBe("일당 ***");
+    expect(maskContacts("일당 820000~950000원 010-1234-5678")).toBe("일당 ***원 ***");
+    expect(maskContacts("일당 820000 ~ 950000 02-123-4567 끝")).toBe("일당 *** 끝");
+    // a range that is not a number stays, the phone after it is masked from its own first digit
     expect(maskContacts("월급 2500000~3100000 010-1234-5678")).toBe("월급 2500000~3100000 ***");
-    expect(maskContacts("일당 820000 ~ 950000 02-123-4567 끝")).toBe("일당 820000 ~ 950000 *** 끝");
+    // written with commas: the range stays
+    expect(maskContacts("일당 820,000~950,000 010-1234-5678")).toBe("일당 820,000~950,000 ***");
   });
 });
 
@@ -1020,6 +1039,140 @@ describe("P2a run 7 (Q-21): times, units and list markers next to dates are chec
       "근무 2026.12.01~2027.01.31",
       "2026년 12월 01일~2027년 01월 31일",
       "12/1~1/31 단기",
+    ]) {
+      expect(detectContacts(text), text).toEqual([]);
+    }
+  });
+});
+
+// ── P2a run 8 (Q-22): no amount-range exception; numbers with extra digits glued on (D-9) ───────
+// QA run 7 D-8: the amount-range exception (runs 4–7) checked the two numbers of a range apart from
+// the rest of the run, so a prefix ("+82", "02") and the subscriber number were never read together.
+// Eleven forms, as listed in .workflow/qa/phase-P2a-run-7.md item 11.
+const QA7_D8 = [
+  "일당 +82 1012345678~950000원",
+  "일당 82 1012345678~950000원",
+  "문의 +82 1012345670~200000",
+  "일당 02 12345670~950000원",
+  "일당 +82 212345678~950000원",
+  "급여 +84 912345678~950000원",
+  "일당 0082 1012345678~950000원",
+  "일당 +86 13812345678~950000원",
+  "월급 +82 1012345678-3000000원",
+  "일당 +82 1012345678→950000원",
+  "일당 +998 901234567~950000원",
+];
+// QA run 7 D-9 (and the run 8 instruction): a mobile number with more digits glued after it
+const QA7_D9 = [
+  "문의 010-1234-56780",
+  "일당 010-1234-56780~950000원",
+  "010-1234-56780",
+  "0101234567890",
+  "문의 010-1234-56789명",
+];
+// run 8: the same containment for digits glued in front, and for area / 070 / 050X numbers
+const RUN8_CONTAINED = [
+  "문의 9010-1234-56789",
+  "문의 90101234567890",
+  "문의 010 1234 56780",
+  "문의 010.1234.56780 연락",
+  "문의 0101234 56780",
+  "문의 02-1234-567890",
+  "문의 031-1234-567890",
+  "문의 070-1234-567890",
+  "문의 0505-123-456789",
+];
+// Q-22 accepted false positives: comma-less amount ranges whose digits read as a number
+// (82-0000950000). Moved from QA run 4 item 3 (QA4_AMOUNT_RANGES, 4 of 7) and from the R-012
+// category "P2a O-1 amount ranges without commas" (2 more): the writer uses commas or 만원.
+const RUN8_Q22_ACCEPTED_FALSE_POSITIVES = [
+  ...QA4_AMOUNT_RANGES_Q22_REFUSED,
+  "일당 820000 ~ 950000원",
+  "₩820000~₩950000",
+];
+// Q-22: the same amounts rewritten with commas or 만원 are not numbers
+const RUN8_REWRITTEN = [
+  "일당 820,000~950,000원",
+  "일당 82만~95만원",
+  "월 250만원~300만원",
+  "시급 10,030원",
+  "일당 820,000 ~ 950,000",
+  "일당 820,000〜950,000원",
+  "일당 820,000→950,000원",
+  "월급 2,500,000~3,100,000원",
+  "연봉 3,000만~3,600만원",
+  "시급 10,030원~12,000원",
+  "일당 82만원 → 95만원",
+  "연봉 30,000,000~36,000,000",
+];
+
+describe("P2a run 8 (Q-22): comma-less amount ranges are read strictly; glued digits do not hide a number", () => {
+  // phone digits left after masking: years (19xx / 20xx) and the range's other amount are not
+  const phoneDigitsLeft = (text: string) =>
+    (
+      maskContacts(text)
+        .replace(/(?:19|20)\d\d/g, "")
+        .match(/\d{4,}/g) ?? []
+    ).filter((d) => !/^(?:950000|200000|3000000)$/.test(d));
+
+  const expectPhone = (texts: string[]) => {
+    for (const text of texts) {
+      const found = detectContacts(text);
+      expect(found.length, text).toBeGreaterThan(0);
+      expect(found[0].type, text).toMatch(/^PHONE_/);
+      expect(maskContacts(text), text).toContain("***");
+      expect(phoneDigitsLeft(text), text).toEqual([]);
+    }
+  };
+
+  it("QA run 7 D-8: the 11 forms are detected and no 4+ phone digits are left after masking", () => {
+    expect(QA7_D8).toHaveLength(11);
+    expectPhone(QA7_D8);
+    expect(maskContacts("일당 +82 1012345678~950000원")).toBe("일당 ***~950000원");
+    expect(maskContacts("일당 02 12345670~950000원")).toBe("일당 ***~950000원");
+    expect(maskContacts("월급 +82 1012345678-3000000원")).toBe("월급 ***-3000000원");
+  });
+
+  it("QA run 7 D-9: a mobile number with extra digits glued after it is detected and masked whole", () => {
+    expectPhone(QA7_D9);
+    expect(maskContacts("문의 010-1234-56780")).toBe("문의 ***");
+    expect(maskContacts("문의 010-1234-56789명")).toBe("문의 ***명");
+    expect(maskContacts("일당 010-1234-56780~950000원")).toBe("일당 ***~950000원");
+  });
+
+  it("run 8: digits glued in front, and area / 070 / 050X numbers, are contained too", () => {
+    expectPhone(RUN8_CONTAINED);
+    expect(maskContacts("문의 9010-1234-56789 끝")).toBe("문의 *** 끝");
+  });
+
+  it("run 8: a mask covers every overlapping reading (no phone digits left between them)", () => {
+    expect(maskContacts("일당 820000~010-1234-5678")).toBe("일당 ***");
+    expect(phoneDigitsLeft("일당 820000~010-1234-5678")).toEqual([]);
+  });
+
+  it("Q-22 accepted false positives: comma-less amount ranges that read as a number are refused", () => {
+    for (const text of RUN8_Q22_ACCEPTED_FALSE_POSITIVES) {
+      expect(detectContacts(text).length, text).toBeGreaterThan(0);
+    }
+  });
+
+  it("Q-22: the rewritten forms (commas, 만원) are not contacts", () => {
+    expect(RUN8_REWRITTEN.length).toBeGreaterThanOrEqual(8);
+    for (const text of RUN8_REWRITTEN) {
+      expect(detectContacts(text), text).toEqual([]);
+      expect(maskContacts(text), text).toBe(text);
+    }
+  });
+
+  it("containment does not touch year lists, postal codes or amounts", () => {
+    for (const text of [
+      "2019-2020-2021 수상",
+      "2010-2011-2012 근무",
+      "우편번호 01011 도봉구",
+      "(06236) 서울 강남구 테헤란로 123",
+      "연봉 30100000~36000000",
+      "연봉 3010000000원",
+      "1588 상담센터",
     ]) {
       expect(detectContacts(text), text).toEqual([]);
     }

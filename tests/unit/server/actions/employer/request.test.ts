@@ -110,7 +110,7 @@ describe("R-125 submitJobRequestAction", () => {
     ).toEqual({ ok: true });
   });
 
-  it("R-125 BR-14 (P2a QA run 3 D-4, O-1): date ranges and comma-less amount ranges are accepted", async () => {
+  it("R-125 BR-14 (P2a QA run 3 D-4, run 8 Q-22): date ranges and amounts with commas are accepted", async () => {
     session.actor = await createEmployer();
     const texts = [
       "근무 2026.12.01~2027.01.31",
@@ -118,8 +118,9 @@ describe("R-125 submitJobRequestAction", () => {
       "2026-12-01~2027-01-31 근무",
       "2026. 12. 01 ~ 2027. 01. 31",
       "2026/12/01→2027/01/31",
-      "일당 820000 ~ 950000",
-      "일당 820000~950000원",
+      // run 8 (Q-22): amounts written with commas or 만원
+      "일당 820,000 ~ 950,000",
+      "일당 82만~95만원",
     ];
     for (const detail of texts) {
       expect(await submitJobRequestAction(await input({ detail })), detail).toEqual({ ok: true });
@@ -167,6 +168,18 @@ describe("R-125 submitJobRequestAction", () => {
       "문의 +82) 10) 2026.12.01",
       "문의 10:02 2026.12.01",
       "문의 9:02 2026년 12월 01일",
+      // QA run 7 D-8 (Q-22: no amount-range exception), 5 of 11
+      "일당 +82 1012345678~950000원",
+      "일당 02 12345670~950000원",
+      "급여 +84 912345678~950000원",
+      "일당 +86 13812345678~950000원",
+      "월급 +82 1012345678-3000000원",
+      // QA run 7 D-9: extra digits glued after a mobile number
+      "문의 010-1234-56780",
+      "0101234567890",
+      "문의 010-1234-56789명",
+      // Q-22 accepted false positive: a comma-less amount range is read strictly
+      "일당 820000~950000원",
     ]) {
       expect(await submitJobRequestAction(await input({ detail })), detail).toEqual({
         ok: false,
