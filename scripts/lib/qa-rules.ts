@@ -78,6 +78,16 @@ export const RULES: Rule[] = [
     pattern: /\b(recommendation|auditLog)\.(update|updateMany|delete|deleteMany|upsert)\s*\(/i,
   },
   {
+    id: "BR-09/ledger-repository",
+    severity: "error",
+    description:
+      "Recommendation rows are added only by the ledger repository src/lib/recommendations/ledger.ts (BR-09, R-209)",
+    roots: ["src"],
+    fileFilter: CODE,
+    allow: [/^src\/lib\/recommendations\/ledger\.ts$/],
+    pattern: /\brecommendation\.(create|createMany|createManyAndReturn)\s*\(/i,
+  },
+  {
     id: "BR-09/ledger-raw-sql",
     severity: "error",
     description: "No raw SQL UPDATE / DELETE / TRUNCATE on Recommendation / AuditLog (BR-09)",

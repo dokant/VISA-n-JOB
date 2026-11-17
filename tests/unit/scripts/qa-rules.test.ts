@@ -35,6 +35,23 @@ describe("qa:static rules", () => {
     expect(scanText(r, "src/lib/a.ts", "await prisma.auditLog.create({})")).toHaveLength(0);
   });
 
+  it("R-209 / BR-09 flags every recommendation update / delete / upsert form", () => {
+    const r = rule("BR-09/ledger-mutation");
+    for (const op of ["update", "updateMany", "delete", "deleteMany", "upsert"]) {
+      expect(scanText(r, "src/lib/a.ts", `await tx.recommendation.${op}({})`), op).toHaveLength(1);
+    }
+    expect(scanText(r, "src/lib/a.ts", "await db.recommendation.findMany({})")).toHaveLength(0);
+  });
+
+  it("R-209 / BR-09 recommendation rows are created only in the ledger repository", () => {
+    const r = rule("BR-09/ledger-repository");
+    const create = "await tx.recommendation.create({ data })";
+    expect(scanText(r, "src/lib/recommendations/matching.ts", create)).toHaveLength(1);
+    expect(scanText(r, "src/server/actions/admin/x.ts", create)).toHaveLength(1);
+    expect(scanText(r, "src/lib/a.ts", "db.recommendation.createMany({})")).toHaveLength(1);
+    expect(scanText(r, "src/lib/recommendations/ledger.ts", create)).toHaveLength(0);
+  });
+
   it("BR-09 flags raw SQL mutations of the ledgers", () => {
     const r = rule("BR-09/ledger-raw-sql");
     expect(scanText(r, "src/lib/a.ts", 'sql`UPDATE "Recommendation" SET note = 1`')).toHaveLength(

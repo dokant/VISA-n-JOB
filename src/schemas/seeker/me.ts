@@ -16,3 +16,10 @@ export const staySettingsSchema = z.object({
   stayAlertOptIn: z.boolean(),
 });
 export type StaySettingsInput = z.input<typeof staySettingsSchema>;
+
+/** /seeker/me per-interview consent answer (R-211, PC-1). */
+export const interviewConsentAnswerSchema = z.object({
+  interviewId: z.string().min(1).max(64),
+  action: z.enum(["agree", "decline", "revoke"]),
+});
+export type InterviewConsentAnswerInput = z.input<typeof interviewConsentAnswerSchema>;

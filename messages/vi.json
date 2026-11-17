@@ -105,6 +105,10 @@
     "employerContract": {
       "title": "Hợp đồng dịch vụ tuyển dụng",
       "description": "Dành cho doanh nghiệp: đồng ý điều khoản dịch vụ tuyển dụng."
+    },
+    "employerRequests": {
+      "title": "Tình trạng yêu cầu phỏng vấn",
+      "description": "Xem các yêu cầu phỏng vấn đã gửi và lịch phỏng vấn do VISA n JOB sắp xếp."
     }
   },
   "common": {
@@ -186,6 +190,9 @@
     },
     "profileCompletion": {
       "sms": "Bạn đã đăng ký nhanh với VISA n JOB. Hãy hoàn thiện hồ sơ để nhận gợi ý việc làm phù hợp hơn: {path}"
+    },
+    "interviewConsent": {
+      "sms": "Buổi phỏng vấn của bạn đã được xác nhận. Hãy chọn tại Trang của tôi xem doanh nghiệp có được biết tên bạn không: {path}"
     }
   },
   "nav": {
@@ -1289,7 +1296,8 @@
       "nextTitle": "Việc cần làm tiếp",
       "links": {
         "stay": "Nhắc hạn lưu trú",
-        "referral": "Mã giới thiệu của tôi"
+        "referral": "Mã giới thiệu của tôi",
+        "recommended": "Việc làm được gợi ý"
       },
       "consents": {
         "title": "Các đồng ý của tôi",
@@ -1314,6 +1322,28 @@
         "grant": "Đồng ý lại",
         "requiredNote": "Đây là đồng ý bắt buộc. Để rút lại, vui lòng đăng ký tư vấn.",
         "error": "Không xử lý được. Vui lòng thử lại."
+      },
+      "interviewConsent": {
+        "title": "Cung cấp tên cho doanh nghiệp phỏng vấn",
+        "lead": "Chúng tôi hỏi riêng cho từng buổi phỏng vấn đã xác nhận. Nếu bạn đồng ý, chỉ doanh nghiệp của buổi đó nhận được tên bạn. Không cung cấp thông tin liên lạc.",
+        "documentTitle": "Nội dung văn bản đồng ý",
+        "item": "Phỏng vấn ngày {date}",
+        "where": "{industry} · {region}",
+        "state": {
+          "PENDING": "Đang chờ trả lời",
+          "AGREED": "Đã đồng ý",
+          "DECLINED": "Không đồng ý"
+        },
+        "agree": "Đồng ý",
+        "decline": "Không đồng ý",
+        "revoke": "Rút lại đồng ý",
+        "confirmTitle": "Rút lại đồng ý?",
+        "confirmBody": "Nếu rút lại, tên của bạn sẽ biến mất khỏi màn hình của doanh nghiệp ngay lập tức.",
+        "revokeConfirm": "Rút lại",
+        "cancel": "Hủy",
+        "close": "Đóng",
+        "agreedAt": "Đồng ý ngày {date}",
+        "error": "Không xử lý được. Vui lòng thử lại."
       }
     },
     "stay": {
@@ -1333,7 +1363,27 @@
     "recommended": {
       "eyebrow": "Việc làm đề xuất",
       "title": "Việc làm đề xuất",
-      "description": "Chúng tôi đang chuẩn bị việc làm phù hợp với visa và mong muốn của bạn. Nếu có câu hỏi, hãy đăng ký tư vấn."
+      "description": "Chúng tôi đang chuẩn bị việc làm phù hợp với visa và mong muốn của bạn. Nếu có câu hỏi, hãy đăng ký tư vấn.",
+      "lead": "Việc làm phù hợp với visa, khu vực và ngành mong muốn của bạn, và các lần người phụ trách của VISA n JOB giới thiệu bạn.",
+      "postingsTitle": "Việc làm phù hợp với bạn",
+      "postingsNote": "Tin tuyển dụng ẩn danh phù hợp với visa và khu vực, ngành mong muốn của bạn. Không hiển thị tên công ty, địa chỉ và thông tin liên lạc.",
+      "postingsEmpty": "Hiện chưa có việc làm phù hợp. Chúng tôi sẽ báo khi có việc mới.",
+      "postingsListLabel": "Danh sách việc làm phù hợp với bạn",
+      "profileNeeded": "Hoàn tất đăng ký đầy đủ để xem việc làm phù hợp với visa và mong muốn của bạn.",
+      "mineTitle": "Các lần VISA n JOB giới thiệu bạn",
+      "mineLead": "Ghi nhận người phụ trách của VISA n JOB giới thiệu bạn cho doanh nghiệp. Doanh nghiệp chỉ nhận thông tin ẩn danh, không có tên và thông tin liên lạc.",
+      "mineEmpty": "Bạn chưa được giới thiệu lần nào.",
+      "mineItem": "{industry} · {region}",
+      "recommendedAt": "Ngày giới thiệu {date}",
+      "interviewAt": "Phỏng vấn {date}",
+      "interviewStatus": {
+        "SCHEDULED": "Đang sắp xếp",
+        "CONFIRMED": "Đã xác nhận",
+        "CANCELLED": "Đã hủy"
+      },
+      "viewPosting": "Xem việc làm",
+      "consentHint": "Khi buổi phỏng vấn được xác nhận, bạn có thể chọn tại Trang của tôi xem doanh nghiệp có được biết tên bạn không.",
+      "toMe": "Đến Trang của tôi"
     }
   },
   "employer": {
@@ -1687,6 +1737,45 @@
         "unauthenticated": "Vui lòng đăng nhập lại.",
         "unknown": "Không lưu được. Vui lòng thử lại."
       }
+    },
+    "requests": {
+      "eyebrow": "Dành cho doanh nghiệp",
+      "title": "Tình trạng yêu cầu phỏng vấn",
+      "lead": "Xem các yêu cầu phỏng vấn đã gửi và lịch phỏng vấn của ứng viên do VISA n JOB giới thiệu.",
+      "notice": "Không thể liên lạc trực tiếp với người tìm việc. Người phụ trách của VISA n JOB sẽ thông báo thời gian và địa điểm phỏng vấn.",
+      "nameNotice": "Chỉ với buổi phỏng vấn mà người tìm việc đã đồng ý, chúng tôi hiển thị tên cho buổi đó. Không cung cấp thông tin liên lạc.",
+      "candidate": "Ứng viên {id}",
+      "interestTitle": "Yêu cầu phỏng vấn đã gửi",
+      "interestEmpty": "Bạn chưa gửi yêu cầu phỏng vấn nào.",
+      "requestedAt": "Ngày yêu cầu {date}",
+      "status": {
+        "RECEIVED": "VISA n JOB đang kiểm tra",
+        "RECOMMENDED": "Đã giới thiệu",
+        "OTHER": "Đang xử lý"
+      },
+      "recTitle": "Ứng viên được giới thiệu và phỏng vấn",
+      "recEmpty": "Chưa có ứng viên nào được giới thiệu.",
+      "recommendedAt": "Ngày giới thiệu {date}",
+      "posting": "Tin tuyển dụng",
+      "interviews": {
+        "none": "Người phụ trách của VISA n JOB đang sắp xếp lịch phỏng vấn.",
+        "date": "Thời gian",
+        "place": "Địa điểm",
+        "state": "Trạng thái",
+        "name": "Tên",
+        "status": {
+          "SCHEDULED": "Đang sắp xếp",
+          "CONFIRMED": "Đã xác nhận",
+          "CANCELLED": "Đã hủy"
+        },
+        "nameState": {
+          "NOT_ASKED": "Khi buổi phỏng vấn được xác nhận, người tìm việc sẽ được hỏi có đồng ý cung cấp tên không.",
+          "PENDING": "Đang chờ người tìm việc đồng ý.",
+          "GIVEN": "Người tìm việc đã đồng ý cung cấp tên cho buổi phỏng vấn này.",
+          "NOT_GIVEN": "Người tìm việc không đồng ý cung cấp tên."
+        }
+      },
+      "toCandidates": "Xem ứng viên ẩn danh"
     }
   }
 }

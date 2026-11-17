@@ -15,7 +15,13 @@
  * STANDARD 4.7: app code never calls encrypt/decrypt directly — only the `db.ts` extension and
  * hash generation use this module.
  */
-import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
@@ -117,13 +123,34 @@ export function decrypt(payload: string): string {
   }
 }
 
-/** HMAC-SHA256 (hex) for `…Hash` lookup columns. Callers normalise the input first (e.g. E.164). */
-export function hmacHash(value: string): string {
+function hashKey(): Buffer {
   const source = process.env.HASH_KEY ?? "";
   if (source.trim() === "") throw new CryptoConfigError("HASH_KEY is not set");
   const key = Buffer.from(source, "base64");
   if (key.length < MIN_HASH_KEY_LENGTH) {
     throw new CryptoConfigError(`HASH_KEY must decode to at least ${MIN_HASH_KEY_LENGTH} bytes`);
   }
-  return createHmac("sha256", key).update(value, "utf8").digest("hex");
+  return key;
+}
+
+/** HMAC-SHA256 (hex) for `…Hash` lookup columns. Callers normalise the input first (e.g. E.164). */
+export function hmacHash(value: string): string {
+  return createHmac("sha256", hashKey()).update(value, "utf8").digest("hex");
+}
+
+/**
+ * HMAC-SHA256 signature (base64url) for signed values such as file URLs (R-210). A per-purpose
+ * sub key is derived from `HASH_KEY`, so a signature can never be confused with a lookup hash or a
+ * signature made for another purpose.
+ */
+export function hmacSign(purpose: string, value: string): string {
+  const subKey = createHmac("sha256", hashKey()).update(`sign:${purpose}`, "utf8").digest();
+  return createHmac("sha256", subKey).update(value, "utf8").digest("base64url");
+}
+
+/** Constant-time comparison of two signatures (false when the lengths differ). */
+export function signaturesEqual(a: string, b: string): boolean {
+  const x = Buffer.from(a, "utf8");
+  const y = Buffer.from(b, "utf8");
+  return x.length === y.length && timingSafeEqual(x, y);
 }

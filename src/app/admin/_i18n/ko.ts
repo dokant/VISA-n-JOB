@@ -14,7 +14,12 @@ import type {
   StaffTaskType,
 } from "@prisma/client";
 
-import { LEAD_ARCHIVE_NO_CONTACT_DAYS, SEEKER_S_ACTIVE_CONFIRM_DAYS } from "@/config/limits";
+import {
+  INTRO_CONFIRM_MAX_BYTES,
+  LEAD_ARCHIVE_NO_CONTACT_DAYS,
+  SEEKER_S_ACTIVE_CONFIRM_DAYS,
+  SIGNED_URL_TTL_SEC,
+} from "@/config/limits";
 import type { GradeRequirement } from "@/lib/admin/seekerReview";
 import type { CallOutcome } from "@/schemas/admin/leads";
 
@@ -33,6 +38,9 @@ export const NAV = [
   { href: "/admin/leads", label: "리드 칸반" },
   { href: "/admin/postings", label: "블라인드 공고" },
   { href: "/admin/companies", label: "기업 검증" },
+  { href: "/admin/matching", label: "매칭" },
+  { href: "/admin/placements", label: "계약" },
+  { href: "/admin/visa-cases", label: "체류 사건" },
 ] as const;
 
 export const SEEKER_GRADE_LABEL: Record<SeekerGrade, string> = {
@@ -167,7 +175,77 @@ const ERROR_TEXT: Record<string, string> = {
   NOT_VERIFIED: "직원 검증(검증자·검증 시각)이 끝나지 않은 공고는 공개할 수 없습니다.",
   // P2b 기업 검증·계약 등록 (R-218)
   SAME_STATE: "이미 그 상태입니다. 새로고침해 주세요.",
+  // P2c 매칭·면접·계약·체류 사건 (R-209 ~ R-211, R-216)
+  POSTING_NOT_FOUND: "공개·검증된 블라인드 공고만 매칭할 수 있습니다. 새로고침해 주세요.",
+  NOT_ELIGIBLE:
+    "지금은 추천할 수 없는 구직자입니다(구직자 등급 S·A, 취업 매칭, 활성, 블라인드 프로필 동의, 공고의 채용 가능 비자 조건).",
+  INTEREST_NOT_FOUND: "면접 신청·요청을 찾을 수 없습니다. 새로고침해 주세요.",
+  PLACE_HAS_CONTACT:
+    "면접 장소·통역에 전화번호·이메일·메신저 같은 연락처를 적지 마세요(장소는 기업에 보입니다).",
+  INTERVIEW_STATE: "지금 면접 상태에서는 할 수 없는 작업입니다. 새로고침해 주세요.",
+  FILE_EMPTY: "파일을 골라 주세요.",
+  FILE_TOO_LARGE: `파일이 너무 큽니다. ${Math.floor(INTRO_CONFIRM_MAX_BYTES / (1024 * 1024))}MB 이하로 올려 주세요.`,
+  FILE_TYPE: "PDF, JPG, PNG 파일만 올릴 수 있습니다.",
+  PLACEMENT_EXISTS: "이 추천에는 이미 계약이 등록되어 있습니다.",
+  COMPANY_NOT_FOUND: "기업을 찾을 수 없습니다. 기업 ID를 확인해 주세요.",
 };
+
+/** P2c 면접 상태 (src/lib/recommendations/interviews.ts). */
+export const INTERVIEW_STATUS_LABEL: Record<string, string> = {
+  SCHEDULED: "일정 잡힘(확정 전)",
+  CONFIRMED: "면접 확정",
+  CANCELLED: "취소",
+};
+
+export const INTERVIEW_RESULT_LABEL: Record<string, string> = {
+  PENDING: "결과 대기",
+  HIRED: "채용",
+  REJECTED: "불합격",
+  NO_SHOW: "노쇼",
+};
+
+/** R-211 면접 건별 이름 제공 동의 상태 (직원 화면). */
+export const INTERVIEW_CONSENT_LABEL = {
+  NOT_ASKED: "확정 전 — 아직 묻지 않음",
+  PENDING: "구직자 응답 대기",
+  AGREED: "동의 — 이 면접의 기업에 실명만 표시",
+  DECLINED: "동의하지 않음",
+} as const;
+
+export const INTEREST_STATUS_LABEL: Record<string, string> = {
+  RECEIVED: "접수(추천 전)",
+  RECOMMENDED: "추천 완료",
+};
+
+export const INTEREST_INITIATOR_LABEL: Record<string, string> = {
+  SEEKER: "구직자 면접 신청",
+  EMPLOYER: "기업 면접 요청",
+};
+
+export const FEE_STATUS_LABEL: Record<string, string> = {
+  UNBILLED: "청구 전",
+  BILLED: "청구함",
+  PAID: "입금 완료",
+  WAIVED: "면제",
+};
+
+export const VISA_CASE_TYPE_LABEL: Record<string, string> = {
+  CHANGE: "체류자격 변경",
+  EXTEND: "체류기간 연장",
+  REPORT: "신고",
+  OTHER: "기타",
+};
+
+export const VISA_CASE_STATUS_LABEL: Record<string, string> = {
+  OPEN: "접수",
+  IN_PROGRESS: "준비 중",
+  FILED: "신청함",
+  DECIDED: "결과 나옴",
+  CLOSED: "종결",
+};
+
+/** R-210 서명 URL 안내 (값은 limits.ts). */
+export const SIGNED_URL_NOTE = `파일은 ${Math.round(SIGNED_URL_TTL_SEC / 60)}분 동안만 열리는 서명 링크로 엽니다. 열 때마다 감사 로그가 남습니다.`;
 
 export function adminActionError(code: string): string {
   return ERROR_TEXT[code] ?? "문제가 생겼습니다. 다시 시도해 주세요.";

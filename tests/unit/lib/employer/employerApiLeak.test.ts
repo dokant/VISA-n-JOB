@@ -9,6 +9,12 @@
  *    response body is scanned with pii-guard: zero PHONE_* / EMAIL matches, none of the fixture's
  *    personal values. The calls are counted per entry, so a registered entry that is never called
  *    fails too.
+ * 3. P2c (R-211 v1.1, PC-1): the ONE exception is the real name of a seeker who consented for a
+ *    confirmed interview of the asking company, at the registered JSON path
+ *    (`EMPLOYER_NAME_DISCLOSURE`). The harness takes those values out before the personal-value scan
+ *    and checks each one: it must be the consented seeker's name for an interview id the test
+ *    consented to; everywhere else the path must hold null. Phone / e-mail patterns are scanned in
+ *    the full body (name included) with no exception.
  * The employer session is mocked (`requireEmployer` / `currentEmployer`); the rest is real.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -18,7 +24,12 @@ import { NextRequest } from "next/server";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { EmployerActor } from "@/lib/employer/session";
-import { EMPLOYER_ROUTE_HANDLERS, EMPLOYER_SERVER_ACTIONS } from "@/lib/employer/apiRegistry";
+import { agreeInterviewConsent } from "@/lib/consent/thirdParty";
+import {
+  EMPLOYER_NAME_DISCLOSURE,
+  EMPLOYER_ROUTE_HANDLERS,
+  EMPLOYER_SERVER_ACTIONS,
+} from "@/lib/employer/apiRegistry";
 import { detectContacts } from "@/lib/pii-guard";
 import { AuthzError } from "@/lib/rbac";
 import { toBlindPublicId } from "@/lib/serializers/blindSeeker";
@@ -34,6 +45,7 @@ import {
   company,
   tag,
 } from "../candidates/candidateFixtures";
+import { matchSeeker, matchSetup, recommendedInterview } from "../recommendations/matchingFixtures";
 import { seededRefs } from "./employerFixtures";
 
 const session = vi.hoisted(() => ({ actor: null as EmployerActor | null }));
@@ -51,6 +63,7 @@ vi.mock("@/auth", () => ({ signIn: vi.fn(), auth: vi.fn(async () => null) }));
 vi.mock("next-auth", () => ({ AuthError: class AuthError extends Error {} }));
 
 const route = await import("@/app/api/employer/candidates/route");
+const requestsRoute = await import("@/app/api/employer/requests/route");
 const actions: Record<string, Record<string, unknown>> = {
   "src/server/actions/employer/account.ts": await import("@/server/actions/employer/account"),
   "src/server/actions/employer/diagnosis.ts": await import("@/server/actions/employer/diagnosis"),
@@ -92,13 +105,68 @@ const PERSONAL = [LEAK_NAME, LEAK_EMAIL, LEAK_MESSENGER, LEAK_MAJOR, LEAK_EMPLOY
 
 const called = new Map<string, number>();
 const scanned: string[] = [];
+/** Full bodies of the name-disclosure entries: scanned for phone / e-mail with no exception. */
+const contactOnly: string[] = [];
+/** Interview ids the test consented to (THIRD_PARTY_INTERVIEW) and the names found at the path. */
+const consentedInterviews = new Set<string>();
+const disclosed: { entry: string; interviewId: string | null; value: unknown }[] = [];
+
+type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
+
+/**
+ * Takes the values at `path` ("a[].b[].c.d") out of `node` (sets them to null) and reports each one
+ * with the id of the nearest object that has `interviewId`.
+ */
+function takeOut(
+  node: Json,
+  parts: string[],
+  found: { interviewId: string | null; value: unknown }[],
+  interviewId: string | null = null,
+): void {
+  if (node === null || typeof node !== "object" || parts.length === 0) return;
+  const [head, ...rest] = parts;
+  const many = head.endsWith("[]");
+  const key = many ? head.slice(0, -2) : head;
+  if (Array.isArray(node)) return;
+  const here = typeof node.interviewId === "string" ? node.interviewId : interviewId;
+  const child = node[key];
+  if (rest.length === 0 && !many) {
+    if (key in node) {
+      found.push({ interviewId: here, value: child });
+      node[key] = null;
+    }
+    return;
+  }
+  for (const item of many && Array.isArray(child) ? child : [child]) {
+    if (item !== null && typeof item === "object" && !Array.isArray(item)) {
+      const id = typeof item.interviewId === "string" ? item.interviewId : here;
+      takeOut(item, rest, found, id);
+    }
+  }
+}
 
 /** Records one call of `entry` and returns its body as text for scanning. */
 async function body(entry: string, response: unknown): Promise<string> {
   called.set(entry, (called.get(entry) ?? 0) + 1);
   const text =
     response instanceof Response ? await response.clone().text() : JSON.stringify(response ?? null);
-  scanned.push(text);
+  const rule = EMPLOYER_NAME_DISCLOSURE.find((r) => r.entry === entry);
+  if (!rule) {
+    scanned.push(text);
+    return text;
+  }
+  contactOnly.push(text);
+  let parsed: Json;
+  try {
+    parsed = JSON.parse(text) as Json;
+  } catch {
+    scanned.push(text);
+    return text;
+  }
+  const found: { interviewId: string | null; value: unknown }[] = [];
+  takeOut(parsed, rule.path.split("."), found);
+  for (const f of found) disclosed.push({ entry, ...f });
+  scanned.push(JSON.stringify(parsed));
   return text;
 }
 
@@ -297,6 +365,68 @@ describe("R-206 employer API contact leak harness", () => {
       `${accountFile}#signInEmployer`,
       await signInEmployer({ email: "not an email", password: "", locale: "ko" }),
     );
+
+    // ── 면접 요청 현황 (R-212) + 건별 동의 실명 (R-211) ──
+    const requestsEntry = "src/app/api/employer/requests/route.ts";
+    const setup = await matchSetup("LK");
+    const consented = await matchSeeker(setup);
+    const notConsented = await matchSeeker(setup);
+    for (const s of [consented, notConsented]) {
+      phones.push((await db.user.findUniqueOrThrow({ where: { id: s.userId } })).phoneEnc ?? "");
+    }
+    const yes = await recommendedInterview(setup, consented.id, "CONFIRMED");
+    await recommendedInterview(setup, notConsented.id, "CONFIRMED");
+    await recommendedInterview(setup, consented.id, "SCHEDULED");
+    await db.interestRequest.create({
+      data: {
+        initiator: "EMPLOYER",
+        seekerId: notConsented.id,
+        companyId: setup.employer.companyId,
+      },
+    });
+    const requestsActor = { id: setup.employer.id, companyId: setup.employer.companyId };
+    session.actor = requestsActor;
+    const before = await requestsRoute.GET();
+    expect(await body(requestsEntry, before)).not.toContain(LEAK_NAME);
+    expect(
+      await agreeInterviewConsent({
+        userId: consented.userId,
+        interviewId: yes.interview.id,
+        locale: "ko",
+        ip: null,
+      }),
+    ).toEqual({ ok: true, changed: true });
+    consentedInterviews.add(yes.interview.id);
+    const after = await requestsRoute.GET();
+    expect(after.status).toBe(200);
+    expect(await body(requestsEntry, after)).toContain(LEAK_NAME);
+    // other companies (the list company, an unrelated one) get nothing
+    session.actor = listCompany;
+    await body(requestsEntry, await requestsRoute.GET());
+    session.actor = statsCompany;
+    await body(requestsEntry, await requestsRoute.GET());
+    session.actor = null;
+    expect((await requestsRoute.GET()).status).toBe(401);
+    await body(requestsEntry, await requestsRoute.GET());
+
+    // the disclosure exception: only the consented seeker's name, only for the consented interview
+    const names = disclosed.filter((d) => d.value !== null);
+    expect(names.length).toBeGreaterThan(0);
+    for (const d of names) {
+      expect(d.value, JSON.stringify(d)).toBe(LEAK_NAME);
+      expect(consentedInterviews.has(d.interviewId ?? ""), JSON.stringify(d)).toBe(true);
+      expect(EMPLOYER_NAME_DISCLOSURE.map((r) => r.entry)).toContain(d.entry);
+    }
+    // contacts: no exception, whole body
+    for (const text of contactOnly) {
+      expect(
+        detectContacts(text).filter((m) => CONTACT_TYPES.has(m.type)),
+        text,
+      ).toEqual([]);
+      for (const secret of [LEAK_EMAIL, LEAK_MESSENGER, LEAK_MAJOR, LEAK_EMPLOYER, ...phones]) {
+        expect(text).not.toContain(secret);
+      }
+    }
 
     // every registered entry was called
     const expected = [

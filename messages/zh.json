@@ -105,6 +105,10 @@
     "employerContract": {
       "title": "招聘服务合同",
       "description": "企业专用：同意招聘服务使用条款。"
+    },
+    "employerRequests": {
+      "title": "面试请求进度",
+      "description": "查看已发送的面试请求和 VISA n JOB 安排的面试日程。"
     }
   },
   "common": {
@@ -186,6 +190,9 @@
     },
     "profileCompletion": {
       "sms": "您已在 VISA n JOB 完成快速登记。完善个人资料可获得更合适的工作推荐：{path}"
+    },
+    "interviewConsent": {
+      "sms": "您的面试已确定。请在“我的页面”选择是否允许告知企业您的姓名：{path}"
     }
   },
   "nav": {
@@ -1289,7 +1296,8 @@
       "nextTitle": "下一步",
       "links": {
         "stay": "滞留到期提醒",
-        "referral": "我的推荐码"
+        "referral": "我的推荐码",
+        "recommended": "推荐工作"
       },
       "consents": {
         "title": "同意事项",
@@ -1314,6 +1322,28 @@
         "grant": "重新同意",
         "requiredNote": "这是必选同意。如需撤回，请申请咨询。",
         "error": "处理失败，请重试。"
+      },
+      "interviewConsent": {
+        "title": "向面试企业提供姓名",
+        "lead": "每次确定的面试都会单独征求同意。您同意后，只有该次面试的企业会得到您的姓名。不提供联系方式。",
+        "documentTitle": "同意书内容",
+        "item": "{date} 面试",
+        "where": "{industry} · {region}",
+        "state": {
+          "PENDING": "等待回复",
+          "AGREED": "已同意",
+          "DECLINED": "未同意"
+        },
+        "agree": "同意",
+        "decline": "不同意",
+        "revoke": "撤回同意",
+        "confirmTitle": "要撤回同意吗？",
+        "confirmBody": "撤回后，您的姓名会立即从企业页面上消失。",
+        "revokeConfirm": "撤回",
+        "cancel": "取消",
+        "close": "关闭",
+        "agreedAt": "{date} 同意",
+        "error": "处理失败，请重试。"
       }
     },
     "stay": {
@@ -1333,7 +1363,27 @@
     "recommended": {
       "eyebrow": "推荐工作",
       "title": "推荐工作",
-      "description": "我们正在准备符合您签证和意向的推荐工作。如有疑问，请申请咨询。"
+      "description": "我们正在准备符合您签证和意向的推荐工作。如有疑问，请申请咨询。",
+      "lead": "显示符合您的签证和期望地区、行业的工作，以及 VISA n JOB 负责人推荐您的记录。",
+      "postingsTitle": "适合您的工作",
+      "postingsNote": "您的签证可以申请、并符合期望地区和行业的匿名职位。不公开公司名称、地址和联系方式。",
+      "postingsEmpty": "目前没有符合条件的工作。有新工作时会通知您。",
+      "postingsListLabel": "适合您的工作列表",
+      "profileNeeded": "完成正式登记后，即可查看符合您签证和期望条件的工作。",
+      "mineTitle": "VISA n JOB 推荐您的记录",
+      "mineLead": "VISA n JOB 负责人向企业推荐您的记录。企业只会收到不含姓名和联系方式的匿名信息。",
+      "mineEmpty": "还没有推荐记录。",
+      "mineItem": "{industry} · {region}",
+      "recommendedAt": "推荐日 {date}",
+      "interviewAt": "面试 {date}",
+      "interviewStatus": {
+        "SCHEDULED": "日程协调中",
+        "CONFIRMED": "面试已确定",
+        "CANCELLED": "已取消"
+      },
+      "viewPosting": "查看工作",
+      "consentHint": "面试确定后，您可以在“我的页面”选择是否允许告知企业您的姓名。",
+      "toMe": "前往我的页面"
     }
   },
   "employer": {
@@ -1687,6 +1737,45 @@
         "unauthenticated": "请重新登录。",
         "unknown": "未能保存。请重试。"
       }
+    },
+    "requests": {
+      "eyebrow": "企业专用",
+      "title": "面试请求进度",
+      "lead": "查看已发送的面试请求和 VISA n JOB 推荐候选人的面试日程。",
+      "notice": "无法直接联系求职者。面试时间和地点由 VISA n JOB 负责人通知。",
+      "nameNotice": "仅限求职者同意的面试，我们会显示该次面试的姓名。不提供联系方式。",
+      "candidate": "候选人 {id}",
+      "interestTitle": "已发送的面试请求",
+      "interestEmpty": "您还没有发送过面试请求。",
+      "requestedAt": "请求日 {date}",
+      "status": {
+        "RECEIVED": "VISA n JOB 确认中",
+        "RECOMMENDED": "已推荐",
+        "OTHER": "处理中"
+      },
+      "recTitle": "推荐候选人与面试",
+      "recEmpty": "还没有推荐的候选人。",
+      "recommendedAt": "推荐日 {date}",
+      "posting": "职位",
+      "interviews": {
+        "none": "VISA n JOB 负责人正在协调面试日程。",
+        "date": "时间",
+        "place": "地点",
+        "state": "状态",
+        "name": "姓名",
+        "status": {
+          "SCHEDULED": "日程协调中",
+          "CONFIRMED": "面试已确定",
+          "CANCELLED": "已取消"
+        },
+        "nameState": {
+          "NOT_ASKED": "面试确定后，会征求求职者是否同意提供姓名。",
+          "PENDING": "正在等待求职者同意。",
+          "GIVEN": "求职者已同意为本次面试提供姓名。",
+          "NOT_GIVEN": "求职者未同意提供姓名。"
+        }
+      },
+      "toCandidates": "查看匿名候选人"
     }
   }
 }

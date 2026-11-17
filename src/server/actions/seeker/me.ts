@@ -4,12 +4,21 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 import { type Locale, defaultLocale, locales } from "@/i18n/locales";
+import {
+  agreeInterviewConsent,
+  declineInterviewConsent,
+  revokeInterviewConsent,
+} from "@/lib/consent/thirdParty";
 import { db } from "@/lib/db";
 import { clientIp } from "@/lib/rateLimit";
 import { grantConsent, revokeConsent } from "@/lib/seeker/consent";
 import { monthToDate } from "@/lib/seeker/options";
 import { requireSeeker } from "@/lib/seeker/session";
-import { consentChangeSchema, staySettingsSchema } from "@/schemas/seeker/me";
+import {
+  consentChangeSchema,
+  interviewConsentAnswerSchema,
+  staySettingsSchema,
+} from "@/schemas/seeker/me";
 
 /** /seeker/me actions (R-113). */
 export type MeActionState = { ok: true } | { ok: false; code: string };
@@ -40,6 +49,37 @@ export async function changeConsent(input: {
     });
   }
   revalidatePath(`/${toLocale(input.locale)}/seeker/me`);
+  return { ok: true };
+}
+
+/**
+ * 면접 건별 동의 (R-211, PC-1): agree / decline / revoke THIRD_PARTY_INTERVIEW for one of the
+ * seeker's own confirmed interviews. Revocation writes CONSENT_REVOKE (BR-15) and hides the name
+ * from the company at once.
+ */
+export async function answerInterviewConsent(input: {
+  interviewId: string;
+  action: "agree" | "decline" | "revoke";
+  locale: string;
+}): Promise<MeActionState> {
+  const actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  const parsed = interviewConsentAnswerSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, code: "VALIDATION" };
+  const { interviewId, action } = parsed.data;
+  const locale = toLocale(input.locale);
+  const r =
+    action === "agree"
+      ? await agreeInterviewConsent({
+          userId: actor.id,
+          interviewId,
+          locale,
+          ip: clientIp(await headers()),
+        })
+      : action === "decline"
+        ? await declineInterviewConsent({ userId: actor.id, interviewId })
+        : await revokeInterviewConsent({ userId: actor.id, interviewId });
+  if (!r.ok) return { ok: false, code: r.code };
+  revalidatePath(`/${locale}/seeker/me`);
   return { ok: true };
 }
 

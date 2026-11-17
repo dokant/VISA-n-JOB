@@ -14,7 +14,7 @@ import {
   staffState,
 } from "@/lib/authGuard";
 import { db } from "@/lib/db";
-import { assertCan, isStaff } from "@/lib/rbac";
+import { AuthzError, type Permission, assertCan, isStaff } from "@/lib/rbac";
 
 export type StaffActor = {
   id: string;
@@ -55,4 +55,27 @@ export async function requireStaff(stage: Stage = "verified"): Promise<StaffActo
     redirect("/admin");
   }
   return actor;
+}
+
+/**
+ * Route Handler variant of `requireStaff` (R-210 `/api/files/[token]`): the same database check
+ * (staff role, TOTP enrolled, 2FA done in this session) plus `assertCan(role, permission)`, but it
+ * throws AuthzError (401 / 403) instead of redirecting, so an API answers with a status code.
+ */
+export async function requireStaffApi(permission: Permission): Promise<StaffActor> {
+  const session = await auth();
+  const state = staffState(session?.user ?? null, Math.floor(Date.now() / 1000));
+  if (!session?.user || state !== "VERIFIED") {
+    throw new AuthzError("UNAUTHENTICATED", 401, "staff sign-in with 2FA required");
+  }
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, role: true, displayName: true, totpEnabledAt: true },
+  });
+  if (!user || !isStaff(user.role) || user.totpEnabledAt == null) {
+    throw new AuthzError("UNAUTHENTICATED", 401, "staff sign-in with 2FA required");
+  }
+  assertCan(user.role, "admin:access");
+  assertCan(user.role, permission);
+  return { id: user.id, role: user.role, displayName: user.displayName, totpEnrolled: true };
 }

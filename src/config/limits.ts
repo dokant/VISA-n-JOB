@@ -207,3 +207,36 @@ export const CANDIDATE_STATS_MIN_SAMPLE = DEMAND_MIN_SAMPLE;
 
 /** R-218: companies listed at most on /admin/companies (newest first). */
 export const ADMIN_COMPANY_LIST_MAX = ADMIN_LIST_MAX;
+
+// ─── Matching, interviews, files, stay cases (P2c: R-209 ~ R-212, R-216) ────────────────────
+
+/** R-209: eligible seekers listed per posting on /admin/matching (best match first). */
+export const MATCHING_CANDIDATE_MAX = ADMIN_LIST_MAX;
+
+/** R-209: staff-written text bounds (S-53 storage bounds, not business values). */
+export const RECOMMENDATION_NOTE_MAX = 500;
+export const INTERVIEW_PLACE_MAX = 120;
+export const INTERVIEW_INTERPRETER_MAX = 60;
+
+/** R-210 / WO §11: a signed file URL is valid this many seconds (5 minutes). */
+export const SIGNED_URL_TTL_SEC = 300;
+
+/** R-210: 소개 확인서 upload size cap (bytes). 운영 수치: 운영자가 조정한다. */
+export const INTRO_CONFIRM_MAX_BYTES = 5 * 1024 * 1024;
+
+/**
+ * R-210: accepted 소개 확인서 types (the type is read from the file bytes, not from the browser).
+ * Next.js server actions refuse bodies over `SERVER_ACTION_BODY_LIMIT` (next.config.ts) — keep it a
+ * little above INTRO_CONFIRM_MAX_BYTES for the form fields.
+ */
+export const INTRO_CONFIRM_TYPES = ["application/pdf", "image/jpeg", "image/png"] as const;
+export const SERVER_ACTION_BODY_LIMIT = "6mb";
+
+/** R-212: /employer/requests lists at most this many 면접 요청 and interviews (newest first). */
+export const EMPLOYER_REQUESTS_LIST_MAX = 50;
+
+/** R-212 / PC-13: /seeker/me/recommended lists at most this many matching public postings. */
+export const SEEKER_RECOMMENDED_POSTINGS_MAX = 20;
+
+/** R-216: upper bound of a KRW amount typed by staff (wage, fee — input sanity bound, 운영 수치). */
+export const ADMIN_AMOUNT_MAX_KRW = POSTING_PAY_MAX_KRW;

@@ -221,6 +221,13 @@ export const REGISTRATION_CONSENTS = [
 ] as const;
 export type RegistrationConsent = (typeof REGISTRATION_CONSENTS)[number];
 
+/**
+ * Per-interview consent (PC-1, R-211): asked when an interview is confirmed, answered on /seeker/me.
+ * It lets VISA n JOB give the real name (never contacts) to the company of that one interview.
+ */
+export const INTERVIEW_CONSENT = "THIRD_PARTY_INTERVIEW" as const;
+export type ConsentBodyType = RegistrationConsent | typeof INTERVIEW_CONSENT;
+
 /** Consents a seeker may revoke / give again on /seeker/me (R-113). Required ones need a consult. */
 export const REVOCABLE_CONSENTS = ["BLIND_PROFILE", "MARKETING"] as const;
 export type RevocableConsent = (typeof REVOCABLE_CONSENTS)[number];

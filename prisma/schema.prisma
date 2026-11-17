@@ -279,6 +279,8 @@ model Consent {
   interview   Interview? @relation(fields: [interviewId], references: [id])
 
   @@index([userId, type])
+  /// [+] P2c R-211
+  @@index([interviewId, type])
 }
 
 // ─── Companies and leads ──────────────────────────────────────────────────────
@@ -464,20 +466,37 @@ model Recommendation {
 }
 
 model Interview {
-  id               String         @id @default(cuid())
-  recommendationId String
-  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  scheduledAt      DateTime
-  place            String
-  interpreter      String?
-  attended         Boolean?
-  result           String? // HIRED|REJECTED|PENDING|NO_SHOW
-  introConfirmFile String? // 소개 확인서 서명본 (private storage key, R-210)
+  id                     String         @id @default(cuid())
+  recommendationId       String
+  recommendation         Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  scheduledAt            DateTime
+  /// staff text shown to the company of the interview (pii-guard: no contacts); never to the seeker (BR-03)
+  place                  String
+  /// staff only
+  interpreter            String?
+  attended               Boolean?
+  result                 String? // HIRED|REJECTED|PENDING|NO_SHOW
+  introConfirmFile       String? // 소개 확인서 서명본 (private storage key, R-210)
+  /// [+] P2c: SCHEDULED|CONFIRMED|CANCELLED (src/lib/interviews/manage.ts)
+  status                 String         @default("SCHEDULED")
+  /// [+] P2c R-211: 면접 확정 time; the seeker is asked for THIRD_PARTY_INTERVIEW consent from then on
+  confirmedAt            DateTime?
+  /// [+] P2c
+  cancelledAt            DateTime?
+  /// [+] P2c R-211: the seeker declined the per-interview consent (a later agreement clears it)
+  consentDeclinedAt      DateTime?
+  /// [+] P2c R-210: MIME type checked from the file bytes, and the upload time
+  introConfirmMime       String?
+  introConfirmUploadedAt DateTime?
   /// [+]
-  createdAt        DateTime       @default(now())
-  consents         Consent[]
+  createdAt              DateTime       @default(now())
+  /// [+] P2c
+  updatedAt              DateTime       @default(now()) @updatedAt
+  consents               Consent[]
 
   @@index([scheduledAt])
+  /// [+] P2c
+  @@index([recommendationId])
 }
 
 model Placement {
@@ -487,7 +506,11 @@ model Placement {
   contractDate     DateTime
   monthlyWage      Int
   feeAmount        Int
-  feeStatus        String
+  feeStatus        String // P2c: UNBILLED|BILLED|PAID|WAIVED (src/schemas/admin/placements.ts)
+  /// [+] P2c
+  createdAt        DateTime       @default(now())
+  /// [+] P2c
+  updatedAt        DateTime       @default(now()) @updatedAt
 }
 
 /// 체류 사건. 고유식별정보(외국인등록번호·여권번호) 필드 없음 (BR-13, R-216).
@@ -498,11 +521,15 @@ model VisaCase {
   companyId       String?
   company         Company?      @relation(fields: [companyId], references: [id])
   caseType        String // CHANGE|EXTEND|REPORT|OTHER
-  targetVisa      String?
-  status          String
+  targetVisa      String? // VisaType.code
+  status          String // P2c: OPEN|IN_PROGRESS|FILED|DECIDED|CLOSED (src/schemas/admin/visaCases.ts)
   mandateSignedAt DateTime?
   fee             Int?
   createdAt       DateTime      @default(now())
+  /// [+] P2c
+  updatedAt       DateTime      @default(now()) @updatedAt
+
+  @@index([seekerId])
 }
 
 // ─── Rule DB (BR-11, BR-12) ───────────────────────────────────────────────────

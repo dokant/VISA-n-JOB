@@ -11,6 +11,11 @@ import { db } from "@/lib/db";
 
 import { uniq } from "../../../db/helpers";
 import { auditRows, lead, seeker, staffUser } from "../../../lib/admin/adminFixtures";
+import {
+  matchSeeker,
+  matchSetup,
+  recommendedInterview,
+} from "../../../lib/recommendations/matchingFixtures";
 
 const session = vi.hoisted(() => ({ actor: null as { id: string; role: Role } | null }));
 
@@ -26,6 +31,9 @@ const seekers = await import("@/server/actions/admin/seekers");
 const leads = await import("@/server/actions/admin/leads");
 const postings = await import("@/server/actions/admin/postings");
 const companies = await import("@/server/actions/admin/companies");
+const matching = await import("@/server/actions/admin/matching");
+const placementActions = await import("@/server/actions/admin/placements");
+const visaCaseActions = await import("@/server/actions/admin/visaCases");
 
 afterAll(() => db.$disconnect());
 beforeEach(() => {
@@ -46,6 +54,86 @@ async function as(role: Role) {
   session.actor = { id: u.id, role };
   return u;
 }
+
+describe("P2c admin actions — permission matrix (R-209, R-210, R-216)", () => {
+  it("R-209: 추천 실행 / 면접 need recommendation:create / interview:manage (not STAFF_VISA)", async () => {
+    const setup = await matchSetup("RB");
+    const s = await matchSeeker(setup);
+    const recommendForm = () => fd({ postingId: setup.posting.id, seekerId: s.id, note: "" });
+    expect(await matching.recommendForPostingAction(null, recommendForm())).toEqual(
+      UNAUTHENTICATED,
+    );
+    await as("STAFF_VISA");
+    expect(await matching.recommendForPostingAction(null, recommendForm())).toEqual(FORBIDDEN);
+    expect(await db.recommendation.count({ where: { seekerId: s.id } })).toBe(0);
+
+    const placement = await as("STAFF_PLACEMENT");
+    const done = await matching.recommendForPostingAction(null, recommendForm());
+    expect(done).toMatchObject({ ok: true, already: false });
+    const recommendationId = (done as { recommendationId: string }).recommendationId;
+    const rec = await db.recommendation.findUniqueOrThrow({ where: { id: recommendationId } });
+    expect(rec.staffId).toBe(placement.id);
+    expect(await auditRows(recommendationId, "RECOMMENDATION_CREATE")).toHaveLength(1);
+
+    const ivForm = () =>
+      fd({ recommendationId, scheduledAt: "2026-12-03T14:00", place: "본사 회의실" });
+    await as("STAFF_VISA");
+    expect(await matching.createInterviewAction(null, ivForm())).toEqual(FORBIDDEN);
+    expect(await matching.introConfirmUrlAction("x")).toEqual(FORBIDDEN);
+    await as("STAFF_PLACEMENT");
+    expect(await matching.createInterviewAction(null, ivForm())).toMatchObject({ ok: true });
+    const iv = await db.interview.findFirstOrThrow({ where: { recommendationId } });
+    expect(iv.scheduledAt.toISOString()).toBe("2026-12-03T05:00:00.000Z"); // KST input
+    await as("STAFF_VISA");
+    expect(await matching.confirmInterviewAction(null, fd({ interviewId: iv.id }))).toEqual(
+      FORBIDDEN,
+    );
+    await as("ADMIN");
+    expect(
+      await matching.confirmInterviewAction(null, fd({ interviewId: iv.id, recommendationId })),
+    ).toMatchObject({ ok: true });
+    expect(await matching.introConfirmUrlAction(iv.id)).toEqual({
+      ok: false,
+      code: "NOT_FOUND",
+    });
+  });
+
+  it("R-216: VisaCase actions need visaCase:manage (STAFF_PLACEMENT refused); placements need placement:manage", async () => {
+    const setup = await matchSetup("RV");
+    const s = await matchSeeker(setup);
+    const caseForm = () => fd({ seekerId: s.id, caseType: "CHANGE", status: "OPEN" });
+    await as("STAFF_PLACEMENT");
+    expect(await visaCaseActions.createVisaCaseAction(null, caseForm())).toEqual(FORBIDDEN);
+    expect(await db.visaCase.count({ where: { seekerId: s.id } })).toBe(0);
+    await as("STAFF_VISA");
+    const created = await visaCaseActions.createVisaCaseAction(null, caseForm());
+    expect(created).toMatchObject({ ok: true });
+    const visaCaseId = (created as { id: string }).id;
+    await as("STAFF_PLACEMENT");
+    expect(
+      await visaCaseActions.updateVisaCaseAction(
+        null,
+        fd({ visaCaseId, caseType: "CHANGE", status: "CLOSED" }),
+      ),
+    ).toEqual(FORBIDDEN);
+
+    const { recommendation } = await recommendedInterview(setup, s.id);
+    const placementForm = () =>
+      fd({
+        recommendationId: recommendation.id,
+        contractDate: "2026-12-01",
+        monthlyWage: "2700000",
+        feeAmount: "500000",
+        feeStatus: "UNBILLED",
+      });
+    await as("STAFF_VISA");
+    expect(await placementActions.createPlacementAction(null, placementForm())).toEqual(FORBIDDEN);
+    await as("STAFF_PLACEMENT");
+    expect(await placementActions.createPlacementAction(null, placementForm())).toMatchObject({
+      ok: true,
+    });
+  });
+});
 
 describe("admin server actions — permission matrix", () => {
   it("Q-08: grade / track / flags / conversion need seeker:review (STAFF_VISA·ADMIN only)", async () => {

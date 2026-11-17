@@ -105,6 +105,10 @@
     "employerContract": {
       "title": "Ishga yollash xizmati shartnomasi",
       "description": "Kompaniyalar uchun: ishga yollash xizmati shartlariga rozilik."
+    },
+    "employerRequests": {
+      "title": "Suhbat soʻrovlari holati",
+      "description": "Yuborilgan suhbat soʻrovlari va VISA n JOB tashkil etgan suhbatlar jadvali."
     }
   },
   "common": {
@@ -186,6 +190,9 @@
     },
     "profileCompletion": {
       "sms": "VISA n JOB’da tezkor roʻyxatdan oʻtdingiz. Mosroq ishlar uchun profilingizni toʻldiring: {path}"
+    },
+    "interviewConsent": {
+      "sms": "Suhbatingiz tasdiqlandi. Korxonaga ismingizni aytish mumkinmi, «Mening sahifam»da tanlang: {path}"
     }
   },
   "nav": {
@@ -1289,7 +1296,8 @@
       "nextTitle": "Keyingi qadamlar",
       "links": {
         "stay": "Turish muddati eslatmasi",
-        "referral": "Mening tavsiya kodim"
+        "referral": "Mening tavsiya kodim",
+        "recommended": "Tavsiya etilgan ishlar"
       },
       "consents": {
         "title": "Roziliklarim",
@@ -1314,6 +1322,28 @@
         "grant": "Qayta rozilik berish",
         "requiredNote": "Bu majburiy rozilik. Qaytarib olish uchun maslahatga ariza bering.",
         "error": "Bajarib boʻlmadi. Qayta urinib koʻring."
+      },
+      "interviewConsent": {
+        "title": "Suhbat oʻtkazadigan korxonaga ism berish",
+        "lead": "Har bir tasdiqlangan suhbat uchun alohida soʻraymiz. Rozi boʻlsangiz, ismingizni faqat oʻsha suhbatdagi korxona oladi. Aloqa maʼlumotlari berilmaydi.",
+        "documentTitle": "Rozilik matni",
+        "item": "Suhbat {date}",
+        "where": "{industry} · {region}",
+        "state": {
+          "PENDING": "Javob kutilmoqda",
+          "AGREED": "Rozi",
+          "DECLINED": "Rozi emas"
+        },
+        "agree": "Roziman",
+        "decline": "Rozi emasman",
+        "revoke": "Rozilikni qaytarib olish",
+        "confirmTitle": "Rozilikni qaytarib olasizmi?",
+        "confirmBody": "Qaytarib olsangiz, ismingiz korxona ekranidan darhol yoʻqoladi.",
+        "revokeConfirm": "Qaytarib olish",
+        "cancel": "Bekor qilish",
+        "close": "Yopish",
+        "agreedAt": "{date} rozilik berilgan",
+        "error": "Bajarib boʻlmadi. Qayta urinib koʻring."
       }
     },
     "stay": {
@@ -1333,7 +1363,27 @@
     "recommended": {
       "eyebrow": "Tavsiya etilgan ishlar",
       "title": "Tavsiya etilgan ishlar",
-      "description": "Vizangiz va istaklaringizga mos ishlarni tayyorlayapmiz. Savollaringiz boʻlsa, maslahatga ariza bering."
+      "description": "Vizangiz va istaklaringizga mos ishlarni tayyorlayapmiz. Savollaringiz boʻlsa, maslahatga ariza bering.",
+      "lead": "Vizangiz, istagan hudud va sohangizga mos ishlar hamda VISA n JOB xodimi sizni tavsiya etgan holatlar.",
+      "postingsTitle": "Sizga mos ishlar",
+      "postingsNote": "Vizangiz bilan mumkin boʻlgan, istagan hudud va sohangizdagi anonim eʼlonlar. Kompaniya nomi, manzili va aloqa maʼlumotlari koʻrsatilmaydi.",
+      "postingsEmpty": "Hozir shartlaringizga mos ish yoʻq. Yangi ish chiqsa, xabar beramiz.",
+      "postingsListLabel": "Sizga mos ishlar roʻyxati",
+      "profileNeeded": "Vizangiz va istaklaringizga mos ishlarni koʻrish uchun toʻliq roʻyxatdan oʻting.",
+      "mineTitle": "VISA n JOB sizni tavsiya etgan holatlar",
+      "mineLead": "VISA n JOB xodimi sizni korxonaga tavsiya etgani haqidagi yozuvlar. Korxona faqat ism va aloqa maʼlumotlarisiz anonim maʼlumot oladi.",
+      "mineEmpty": "Hali tavsiya yoʻq.",
+      "mineItem": "{industry} · {region}",
+      "recommendedAt": "Tavsiya sanasi {date}",
+      "interviewAt": "Suhbat {date}",
+      "interviewStatus": {
+        "SCHEDULED": "Kelishilmoqda",
+        "CONFIRMED": "Tasdiqlandi",
+        "CANCELLED": "Bekor qilindi"
+      },
+      "viewPosting": "Ishni koʻrish",
+      "consentHint": "Suhbat tasdiqlangach, «Mening sahifam»da korxonaga ismingizni aytish-aytmaslikni tanlashingiz mumkin.",
+      "toMe": "Mening sahifamga"
     }
   },
   "employer": {
@@ -1687,6 +1737,45 @@
         "unauthenticated": "Qayta kiring.",
         "unknown": "Saqlanmadi. Qayta urinib koʻring."
       }
+    },
+    "requests": {
+      "eyebrow": "Korxonalar uchun",
+      "title": "Suhbat soʻrovlari holati",
+      "lead": "Yuborilgan suhbat soʻrovlari va VISA n JOB tavsiya etgan nomzodlarning suhbat jadvalini koʻring.",
+      "notice": "Ish izlovchi bilan bevosita bogʻlanib boʻlmaydi. Suhbat vaqti va joyini VISA n JOB xodimi aytadi.",
+      "nameNotice": "Faqat ish izlovchi rozilik bergan suhbat uchun oʻsha suhbatdagi ismni koʻrsatamiz. Aloqa maʼlumotlari berilmaydi.",
+      "candidate": "Nomzod {id}",
+      "interestTitle": "Yuborilgan suhbat soʻrovlari",
+      "interestEmpty": "Hali suhbat soʻrovi yubormagansiz.",
+      "requestedAt": "Soʻrov sanasi {date}",
+      "status": {
+        "RECEIVED": "VISA n JOB tekshirmoqda",
+        "RECOMMENDED": "Tavsiya etildi",
+        "OTHER": "Jarayonda"
+      },
+      "recTitle": "Tavsiya etilgan nomzodlar va suhbatlar",
+      "recEmpty": "Hali tavsiya etilgan nomzod yoʻq.",
+      "recommendedAt": "Tavsiya sanasi {date}",
+      "posting": "Eʼlon",
+      "interviews": {
+        "none": "VISA n JOB xodimi suhbat jadvalini kelishmoqda.",
+        "date": "Vaqt",
+        "place": "Joy",
+        "state": "Holat",
+        "name": "Ism",
+        "status": {
+          "SCHEDULED": "Kelishilmoqda",
+          "CONFIRMED": "Tasdiqlandi",
+          "CANCELLED": "Bekor qilindi"
+        },
+        "nameState": {
+          "NOT_ASKED": "Suhbat tasdiqlangach, ish izlovchidan ismini berishga rozilik soʻraladi.",
+          "PENDING": "Ish izlovchining roziligi kutilmoqda.",
+          "GIVEN": "Ish izlovchi ushbu suhbat uchun ismini berishga rozi boʻldi.",
+          "NOT_GIVEN": "Ish izlovchi ismini berishga rozi boʻlmadi."
+        }
+      },
+      "toCandidates": "Anonim nomzodlarni koʻrish"
     }
   }
 }

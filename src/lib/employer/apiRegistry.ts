@@ -11,6 +11,31 @@ export const EMPLOYER_ROUTE_HANDLERS = [
     path: "/api/employer/candidates",
     methods: ["GET"],
   },
+  {
+    file: "src/app/api/employer/requests/route.ts",
+    path: "/api/employer/requests",
+    methods: ["GET"],
+  },
+] as const;
+
+/**
+ * The one exception to "no seeker personal data in employer responses" (PRD R-211 v1.1, PC-1):
+ * the real name of a seeker who gave THIRD_PARTY_INTERVIEW consent for a confirmed interview of the
+ * asking company. It may appear ONLY
+ * - in the responses of the `entry` listed here,
+ * - at the JSON path `path` (`[]` = any array element), as the value built by
+ *   src/lib/serializers/interviewDisclosure.ts (key set `INTERVIEW_DISCLOSURE_FIELDS`),
+ * - for interviews whose consent is active (the leak harness checks the name against the consented
+ *   seekers of the test and requires null everywhere else).
+ * Phone numbers and e-mail addresses have no exception: the harness still scans the whole body
+ * (the name included) for them, and contacts are never selected for employers.
+ */
+export const EMPLOYER_NAME_DISCLOSURE = [
+  {
+    entry: "src/app/api/employer/requests/route.ts",
+    path: "recommendations[].interviews[].disclosure.legalName",
+    condition: "THIRD_PARTY_INTERVIEW consent active for this interview + CONFIRMED + same company",
+  },
 ] as const;
 
 export const EMPLOYER_SERVER_ACTIONS = [

@@ -18,7 +18,7 @@ import { writeAudit } from "@/lib/audit";
 import { hmacHash } from "@/lib/crypto";
 import { db } from "@/lib/db";
 
-import type { RegistrationConsent, RevocableConsent } from "./options";
+import type { ConsentBodyType, RegistrationConsent, RevocableConsent } from "./options";
 
 const CONSENT_DIR = path.join(process.cwd(), "content", "consents");
 
@@ -31,17 +31,17 @@ function versionNumber(v: string): number {
 }
 
 /** Current version folder of a consent type (e.g. "v1"). Throws when the type has no body. */
-export function currentConsentVersion(type: RegistrationConsent): string {
+export function currentConsentVersion(type: ConsentBodyType): string {
   const dir = path.join(CONSENT_DIR, type);
   const versions = existsSync(dir) ? readdirSync(dir).filter((v) => versionNumber(v) >= 0) : [];
   if (versions.length === 0) throw new Error(`consent body missing for ${type}`);
   return versions.sort((a, b) => versionNumber(b) - versionNumber(a))[0];
 }
 
-export type ConsentDocument = { type: RegistrationConsent; version: string; body: string };
+export type ConsentDocument = { type: ConsentBodyType; version: string; body: string };
 
 /** Body of the current version in `locale` (Korean when the translation file is missing). */
-export function getConsentDocument(type: RegistrationConsent, locale: string): ConsentDocument {
+export function getConsentDocument(type: ConsentBodyType, locale: string): ConsentDocument {
   const version = currentConsentVersion(type);
   const l = (locales as readonly string[]).includes(locale) ? locale : defaultLocale;
   const file = path.join(CONSENT_DIR, type, version, `${l}.md`);

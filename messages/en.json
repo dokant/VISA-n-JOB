@@ -105,6 +105,10 @@
     "employerContract": {
       "title": "Recruitment service contract",
       "description": "For companies: agree to the recruitment service terms."
+    },
+    "employerRequests": {
+      "title": "Interview requests",
+      "description": "Check the interview requests you sent and the interviews VISA n JOB arranged."
     }
   },
   "common": {
@@ -186,6 +190,9 @@
     },
     "profileCompletion": {
       "sms": "Your VISA n JOB quick registration is done. Complete your profile to get better job matches: {path}"
+    },
+    "interviewConsent": {
+      "sms": "Your interview is confirmed. On My page, choose whether the employer may know your name: {path}"
     }
   },
   "nav": {
@@ -1289,7 +1296,8 @@
       "nextTitle": "What to do next",
       "links": {
         "stay": "Stay expiry reminder",
-        "referral": "My referral code"
+        "referral": "My referral code",
+        "recommended": "Recommended jobs"
       },
       "consents": {
         "title": "My consents",
@@ -1314,6 +1322,28 @@
         "grant": "Agree again",
         "requiredNote": "This consent is required. To revoke it, please request a consultation.",
         "error": "Something went wrong. Please try again."
+      },
+      "interviewConsent": {
+        "title": "Giving your name to interview employers",
+        "lead": "We ask separately for each confirmed interview. If you agree, only the employer of that interview gets your name. Contacts are not given.",
+        "documentTitle": "Consent text",
+        "item": "Interview on {date}",
+        "where": "{industry} · {region}",
+        "state": {
+          "PENDING": "Waiting for your answer",
+          "AGREED": "Agreed",
+          "DECLINED": "Not agreed"
+        },
+        "agree": "Agree",
+        "decline": "Do not agree",
+        "revoke": "Revoke consent",
+        "confirmTitle": "Revoke this consent?",
+        "confirmBody": "If you revoke it, your name disappears from the employer's screen at once.",
+        "revokeConfirm": "Revoke",
+        "cancel": "Cancel",
+        "close": "Close",
+        "agreedAt": "Agreed on {date}",
+        "error": "Something went wrong. Please try again."
       }
     },
     "stay": {
@@ -1333,7 +1363,27 @@
     "recommended": {
       "eyebrow": "Recommended jobs",
       "title": "Recommended jobs",
-      "description": "We are preparing jobs that fit your visa and preferences. If you have questions, please request a consultation."
+      "description": "We are preparing jobs that fit your visa and preferences. If you have questions, please request a consultation.",
+      "lead": "Jobs that fit your visa and preferred regions and industries, and the times a VISA n JOB representative recommended you.",
+      "postingsTitle": "Jobs that fit you",
+      "postingsNote": "Blind postings possible with your visa and in your preferred regions and industries. Company name, address and contacts are not shown.",
+      "postingsEmpty": "No job fits your conditions right now. We will let you know when a new one comes.",
+      "postingsListLabel": "Jobs that fit you",
+      "profileNeeded": "Finish the full registration to see jobs that fit your visa and preferences.",
+      "mineTitle": "Times VISA n JOB recommended you",
+      "mineLead": "Records of a VISA n JOB representative recommending you to an employer. Employers get only blind information, without your name and contacts.",
+      "mineEmpty": "You have not been recommended yet.",
+      "mineItem": "{industry} · {region}",
+      "recommendedAt": "Recommended {date}",
+      "interviewAt": "Interview {date}",
+      "interviewStatus": {
+        "SCHEDULED": "Being arranged",
+        "CONFIRMED": "Confirmed",
+        "CANCELLED": "Cancelled"
+      },
+      "viewPosting": "See the job",
+      "consentHint": "Once an interview is confirmed, you can choose on My page whether the employer may know your name.",
+      "toMe": "Go to My page"
     }
   },
   "employer": {
@@ -1687,6 +1737,45 @@
         "unauthenticated": "Please sign in again.",
         "unknown": "Could not save. Please try again."
       }
+    },
+    "requests": {
+      "eyebrow": "For employers",
+      "title": "Interview requests",
+      "lead": "Check the interview requests you sent and the interview schedule of candidates VISA n JOB recommended.",
+      "notice": "You cannot contact candidates directly. A VISA n JOB representative tells you the interview time and place.",
+      "nameNotice": "Only for an interview the candidate agreed to, we show the name for that interview. Contacts are not given.",
+      "candidate": "Candidate {id}",
+      "interestTitle": "Interview requests sent",
+      "interestEmpty": "You have not sent any interview request yet.",
+      "requestedAt": "Requested {date}",
+      "status": {
+        "RECEIVED": "VISA n JOB is checking",
+        "RECOMMENDED": "Recommended",
+        "OTHER": "In progress"
+      },
+      "recTitle": "Recommended candidates and interviews",
+      "recEmpty": "No candidate has been recommended yet.",
+      "recommendedAt": "Recommended {date}",
+      "posting": "Posting",
+      "interviews": {
+        "none": "A VISA n JOB representative is arranging the interview schedule.",
+        "date": "Date and time",
+        "place": "Place",
+        "state": "Status",
+        "name": "Name",
+        "status": {
+          "SCHEDULED": "Being arranged",
+          "CONFIRMED": "Confirmed",
+          "CANCELLED": "Cancelled"
+        },
+        "nameState": {
+          "NOT_ASKED": "Once the interview is confirmed, the candidate is asked whether to give their name.",
+          "PENDING": "Waiting for the candidate's consent.",
+          "GIVEN": "The candidate agreed to give their name for this interview.",
+          "NOT_GIVEN": "The candidate did not agree to give their name."
+        }
+      },
+      "toCandidates": "See blind candidates"
     }
   }
 }

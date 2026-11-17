@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { ExpertReviewMark } from "@/components/legal/expert-review-mark";
 import { getConsentDocument } from "@/lib/seeker/consent";
-import type { RegistrationConsent } from "@/lib/seeker/options";
+import type { ConsentBodyType } from "@/lib/seeker/options";
 
 /** Markdown elements of a consent draft, in the project type scale. */
 const components = {
@@ -37,11 +37,11 @@ function splitDraft(body: string): { title: string; rest: string } {
  * translations include the Korean original).
  * Server-rendered and handed to the client form as elements.
  */
-export async function loadConsentDocuments(
-  types: readonly RegistrationConsent[],
+export async function loadConsentDocuments<T extends ConsentBodyType>(
+  types: readonly T[],
   locale: string,
-): Promise<Partial<Record<RegistrationConsent, ReactNode>>> {
-  const out: Partial<Record<RegistrationConsent, ReactNode>> = {};
+): Promise<Partial<Record<T, ReactNode>>> {
+  const out: Partial<Record<T, ReactNode>> = {};
   for (const type of types) {
     const doc = getConsentDocument(type, locale);
     const { title, rest } = splitDraft(doc.body);
