@@ -109,6 +109,10 @@
     "employerRequests": {
       "title": "面试请求进度",
       "description": "查看已发送的面试请求和 VISA n JOB 安排的面试日程。"
+    },
+    "seekerStillSearching": {
+      "title": "求职状态确认",
+      "description": "请告诉我们您是否还在找工作。"
     }
   },
   "common": {
@@ -193,6 +197,20 @@
     },
     "interviewConsent": {
       "sms": "您的面试已确定。请在“我的页面”选择是否允许告知企业您的姓名：{path}"
+    },
+    "statusCheck": {
+      "sms": "VISA n JOB：您还在找工作吗？请在{days}天内通过此链接告诉我们：{url}",
+      "email": {
+        "subject": "[VISA n JOB] 您还在找工作吗？",
+        "body": "您好，这里是 VISA n JOB。\n\n您还在找工作吗？打开下面的链接，按一下按钮即可。\n{url}\n\n如果{days}天内没有回复，我们将视为您不再找工作，并停止发送工作信息。\n\n求职者免费"
+      }
+    },
+    "stayExpiry": {
+      "sms": "VISA n JOB：距离居留到期还有约{days}天。如需延期或变更，请提前准备：{url}",
+      "email": {
+        "subject": "[VISA n JOB] 居留即将到期",
+        "body": "您好，这里是 VISA n JOB。\n\n距离您告诉我们的居留到期年月还有约{days}天。\n如需延长居留期限或变更居留资格，请提前准备。负责的行政书士会确认并为您说明。\n\n提醒设置：{url}\n\n求职者免费"
+      }
     }
   },
   "nav": {
@@ -1387,6 +1405,32 @@
       "viewPosting": "查看工作",
       "consentHint": "面试确定后，您可以在“我的页面”选择是否允许告知企业您的姓名。",
       "toMe": "前往我的页面"
+    },
+    "stillSearching": {
+      "eyebrow": "求职状态确认",
+      "title": "您还在找工作吗？",
+      "lead": "按下面的按钮，我们会继续为您介绍工作。",
+      "note": "按下按钮之前不会有任何变化。",
+      "confirm": "是的，我还在找",
+      "confirming": "确认中…",
+      "done": {
+        "title": "已确认",
+        "body": "我们会继续为您介绍合适的工作。谢谢。"
+      },
+      "answered": {
+        "title": "您已经回复过了",
+        "body": "无需再做什么。谢谢。"
+      },
+      "expired": {
+        "title": "链接已过期",
+        "body": "如果您还在找工作，请通过申请咨询告诉我们。"
+      },
+      "invalid": {
+        "title": "无法确认此链接",
+        "body": "请重新打开消息中的链接。如果仍然不行，请申请咨询。"
+      },
+      "error": "无法处理，请重试。",
+      "consult": "申请咨询"
     }
   },
   "employer": {

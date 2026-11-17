@@ -1,9 +1,13 @@
 /**
- * Notification provider interface (PLAN P0c-6; prerequisite of R-105 OTP and R-203 staff alerts).
- * Minimal on purpose: the SMTP adapter and the formal provider tests come in P2d (R-214).
+ * Notification provider interface (PRD R-214; PLAN P0c-6 → formalized in P2d).
  *
- * Messages carry a template key + params, not rendered copy: the provider (or a later renderer)
- * resolves the localized text from messages/*.json.
+ * - Every sender (OTP, staff alerts, interview consent, R-213 jobs) builds a `NotificationMessage`
+ *   and calls `getNotificationProvider().send(...)` (index.ts picks the adapter per channel).
+ * - Messages carry a template key + params, not rendered copy: adapters that deliver text resolve
+ *   it from messages/*.json (render.ts); the console adapter logs the key only.
+ * - `send` never throws for a delivery problem: it answers `{ ok: false, provider, error }` with an
+ *   error code (no address or message text), so callers can keep their own record (StaffTask) open.
+ * - Adapters: console.ts (all channels, development / fallback), smtp.ts (EMAIL, only with SMTP_*).
  */
 import type { Locale } from "@/i18n/locales";
 

@@ -75,6 +75,7 @@ describe("R-124 runDiagnosis", () => {
     });
     const rule: VisaRule = {
       id: "dummy-rule",
+      ruleKey: "dummy-rule",
       visaCode: visa.code,
       industryCode: null,
       // dummy condition on the diagnosis facts (not a legal value — BR-12)

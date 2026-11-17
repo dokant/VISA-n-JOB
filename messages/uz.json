@@ -109,6 +109,10 @@
     "employerRequests": {
       "title": "Suhbat soʻrovlari holati",
       "description": "Yuborilgan suhbat soʻrovlari va VISA n JOB tashkil etgan suhbatlar jadvali."
+    },
+    "seekerStillSearching": {
+      "title": "Ish qidirish holati",
+      "description": "Hali ham ish qidirayotganingizni bizga xabar bering."
     }
   },
   "common": {
@@ -193,6 +197,20 @@
     },
     "interviewConsent": {
       "sms": "Suhbatingiz tasdiqlandi. Korxonaga ismingizni aytish mumkinmi, «Mening sahifam»da tanlang: {path}"
+    },
+    "statusCheck": {
+      "sms": "VISA n JOB: Hali ham ish qidiryapsizmi? {days} kun ichida shu havola orqali bizga xabar bering: {url}",
+      "email": {
+        "subject": "[VISA n JOB] Hali ham ish qidiryapsizmi?",
+        "body": "Assalomu alaykum, bu VISA n JOB.\n\nHali ham ish qidiryapsizmi? Quyidagi havolani oching va tugmani bir marta bosing.\n{url}\n\nAgar {days} kun ichida javob bo‘lmasa, ish qidirmayapsiz deb hisoblaymiz va ish haqidagi ma’lumotlarni yuborishni to‘xtatamiz.\n\nIsh izlovchilar uchun to‘lov yo‘q"
+      }
+    },
+    "stayExpiry": {
+      "sms": "VISA n JOB: Yashash muddati tugashiga taxminan {days} kun qoldi. Uzaytirish yoki o‘zgartirish kerak bo‘lsa, oldindan tayyorlaning: {url}",
+      "email": {
+        "subject": "[VISA n JOB] Yashash muddati tugashi yaqinlashmoqda",
+        "body": "Assalomu alaykum, bu VISA n JOB.\n\nSiz aytgan yashash muddati tugaydigan yil va oygacha taxminan {days} kun qoldi.\nYashash muddatini uzaytirish yoki maqomni o‘zgartirish kerak bo‘lsa, oldindan tayyorlaning. Mas’ul ma’muriy maslahatchi tekshirib, yo‘l-yo‘riq beradi.\n\nEslatma sozlamalari: {url}\n\nIsh izlovchilar uchun to‘lov yo‘q"
+      }
     }
   },
   "nav": {
@@ -1387,6 +1405,32 @@
       "viewPosting": "Ishni koʻrish",
       "consentHint": "Suhbat tasdiqlangach, «Mening sahifam»da korxonaga ismingizni aytish-aytmaslikni tanlashingiz mumkin.",
       "toMe": "Mening sahifamga"
+    },
+    "stillSearching": {
+      "eyebrow": "Ish qidirish holati",
+      "title": "Hali ham ish qidiryapsizmi?",
+      "lead": "Quyidagi tugmani bossangiz, ish haqidagi ma’lumotlarni yuborishda davom etamiz.",
+      "note": "Tugmani bosmaguningizcha hech narsa o‘zgarmaydi.",
+      "confirm": "Ha, hali ham qidiryapman",
+      "confirming": "Tekshirilmoqda…",
+      "done": {
+        "title": "Tasdiqlandi",
+        "body": "Sizga mos ishlar haqida xabar berishda davom etamiz. Rahmat."
+      },
+      "answered": {
+        "title": "Siz allaqachon javob bergansiz",
+        "body": "Boshqa hech narsa qilish shart emas. Rahmat."
+      },
+      "expired": {
+        "title": "Havolaning muddati tugagan",
+        "body": "Hali ham ish qidirayotgan bo‘lsangiz, maslahatga ariza orqali bizga xabar bering."
+      },
+      "invalid": {
+        "title": "Bu havolani tekshirib bo‘lmadi",
+        "body": "Xabardagi havolani qayta oching. Baribir ishlamasa, maslahatga ariza bering."
+      },
+      "error": "Bajarib bo‘lmadi. Qayta urinib ko‘ring.",
+      "consult": "Maslahatga ariza berish"
     }
   },
   "employer": {

@@ -16,6 +16,7 @@ import { defaultLocale, locales } from "@/i18n/locales";
 import { db } from "@/lib/db";
 import { type FileUrlPurpose, signedFileUrl } from "@/lib/files/signedUrl";
 import { storeIntroConfirm } from "@/lib/files/storage";
+import { recountNoShows } from "@/lib/jobs/noShow";
 import { getNotificationProvider, type NotificationProvider } from "@/lib/notifications";
 import { hasContacts } from "@/lib/pii-guard";
 
@@ -144,15 +145,28 @@ export async function cancelInterview(
   return r.count === 1 ? { ok: true } : stateOrMissing(args.interviewId, client);
 }
 
+/**
+ * Records attendance / result. The seeker's `noShowCount` is recounted from the results in the same
+ * transaction (R-213 노쇼 처리, src/lib/jobs/noShow.ts), so NO_SHOW raises it and a corrected result
+ * lowers it again.
+ */
 export async function recordInterviewResult(
   args: { interviewId: string; attended: boolean | null; result: InterviewResult | null },
   client: Client = db,
 ): Promise<InterviewResultOf> {
-  const r = await client.interview.updateMany({
-    where: { id: args.interviewId },
-    data: { attended: args.attended, result: args.result },
+  return client.$transaction(async (tx) => {
+    const r = await tx.interview.updateMany({
+      where: { id: args.interviewId },
+      data: { attended: args.attended, result: args.result },
+    });
+    if (r.count !== 1) return { ok: false, code: "NOT_FOUND" } as const;
+    const row = await tx.interview.findUnique({
+      where: { id: args.interviewId },
+      select: { recommendation: { select: { seekerId: true } } },
+    });
+    if (row) await recountNoShows(row.recommendation.seekerId, tx);
+    return { ok: true } as const;
   });
-  return r.count === 1 ? { ok: true } : { ok: false, code: "NOT_FOUND" };
 }
 
 /**

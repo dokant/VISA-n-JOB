@@ -109,6 +109,10 @@
     "employerRequests": {
       "title": "Interview requests",
       "description": "Check the interview requests you sent and the interviews VISA n JOB arranged."
+    },
+    "seekerStillSearching": {
+      "title": "Job search status",
+      "description": "Tell us whether you are still looking for a job."
     }
   },
   "common": {
@@ -193,6 +197,20 @@
     },
     "interviewConsent": {
       "sms": "Your interview is confirmed. On My page, choose whether the employer may know your name: {path}"
+    },
+    "statusCheck": {
+      "sms": "VISA n JOB: Are you still looking for a job? Please tell us within {days} days at this link: {url}",
+      "email": {
+        "subject": "[VISA n JOB] Are you still looking for a job?",
+        "body": "Hello, this is VISA n JOB.\n\nAre you still looking for a job? Open the link below and press the button once.\n{url}\n\nIf we do not hear from you within {days} days, we will assume you are not looking and stop sending job information.\n\nNo fees for job seekers"
+      }
+    },
+    "stayExpiry": {
+      "sms": "VISA n JOB: About {days} days are left until your stay expires. If you need an extension or a change, please prepare early: {url}",
+      "email": {
+        "subject": "[VISA n JOB] Your stay expiry is coming up",
+        "body": "Hello, this is VISA n JOB.\n\nAbout {days} days are left until the stay expiry year and month you told us.\nIf you need to extend your stay or change your status, please prepare early. An administrative scrivener will check and guide you.\n\nReminder settings: {url}\n\nNo fees for job seekers"
+      }
     }
   },
   "nav": {
@@ -1387,6 +1405,32 @@
       "viewPosting": "See the job",
       "consentHint": "Once an interview is confirmed, you can choose on My page whether the employer may know your name.",
       "toMe": "Go to My page"
+    },
+    "stillSearching": {
+      "eyebrow": "Job search status",
+      "title": "Are you still looking for a job?",
+      "lead": "Press the button below and we will keep sending you job information.",
+      "note": "Nothing changes until you press the button.",
+      "confirm": "Yes, I am still looking",
+      "confirming": "Checking…",
+      "done": {
+        "title": "Thank you",
+        "body": "We will keep telling you about suitable jobs."
+      },
+      "answered": {
+        "title": "You already answered",
+        "body": "There is nothing more to do. Thank you."
+      },
+      "expired": {
+        "title": "This link has expired",
+        "body": "If you are still looking for a job, please let us know by requesting a consultation."
+      },
+      "invalid": {
+        "title": "We could not check this link",
+        "body": "Please open the link in the message again. If it still does not work, request a consultation."
+      },
+      "error": "Could not process this. Please try again.",
+      "consult": "Request a consultation"
     }
   },
   "employer": {

@@ -1,4 +1,4 @@
-import { CircleCheck, CircleMinus } from "lucide-react";
+import { CircleAlert, CircleCheck, CircleMinus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -152,6 +152,12 @@ export default async function MatchingPostingPage({ params, searchParams }: Prop
                       {c.jobSearchStatus ? JOB_SEARCH_LABEL[c.jobSearchStatus] : "—"}
                       {c.verifiedKorean ? " · 한국어 확인" : ""}
                     </span>
+                    {c.deprioritized ? (
+                      <Badge variant="orange" className="mt-1" data-testid="no-show-mark">
+                        <CircleAlert aria-hidden="true" strokeWidth={1.5} />
+                        노쇼 {fmtCount(c.noShowCount, "건")} · 우선순위 낮춤
+                      </Badge>
+                    ) : null}
                   </td>
                   <td className={cell}>
                     {c.visaCode ?? "—"}

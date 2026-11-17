@@ -9,9 +9,18 @@
  */
 import PgBoss from "pg-boss";
 
-import { LEAD_ARCHIVE_CRON, LEAD_JOB_TIMEZONE } from "@/config/limits";
+import {
+  LEAD_ARCHIVE_CRON,
+  LEAD_JOB_TIMEZONE,
+  NO_SHOW_SYNC_CRON,
+  STATUS_CHECK_CRON,
+  STAY_EXPIRY_CRON,
+} from "@/config/limits";
 
 import { archiveStaleLeads } from "./archiveLeads";
+import { syncNoShowCounts } from "./noShow";
+import { runStatusCheck } from "./statusCheck";
+import { runStayExpiryAlerts } from "./stayExpiry";
 
 export const PGBOSS_SCHEMA = "pgboss";
 
@@ -25,13 +34,34 @@ export type ScheduledJob = {
   handler: JobHandler;
 };
 
-/** Every scheduled job of the app. P2d adds the R-213 jobs here. */
+/** Every scheduled job of the app (R-116, R-213). Times are Korean (LEAD_JOB_TIMEZONE). */
 export const SCHEDULED_JOBS: readonly ScheduledJob[] = [
   {
     name: "leads.archive-stale",
     cron: LEAD_ARCHIVE_CRON,
     tz: LEAD_JOB_TIMEZONE,
     handler: archiveStaleLeads,
+  },
+  {
+    // R-213: 30일 주기 상태 확인 + 14일 무응답 → INACTIVE (S → A)
+    name: "seekers.status-check",
+    cron: STATUS_CHECK_CRON,
+    tz: LEAD_JOB_TIMEZONE,
+    handler: (now) => runStatusCheck(now),
+  },
+  {
+    // R-213: 체류 만료 D-90 / D-60 / D-30 알림 + 행정사 업무 (StaffTask STAY_EXPIRY)
+    name: "seekers.stay-expiry",
+    cron: STAY_EXPIRY_CRON,
+    tz: LEAD_JOB_TIMEZONE,
+    handler: (now) => runStayExpiryAlerts(now),
+  },
+  {
+    // R-213: 노쇼 횟수 재계산 (추천 우선순위 하향의 근거)
+    name: "seekers.no-show-sync",
+    cron: NO_SHOW_SYNC_CRON,
+    tz: LEAD_JOB_TIMEZONE,
+    handler: (now) => syncNoShowCounts(now),
   },
 ];
 

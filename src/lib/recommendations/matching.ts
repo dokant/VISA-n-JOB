@@ -7,7 +7,8 @@
  * - 지역(`scope=strict`일 때): 희망 지역에 공고 시·도 또는 "어디든 가능"(ANY), 희망 지역이 비었으면
  *   거주 시·도가 공고 시·도.
  * - 업종(`scope=strict`일 때): 희망 업종이 비었거나 공고 업종을 포함.
- * `scope=visa`는 비자만 맞춘 넓은 목록(직원이 직접 판단). 정렬: 지역·업종 일치 수, 등급(S 먼저), 최근 갱신.
+ * `scope=visa`는 비자만 맞춘 넓은 목록(직원이 직접 판단). 정렬: 노쇼 우선순위 하향(R-213, 2회 이상은 맨 뒤),
+ * 지역·업종 일치 수, 등급(S 먼저), 최근 갱신.
  *
  * 추천 실행은 같은 조건을 서버에서 다시 확인한 뒤 원장(src/lib/recommendations/ledger.ts)에 추가한다.
  * 화면에는 직원용 값만(등급·비자·시·도·희망 조건 코드) — 복호 필드는 읽지 않는다(PII_VIEW 없음).
@@ -16,6 +17,7 @@ import type { Prisma, SeekerGrade } from "@prisma/client";
 
 import { ADMIN_LIST_MAX, MATCHING_CANDIDATE_MAX } from "@/config/limits";
 import { eligibleCandidateWhere } from "@/lib/candidates/eligible";
+import { NO_SHOW_OK_WHERE, isNoShowDeprioritized } from "@/lib/jobs/noShow";
 import { db } from "@/lib/db";
 import { hasContacts } from "@/lib/pii-guard";
 import { ANY_REGION } from "@/lib/seeker/options";
@@ -76,6 +78,7 @@ const MATCH_SELECT = {
   verifiedVisa: true,
   verifiedKorean: true,
   topikLevel: true,
+  noShowCount: true,
   updatedAt: true,
 } as const satisfies Prisma.SeekerProfileSelect;
 
@@ -84,6 +87,8 @@ export type MatchCandidate = Prisma.SeekerProfileGetPayload<{ select: typeof MAT
   industryMatch: boolean;
   /** Already recommended for this posting (or to this company without a posting). */
   recommendationId: string | null;
+  /** R-213 노쇼 2회 이상: listed after the others (internal mark, never shown to companies). */
+  deprioritized: boolean;
 };
 
 const GRADE_RANK: Readonly<Record<SeekerGrade, number>> = { B: 0, A: 1, S: 2 };
@@ -154,19 +159,39 @@ export function countMatchCandidates(
   });
 }
 
-/** Eligible seekers for one posting, best match first. */
+/**
+ * Eligible seekers for one posting, best match first. R-213: seekers with NO_SHOW_DEPRIORITIZE_COUNT
+ * or more no-shows come after every other seeker — they are read in a second query only when the
+ * first one leaves room, so they never push another seeker out of the capped list.
+ */
 export async function matchCandidates(
   posting: MatchPosting,
   scope: MatchScope = "strict",
   now: Date = new Date(),
   client: Client = db,
 ): Promise<MatchCandidate[]> {
-  const rows = await client.seekerProfile.findMany({
-    where: { AND: [eligibleCandidateWhere(now), postingMatchWhere(posting, scope)] },
-    orderBy: [{ grade: "desc" }, { updatedAt: "desc" }, { id: "asc" }],
+  const base = [eligibleCandidateWhere(now), postingMatchWhere(posting, scope)];
+  const orderBy = [
+    { grade: "desc" },
+    { updatedAt: "desc" },
+    { id: "asc" },
+  ] as const satisfies Prisma.SeekerProfileOrderByWithRelationInput[];
+  const first = await client.seekerProfile.findMany({
+    where: { AND: [...base, NO_SHOW_OK_WHERE] },
+    orderBy: [...orderBy],
     take: MATCHING_CANDIDATE_MAX,
     select: MATCH_SELECT,
   });
+  const rest =
+    first.length < MATCHING_CANDIDATE_MAX
+      ? await client.seekerProfile.findMany({
+          where: { AND: [...base, { NOT: NO_SHOW_OK_WHERE }] },
+          orderBy: [...orderBy],
+          take: MATCHING_CANDIDATE_MAX - first.length,
+          select: MATCH_SELECT,
+        })
+      : [];
+  const rows = [...first, ...rest];
   const recs = await client.recommendation.findMany({
     where: {
       postingId: posting.id,
@@ -181,9 +206,11 @@ export async function matchCandidates(
       regionMatch: regionMatches(r, posting.sido),
       industryMatch: industryMatches(r, posting.industryCode),
       recommendationId: recOf.get(r.id) ?? null,
+      deprioritized: isNoShowDeprioritized(r.noShowCount),
     }))
     .sort(
       (a, b) =>
+        Number(a.deprioritized) - Number(b.deprioritized) ||
         Number(b.regionMatch) +
           Number(b.industryMatch) -
           (Number(a.regionMatch) + Number(a.industryMatch)) ||

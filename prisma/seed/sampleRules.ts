@@ -51,6 +51,7 @@ export async function seedSampleRules(prisma: PrismaClient): Promise<number> {
       where: { id: r.id },
       create: {
         id: r.id,
+        ruleKey: r.id, // R-215: each SAMPLE row is its own rule (version 1)
         visaCode: r.visaCode,
         industryCode: r.industryCode,
         conditions: r.conditions,

@@ -2,7 +2,8 @@
  * `pnpm worker` — pg-boss worker process (PLAN P1d 작업 3, R-116).
  *
  * Loads .env, starts pg-boss on DATABASE_URL (schema `pgboss`), registers the cron schedules of
- * src/lib/jobs/boss.ts and runs their handlers. Stops cleanly on Ctrl+C / SIGTERM.
+ * src/lib/jobs/boss.ts (R-116 lead archive; R-213 status check, stay expiry, no-show recount) and
+ * runs their handlers. Stops cleanly on Ctrl+C / SIGTERM.
  * Logs are JSON lines without personal data (STANDARD 5).
  */
 import path from "node:path";
@@ -23,6 +24,10 @@ async function main(): Promise<void> {
   // Imported after .env is loaded: src/lib/db.ts reads the environment at import time.
   const { PGBOSS_SCHEMA, SCHEDULED_JOBS, createBoss, registerSchedules, startWorkers } =
     await import("../src/lib/jobs/boss");
+  // R-214: pick the notification adapters now, so the choice (`notification.provider`: SMTP enabled
+  // or console) is in the log at start-up, before any job sends a message.
+  const { getNotificationProvider } = await import("../src/lib/notifications");
+  getNotificationProvider();
 
   const boss = createBoss(url);
   boss.on("error", (e: Error) => log({ event: "worker.error", message: e.message }));

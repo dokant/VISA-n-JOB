@@ -10,6 +10,8 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { runSeed } from "../../../prisma/seed/index";
 import { SIDO, sigunguCode } from "../../../prisma/seed/regions";
+import { SAMPLE_RULES } from "../../../prisma/seed/sampleRules";
+import { SAMPLE_SCORE_TABLE } from "../../../prisma/seed/sampleScoreTable";
 import { TEST_TAG_NOTE, testPrisma } from "./helpers";
 
 const prisma = testPrisma();
@@ -39,18 +41,22 @@ const WO_7_4: Record<string, SeekerTrack | null> = {
 };
 
 describe("R-007 seed", () => {
-  it("R-007: every VisaRule row is isSample=true and DRAFT", async () => {
-    const rules = await prisma.visaRule.findMany();
-    expect(rules.length).toBeGreaterThan(0);
+  // Seeded rows only: other test files add test-only rules / tables (R-215 publish tests, dummies)
+  // to the shared database while this file runs.
+  it("R-007: every seeded VisaRule row is isSample=true and DRAFT", async () => {
+    const rules = await prisma.visaRule.findMany({
+      where: { id: { in: SAMPLE_RULES.map((r) => r.id) } },
+    });
+    expect(rules.length).toBe(SAMPLE_RULES.length);
     for (const r of rules) {
       expect(r.isSample).toBe(true);
       expect(r.status).toBe("DRAFT");
     }
   });
 
-  it("R-007: every ScoreTable row is isSample=true and DRAFT", async () => {
-    const tables = await prisma.scoreTable.findMany();
-    expect(tables.length).toBeGreaterThan(0);
+  it("R-007: every seeded ScoreTable row is isSample=true and DRAFT", async () => {
+    const tables = await prisma.scoreTable.findMany({ where: { id: SAMPLE_SCORE_TABLE.id } });
+    expect(tables.length).toBe(1);
     for (const t of tables) {
       expect(t.isSample).toBe(true);
       expect(t.status).toBe("DRAFT");

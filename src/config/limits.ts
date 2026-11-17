@@ -244,3 +244,38 @@ export const SEEKER_RECOMMENDED_POSTINGS_MAX = 20;
 
 /** R-216: upper bound of a KRW amount typed by staff (wage, fee — input sanity bound, 운영 수치). */
 export const ADMIN_AMOUNT_MAX_KRW = POSTING_PAY_MAX_KRW;
+
+// ─── Scheduled jobs and rule admin (P2d: R-213 ~ R-215) ──────────────────────────────────────
+
+/** R-213 / WO §7.7: "아직 구직 중이세요?" is asked when the last confirmation is this many days old. */
+export const STATUS_CHECK_INTERVAL_DAYS = SEEKER_S_ACTIVE_CONFIRM_DAYS;
+
+/**
+ * R-213 / WO §7.7: without an answer within this many days the seeker becomes INACTIVE (S → A).
+ * The one-click link in the message is valid for the same period.
+ */
+export const STATUS_CHECK_REPLY_DAYS = 14;
+
+/** R-213: seekers handled per batch by the scheduled jobs (each job loops until none are left). */
+export const SEEKER_JOB_BATCH = 200;
+
+/**
+ * R-213: pg-boss crons in LEAD_JOB_TIMEZONE (Asia/Seoul). 운영 수치: 운영자가 조정한다.
+ * Messages to seekers go out in the morning (상태 확인 10:00, 체류 만료 10:30); the no-show recount
+ * is a nightly consistency pass (03:45).
+ */
+export const STATUS_CHECK_CRON = "0 10 * * *";
+export const STAY_EXPIRY_CRON = "30 10 * * *";
+export const NO_SHOW_SYNC_CRON = "45 3 * * *";
+
+/**
+ * R-213 / WO §7.7: a seeker with this many recorded no-shows (Interview.result NO_SHOW) or more is
+ * listed after the others in 추천 (matching) — an internal mark only, never shown to companies.
+ */
+export const NO_SHOW_DEPRIORITIZE_COUNT = 2;
+
+/** R-215: admin rule / score table lists show at most this many rows (newest first). */
+export const ADMIN_RULE_LIST_MAX = ADMIN_LIST_MAX;
+
+/** R-215: storage bounds of the JSON a staff member types (S-53 storage bounds, not legal values). */
+export const RULE_JSON_MAX_CHARS = 20_000;

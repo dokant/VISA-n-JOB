@@ -5,7 +5,13 @@
  */
 import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
 
-import { LEAD_ARCHIVE_CRON, LEAD_JOB_TIMEZONE } from "@/config/limits";
+import {
+  LEAD_ARCHIVE_CRON,
+  LEAD_JOB_TIMEZONE,
+  NO_SHOW_SYNC_CRON,
+  STATUS_CHECK_CRON,
+  STAY_EXPIRY_CRON,
+} from "@/config/limits";
 import {
   PGBOSS_SCHEMA,
   SCHEDULED_JOBS,
@@ -43,7 +49,26 @@ describe("R-116 pg-boss", () => {
     const archive = schedules.filter((s) => s.name === "leads.archive-stale");
     expect(archive).toHaveLength(1);
     expect(archive[0]).toMatchObject({ cron: LEAD_ARCHIVE_CRON, timezone: LEAD_JOB_TIMEZONE });
-    expect(SCHEDULED_JOBS.map((j) => j.name)).toEqual(["leads.archive-stale"]);
+    expect(SCHEDULED_JOBS.map((j) => j.name)).toEqual([
+      "leads.archive-stale",
+      "seekers.status-check",
+      "seekers.stay-expiry",
+      "seekers.no-show-sync",
+    ]);
+  });
+
+  it("R-213: the status-check, stay-expiry and no-show jobs are scheduled once each, in Korean time", async () => {
+    await registerSchedules(boss);
+    const schedules = await boss.getSchedules();
+    for (const [name, cron] of [
+      ["seekers.status-check", STATUS_CHECK_CRON],
+      ["seekers.stay-expiry", STAY_EXPIRY_CRON],
+      ["seekers.no-show-sync", NO_SHOW_SYNC_CRON],
+    ] as const) {
+      const rows = schedules.filter((s) => s.name === name);
+      expect(rows, name).toHaveLength(1);
+      expect(rows[0]).toMatchObject({ cron, timezone: "Asia/Seoul" });
+    }
   });
 
   it("a queued job reaches the pure handler, which receives the delivery time as `now`", async () => {

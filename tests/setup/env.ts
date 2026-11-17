@@ -11,3 +11,16 @@ const v2 = randomBytes(32).toString("base64");
 process.env.TEST_ENCRYPTION_KEY_V1 = v1;
 process.env.ENCRYPTION_KEYS = `1:${v1},2:${v2}`;
 process.env.HASH_KEY = randomBytes(32).toString("base64");
+
+// R-214 / PLAN P2d 위험 "실제 SMTP로 잘못 발송": tests never see SMTP settings, so the SMTP adapter is
+// never created from the environment (adapter tests pass their own config and a mock transport).
+for (const key of [
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_SECURE",
+  "SMTP_USER",
+  "SMTP_PASS",
+  "SMTP_FROM",
+]) {
+  delete process.env[key];
+}

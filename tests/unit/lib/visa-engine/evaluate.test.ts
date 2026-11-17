@@ -15,6 +15,7 @@ import {
 } from "@/lib/visa-engine/evaluate";
 import { ruleConditionsSchema } from "@/schemas/visa/ruleConditions";
 
+import { SAMPLE_RULES } from "../../../../prisma/seed/sampleRules";
 import { testPrisma, uniq } from "../../db/helpers";
 
 const prisma = testPrisma();
@@ -146,8 +147,11 @@ describe("evaluateConditions operators", () => {
 
 describe("evaluate (database)", () => {
   it("WO15-09 seed state (SAMPLE rules are DRAFT) → YELLOW 행정사 확인 필요", async () => {
-    const seeded = await prisma.visaRule.findMany();
-    expect(seeded.length).toBeGreaterThan(0);
+    // seeded rows only: R-215 tests publish test-only rules in the shared database meanwhile
+    const seeded = await prisma.visaRule.findMany({
+      where: { id: { in: SAMPLE_RULES.map((r) => r.id) } },
+    });
+    expect(seeded.length).toBe(SAMPLE_RULES.length);
     for (const r of seeded) {
       const result = await evaluate({ visaCode: r.visaCode, industryCode: r.industryCode });
       expect(result.outcome).toBe("YELLOW");
@@ -159,6 +163,7 @@ describe("evaluate (database)", () => {
     const visaCode = uniq("TEST-VISA");
     const created = await prisma.visaRule.create({
       data: {
+        ruleKey: visaCode,
         visaCode,
         conditions: { all: [{ field: "industryCode", op: "eq", value: "TEST_IND" }] },
         outcome: "GREEN",

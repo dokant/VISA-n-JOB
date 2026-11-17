@@ -27,3 +27,11 @@ export async function p2cShot(page: Page, info: TestInfo, name: string) {
   const width = info.project.name === "mobile-375" ? "375" : "1280";
   await page.screenshot({ path: path.join(dir, `p2c_${name}_${width}.png`), fullPage: true });
 }
+
+/** P2d review screenshots when `P2D_SHOTS=<dir>` is set: `p2d_{name}_{1280|375}.png` (full page). */
+export async function p2dShot(page: Page, info: TestInfo, name: string) {
+  const dir = process.env.P2D_SHOTS;
+  if (!dir) return;
+  const width = info.project.name === "mobile-375" ? "375" : "1280";
+  await page.screenshot({ path: path.join(dir, `p2d_${name}_${width}.png`), fullPage: true });
+}

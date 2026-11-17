@@ -11,6 +11,7 @@ import {
   SEEKER_GRADE_LABEL,
   SEEKER_STATUS_LABEL,
   TRACK_LABEL,
+  fmtCount,
   fmtDate,
   fmtDateTime,
   fmtMonth,
@@ -24,6 +25,8 @@ import {
   TrackChangeForm,
 } from "@/components/admin/seeker-review-forms";
 import { requireStaff } from "@/lib/admin/session";
+import { STATUS_CHECK_REPLY_DAYS } from "@/config/limits";
+import { isNoShowDeprioritized } from "@/lib/jobs/noShow";
 import {
   convertibleVisaOptions,
   getSeekerForReview,
@@ -139,6 +142,22 @@ export default async function SeekerDetailPage({ params }: { params: Promise<{ i
               value={`${fmtDate(seeker.createdAt)} · ${seeker.isQuickSignup ? "간편 등록" : "정식 등록"} · ${seeker.completedStep}단계`}
             />
             <Field label="최근 상태 확인" value={fmtDateTime(seeker.lastActiveConfirmedAt)} />
+            <Field
+              label="상태 확인 응답 대기"
+              value={
+                seeker.statusCheckSentAt
+                  ? `${fmtDateTime(seeker.statusCheckSentAt)} 발송 · ${STATUS_CHECK_REPLY_DAYS}일 안에 응답이 없으면 비활성`
+                  : "없음"
+              }
+            />
+            <Field
+              label="노쇼"
+              value={
+                isNoShowDeprioritized(seeker.noShowCount)
+                  ? `${fmtCount(seeker.noShowCount, "건")} · 추천 우선순위 낮춤(내부 표시)`
+                  : fmtCount(seeker.noShowCount, "건")
+              }
+            />
           </dl>
         </Section>
 

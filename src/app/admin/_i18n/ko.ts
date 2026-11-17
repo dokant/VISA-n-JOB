@@ -6,8 +6,10 @@
 import type {
   JobSearchStatus,
   LeadGrade,
+  Outcome,
   PostingStatus,
   Role,
+  RuleStatus,
   SeekerGrade,
   SeekerStatus,
   SeekerTrack,
@@ -42,6 +44,8 @@ export const NAV = [
   { href: "/admin/matching", label: "매칭" },
   { href: "/admin/placements", label: "계약" },
   { href: "/admin/visa-cases", label: "체류 사건" },
+  { href: "/admin/rules", label: "규칙 DB" },
+  { href: "/admin/score-tables", label: "점수표" },
 ] as const;
 
 export const SEEKER_GRADE_LABEL: Record<SeekerGrade, string> = {
@@ -190,6 +194,30 @@ const ERROR_TEXT: Record<string, string> = {
   UPLOAD_FAILED: `파일을 올리지 못했습니다. ${Math.floor(INTRO_CONFIRM_MAX_BYTES / (1024 * 1024))}MB 이하의 PDF·JPG·PNG 파일인지 확인하고 다시 올려 주세요.`,
   PLACEMENT_EXISTS: "이 추천에는 이미 계약이 등록되어 있습니다.",
   COMPANY_NOT_FOUND: "기업을 찾을 수 없습니다. 기업 ID를 확인해 주세요.",
+  // P2d 규칙 DB·점수표 (R-215)
+  NOT_DRAFT: "초안 상태에서만 고치거나 게시할 수 있습니다. 새로고침해 주세요.",
+  NOT_PUBLISHED: "게시 중인 버전만 폐기할 수 있습니다. 새로고침해 주세요.",
+  DRAFT_EXISTS: "이미 작성 중인 초안 버전이 있습니다. 그 초안을 고치거나 게시해 주세요.",
+  SAMPLE_NOT_PUBLISHABLE:
+    '샘플(SAMPLE) 표시가 남아 있어 게시할 수 없습니다. 행정사가 실제 값을 입력하고 JSON의 "__sample" 항목을 지운 뒤 저장해 주세요.',
+  INVALID_JSON: "JSON 형식이 올바르지 않습니다. 중괄호로 시작하는 JSON 객체를 입력해 주세요.",
+  INVALID_SHAPE: "JSON 구조가 규칙(점수표) 형식과 맞지 않습니다. 아래 형식 안내를 확인해 주세요.",
+  UNKNOWN_MESSAGE_KEY: "목록에 있는 안내 문구만 고를 수 있습니다.",
+  ACTION_FAILED: "처리하지 못했습니다. 새로고침한 뒤 다시 시도해 주세요.",
+};
+
+/** R-215 규칙·점수표 버전 상태. */
+export const RULE_STATUS_LABEL: Record<RuleStatus, string> = {
+  DRAFT: "초안",
+  PUBLISHED: "게시 중",
+  RETIRED: "폐기",
+};
+
+/** R-215 판정 (공개 화면의 visa.outcome 한국어와 같게). */
+export const OUTCOME_LABEL: Record<Outcome, string> = {
+  GREEN: "가능성 높음",
+  YELLOW: "확인 필요",
+  RED: "어려움",
 };
 
 /** P2c 면접 상태 (src/lib/recommendations/interviews.ts). */

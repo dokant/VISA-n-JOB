@@ -536,6 +536,9 @@ model VisaCase {
 
 model VisaRule {
   id           String     @id @default(cuid())
+  /// [+] R-215: versions of one rule share a ruleKey (version = 1, 2, … per ruleKey). Publishing a
+  /// version retires the previously PUBLISHED version of the same ruleKey (src/lib/rules/manage.ts).
+  ruleKey      String
   visaCode     String
   industryCode String?
   conditions   Json
@@ -549,6 +552,7 @@ model VisaRule {
   /// [+]
   createdAt    DateTime   @default(now())
 
+  @@unique([ruleKey, version])
   @@index([visaCode, status])
 }
 
@@ -566,6 +570,8 @@ model ScoreTable {
   /// [+]
   createdAt  DateTime   @default(now())
 
+  /// [+] R-215: versions of one table share its name (publishing retires the previous PUBLISHED)
+  @@unique([name, version])
   @@index([name, status])
 }
 

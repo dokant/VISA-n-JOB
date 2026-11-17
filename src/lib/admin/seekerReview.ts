@@ -360,6 +360,9 @@ export const SEEKER_REVIEW_SELECT = {
   convertibleAt: true,
   status: true,
   lastActiveConfirmedAt: true,
+  /** R-213: open 30-day status check (null = none) and recorded no-shows (internal). */
+  statusCheckSentAt: true,
+  noShowCount: true,
   isQuickSignup: true,
   completedStep: true,
   messengerType: true,
