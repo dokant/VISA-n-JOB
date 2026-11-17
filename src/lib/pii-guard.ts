@@ -8,6 +8,8 @@
  *
  * Built to avoid false positives on ordinary job text: amounts (2,500,000원, 250만원), dates,
  * times, head counts, visa codes, postal codes and business hours are not contacts.
+ * Exception (Q-21): a time or a count written right next to a date ("17:00 (2026.12.01~…)",
+ * "2026.12.01~2027.01.31 3명") is checked strictly and may be refused — an accepted false positive.
  *
  * Use on employer free-text before saving (reject with `assertNoContacts` or store `maskContacts`).
  */
@@ -356,11 +358,13 @@ function classifyDigits(raw: string): ContactType | null {
 //   - when ANY digit of the window is outside a date token, the window is checked strictly, the
 //     dates read as plain digits like any other group ("02 2026.12.01" = 02-2026-1201,
 //     "0101234 2026.12" = 0101234-2026, "01~2027.01.31" after an invalid date "2026.13.01").
-// Only one thing may stand next to a date without making the window strict: a group that is
-// clearly not part of a number — a time ("17:00 (2026.12.01": the minutes after a colon, or the hour
-// before one), a count with a unit right after it ("2026.12.01 / 3명", "(2개월)") or a list marker
-// without a leading 0 ("1) 2026.12.01 2) 2027.01.31"). Such a group is cut out of the window only
-// when the rest of the window is then dates alone; it is still checked on its own.
+// Run 7 (Q-21, human decision): there is NO exception for a time, a count with a unit or a list
+// marker next to a date. Run 6 cut such groups ("17:00", "3명", "(2개월)", "1)") out of the window,
+// and that let complete numbers through ("010%-1234%-5678% 2026.12.01", "+82) 10) 2026.12.01",
+// "10:02 2026.12.01" — QA run 6 D-7), because "%" and ")" are also separators and "02" after a colon
+// is also a Seoul prefix. Time / unit digits next to a date are therefore checked strictly like any
+// other digit, and the false positives this gives ("근무 17:00 (2026.12.01~2027.01.31)",
+// "2026.12.01~2027.01.31 3명", "(2개월)") are accepted: the writer rewrites the phrase.
 // A date is recognised only when its values are real: year 1900–2099, month 1–12, day 1–31.
 // Forms: YYYY.MM.DD (same separator . - / twice, spaces allowed: "2026. 12. 01"), YYYY MM DD
 // (spaces), YYYY년 MM월 [DD일], YYYY.MM (. - /), MM/DD (slash only: "12/1~1/31"). "MM.DD" is not a
@@ -404,21 +408,6 @@ function joinKoreanDates(text: string, dates: Array<[number, number]>): string {
   return out + text.slice(cursor);
 }
 
-// A group that is a time or a count, not a digit of a number (see the rule above).
-const TIME_MINUTES_BEFORE = /\d{1,2}:$/u;
-const TIME_HOUR_AFTER = /^:\d{2}(?!\d)/u;
-const UNIT_AFTER =
-  /^\s?(?:명|인|교대|시간|시|분|초|일|주|개월|달|년|월|원|만|천|억|회|차|층|호|세|살|개|건|박|대|톤|평|조|kg|cm|mm|km|%|㎏|㎝|㎡)/iu;
-
-function isTimeOrCount(text: string, start: number, end: number): boolean {
-  const len = end - start;
-  if (len === 2 && TIME_MINUTES_BEFORE.test(text.slice(Math.max(0, start - 3), start))) return true;
-  if (len <= 2 && TIME_HOUR_AFTER.test(text.slice(end, end + 4))) return true;
-  // a list marker without a leading 0: "1) 2026.12.01 2) 2027.01.31" ("02)" stays a digit group)
-  if (len <= 2 && text[start] !== "0" && text[end] === ")") return true;
-  return UNIT_AFTER.test(text.slice(end, end + 3));
-}
-
 // O-1: "일당 820000 ~ 950000" was read as 82 + 0000950000 (an international number). Two complete
 // numbers (5+ digits, no leading 0) joined by a range sign are a range, not one number, when
 //   - the sign is ~ 〜 → ⟶ and both numbers end in 0 (won amounts are rounded), or
@@ -440,8 +429,6 @@ type Group = {
   digits: string;
   /** inside a date token */
   date: boolean;
-  /** a time or a count with a unit (may be cut out of a window of dates) */
-  aside: boolean;
 };
 
 function isAmountRange(
@@ -488,8 +475,7 @@ function findPhonesInRun(
     const start = g.index;
     const end = start + g[0].length;
     const date = dates.some(([s, e]) => offset + start >= s && offset + end <= e);
-    const aside = !date && isTimeOrCount(text, offset + start, offset + end);
-    return { start, end, digits: g[0], date, aside };
+    return { start, end, digits: g[0], date };
   });
   const amount = groups.map(
     (g, k) =>
@@ -512,15 +498,10 @@ function checkWindow(
   first: boolean,
   out: ContactMatch[],
 ): void {
-  const datesOnly = groups.some((g) => g.date) && groups.every((g) => g.date || g.aside);
-  if (!datesOnly) {
-    scanGroups(run, offset, groups, first, out);
-    return;
-  }
-  // dates with a time / count beside them: only the time / count is checked, on its own
-  groups.forEach((g, k) => {
-    if (!g.date) scanGroups(run, offset, [g], first && k === 0, out);
-  });
+  // Q-20: a window of dates alone (with range / separator signs) is not a phone. Q-21: anything
+  // else — including a time or a count with a unit next to the dates — makes the window strict.
+  if (groups.every((g) => g.date)) return;
+  scanGroups(run, offset, groups, first, out);
 }
 
 /** Strict check: windows of consecutive groups, left to right, longest first. */

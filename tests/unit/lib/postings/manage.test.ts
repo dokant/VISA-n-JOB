@@ -211,6 +211,14 @@ describe("R-201 create only from grade-A leads (BR-05)", () => {
       "문의 021201 2026.12",
       // QA run 5 O-3: a number disguised as a 년월일 date
       "문의 02 2026년 12월 01일",
+      // QA run 6 D-7 (Q-21: no time / unit / list-marker exception next to a date)
+      "문의 010%-1234%-5678% 2026.12.01",
+      "2026.12.01 010%1234%5678%",
+      "문의 +82% 10% 1234% 5678% 2026.12.01",
+      "문의 02% 1234% 2026.12",
+      "문의 +82) 10) 2026.12.01",
+      "문의 10:02 2026.12.01",
+      "문의 9:02 2026년 12월 01일",
     ]) {
       expect(
         await createPostingFromLead({

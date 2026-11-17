@@ -127,11 +127,18 @@ describe("R-125 submitJobRequestAction", () => {
     expect(
       await submitJobRequestAction(
         await input({
-          workHours: "08:00~17:00 (2026.12.01~2027.01.31)",
+          // run 7 (Q-21): a comma keeps the time out of the dates' digit run
+          workHours: "08:00~17:00, 2026.12.01~2027.01.31",
           detail: texts.join(" / "),
         }),
       ),
     ).toEqual({ ok: true });
+    // run 7 (Q-21): a time right next to a date period is refused — accepted false positive
+    expect(
+      await submitJobRequestAction(
+        await input({ workHours: "08:00~17:00 (2026.12.01~2027.01.31)" }),
+      ),
+    ).toEqual({ ok: false, code: "CONTACT_INFO", fields: ["workHours"] });
     expect(await prisma.jobLead.count({ where: { companyId: session.actor.companyId } })).toBe(
       texts.length + 1,
     );
@@ -152,6 +159,14 @@ describe("R-125 submitJobRequestAction", () => {
       "문의 021201 2026.12",
       // QA run 5 O-3: a number disguised as a 년월일 date
       "문의 02 2026년 12월 01일",
+      // QA run 6 D-7 (Q-21: no time / unit / list-marker exception next to a date)
+      "문의 010%-1234%-5678% 2026.12.01",
+      "2026.12.01 010%1234%5678%",
+      "문의 +82% 10% 1234% 5678% 2026.12.01",
+      "문의 02% 1234% 2026.12",
+      "문의 +82) 10) 2026.12.01",
+      "문의 10:02 2026.12.01",
+      "문의 9:02 2026년 12월 01일",
     ]) {
       expect(await submitJobRequestAction(await input({ detail })), detail).toEqual({
         ok: false,

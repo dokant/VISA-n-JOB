@@ -397,8 +397,10 @@ const NEGATIVE: Record<string, string[]> = {
     "2026.12.01 / 2027.01.31",
     "2026.01.01~2026.03.31",
   ],
+  // run 7 (Q-21): "2026.01.15~2027.01.31 / 3명", "08:00~17:00 (2026.12.01~2027.01.31)" and
+  // "면접 10:00 2026.12.01 본사" moved to RUN7_Q21_ACCEPTED_FALSE_POSITIVES — a time / count digit
+  // joins the dates' run, so the window is checked strictly (accepted false positive).
   "P2a D-4 dates in other forms": [
-    "2026.01.15~2027.01.31 / 3명",
     "2026.12~2027.01",
     "2026.12 ~ 2027.01 계약",
     "2026-12 → 2027-03",
@@ -417,8 +419,6 @@ const NEGATIVE: Record<string, string[]> = {
     "２０２６．１２．０１～２０２７．０１．３１",
     "2019-2020-2021 수상",
     "입사 2026.12.01 · 수습 3개월 · 2027.03.01 정규직",
-    "08:00~17:00 (2026.12.01~2027.01.31)",
-    "면접 10:00 2026.12.01 본사",
   ],
   "P2a O-1 amount ranges without commas": [
     "일당 820000 ~ 950000",
@@ -609,14 +609,13 @@ const QA4_DATE_PERIODS = [
   "2026-12-01 ~ 2027-01-31",
   "2026 12 01 ~ 2027 01 31",
   "2026.12~2027.01 단기",
-  "근무기간 2026.12.01~2027.01.31 (3개월)",
   "입사 2026.12.01, 종료 2027.01.31",
 ];
-const QA4_DATE_FIELDS = [
-  "단기 2026.12.01~2027.01.31",
-  "생산 2026년 12월 1일~2027년 1월 31일",
-  "08:00~17:00 (2026.12.01~2027.01.31)",
-];
+// run 7 (Q-21): "근무기간 2026.12.01~2027.01.31 (3개월)" (date periods, was 25) and
+// "08:00~17:00 (2026.12.01~2027.01.31)" (field values, was 3) moved to
+// RUN7_Q21_ACCEPTED_FALSE_POSITIVES: the "(3" / "00 (" digits join the dates' run, so the window is
+// checked strictly — accepted false positive (the writer separates them with a comma or words).
+const QA4_DATE_FIELDS = ["단기 2026.12.01~2027.01.31", "생산 2026년 12월 1일~2027년 1월 31일"];
 const QA4_AMOUNT_RANGES = [
   "일당 820000 ~ 950000",
   "일당 820000~950000원",
@@ -734,8 +733,9 @@ describe("P2a run 5: QA run 4 lists (D-5 and kept results)", () => {
     }
   };
 
-  it("QA run 4 item 2: date periods stay negative (25 + 3 field values)", () => {
-    expect(QA4_DATE_PERIODS).toHaveLength(25);
+  it("QA run 4 item 2: date periods stay negative (24 + 2 field values; 1 + 1 moved by Q-21)", () => {
+    expect(QA4_DATE_PERIODS).toHaveLength(24);
+    expect(QA4_DATE_FIELDS).toHaveLength(2);
     expectNegative([...QA4_DATE_PERIODS, ...QA4_DATE_FIELDS]);
   });
 
@@ -848,17 +848,19 @@ const QA5_VARIANTS_FUNCTION_LEVEL = [
   "01012342026.12.01",
 ];
 const QA5_KOREAN_DATE_DISGUISE = ["문의 02 2026년 12월 01일", "문의 010 2026년 12월 01일"];
+// Run 7 (Q-21): run 6 phrases whose run is broken before / after the dates (a letter or nothing
+// next to the date digits) still pass; the ones where a time / count digit joins the dates' run
+// moved to RUN7_Q21_ACCEPTED_FALSE_POSITIVES.
 const RUN6_NEGATIVE = [
-  "근무 17:00 (2026.12.01~2027.01.31)",
   "3명 2026.12.01~2027.01.31",
   "2교대 2026.12.01 시작",
-  "2026.12.01~2027.01.31 3명",
-  "2026.12.01~2027.01.31 (2개월)",
-  "2026.12.01~2027.01.31 30일",
-  "2026.12.01~2027.01.31 09:00 출근",
-  "근무 2026.12.01~2027.01.31 3 명",
   "2026년 12월 01일~2027년 01월 31일 2교대",
   "2026년 12월 010",
+  // QA run 6 item 11, written without a date
+  "(2개월)",
+  "30일",
+  "09:00 출근",
+  "3 명",
 ];
 
 describe("P2a run 6 (Q-20): dates are skipped only when the whole window is dates", () => {
@@ -899,7 +901,7 @@ describe("P2a run 6 (Q-20): dates are skipped only when the whole window is date
     expectPhone(["생산직 01 2026.12.01", "생산직 01 2026.12.01 단기"]);
   });
 
-  it("times and counts beside a date period are not part of the window", () => {
+  it("run 7 (Q-21): phrases whose run does not join a time / count to the dates stay negative", () => {
     for (const text of RUN6_NEGATIVE) {
       expect(detectContacts(text), text).toEqual([]);
       expect(maskContacts(text), text).toBe(text);
@@ -933,7 +935,6 @@ describe("P2a run 6 (Q-20): dates are skipped only when the whole window is date
       "2. 2026.12.01 교육",
       "02명 2026.12.01 입사",
       "02번 2026.12.01",
-      "1) 2026.12.01 2) 2027.01.31",
       "02 2026년 12월 입사",
     ]) {
       expect(detectContacts(text), text).toEqual([]);
@@ -945,5 +946,82 @@ describe("P2a run 6 (Q-20): dates are skipped only when the whole window is date
     expect(maskContacts("일당 820000~950000원 010-1234-5678")).toBe("일당 820000~950000원 ***");
     expect(maskContacts("월급 2500000~3100000 010-1234-5678")).toBe("월급 2500000~3100000 ***");
     expect(maskContacts("일당 820000 ~ 950000 02-123-4567 끝")).toBe("일당 820000 ~ 950000 *** 끝");
+  });
+});
+
+// ── P2a run 7 (Q-21): no time / unit / list-marker exception next to a date ───────────────────
+// QA run 6 D-7: the run 6 exception cut "%"-, ")"- and ":"-marked groups out of a window of dates and
+// let complete numbers through. Fourteen forms, as listed in .workflow/qa/phase-P2a-run-6.md item 12.
+const QA6_D7 = [
+  "문의 010%-1234%-5678% 2026.12.01",
+  "문의 010%1234%5678% 2026.12.01",
+  "문의 010％1234％5678％ 2026.12.01",
+  "2026.12.01 010%1234%5678%",
+  "문의 +82% 10% 1234% 5678% 2026.12.01",
+  "문의 010% 2026.12.01",
+  "문의 031 % 2026.12.01",
+  "문의 0101234% 2026.12",
+  "문의 02% 1234% 2026.12",
+  "문의 +82) 10) 2026.12.01",
+  "문의 10:02 2026.12.01",
+  "문의 10:02 2026-12-01 입사",
+  "문의 10:02 2026.12.01 3명",
+  "문의 9:02 2026년 12월 01일",
+];
+// Q-21 accepted false positives: a time / count / list-marker digit joins the run of the dates, so
+// the window is not dates alone and is checked strictly. The writer rewrites the phrase.
+const RUN7_Q21_ACCEPTED_FALSE_POSITIVES = [
+  "근무 17:00 (2026.12.01~2027.01.31)",
+  "2026.12.01~2027.01.31 3명",
+  "2026.12.01~2027.01.31 (2개월)",
+  "2026.12.01~2027.01.31 30일",
+  "2026.12.01~2027.01.31 09:00 출근",
+  "근무 2026.12.01~2027.01.31 3 명",
+  "1) 2026.12.01 2) 2027.01.31",
+  "단기 2026.12.01~2027.01.31 3명",
+  // moved from the fixed QA lists (QA run 4 item 2, R-012 "D-4 dates in other forms")
+  "근무기간 2026.12.01~2027.01.31 (3개월)",
+  "08:00~17:00 (2026.12.01~2027.01.31)",
+  "2026.01.15~2027.01.31 / 3명",
+  "면접 10:00 2026.12.01 본사",
+];
+
+describe("P2a run 7 (Q-21): times, units and list markers next to dates are checked strictly", () => {
+  // phone digits left after masking: years (19xx / 20xx) are not phone digits
+  const phoneDigitsLeft = (text: string) =>
+    (
+      maskContacts(text)
+        .replace(/(?:19|20)\d\d/g, "")
+        .match(/\d{4,}/g) ?? []
+    ).length;
+
+  it("QA run 6 D-7: the 14 forms are detected and no 4+ phone digits are left after masking", () => {
+    expect(QA6_D7).toHaveLength(14);
+    for (const text of QA6_D7) {
+      const found = detectContacts(text);
+      expect(found.length, text).toBeGreaterThan(0);
+      expect(found[0].type, text).toMatch(/^PHONE_/);
+      expect(maskContacts(text), text).toContain("***");
+      expect(phoneDigitsLeft(text), text).toBe(0);
+    }
+    expect(maskContacts("문의 010%-1234%-5678% 2026.12.01")).toBe("문의 ***% 2026.12.01");
+    expect(maskContacts("문의 +82) 10) 2026.12.01")).toBe("문의 ***");
+    expect(maskContacts("문의 10:02 2026.12.01")).toBe("문의 10:***");
+  });
+
+  it("Q-21 accepted false positives: a time / count digit joined to dates is refused", () => {
+    for (const text of RUN7_Q21_ACCEPTED_FALSE_POSITIVES) {
+      expect(detectContacts(text).length, text).toBeGreaterThan(0);
+    }
+  });
+
+  it("a window of dates alone is still not a phone (Q-20)", () => {
+    for (const text of [
+      "근무 2026.12.01~2027.01.31",
+      "2026년 12월 01일~2027년 01월 31일",
+      "12/1~1/31 단기",
+    ]) {
+      expect(detectContacts(text), text).toEqual([]);
+    }
   });
 });

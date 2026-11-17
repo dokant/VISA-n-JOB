@@ -220,13 +220,50 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     expect(row.title).toBe("일당 820000~950000 ***");
     const raw = JSON.stringify(row.rawJson);
     expect(raw).toContain(
-      "문의 ***.12.01 / 문의 ***.12 / 문의 ***.12.01 / 문의 ***.12 / 문의 ***일 / 근무 17:00 (2026.12.01~2027.01.31) 끝",
+      "문의 ***.12.01 / 문의 ***.12 / 문의 ***.12.01 / 문의 ***.12 / 문의 ***일 / ",
     );
+    // run 7 (Q-21): a time next to a date period is checked strictly — accepted false positive
+    expect(raw).toContain("근무 17:***.31) 끝");
     // no 4 or more phone digits left (the kept date period and the amount range aside)
     const rest = `${row.title} ${raw}`
       .replace("2026.12.01~2027.01.31", "")
       .replace(/820000~950000/g, "");
     for (const tail of ["1234", "5678", "1201", "0101234", "021201"]) {
+      expect(rest).not.toContain(tail);
+    }
+  });
+
+  it("BR-14 (P2a QA run 6 D-7, Q-21): numbers marked with %, ) or a minute next to a date are masked", async () => {
+    const d7 = [
+      "문의 010%-1234%-5678% 2026.12.01",
+      "2026.12.01 010%1234%5678%",
+      "문의 +82% 10% 1234% 5678% 2026.12.01",
+      "문의 02% 1234% 2026.12",
+      "문의 +82) 10) 2026.12.01",
+      "문의 10:02 2026.12.01",
+      "문의 9:02 2026년 12월 01일",
+    ];
+    const item = leadItem({
+      title: "문의 010%1234%5678% 2026.12.01",
+      // a word between the phrases keeps their digit runs apart
+      memo: d7.join(" 다음 "),
+      nested: { note: "문의 10:02 2026-12-01 입사" },
+    });
+    const res = await post([item]);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as Body).created).toBe(1);
+    const row = await prisma.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(row.title).toBe("문의 ***% 2026.12.01");
+    const raw = JSON.stringify(row.rawJson);
+    expect(raw).toContain(
+      "문의 ***% 2026.12.01 다음 2026.12.01 ***% 다음 문의 ***% 2026.12.01 다음 문의 ***.12 다음 문의 *** 다음 문의 10:*** 다음 문의 9:***일",
+    );
+    expect(raw).toContain("문의 10:*** 입사");
+    // no 4 or more phone digits left (years aside)
+    const rest = `${row.title} ${raw}`.replace(/(?:19|20)\d\d/g, "");
+    for (const tail of ["1234", "5678", "0101234"]) {
       expect(rest).not.toContain(tail);
     }
   });
