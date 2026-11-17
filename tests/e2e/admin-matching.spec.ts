@@ -40,12 +40,14 @@ test("R-209 / R-210: posting → eligible seeker → 추천 실행 → 면접 �
   await waitForHydration(page, "recommend-open");
   await row.getByTestId("recommend-open").click();
   await page.getByTestId("recommend-confirm").click();
-  await expect(page.getByTestId("recommend-done")).toBeVisible();
+  // the page is revalidated: the row now links to the recommendation (no second 추천 실행 button)
+  const recLink = row.getByTestId("already-recommended");
+  await expect(recLink).toBeVisible();
   const recs = await recommendationsOf(seeker.id);
   expect(recs).toHaveLength(1);
   expect(recs[0].staffId).toBe(staffId);
 
-  await page.getByTestId("recommend-done").getByRole("link").click();
+  await recLink.click();
   await expect(page).toHaveURL(new RegExp(`/admin/matching/recommendations/${recs[0].id}$`));
   await waitForHydration(page, "interview-create-form");
   await page.getByLabel("일시 (한국 시간)").fill("2026-12-10T14:00");
