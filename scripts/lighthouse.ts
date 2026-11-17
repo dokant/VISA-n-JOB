@@ -10,11 +10,22 @@
  * 3. Writes .lighthouse/{page}-{run}.json and .lighthouse/summary.json, prints a table and exits 1
  *    when any median is below performance 85 or accessibility 90.
  *    A failed run prints its exit reason, the Chrome binary used, a CHROME_PATH hint and the tail of
- *    the Lighthouse log (QA P2e O-1).
+ *    the Lighthouse log (QA P2e O-1). A CHROME_PATH that is missing or not executable stops the run
+ *    before the build (no fallback to another browser, QA P2e run 2 O-2); the browser used is
+ *    printed before and after the results and stored in summary.json.
  * Usage: tsx scripts/lighthouse.ts [--skip-build] [--runs N]
  */
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  accessSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 import { chromium } from "@playwright/test";
@@ -59,9 +70,24 @@ type LhReport = {
   audits: Record<string, { numericValue?: number; details?: { items?: unknown[] } }>;
 };
 
-/** CHROME_PATH, else Playwright's headless shell next to its Chromium, else Playwright's Chromium. */
+/**
+ * CHROME_PATH when set — it must be an existing executable file, otherwise the run stops before any
+ * measurement (QA P2e run 2 O-2: chrome-launcher silently fell back to another installed Chrome, so
+ * the printed browser was not the one measured). Not set: Playwright's headless shell next to its
+ * Chromium, else Playwright's Chromium.
+ */
 function chromePath(): string {
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const wanted = process.env.CHROME_PATH;
+  if (wanted) {
+    const problem = chromeProblem(wanted);
+    if (problem) {
+      throw new Error(
+        `CHROME_PATH ${wanted}: ${problem}. Point CHROME_PATH at an existing Chrome / Chromium ` +
+          "binary, or unset it to use Playwright's headless shell.",
+      );
+    }
+    return wanted;
+  }
   const full = chromium.executablePath();
   const cache = path.resolve(path.dirname(full), "..", "..");
   const shellDir = existsSync(cache)
@@ -77,6 +103,26 @@ function chromePath(): string {
     }
   }
   return full;
+}
+
+/** Why `file` cannot be launched as Chrome (missing, not a file, not executable), or null. */
+function chromeProblem(file: string): string | null {
+  let st;
+  try {
+    st = statSync(file);
+  } catch {
+    return "file not found";
+  }
+  if (!st.isFile()) return "not a file";
+  if (process.platform === "win32") {
+    return /\.(exe|com)$/i.test(file) ? null : "not an executable (.exe) file";
+  }
+  try {
+    accessSync(file, constants.X_OK);
+    return null;
+  } catch {
+    return "not executable";
+  }
 }
 
 /**
@@ -131,6 +177,16 @@ function lcpElement(report: LhReport): string {
 
 async function main(): Promise<number> {
   mkdirSync(OUT, { recursive: true });
+  let chrome: string;
+  try {
+    chrome = chromePath();
+  } catch (err) {
+    console.error(`lighthouse: ${(err as Error).message}`);
+    return 1;
+  }
+  console.log(
+    `lighthouse: Chrome ${chrome}${process.env.CHROME_PATH ? " (CHROME_PATH)" : " (auto-detected)"}`,
+  );
   if (!skipBuild) {
     const b = spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: ROOT, stdio: "inherit" });
     if (b.status !== 0) return 1;
@@ -145,8 +201,6 @@ async function main(): Promise<number> {
     // Warm up every page once (first request compiles caches).
     for (const p of PAGES) await fetch(BASE + p);
 
-    const chrome = chromePath();
-    console.log(`lighthouse: Chrome ${chrome}`);
     const summary: Array<Record<string, unknown>> = [];
     let failed = false;
     for (const p of PAGES) {
@@ -187,16 +241,18 @@ async function main(): Promise<number> {
           at: new Date().toISOString(),
           preset: "mobile (Lighthouse default)",
           runs: RUNS,
+          chrome,
           pages: summary,
         },
         null,
         2,
       ),
     );
+    console.log(`\nlighthouse: measured with Chrome ${chrome}`);
     console.log(
       failed
-        ? "\nlighthouse: BELOW THRESHOLD (performance >= 85, accessibility >= 90)"
-        : "\nlighthouse: all pages meet the thresholds",
+        ? "lighthouse: BELOW THRESHOLD (performance >= 85, accessibility >= 90)"
+        : "lighthouse: all pages meet the thresholds",
     );
     return failed ? 1 : 0;
   } finally {

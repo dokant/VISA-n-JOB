@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
 import { uniquePhone } from "./support/authDb";
+import { candidatesURL, createCandidateEmployer, loginEmployer } from "./support/candidatesDb";
 import { isolate, quickRegisterUi } from "./support/seekerFlow";
 
 // N-04 일괄 점검 (P2e 작업 3): the main public and seeker screens at 375px have no horizontal scroll
@@ -54,10 +55,25 @@ const SEEKER_PATHS = [
   "/seeker/register",
 ] as const;
 
+/**
+ * Document width past the viewport. `html` / `body` have `overflow-x: clip`, which hides content
+ * overflow from scrollWidth (QA P2e run 2 O-1: ru /employer/contract was 26px wider than 375px,
+ * every control still inside the viewport but the cards cut off on the right). The clip is lifted
+ * for the measurement (inline style, restored right after), so any content wider than the viewport
+ * counts; containers that clip or scroll on their own are unaffected.
+ */
 async function horizontalOverflow(page: Page): Promise<number> {
-  return page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
+  return page.evaluate(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    const saved = [root.style.overflowX, body.style.overflowX];
+    root.style.overflowX = "visible";
+    body.style.overflowX = "visible";
+    const over = root.scrollWidth - root.clientWidth;
+    root.style.overflowX = saved[0];
+    body.style.overflowX = saved[1];
+    return over;
+  });
 }
 
 /**
@@ -145,3 +161,122 @@ for (const locale of ["ko", "vi", "ru"] as const) {
     expect(await overflowing(page, urls)).toEqual([]);
   });
 }
+
+/**
+ * Tab labels wrap between words only (STANDARD v2.23 3.1 tabs, P2e R2-1). For every `role=tab` the
+ * line of each character is read from a per-character Range; all characters of one
+ * whitespace-separated word must sit on the same line ("Companie/s" fails). Also returns tabs that
+ * leave the tab list or the viewport, are under 44×44, or whose label overflows the tab.
+ */
+async function tabProblems(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const out: string[] = [];
+    const width = document.documentElement.clientWidth;
+    for (const tab of Array.from(document.querySelectorAll<HTMLElement>('[role="tab"]'))) {
+      const label = (tab.textContent ?? "").trim();
+      const r = tab.getBoundingClientRect();
+      const list = tab.closest('[role="tablist"]')?.getBoundingClientRect();
+      if (r.height < 44 || r.width < 44)
+        out.push(`"${label}" ${Math.round(r.width)}x${Math.round(r.height)}`);
+      if (r.left < -0.5 || r.right > width + 0.5)
+        out.push(`"${label}" outside viewport [${Math.round(r.left)},${Math.round(r.right)}]`);
+      if (list && (r.left < list.left - 0.5 || r.right > list.right + 0.5))
+        out.push(`"${label}" outside its tab list`);
+      if (tab.scrollWidth > tab.clientWidth + 1) out.push(`"${label}" label overflows the tab`);
+      // line top of each non-space character, in text order
+      const chars: Array<{ ch: string; top: number }> = [];
+      const walker = document.createTreeWalker(tab, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const text = n.textContent ?? "";
+        for (let i = 0; i < text.length; i++) {
+          if (/\s/.test(text[i])) {
+            chars.push({ ch: " ", top: NaN });
+            continue;
+          }
+          const range = document.createRange();
+          range.setStart(n, i);
+          range.setEnd(n, i + 1);
+          const rect = range.getClientRects()[0];
+          if (rect) chars.push({ ch: text[i], top: rect.top });
+        }
+      }
+      let word: Array<{ ch: string; top: number }> = [];
+      const flush = () => {
+        const tops = new Set(word.map((c) => Math.round(c.top)));
+        if (tops.size > 1) {
+          const lines = [...tops].map((t) =>
+            word
+              .filter((c) => Math.round(c.top) === t)
+              .map((c) => c.ch)
+              .join(""),
+          );
+          out.push(`"${label}" word split: ${lines.join(" / ")}`);
+        }
+        word = [];
+      };
+      for (const c of chars) {
+        if (c.ch === " ") flush();
+        else word.push(c);
+      }
+      flush();
+    }
+    return out;
+  });
+}
+
+test("N-04 / R2-1: home audience tabs at 375px wrap between words only, 44px, inside the track", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const bad: string[] = [];
+  for (const locale of LOCALES) {
+    await page.goto(`/${locale}`);
+    const tabs = page.getByRole("tab");
+    await expect(tabs).toHaveCount(3);
+    await tabs.first().scrollIntoViewIfNeeded();
+    await page.evaluate(() => document.fonts.ready);
+    for (const p of await tabProblems(page)) bad.push(`${locale} ${p}`);
+  }
+  expect(bad).toEqual([]);
+});
+
+/**
+ * Signed-in employer screens (QA P2e run 2 O-1: ru /employer/contract with the candidates flag on
+ * was 26px wider than 375px). One verified + contracted employer: request, candidates, contract,
+ * requests on the FEATURE_EMPLOYER_CANDIDATES server, and request, requests, contract on the default
+ * server (flag off). One employer without a contract: the contract form. Same localhost cookie.
+ */
+test.describe("N-04: signed-in employer screens at 375px", () => {
+  test.use({ baseURL: candidatesURL() });
+
+  for (const locale of LOCALES) {
+    test(`employer screens have no horizontal scroll or cut-off control (${locale})`, async ({
+      page,
+      context,
+    }) => {
+      test.setTimeout(180_000);
+      const signed = await createCandidateEmployer({ verified: true, contracted: true });
+      await loginEmployer(page, signed.email, "/employer/contract");
+      const urls = [
+        ...[
+          "/employer/request",
+          "/employer/candidates",
+          "/employer/contract",
+          "/employer/requests",
+        ].map((p) => `${candidatesURL()}/${locale}${p}`),
+        ...["/employer/request", "/employer/requests", "/employer/contract"].map(
+          (p) => `${DEFAULT_URL}/${locale}${p}`,
+        ),
+      ];
+      const bad = await overflowing(page, urls);
+      await page.goto(`${candidatesURL()}/${locale}/employer/contract`);
+      await expect(page.getByTestId("contract-signed")).toBeVisible();
+
+      await context.clearCookies();
+      const unsigned = await createCandidateEmployer({ verified: false, contracted: false });
+      await loginEmployer(page, unsigned.email, "/employer/contract");
+      bad.push(...(await overflowing(page, [`${candidatesURL()}/${locale}/employer/contract`])));
+      expect(bad).toEqual([]);
+    });
+  }
+});

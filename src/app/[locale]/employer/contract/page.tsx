@@ -102,7 +102,11 @@ export default async function EmployerContractPage({ params }: Props) {
             </ul>
             {status.verified && candidatesOn ? (
               <div>
-                <Button asChild>
+                {/* STANDARD v2.23 3.1 button wrap variant (QA P2e run 2 O-1): ru label is wider than 375px. */}
+                <Button
+                  asChild
+                  className="h-auto min-h-13 max-w-full py-3 text-center whitespace-normal"
+                >
                   <Link href="/employer/candidates" data-testid="contract-candidates-link">
                     {t("next.candidates")}
                     <ArrowRight aria-hidden="true" strokeWidth={1.5} data-icon="trailing" />

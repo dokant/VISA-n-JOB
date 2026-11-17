@@ -11,6 +11,10 @@ import { cn } from "@/lib/utils";
 // Narrow screens (QA P2e D-2): the list never grows past its container. When the labels do not fit
 // on one line (en·vi·uz at 375px) each tab shrinks and its label wraps to two lines inside the same
 // segment (min 44px high), so every tab stays fully visible and tappable without a hidden scroll.
+// Labels wrap between words only (STANDARD v2.23 3.1 tabs, P2e R2-1): the trigger sets
+// `overflow-wrap: normal` (`wrap-normal`) instead of the global `anywhere`, and keeps the default
+// `min-width: auto`, so a tab never shrinks below its longest word ("Companie/s" was a min-w-0 tab
+// whose min-content had become one letter wide).
 
 function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
   return <TabsPrimitive.Root data-slot="tabs" className={cn(className)} {...props} />;
@@ -34,7 +38,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex min-h-11 min-w-0 cursor-pointer items-center justify-center rounded-full px-3 text-center text-caption leading-tight font-semibold text-balance text-n700 sm:px-4",
+        "inline-flex min-h-11 cursor-pointer items-center justify-center rounded-full px-3 text-center text-caption leading-tight font-semibold text-balance wrap-normal text-n700 sm:px-4",
         "transition-[background-color,color,box-shadow] duration-300 ease-standard hover:text-navy",
         "data-[state=active]:bg-white data-[state=active]:text-navy data-[state=active]:shadow-tab",
         className,

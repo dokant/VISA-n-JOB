@@ -189,6 +189,7 @@ Gate 4 법무 확인 목록:
 - 구인 의뢰 담당자 개인정보 수집 고지에 수집 동의 체크박스를 둘지(DECISIONS Q-12 ③, 현재 고지 문구에 [전문가 검토 필요] 표시).
 - 면접 실명 제공 동의서의 "기간: 이 면접 건이 끝날 때까지" 해석(DECISIONS Q-25, 현재 결과 기록·취소 시 실명 제공 종료).
 - THIRD_PARTY_INTERVIEW 동의서에 받는 기업(수령자)이 적혀 있지 않음(BR-03, P2c).
+- 기업 가입 화면(`/employer/signup`)에 개인정보 수집 고지·약관 동의가 없음(QA P2e run 1 O-4, run 2 O-7). 계약 약관 동의는 가입 후 `/employer/contract`에서 받는다.
 
 Gate 4 운영·배포 확인 목록(STATE.md·DECISIONS 기록 모음):
 
