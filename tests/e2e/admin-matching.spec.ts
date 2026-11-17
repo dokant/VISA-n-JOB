@@ -1,4 +1,4 @@
-import { type Route, expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { INTRO_CONFIRM_MAX_BYTES, SERVER_ACTION_BODY_LIMIT } from "@/config/limits";
 
@@ -79,23 +79,21 @@ test("R-209 / R-210: posting → eligible seeker → 추천 실행 → 면접 �
   await expect(item.getByTestId("intro-upload")).toBeDisabled();
   await p2cShot(page, info, "r2_upload_too_large");
 
-  // a request the server refuses before the action (body over SERVER_ACTION_BODY_LIMIT) → a plain
-  // error line, not the "Application error" screen
-  await fileInput.setInputFiles({ name: "intro.pdf", mimeType: "application/pdf", buffer: PDF });
+  // a body the server refuses before the action runs (over SERVER_ACTION_BODY_LIMIT, e.g. a client
+  // whose size check was skipped) → a plain error line, not the "Application error" screen. The
+  // browser-side check is bypassed by reporting a tiny File.size; the real bytes are sent.
+  await page.evaluate(() => {
+    Object.defineProperty(File.prototype, "size", { configurable: true, get: () => 1 });
+  });
+  const huge = Buffer.alloc(SERVER_ACTION_BODY_LIMIT + 1024, 0x20);
+  PDF.copy(huge);
+  await fileInput.setInputFiles({ name: "huge.pdf", mimeType: "application/pdf", buffer: huge });
   await expect(item.getByTestId("action-error")).toHaveCount(0);
-  const inflate = async (route: Route) => {
-    const req = route.request();
-    if (req.method() !== "POST" || !req.headers()["next-action"]) return route.continue();
-    const body = req.postDataBuffer() ?? Buffer.alloc(0);
-    return route.continue({
-      postData: Buffer.concat([body, Buffer.alloc(SERVER_ACTION_BODY_LIMIT + 1024, 0x20)]),
-    });
-  };
-  await page.route("**/admin/matching/recommendations/**", inflate);
   await item.getByTestId("intro-upload").click();
   await expect(item.getByTestId("action-error")).toHaveAttribute("data-code", "UPLOAD_FAILED");
   await expect(page.getByText("Application error")).toHaveCount(0);
-  await page.unroute("**/admin/matching/recommendations/**", inflate);
+  await expect(page.getByTestId("interview-item")).toBeVisible();
+  await page.evaluate(() => delete (File.prototype as { size?: number }).size);
   expect((await interviewsOf(recs[0].id))[0].introConfirmFile).toBeNull();
 
   // R-210 upload (bytes checked on the server) → open through a fresh signed link
