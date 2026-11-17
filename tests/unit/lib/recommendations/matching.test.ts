@@ -185,7 +185,7 @@ describe("R-209 matching", () => {
       name: "test",
       send: async (m) => {
         sent.push(m);
-        return { ok: true, provider: "test", id: "1" };
+        return { ok: true, provider: "test", id: "1", delivery: "SIMULATED" };
       },
     };
     expect(await confirmInterview({ interviewId: created.id, provider })).toEqual({ ok: true });

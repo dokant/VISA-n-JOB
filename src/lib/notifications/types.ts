@@ -8,6 +8,10 @@
  * - `send` never throws for a delivery problem: it answers `{ ok: false, provider, error }` with an
  *   error code (no address or message text), so callers can keep their own record (StaffTask) open.
  * - Adapters: console.ts (all channels, development / fallback), smtp.ts (EMAIL, only with SMTP_*).
+ * - `delivery` says whether a person can actually have received the message (DECISIONS Q-27):
+ *   REAL = handed to a real channel (SMTP accepted it), SIMULATED = only written to the log (console
+ *   adapter: nobody receives it), FAILED = not delivered (`ok: false`). Jobs whose effect depends on
+ *   the seeker having read the message (the 14-day no-reply transition) count REAL deliveries only.
  */
 import type { Locale } from "@/i18n/locales";
 
@@ -23,8 +27,11 @@ export type NotificationMessage = {
   params?: Readonly<Record<string, string | number>>;
 };
 
+export type Delivery = "REAL" | "SIMULATED" | "FAILED";
+
 export type SendResult =
-  { ok: true; provider: string; id: string } | { ok: false; provider: string; error: string };
+  | { ok: true; provider: string; id: string; delivery: "REAL" | "SIMULATED" }
+  | { ok: false; provider: string; error: string; delivery: "FAILED" };
 
 export interface NotificationProvider {
   readonly name: string;

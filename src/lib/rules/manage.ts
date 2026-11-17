@@ -517,18 +517,21 @@ export async function retireScoreTable(
   });
 }
 
-/** Display names of the staff who reviewed (published) versions (admin screens). */
+/**
+ * Display names of the staff who reviewed (published) versions (admin screens). `null` when the
+ * staff user has no display name; the page shows the fallback (`staffName`, _i18n/ko.ts).
+ */
 export async function reviewerNames(
   ids: (string | null)[],
   client: Client = db,
-): Promise<Map<string, string>> {
+): Promise<Map<string, string | null>> {
   const wanted = [...new Set(ids.filter((v): v is string => typeof v === "string"))];
   if (wanted.length === 0) return new Map();
   const users = await client.user.findMany({
     where: { id: { in: wanted } },
     select: { id: true, displayName: true },
   });
-  return new Map(users.map((u) => [u.id, u.displayName ?? "직원"]));
+  return new Map(users.map((u) => [u.id, u.displayName]));
 }
 
 export const RULE_STATUSES: readonly RuleStatus[] = ["DRAFT", "PUBLISHED", "RETIRED"];

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { OUTCOME_LABEL, fmtDateTime } from "@/app/admin/_i18n/ko";
+import { OUTCOME_LABEL, fmtDateTime, staffName, visaOptions } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
 import { RuleStatusBadge, SampleBadge } from "@/components/admin/rule-badges";
 import { VisaRuleForm } from "@/components/admin/rule-forms";
@@ -91,7 +91,7 @@ export default async function RulesPage() {
                   </td>
                   <td className={cell}>
                     {r.reviewedAt
-                      ? `${reviewers.get(r.reviewedBy ?? "") ?? "직원"} · ${fmtDateTime(r.reviewedAt)}`
+                      ? `${staffName(reviewers.get(r.reviewedBy ?? ""))} · ${fmtDateTime(r.reviewedAt)}`
                       : "—"}
                   </td>
                   <td className={cell}>
@@ -124,7 +124,7 @@ export default async function RulesPage() {
             messageKey: options.messages[0]?.value ?? "",
             conditions: "{}",
           }}
-          visas={options.visas}
+          visas={visaOptions(options.visaTypes)}
           industries={options.industries}
           messages={options.messages}
         />

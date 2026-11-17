@@ -16,7 +16,7 @@ export { isEligibleCandidate };
 const silent: NotificationProvider = {
   name: "e2e-silent",
   async send() {
-    return { ok: true, provider: "e2e-silent", id: "0" };
+    return { ok: true, provider: "e2e-silent", id: "0", delivery: "SIMULATED" };
   },
 };
 

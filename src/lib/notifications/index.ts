@@ -17,6 +17,7 @@ import { createSmtpProvider, type LogLine, type MailTransport, smtpConfigFromEnv
 import type { NotificationChannel, NotificationProvider } from "./types";
 
 export type {
+  Delivery,
   NotificationChannel,
   NotificationMessage,
   NotificationProvider,
@@ -40,6 +41,11 @@ export type ProviderSelection = {
   routes: Record<NotificationChannel, string>;
   smtp: "enabled" | "disabled";
   reason: string | null;
+  /**
+   * Channels with a real adapter (someone can receive the message). Empty = console only: the
+   * 14-day status-check transition never applies (DECISIONS Q-27, `realChannelWarning`).
+   */
+  realChannels: NotificationChannel[];
 };
 
 /**
@@ -66,6 +72,7 @@ export function selectNotificationProvider(
     routes: { EMAIL: email.name, SMS: consoleProvider.name, STAFF: consoleProvider.name },
     smtp: smtp.enabled ? "enabled" : "disabled",
     reason: smtp.enabled ? null : smtp.reason,
+    realChannels: smtp.enabled ? ["EMAIL"] : [],
   };
   log(
     JSON.stringify({
@@ -73,15 +80,37 @@ export function selectNotificationProvider(
       event: "notification.provider",
       routes: selection.routes,
       smtp: selection.smtp,
+      realChannels: selection.realChannels,
       ...(selection.reason ? { reason: selection.reason } : {}),
     }),
   );
   return selection;
 }
 
-let provider: NotificationProvider | null = null;
+/**
+ * The start-up warning of the worker (DECISIONS Q-27) when no channel is real: status checks are
+ * still sent (logged), but no seeker is made INACTIVE or demoted for not answering them. `null` when
+ * at least one real channel exists.
+ */
+export function realChannelWarning(selection: Pick<ProviderSelection, "realChannels">) {
+  if (selection.realChannels.length > 0) return null;
+  return {
+    level: "warn",
+    event: "status_check.transition_disabled",
+    reason: "NO_REAL_CHANNEL",
+    message:
+      "No real notification channel (console only): status checks are logged, not delivered; the 14-day no-reply INACTIVE / S→A transition is disabled.",
+  } as const;
+}
+
+let selected: ProviderSelection | null = null;
+
+/** The process-wide selection (logged once). */
+export function getNotificationSelection(): ProviderSelection {
+  selected ??= selectNotificationProvider();
+  return selected;
+}
 
 export function getNotificationProvider(): NotificationProvider {
-  provider ??= selectNotificationProvider().provider;
-  return provider;
+  return getNotificationSelection().provider;
 }

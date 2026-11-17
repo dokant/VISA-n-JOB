@@ -13,7 +13,10 @@
  *   starts a new series.
  * - Each step creates one StaffTask STAY_EXPIRY for STAFF_VISA (담당 행정사), due on the expiry day.
  *   The seeker gets the notice (SMS + e-mail, notifySeeker) only with `stayAlertOptIn` (/me/stay);
- *   the task payload records whether it was delivered. Payload: codes and numbers only (no PII).
+ *   the task payload records whether it was delivered and how (`delivery`: REAL when a real channel
+ *   accepted it, SIMULATED when only the console adapter did — nobody received it, DECISIONS Q-27 —
+ *   FAILED when none did). The task is created the same way in every case. Payload: codes and
+ *   numbers only (no PII).
  * - BLOCKED seekers are skipped; expired stays (daysLeft ≤ 0) get nothing.
  */
 import type { Prisma } from "@prisma/client";
@@ -38,7 +41,14 @@ export const STAY_EXPIRY_TOPIC = "common.stayExpiry";
 const STEPS = [...STAY_ALERT_DAYS].sort((a, b) => b - a);
 const FIRST_STEP = STEPS[0];
 
-export type StayExpiryResult = { tasks: number; notified: number; notifyFailed: number };
+export type StayExpiryResult = {
+  tasks: number;
+  /** Notices accepted by a channel (real or console). */
+  notified: number;
+  /** Of `notified`, console only (SIMULATED, Q-27). */
+  notifiedSimulated: number;
+  notifyFailed: number;
+};
 
 /** 00:00 UTC of the Korean calendar day that contains `now` (a pure calendar date). */
 export function kstToday(now: Date): Date {
@@ -83,7 +93,7 @@ export async function runStayExpiryAlerts(
   const scope = options.scope ?? {};
   const provider: NotificationProvider = options.provider ?? getNotificationProvider();
   const siteUrl = options.siteUrl ?? getSiteConfig().siteUrl;
-  const result: StayExpiryResult = { tasks: 0, notified: 0, notifyFailed: 0 };
+  const result: StayExpiryResult = { tasks: 0, notified: 0, notifiedSimulated: 0, notifyFailed: 0 };
   const seen = new Set<string>();
   for (;;) {
     const batch = await client.seekerProfile.findMany({
@@ -123,18 +133,20 @@ export async function runStayExpiryAlerts(
       result.tasks += 1;
       if (!row.stayAlertOptIn) continue;
       const locale = seekerLocale(row.user.locale);
-      const { delivered } = await notifySeeker(
+      const { delivered, deliveredReal } = await notifySeeker(
         provider,
         { phone: row.user.phoneEnc, email: row.emailEnc, locale },
         STAY_EXPIRY_TOPIC,
         { days: daysLeft, url: `${siteUrl}/${locale}/seeker/me/stay` },
       );
+      const delivery = deliveredReal > 0 ? "REAL" : delivered > 0 ? "SIMULATED" : "FAILED";
+      await client.staffTask.update({
+        where: { id: created[0].id },
+        data: { payload: { step, daysLeft, optIn: true, notified: delivered > 0, delivery } },
+      });
       if (delivered > 0) {
         result.notified += 1;
-        await client.staffTask.update({
-          where: { id: created[0].id },
-          data: { payload: { step, daysLeft, optIn: true, notified: true } },
-        });
+        if (delivery === "SIMULATED") result.notifiedSimulated += 1;
       } else {
         result.notifyFailed += 1;
       }

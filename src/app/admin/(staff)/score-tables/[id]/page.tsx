@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { fmtDateTime } from "@/app/admin/_i18n/ko";
+import { fmtCount, fmtDateTime, staffName } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
 import { RuleStatusBadge, SampleBadge } from "@/components/admin/rule-badges";
 import {
@@ -70,13 +70,13 @@ export default async function ScoreTablePage({ params }: Props) {
         <dl className="divide-y divide-n100">
           <Field
             label="합격 점수"
-            value={table.passScore === null ? "없음" : String(table.passScore)}
+            value={table.passScore === null ? "없음" : fmtCount(table.passScore, "점")}
           />
           <Field
             label="검수(게시)"
             value={
               table.reviewedAt
-                ? `${reviewers.get(table.reviewedBy ?? "") ?? "직원"} · ${fmtDateTime(table.reviewedAt)}`
+                ? `${staffName(reviewers.get(table.reviewedBy ?? ""))} · ${fmtDateTime(table.reviewedAt)}`
                 : "게시 전"
             }
           />
@@ -90,7 +90,7 @@ export default async function ScoreTablePage({ params }: Props) {
           />
         </dl>
         <div className="flex flex-wrap items-start gap-3">
-          {table.status === "DRAFT" && canPublish ? (
+          {table.status === "DRAFT" && canPublish && !sample ? (
             <PublishButton kind="table" id={table.id} summary={summary} />
           ) : null}
           {table.status === "PUBLISHED" && canPublish ? (
@@ -166,7 +166,7 @@ export default async function ScoreTablePage({ params }: Props) {
                   </td>
                   <td className={cell}>
                     {v.reviewedAt
-                      ? `${reviewers.get(v.reviewedBy ?? "") ?? "직원"} · ${fmtDateTime(v.reviewedAt)}`
+                      ? `${staffName(reviewers.get(v.reviewedBy ?? ""))} · ${fmtDateTime(v.reviewedAt)}`
                       : "—"}
                   </td>
                 </tr>

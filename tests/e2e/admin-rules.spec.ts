@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { signInNewStaff } from "./support/adminDb";
-import { createE2eVisa, ruleAudit, ruleRow, scoreTableRow } from "./support/p2dDb";
+import { createE2eVisa, ruleAudit, ruleRow, sampleDraftIds, scoreTableRow } from "./support/p2dDb";
 import { isolate, waitForHydration } from "./support/seekerFlow";
 import { p2dShot } from "./support/shots";
 
@@ -119,4 +119,20 @@ test("R-215: score table draft → 게시 records the reviewer; STAFF_PLACEMENT 
     await expect(other.getByTestId("admin-forbidden")).toBeVisible();
   }
   await ctx.close();
+});
+
+test("QA O-4: SAMPLE rule / score table drafts show no 게시 button (the server refuses anyway)", async ({
+  page,
+}) => {
+  const { ruleId, tableId } = await sampleDraftIds();
+  expect(ruleId).not.toBeNull();
+  expect(tableId).not.toBeNull();
+  await signInNewStaff(page, "STAFF_VISA");
+  await page.goto(`/admin/rules/${ruleId}`);
+  await expect(page.getByTestId("admin-rule")).toHaveAttribute("data-status", "DRAFT");
+  await expect(page.getByText("__sample", { exact: false })).toBeVisible();
+  await expect(page.getByTestId("rule-publish")).toHaveCount(0);
+  await page.goto(`/admin/score-tables/${tableId}`);
+  await expect(page.getByTestId("admin-score-table")).toHaveAttribute("data-status", "DRAFT");
+  await expect(page.getByTestId("table-publish")).toHaveCount(0);
 });

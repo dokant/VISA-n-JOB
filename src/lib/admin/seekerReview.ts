@@ -362,6 +362,8 @@ export const SEEKER_REVIEW_SELECT = {
   lastActiveConfirmedAt: true,
   /** R-213: open 30-day status check (null = none) and recorded no-shows (internal). */
   statusCheckSentAt: true,
+  /** Q-27: the open check reached a real channel (false = console only, no INACTIVE on no-reply). */
+  statusCheckDeliveredReal: true,
   noShowCount: true,
   isQuickSignup: true,
   completedStep: true,

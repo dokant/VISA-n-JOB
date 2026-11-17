@@ -62,3 +62,12 @@ export function ruleAudit(entityId: string) {
     orderBy: { at: "asc" },
   });
 }
+
+/** A seeded SAMPLE draft rule and score table (QA O-4: their pages offer no 게시 button). */
+export async function sampleDraftIds() {
+  const [rule, table] = await Promise.all([
+    db.visaRule.findFirst({ where: { isSample: true, status: "DRAFT" }, select: { id: true } }),
+    db.scoreTable.findFirst({ where: { isSample: true, status: "DRAFT" }, select: { id: true } }),
+  ]);
+  return { ruleId: rule?.id ?? null, tableId: table?.id ?? null };
+}

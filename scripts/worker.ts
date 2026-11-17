@@ -26,8 +26,10 @@ async function main(): Promise<void> {
     await import("../src/lib/jobs/boss");
   // R-214: pick the notification adapters now, so the choice (`notification.provider`: SMTP enabled
   // or console) is in the log at start-up, before any job sends a message.
-  const { getNotificationProvider } = await import("../src/lib/notifications");
-  getNotificationProvider();
+  const { getNotificationSelection, realChannelWarning } = await import("../src/lib/notifications");
+  // DECISIONS Q-27: with no real channel the 14-day no-reply transition never applies — say so.
+  const warning = realChannelWarning(getNotificationSelection());
+  if (warning) log({ ...warning });
 
   const boss = createBoss(url);
   boss.on("error", (e: Error) => log({ event: "worker.error", message: e.message }));

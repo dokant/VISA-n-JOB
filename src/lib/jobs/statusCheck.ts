@@ -4,15 +4,22 @@
  *
  * One run does two things, in this order:
  * 1. 무응답 처리 — a check sent STATUS_CHECK_REPLY_DAYS (14) days ago or earlier and still open
- *    (`statusCheckSentAt` set; answering clears it) turns the seeker INACTIVE; an S seeker becomes A
- *    with AuditLog SEEKER_GRADE_CHANGE (actor SYSTEM, BR-15) in the same transaction. The open check
- *    is closed (`statusCheckSentAt = null`), so a later reactivation by staff starts clean.
+ *    (`statusCheckSentAt` set; answering clears it):
+ *    - delivered on a real channel (`statusCheckDeliveredReal`, DECISIONS Q-27): the seeker turns
+ *      INACTIVE; an S seeker becomes A with AuditLog SEEKER_GRADE_CHANGE (actor SYSTEM, BR-15) in the
+ *      same transaction.
+ *    - console only (SIMULATED, nobody received it): status and grade stay; the check is only closed
+ *      and counted (`simulatedExpired`, one `status_check.simulated` log line per run), so
+ *      the seeker can be asked again — on a real channel once one exists.
+ *    Either way the open check is closed (`statusCheckSentAt = null`), so a later reactivation by
+ *    staff starts clean.
  * 2. 발송 — an ACTIVE, JOB_MATCH seeker who is still looking for work (구직 상태 not NOT_SEARCHING)
  *    and whose last confirmation (`lastActiveConfirmedAt`) is STATUS_CHECK_INTERVAL_DAYS (30) days old
  *    or older, with no open check, gets "아직 구직 중이세요?" with the one-click link
  *    (src/lib/seeker/stillSearching.ts). `statusCheckSentAt = now` is claimed first (guarded), the
- *    message goes out on SMS and e-mail (notifySeeker); when no channel accepted it the claim is
- *    released so the next run tries again.
+ *    message goes out on SMS and e-mail (notifySeeker); `statusCheckDeliveredReal` records whether a
+ *    real channel accepted it. When no channel accepted it the claim is released so the next run
+ *    tries again.
  * Every change is guarded on the values it read, so two overlapping runs do not double-send or
  * double-demote. Messages carry no personal data beyond the recipient (the link holds the profile id
  * only).
@@ -40,11 +47,18 @@ const DAY_MS = 86_400_000;
 export const STATUS_CHECK_TOPIC = "common.statusCheck";
 
 export type StatusCheckResult = {
+  /** Checks delivered (real or console). */
   sent: number;
+  /** Of `sent`, checks no real channel accepted (console only, Q-27). */
+  sentSimulated: number;
   failed: number;
   inactivated: number;
   demoted: number;
+  /** Console-only checks whose window passed: closed without a status change (Q-27). */
+  simulatedExpired: number;
 };
+
+export type JobLog = (line: string) => void;
 
 export type JobOptions = {
   /** Narrows the seekers (tests run against a shared database); the scheduled job passes nothing. */
@@ -53,6 +67,8 @@ export type JobOptions = {
   provider?: NotificationProvider;
   /** Origin of the link; default SITE_URL (site.config). */
   siteUrl?: string;
+  /** JSON log line sink; default console.info. */
+  log?: JobLog;
 };
 
 /** Open checks whose 14-day answer window has passed at `now`. */
@@ -86,12 +102,27 @@ async function expireNoReplies(
   for (;;) {
     const batch = await client.seekerProfile.findMany({
       where: { AND: [noReplyWhere(now), scope, { id: { notIn: [...skipped] } }] },
-      select: { id: true, grade: true, statusCheckSentAt: true },
+      select: { id: true, grade: true, statusCheckSentAt: true, statusCheckDeliveredReal: true },
       orderBy: { statusCheckSentAt: "asc" },
       take: SEEKER_JOB_BATCH,
     });
     if (batch.length === 0) return;
     for (const row of batch) {
+      if (!row.statusCheckDeliveredReal) {
+        // Q-27: nobody received a console-only check, so its silence is not a "no": close it only.
+        const { count } = await client.seekerProfile.updateMany({
+          where: {
+            id: row.id,
+            status: "ACTIVE",
+            statusCheckSentAt: row.statusCheckSentAt,
+            statusCheckDeliveredReal: false,
+          },
+          data: { statusCheckSentAt: null },
+        });
+        if (count === 0) skipped.add(row.id);
+        else result.simulatedExpired += 1;
+        continue;
+      }
       const demote = row.grade === "S";
       const changed = await client.$transaction(async (tx) => {
         const { count } = await tx.seekerProfile.updateMany({
@@ -100,10 +131,12 @@ async function expireNoReplies(
             status: "ACTIVE",
             grade: row.grade,
             statusCheckSentAt: row.statusCheckSentAt,
+            statusCheckDeliveredReal: true,
           },
           data: {
             status: "INACTIVE",
             statusCheckSentAt: null,
+            statusCheckDeliveredReal: false,
             ...(demote ? { grade: "A" } : {}),
           },
         });
@@ -153,12 +186,12 @@ async function sendChecks(
       done.add(row.id);
       const claim = await client.seekerProfile.updateMany({
         where: { id: row.id, status: "ACTIVE", statusCheckSentAt: null },
-        data: { statusCheckSentAt: now },
+        data: { statusCheckSentAt: now, statusCheckDeliveredReal: false },
       });
       if (claim.count === 0) continue;
       const locale = seekerLocale(row.user.locale);
       const token = signStillSearchingToken(row.id, now);
-      const { delivered } = await notifySeeker(
+      const { delivered, deliveredReal } = await notifySeeker(
         provider,
         { phone: row.user.phoneEnc, email: row.emailEnc, locale },
         STATUS_CHECK_TOPIC,
@@ -166,6 +199,15 @@ async function sendChecks(
       );
       if (delivered > 0) {
         result.sent += 1;
+        if (deliveredReal > 0) {
+          // Q-27: at least one real channel — the 14-day no-reply transition applies to this check.
+          await client.seekerProfile.updateMany({
+            where: { id: row.id, statusCheckSentAt: now },
+            data: { statusCheckDeliveredReal: true },
+          });
+        } else {
+          result.sentSimulated += 1;
+        }
         continue;
       }
       // Nothing delivered: release the claim so the 14-day window does not run without a message.
@@ -184,7 +226,15 @@ export async function runStatusCheck(
 ): Promise<StatusCheckResult> {
   const client = options.client ?? db;
   const scope = options.scope ?? {};
-  const result: StatusCheckResult = { sent: 0, failed: 0, inactivated: 0, demoted: 0 };
+  const log: JobLog = options.log ?? ((line) => console.info(line));
+  const result: StatusCheckResult = {
+    sent: 0,
+    sentSimulated: 0,
+    failed: 0,
+    inactivated: 0,
+    demoted: 0,
+    simulatedExpired: 0,
+  };
   await expireNoReplies(now, scope, client, result);
   await sendChecks(
     now,
@@ -194,5 +244,17 @@ export async function runStatusCheck(
     options.siteUrl ?? getSiteConfig().siteUrl,
     result,
   );
+  if (result.simulatedExpired > 0 || result.sentSimulated > 0) {
+    // Q-27: counts only (no ids or contact data).
+    log(
+      JSON.stringify({
+        level: "warn",
+        event: "status_check.simulated",
+        sentSimulated: result.sentSimulated,
+        simulatedExpired: result.simulatedExpired,
+        note: "console-only checks: no INACTIVE / S→A for their no-reply",
+      }),
+    );
+  }
   return result;
 }

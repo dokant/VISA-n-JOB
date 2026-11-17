@@ -23,7 +23,7 @@ function fakeProvider() {
     name: "fake",
     send: vi.fn(async (m: NotificationMessage) => {
       sent.push(m);
-      return { ok: true as const, provider: "fake", id: "1" };
+      return { ok: true as const, provider: "fake", id: "1", delivery: "SIMULATED" as const };
     }),
   };
   return { sent, provider };

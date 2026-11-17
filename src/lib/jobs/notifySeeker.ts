@@ -3,10 +3,12 @@
  * SMS to the account phone (console adapter until a real SMS adapter exists, Phase 3) and EMAIL to
  * the profile e-mail when there is one (SMTP adapter when SMTP_* is set). Template keys follow
  * STANDARD 3.6 `common.{주제}.{sms|email}`; the e-mail template has `subject` and `body`.
- * Returns how many channels accepted the message (0 = nothing was delivered).
+ * Returns how many channels accepted the message (0 = nothing was delivered) and how many of those
+ * were real channels (`deliveredReal`, DECISIONS Q-27: the console adapter is SIMULATED, nobody
+ * receives it).
  */
 import { type Locale, defaultLocale, locales } from "@/i18n/locales";
-import type { NotificationProvider } from "@/lib/notifications";
+import type { NotificationProvider, SendResult } from "@/lib/notifications";
 
 export type SeekerContact = {
   /** Decrypted by the db extension (User.phoneEnc). */
@@ -25,9 +27,9 @@ export async function notifySeeker(
   contact: SeekerContact,
   topic: string,
   params: Readonly<Record<string, string | number>>,
-): Promise<{ delivered: number; attempted: number }> {
+): Promise<{ delivered: number; deliveredReal: number; attempted: number }> {
   const locale = seekerLocale(contact.locale);
-  const sends: Promise<{ ok: boolean }>[] = [];
+  const sends: Promise<SendResult>[] = [];
   if (contact.phone) {
     sends.push(
       provider.send({
@@ -51,5 +53,9 @@ export async function notifySeeker(
     );
   }
   const results = await Promise.all(sends);
-  return { delivered: results.filter((r) => r.ok).length, attempted: results.length };
+  return {
+    delivered: results.filter((r) => r.ok).length,
+    deliveredReal: results.filter((r) => r.delivery === "REAL").length,
+    attempted: results.length,
+  };
 }

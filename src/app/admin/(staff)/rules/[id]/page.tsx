@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { OUTCOME_LABEL, fmtDateTime } from "@/app/admin/_i18n/ko";
+import { OUTCOME_LABEL, fmtDateTime, staffName, visaOptions } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
 import { RuleStatusBadge, SampleBadge } from "@/components/admin/rule-badges";
 import {
@@ -82,7 +82,7 @@ export default async function RulePage({ params }: Props) {
             label="검수(게시)"
             value={
               rule.reviewedAt
-                ? `${reviewers.get(rule.reviewedBy ?? "") ?? "직원"} · ${fmtDateTime(rule.reviewedAt)}`
+                ? `${staffName(reviewers.get(rule.reviewedBy ?? ""))} · ${fmtDateTime(rule.reviewedAt)}`
                 : "게시 전"
             }
           />
@@ -96,7 +96,7 @@ export default async function RulePage({ params }: Props) {
           />
         </dl>
         <div className="flex flex-wrap items-start gap-3">
-          {rule.status === "DRAFT" && canPublish ? (
+          {rule.status === "DRAFT" && canPublish && !sample ? (
             <PublishButton kind="rule" id={rule.id} summary={summary} />
           ) : null}
           {rule.status === "PUBLISHED" && canPublish ? (
@@ -131,7 +131,7 @@ export default async function RulePage({ params }: Props) {
               messageKey: rule.messageKey,
               conditions: JSON.stringify(rule.conditions, null, 2),
             }}
-            visas={options.visas}
+            visas={visaOptions(options.visaTypes)}
             industries={options.industries}
             messages={options.messages}
           />
@@ -181,7 +181,7 @@ export default async function RulePage({ params }: Props) {
                   <td className={cell}>{OUTCOME_LABEL[v.outcome]}</td>
                   <td className={cell}>
                     {v.reviewedAt
-                      ? `${reviewers.get(v.reviewedBy ?? "") ?? "직원"} · ${fmtDateTime(v.reviewedAt)}`
+                      ? `${staffName(reviewers.get(v.reviewedBy ?? ""))} · ${fmtDateTime(v.reviewedAt)}`
                       : "—"}
                   </td>
                 </tr>

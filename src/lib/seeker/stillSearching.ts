@@ -117,7 +117,7 @@ export async function confirmStillSearching(
   if (!check.ok) return { ok: false, state: check.reason === "EXPIRED" ? "EXPIRED" : "INVALID" };
   const r = await client.seekerProfile.updateMany({
     where: { id: check.payload.s, status: "ACTIVE", statusCheckSentAt: new Date(check.payload.t) },
-    data: { lastActiveConfirmedAt: now, statusCheckSentAt: null },
+    data: { lastActiveConfirmedAt: now, statusCheckSentAt: null, statusCheckDeliveredReal: false },
   });
   if (r.count === 1) return { ok: true };
   const state = await stillSearchingState(token, now, client);

@@ -27,13 +27,14 @@ const EXPIRY = new Date("2027-03-01T00:00:00.000Z");
 /** 00:00 KST on the day that is `n` days before the expiry day. */
 const kstMidnightBefore = (n: number) => new Date(EXPIRY.getTime() - n * DAY - 9 * 3_600_000);
 
-function captureProvider() {
+/** A real-channel stand-in (REAL), or the console kind (SIMULATED, DECISIONS Q-27). */
+function captureProvider(delivery: "REAL" | "SIMULATED" = "REAL") {
   const sent: NotificationMessage[] = [];
   const provider: NotificationProvider = {
     name: "capture",
     async send(m) {
       sent.push(m);
-      return { ok: true, provider: "capture", id: String(sent.length) };
+      return { ok: true, provider: "capture", id: String(sent.length), delivery };
     },
   };
   return { sent, provider };
@@ -85,12 +86,18 @@ describe("R-213 stay expiry reminders", () => {
     expect(await run(new Date(kstMidnightBefore(90).getTime() - 1))).toEqual({
       tasks: 0,
       notified: 0,
+      notifiedSimulated: 0,
       notifyFailed: 0,
     });
     expect(await tasksOf(s.id)).toHaveLength(0);
 
     // D-90 (00:00 KST)
-    expect(await run(kstMidnightBefore(90))).toEqual({ tasks: 1, notified: 1, notifyFailed: 0 });
+    expect(await run(kstMidnightBefore(90))).toEqual({
+      tasks: 1,
+      notified: 1,
+      notifiedSimulated: 0,
+      notifyFailed: 0,
+    });
     const [task] = await tasksOf(s.id);
     expect(task).toMatchObject({
       type: "STAY_EXPIRY",
@@ -98,7 +105,7 @@ describe("R-213 stay expiry reminders", () => {
       assigneeRole: "STAFF_VISA",
       dueAt: EXPIRY,
       dedupeKey: stayExpiryDedupeKey(s.id, EXPIRY, 90),
-      payload: { step: 90, daysLeft: 90, optIn: true, notified: true },
+      payload: { step: 90, daysLeft: 90, optIn: true, notified: true, delivery: "REAL" },
     });
     expect(sent.map((m) => [m.channel, m.templateKey, m.params?.days])).toEqual([
       ["SMS", "common.stayExpiry.sms", 90],
@@ -148,6 +155,27 @@ describe("R-213 stay expiry reminders", () => {
     ]);
   });
 
+  it("Q-27: console-only notice — the 행정사 task is created as usual; the record says SIMULATED", async () => {
+    const s = await candidate(tag("se"), { stayExpiry: EXPIRY, stayAlertOptIn: true });
+    const { sent, provider } = captureProvider("SIMULATED");
+    const r = await runStayExpiryAlerts(kstMidnightBefore(90), {
+      scope: { id: s.id },
+      provider,
+      siteUrl: SITE,
+    });
+    expect(r).toEqual({ tasks: 1, notified: 1, notifiedSimulated: 1, notifyFailed: 0 });
+    expect(sent).toHaveLength(2);
+    const [task] = await tasksOf(s.id);
+    expect(task).toMatchObject({ type: "STAY_EXPIRY", status: "OPEN", assigneeRole: "STAFF_VISA" });
+    expect(task.payload).toEqual({
+      step: 90,
+      daysLeft: 90,
+      optIn: true,
+      notified: true,
+      delivery: "SIMULATED",
+    });
+  });
+
   it("without the reminder opt-in: the 행정사 task only, no message; BLOCKED seekers and no expiry are skipped", async () => {
     const quiet = await candidate(tag("se"), { stayExpiry: EXPIRY, stayAlertOptIn: false });
     const blocked = await candidate(tag("se"), {
@@ -164,7 +192,7 @@ describe("R-213 stay expiry reminders", () => {
       provider,
       siteUrl: SITE,
     });
-    expect(r).toEqual({ tasks: 1, notified: 0, notifyFailed: 0 });
+    expect(r).toEqual({ tasks: 1, notified: 0, notifiedSimulated: 0, notifyFailed: 0 });
     expect(sent).toHaveLength(0);
     expect((await tasksOf(quiet.id))[0].payload).toMatchObject({ optIn: false, notified: false });
     expect(await tasksOf(blocked.id)).toHaveLength(0);

@@ -1,10 +1,13 @@
 /**
  * PLAN P0c-6: minimal console notification adapter (formal R-214 tests come in P2d).
+ * QA P2d O-2 / DECISIONS Q-27: results are SIMULATED; links in params are always masked, whatever
+ * NODE_ENV is.
  */
 import { describe, expect, it } from "vitest";
 
 import { getNotificationProvider } from "@/lib/notifications";
-import { createConsoleProvider, maskRecipient } from "@/lib/notifications/console";
+import { createConsoleProvider, maskLink, maskRecipient } from "@/lib/notifications/console";
+import { signStillSearchingToken, stillSearchingPath } from "@/lib/seeker/stillSearching";
 
 const message = {
   channel: "SMS" as const,
@@ -49,5 +52,49 @@ describe("notifications/console", () => {
       params: undefined,
     });
     expect(JSON.parse(lines[0]).params).toEqual({});
+  });
+
+  it("Q-27: every console result is SIMULATED (nobody receives it)", async () => {
+    const result = await createConsoleProvider(() => {}, "development").send(message);
+    expect(result).toMatchObject({ ok: true, provider: "console", delivery: "SIMULATED" });
+  });
+
+  it("O-2: the still-searching link is masked (path only, token ***) with any NODE_ENV", async () => {
+    const token = signStillSearchingToken(
+      "cm0seekerprofileid000001",
+      new Date("2026-12-01T01:00:00Z"),
+    );
+    const url = `https://visanjob.test${stillSearchingPath("vi", token)}`;
+    const [body, sig] = token.split("~");
+    for (const env of [undefined, "development", "test", ""]) {
+      const lines: string[] = [];
+      await createConsoleProvider((l) => lines.push(l), env).send({
+        channel: "EMAIL",
+        to: "seeker@example.com",
+        templateKey: "common.statusCheck.email",
+        locale: "vi",
+        params: { url, days: 14 },
+      });
+      expect(JSON.parse(lines[0]).params).toEqual({
+        url: "https://visanjob.test/vi/seeker/still-searching/***",
+        days: 14,
+      });
+      for (const secret of [token, body, sig, "seeker@example.com"]) {
+        expect(lines[0]).not.toContain(secret);
+      }
+    }
+  });
+
+  it("maskLink keeps route words, masks token / id segments and query values, leaves non-links alone", () => {
+    expect(maskLink("/ko/seeker/me")).toBe("/ko/seeker/me");
+    expect(maskLink("/ko/seeker/register")).toBe("/ko/seeker/register");
+    expect(maskLink("https://x.test/api/files/abc123DEF.sig?exp=1700000000&sig=zz#frag")).toBe(
+      "https://x.test/api/files/***?exp=***&sig=***",
+    );
+    expect(maskLink("https://x.test/ko/seeker/still-searching/a~b")).toBe(
+      "https://x.test/ko/seeker/still-searching/***",
+    );
+    expect(maskLink("123456")).toBe("123456");
+    expect(maskLink("hello world")).toBe("hello world");
   });
 });

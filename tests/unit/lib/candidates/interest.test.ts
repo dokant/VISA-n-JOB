@@ -26,7 +26,12 @@ function capture(): NotificationProvider & { sent: NotificationMessage[] } {
     sent,
     async send(message: NotificationMessage) {
       sent.push(message);
-      return { ok: true as const, provider: "capture", id: String(sent.length) };
+      return {
+        ok: true as const,
+        provider: "capture",
+        id: String(sent.length),
+        delivery: "SIMULATED" as const,
+      };
     },
   };
 }

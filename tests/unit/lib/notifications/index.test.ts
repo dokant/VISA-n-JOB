@@ -12,6 +12,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createChannelRouter,
   getNotificationProvider,
+  realChannelWarning,
   selectNotificationProvider,
 } from "@/lib/notifications";
 import { createConsoleProvider } from "@/lib/notifications/console";
@@ -117,8 +118,16 @@ describe("R-214 selectNotificationProvider", () => {
     });
     const info = vi.spyOn(console, "info").mockImplementation(() => {});
     const r = await selection.provider.send(email);
-    expect(r).toMatchObject({ ok: true, provider: "console" });
+    expect(r).toMatchObject({ ok: true, provider: "console", delivery: "SIMULATED" });
     expect(createTransport).not.toHaveBeenCalled();
+    // Q-27: no real channel → the worker warns that the status-check transition is off
+    expect(selection.realChannels).toEqual([]);
+    expect(JSON.parse(logs[0]).realChannels).toEqual([]);
+    expect(realChannelWarning(selection)).toMatchObject({
+      level: "warn",
+      event: "status_check.transition_disabled",
+      reason: "NO_REAL_CHANNEL",
+    });
     expect(info).toHaveBeenCalledTimes(1);
   });
 
@@ -139,7 +148,9 @@ describe("R-214 selectNotificationProvider", () => {
     }
 
     const r = await selection.provider.send(email);
-    expect(r).toEqual({ ok: true, provider: "smtp", id: "<m1@test>" });
+    expect(r).toEqual({ ok: true, provider: "smtp", id: "<m1@test>", delivery: "REAL" });
+    expect(selection.realChannels).toEqual(["EMAIL"]);
+    expect(realChannelWarning(selection)).toBeNull();
     expect(sent).toHaveLength(1);
     expect(sent[0]).toMatchObject({
       from: "noreply@visanjob.invalid",
@@ -157,7 +168,7 @@ describe("R-214 selectNotificationProvider", () => {
       locale: "ko",
       params: { url: "u", days: 14 },
     });
-    expect(sms).toMatchObject({ ok: true, provider: "console" });
+    expect(sms).toMatchObject({ ok: true, provider: "console", delivery: "SIMULATED" });
     expect(sent).toHaveLength(1);
     expect(info).toHaveBeenCalledTimes(1);
   });
@@ -203,11 +214,13 @@ describe("R-214 SMTP adapter", () => {
       ok: false,
       provider: "smtp",
       error: "CHANNEL_UNSUPPORTED",
+      delivery: "FAILED",
     });
     expect(await provider.send({ ...email, templateKey: "common.nothing.email" })).toEqual({
       ok: false,
       provider: "smtp",
       error: "TEMPLATE_MISSING",
+      delivery: "FAILED",
     });
     expect(sent).toHaveLength(0);
 
@@ -224,6 +237,7 @@ describe("R-214 SMTP adapter", () => {
       ok: false,
       provider: "smtp",
       error: "SEND_FAILED",
+      delivery: "FAILED",
     });
     expect(JSON.parse(logs[0])).toMatchObject({ ok: false, error: "EENVELOPE" });
     expect(logs[0]).not.toContain("seeker@example.com");

@@ -146,7 +146,9 @@ export default async function SeekerDetailPage({ params }: { params: Promise<{ i
               label="상태 확인 응답 대기"
               value={
                 seeker.statusCheckSentAt
-                  ? `${fmtDateTime(seeker.statusCheckSentAt)} 발송 · ${STATUS_CHECK_REPLY_DAYS}일 안에 응답이 없으면 비활성`
+                  ? seeker.statusCheckDeliveredReal
+                    ? `${fmtDateTime(seeker.statusCheckSentAt)} 발송 · ${STATUS_CHECK_REPLY_DAYS}일 안에 응답이 없으면 비활성`
+                    : `${fmtDateTime(seeker.statusCheckSentAt)} 기록만(실제 채널 미전달) · 응답이 없어도 상태 유지`
                   : "없음"
               }
             />

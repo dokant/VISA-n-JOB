@@ -1,12 +1,11 @@
 /**
  * Select options of the admin rule form (R-215): visa codes and industries from the reference
- * tables, result messages that exist in all six locales (messageKeys.ts). Admin screens are Korean.
+ * tables, result messages that exist in all six locales (messageKeys.ts). Admin screens are Korean;
+ * display labels made of fixed admin copy are built in src/app/admin/_i18n/ko.ts (STANDARD 3.6).
  */
 import { db } from "@/lib/db";
 
 import { ruleMessageOptions } from "./messageKeys";
-
-type Option = { value: string; label: string };
 
 export async function ruleOptions(client: typeof db = db) {
   const [visaTypes, industries] = await Promise.all([
@@ -22,12 +21,9 @@ export async function ruleOptions(client: typeof db = db) {
   const messages = ruleMessageOptions();
   const industryNames = new Map(industries.map((i) => [i.code, i.nameKo]));
   const messageTexts = new Map(messages.map((m) => [m.key, m.text]));
-  const visas: Option[] = visaTypes.map((v) => ({
-    value: v.code,
-    label: `${v.code}${v.isStatusCode ? "" : " (체류자격 코드 아님)"}${v.active ? "" : " · 사용 안 함"}`,
-  }));
   return {
-    visas,
+    /** Codes and flags only; the admin page builds the Korean label (`visaOptions`, _i18n/ko.ts). */
+    visaTypes,
     industries: industries.map((i) => ({ value: i.code, label: `${i.code} · ${i.nameKo}` })),
     messages: messages.map((m) => ({ value: m.key, label: m.text })),
     industryName: (code: string) => industryNames.get(code) ?? code,

@@ -161,85 +161,88 @@ model User {
 /// Wizard fields are nullable so quick signup and step-by-step saves work (PC-3).
 /// Profile completeness is judged by `completedStep`, never by NOT NULL constraints.
 model SeekerProfile {
-  id                    String           @id @default(cuid())
-  userId                String           @unique
-  user                  User             @relation(fields: [userId], references: [id])
+  id                       String           @id @default(cuid())
+  userId                   String           @unique
+  user                     User             @relation(fields: [userId], references: [id])
   /// [+] random public id for blind serialization (WO §7.5) — never the DB id
-  publicId              String           @unique @default(uuid())
+  publicId                 String           @unique @default(uuid())
   // 기본
-  legalNameEnc          String? // PC-3 nullable
-  messengerType         String? // KAKAO|ZALO|WHATSAPP|TELEGRAM|WECHAT|VIBER|NONE
-  messengerIdEnc        String?
-  emailEnc              String?
-  birthYear             Int? // 내부 전용
-  gender                String? // 내부 전용(숙소 배정), 선택
-  nationality           String? // ISO 3166-1 alpha-2, PC-3 nullable
-  sido                  String? // Region.code (SIDO) — quick signup / wizard Step 1 (PC-3 nullable: wizard Step 0 creates the row)
-  sigungu               String? // Region.code (SIGUNGU)
+  legalNameEnc             String? // PC-3 nullable
+  messengerType            String? // KAKAO|ZALO|WHATSAPP|TELEGRAM|WECHAT|VIBER|NONE
+  messengerIdEnc           String?
+  emailEnc                 String?
+  birthYear                Int? // 내부 전용
+  gender                   String? // 내부 전용(숙소 배정), 선택
+  nationality              String? // ISO 3166-1 alpha-2, PC-3 nullable
+  sido                     String? // Region.code (SIDO) — quick signup / wizard Step 1 (PC-3 nullable: wizard Step 0 creates the row)
+  sigungu                  String? // Region.code (SIGUNGU)
   // 체류
-  visaCode              String? // VisaType.code — quick signup / wizard Step 2 (PC-3 nullable)
-  visaSubType           String?
-  stayExpiry            DateTime?
-  entryYear             Int?
-  hasArc                Boolean? // 번호는 수집하지 않음 (BR-13), PC-3 nullable
-  pendingApplication    YesNoUnknown? // P1c run 2: 모름 추가 (Q-10), null = 미응답
+  visaCode                 String? // VisaType.code — quick signup / wizard Step 2 (PC-3 nullable)
+  visaSubType              String?
+  stayExpiry               DateTime?
+  entryYear                Int?
+  hasArc                   Boolean? // 번호는 수집하지 않음 (BR-13), PC-3 nullable
+  pendingApplication       YesNoUnknown? // P1c run 2: 모름 추가 (Q-10), null = 미응답
   /// [+] Step 2 visaConfirm checkbox time
-  visaConfirmedAt       DateTime?
+  visaConfirmedAt          DateTime?
   // 학력
-  educationLevel        String?
-  majorField            String? // Q-24: MAJOR_FIELDS code (src/lib/seeker/options.ts), shown to employers
-  major                 String? // free text, staff only (BR-14)
-  schoolNameEnc         String?
-  graduationDate        DateTime?
+  educationLevel           String?
+  majorField               String? // Q-24: MAJOR_FIELDS code (src/lib/seeker/options.ts), shown to employers
+  major                    String? // free text, staff only (BR-14)
+  schoolNameEnc            String?
+  graduationDate           DateTime?
   // 언어
-  topikLevel            Int? // 0=없음, 1~6
-  kiipStage             Int? // 0~5, 이수 단계
-  koreanSpeaking        Int? // 1~4 자가평가, PC-3 nullable
-  otherLanguages        Json?
+  topikLevel               Int? // 0=없음, 1~6
+  kiipStage                Int? // 0~5, 이수 단계
+  koreanSpeaking           Int? // 1~4 자가평가, PC-3 nullable
+  otherLanguages           Json?
   // 역량
-  skills                String[]
-  licenses              String[]
+  skills                   String[]
+  licenses                 String[]
   // 희망
-  desiredIndustries     String[] // Industry.code
-  desiredRegions        String[] // Region.code (SIDO), "ANY" 허용
-  needDormitory         Boolean? // PC-3 nullable
-  shiftOk               ShiftOk? // SC-10 enum, PC-3 nullable
-  desiredPayMin         Int?
-  availableFrom         DateTime?
-  jobSearchStatus       JobSearchStatus? // PC-3 nullable
-  groupApply            Boolean          @default(false)
-  groupFriendCode       String?
+  desiredIndustries        String[] // Industry.code
+  desiredRegions           String[] // Region.code (SIDO), "ANY" 허용
+  needDormitory            Boolean? // PC-3 nullable
+  shiftOk                  ShiftOk? // SC-10 enum, PC-3 nullable
+  desiredPayMin            Int?
+  availableFrom            DateTime?
+  jobSearchStatus          JobSearchStatus? // PC-3 nullable
+  groupApply               Boolean          @default(false)
+  groupFriendCode          String?
   // 비자 목표
-  nextVisaGoal          String? // 예: E-7-4, F-2-R, F-5, UNKNOWN
-  wantsConsult          Boolean          @default(false)
+  nextVisaGoal             String? // 예: E-7-4, F-2-R, F-5, UNKNOWN
+  wantsConsult             Boolean          @default(false)
   /// [+] Step 6 consultTime (다중 선택)
-  consultTime           String[]
+  consultTime              String[]
   // 운영 판정
-  track                 SeekerTrack? // classifyTrack (R-108) once visaCode is known; null before Step 2 (PC-3)
-  grade                 SeekerGrade      @default(B)
+  track                    SeekerTrack? // classifyTrack (R-108) once visaCode is known; null before Step 2 (PC-3)
+  grade                    SeekerGrade      @default(B)
   /// [+] WO §7.4 E-7 계열 → true (from VisaType.needsVisaReview)
-  needsVisaReview       Boolean          @default(false)
-  verifiedVisa          Boolean          @default(false)
-  verifiedKorean        Boolean          @default(false)
-  consultedAt           DateTime?
-  convertibleVisa       String? // 행정사 판정
-  convertibleAt         DateTime? // 전환 가능 예상 시점
-  status                SeekerStatus     @default(ACTIVE)
-  lastActiveConfirmedAt DateTime         @default(now())
+  needsVisaReview          Boolean          @default(false)
+  verifiedVisa             Boolean          @default(false)
+  verifiedKorean           Boolean          @default(false)
+  consultedAt              DateTime?
+  convertibleVisa          String? // 행정사 판정
+  convertibleAt            DateTime? // 전환 가능 예상 시점
+  status                   SeekerStatus     @default(ACTIVE)
+  lastActiveConfirmedAt    DateTime         @default(now())
   /// [+] R-213 last 30-day status-check send time (14-day no-reply window)
-  statusCheckSentAt     DateTime?
+  statusCheckSentAt        DateTime?
+  /// [+] Q-27 the open check reached a real channel (SMTP …); false = console only (SIMULATED):
+  /// the 14-day no-reply INACTIVE / S→A transition applies only when true
+  statusCheckDeliveredReal Boolean          @default(false)
   /// [+] /me/stay 체류 만료 알림 수신 설정
-  stayAlertOptIn        Boolean          @default(false)
-  noShowCount           Int              @default(0)
+  stayAlertOptIn           Boolean          @default(false)
+  noShowCount              Int              @default(0)
   // 유입
-  referralCode          String           @unique
-  referredByCode        String?
-  sourceChannel         String? // QR_xxx, FB_VN, UNIV_xxx, LEGACY_CLIENT 등
-  isQuickSignup         Boolean          @default(false)
-  completedStep         Int              @default(0)
-  experiences           WorkExperience[]
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  referralCode             String           @unique
+  referredByCode           String?
+  sourceChannel            String? // QR_xxx, FB_VN, UNIV_xxx, LEGACY_CLIENT 등
+  isQuickSignup            Boolean          @default(false)
+  completedStep            Int              @default(0)
+  experiences              WorkExperience[]
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
 
   interestRequests InterestRequest[]
   recommendations  Recommendation[]

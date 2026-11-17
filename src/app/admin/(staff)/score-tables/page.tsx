@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { fmtDateTime } from "@/app/admin/_i18n/ko";
+import { fmtDateTime, staffName } from "@/app/admin/_i18n/ko";
 import { ForbiddenNotice } from "@/components/admin/forbidden-notice";
 import { RuleStatusBadge, SampleBadge } from "@/components/admin/rule-badges";
 import { ScoreTableForm } from "@/components/admin/rule-forms";
@@ -88,7 +88,7 @@ export default async function ScoreTablesPage() {
                   </td>
                   <td className={cell}>
                     {t.reviewedAt
-                      ? `${reviewers.get(t.reviewedBy ?? "") ?? "직원"} · ${fmtDateTime(t.reviewedAt)}`
+                      ? `${staffName(reviewers.get(t.reviewedBy ?? ""))} · ${fmtDateTime(t.reviewedAt)}`
                       : "—"}
                   </td>
                   <td className={cell}>

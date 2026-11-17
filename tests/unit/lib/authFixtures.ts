@@ -26,7 +26,7 @@ export function captureNotifier(): NotificationProvider & { sent: NotificationMe
     sent,
     async send(message) {
       sent.push(message);
-      return { ok: true, provider: "capture", id: String(sent.length) };
+      return { ok: true, provider: "capture", id: String(sent.length), delivery: "SIMULATED" };
     },
   };
 }

@@ -4,7 +4,8 @@
  * - Enabled only when the SMTP_* environment variables are set (`smtpConfigFromEnv`). Without them
  *   the adapter is never created, so no connection or send is ever attempted (index.ts falls back
  *   to the console adapter). Real credentials and the first real send need a person (PLAN A-3).
- * - Delivers EMAIL messages only; other channels answer `CHANNEL_UNSUPPORTED`.
+ * - Delivers EMAIL messages only; other channels answer `CHANNEL_UNSUPPORTED`. An accepted message is
+ *   `delivery: "REAL"` (DECISIONS Q-27).
  * - The subject and body come from messages/*.json (`{templateKey}.subject` / `.body`, render.ts).
  * - Logs one JSON line per send without the address, subject or body (STANDARD 5, 4.7): only the
  *   masked recipient, the template key and the outcome.
@@ -108,14 +109,14 @@ export function createSmtpProvider(
     async send(message: NotificationMessage): Promise<SendResult> {
       if (message.channel !== "EMAIL") {
         record(message, { ok: false, error: "CHANNEL_UNSUPPORTED" });
-        return { ok: false, provider: "smtp", error: "CHANNEL_UNSUPPORTED" };
+        return { ok: false, provider: "smtp", error: "CHANNEL_UNSUPPORTED", delivery: "FAILED" };
       }
       let mail: { subject: string; text: string };
       try {
         mail = renderEmail(message);
       } catch {
         record(message, { ok: false, error: "TEMPLATE_MISSING" });
-        return { ok: false, provider: "smtp", error: "TEMPLATE_MISSING" };
+        return { ok: false, provider: "smtp", error: "TEMPLATE_MISSING", delivery: "FAILED" };
       }
       try {
         transport ??= buildTransport(config);
@@ -127,7 +128,7 @@ export function createSmtpProvider(
         });
         const id = info.messageId ?? "";
         record(message, { ok: true, id });
-        return { ok: true, provider: "smtp", id };
+        return { ok: true, provider: "smtp", id, delivery: "REAL" };
       } catch (e) {
         // The error text can carry server replies with addresses: log only its class / code.
         const code =
@@ -135,7 +136,7 @@ export function createSmtpProvider(
             ? e.code
             : "SEND_FAILED";
         record(message, { ok: false, error: code });
-        return { ok: false, provider: "smtp", error: "SEND_FAILED" };
+        return { ok: false, provider: "smtp", error: "SEND_FAILED", delivery: "FAILED" };
       }
     },
   };

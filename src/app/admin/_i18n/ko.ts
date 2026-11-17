@@ -447,6 +447,21 @@ export function fmtCount(n: number, unit = ""): string {
   return `${countFmt.format(n)}${unit}`;
 }
 
+/** A staff member's display name, or "직원" when none is set (lib returns `displayName | null`). */
+export function staffName(name: string | null | undefined): string {
+  return name ?? "직원";
+}
+
+/** Visa select options of the rule form (R-215): code + flags from lib/rules/options.ts. */
+export function visaOptions(
+  visaTypes: readonly { code: string; isStatusCode: boolean; active: boolean }[],
+): { value: string; label: string }[] {
+  return visaTypes.map((v) => ({
+    value: v.code,
+    label: `${v.code}${v.isStatusCode ? "" : " (체류자격 코드 아님)"}${v.active ? "" : " · 사용 안 함"}`,
+  }));
+}
+
 /** Form field names → Korean (INVALID_INPUT feedback of the create form). */
 export const POSTING_FIELD_LABEL: Record<string, string> = {
   blindTitle: "블라인드 제목",
