@@ -22,24 +22,26 @@ pnpm dev                 # http://localhost:3000 → /ko 로 이동
 
 ## 명령어
 
-| 명령                                      | 내용                                                                                          |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                | 개발 서버                                                                                     |
-| `pnpm build` / `pnpm start`               | 프로덕션 빌드 / 실행                                                                          |
-| `pnpm lint`                               | ESLint                                                                                        |
-| `pnpm typecheck`                          | `tsc --noEmit`                                                                                |
-| `pnpm test`                               | Vitest 단위 테스트 (`tests/unit`)                                                             |
-| `pnpm test:coverage`                      | Vitest + v8 커버리지 (`coverage/`)                                                            |
-| `pnpm test:e2e`                           | Playwright E2E (`tests/e2e`, 프로덕션 빌드 서버 대상, 데스크톱 + 375px 모바일)                |
-| `pnpm i18n:check`                         | `messages/*.json` 키를 ko 기준으로 비교, `_review` 표시 검사. 누락 시 비0 종료                |
-| `pnpm qa:static`                          | BR 정적 점검(주민·여권번호 필드, 직접 연락 링크, 원장 수정, 비자 코드 리터럴, 하드코딩 색 등) |
-| `pnpm format`                             | Prettier                                                                                      |
-| `pnpm db:start` / `db:stop` / `db:status` | 로컬 임베디드 Postgres 기동·중지·상태 (아래 "데이터베이스")                                   |
-| `pnpm db:migrate`                         | `prisma migrate dev` (마이그레이션 적용, 스키마 변경 시 새 마이그레이션 생성)                 |
-| `pnpm db:deploy`                          | `prisma migrate deploy` (생성 없이 적용만)                                                    |
-| `pnpm db:seed`                            | 참조 데이터 시드 (기존 행은 덮어쓰지 않음)                                                    |
-| `pnpm db:reset`                           | 로컬 DB 삭제·재생성 → 마이그레이션 → 시드 (로컬 임베디드 DB만 허용)                           |
-| `pnpm db:studio`                          | Prisma Studio (데이터 열람)                                                                   |
+| 명령                                      | 내용                                                                                               |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                | 개발 서버                                                                                          |
+| `pnpm build` / `pnpm start`               | 프로덕션 빌드 / 실행                                                                               |
+| `pnpm lint`                               | ESLint                                                                                             |
+| `pnpm typecheck`                          | `tsc --noEmit`                                                                                     |
+| `pnpm test`                               | Vitest 단위 테스트 (`tests/unit`)                                                                  |
+| `pnpm test:coverage`                      | Vitest + v8 커버리지 (`coverage/`)                                                                 |
+| `pnpm test:e2e`                           | Playwright E2E (`tests/e2e`, 프로덕션 빌드 서버 대상, 데스크톱 + 375px 모바일)                     |
+| `pnpm i18n:check`                         | `messages/*.json` 키를 ko 기준으로 비교, `_review` 표시 검사. 누락 시 비0 종료                     |
+| `pnpm qa:static`                          | BR 정적 점검(주민·여권번호 필드, 직접 연락 링크, 원장 수정, 비자 코드 리터럴, 하드코딩 색 등)      |
+| `pnpm lighthouse`                         | 프로덕션 빌드 후 /ko·/ko/about·/ko/fees·/ko/terms 3회 측정 중앙값(성능 85·접근성 90 미만이면 실패) |
+| `pnpm worker`                             | pg-boss 워커(리드 보관, 30일 상태 확인, 체류 만료, 노쇼 재집계 예약 작업)                          |
+| `pnpm format`                             | Prettier                                                                                           |
+| `pnpm db:start` / `db:stop` / `db:status` | 로컬 임베디드 Postgres 기동·중지·상태 (아래 "데이터베이스")                                        |
+| `pnpm db:migrate`                         | `prisma migrate dev` (마이그레이션 적용, 스키마 변경 시 새 마이그레이션 생성)                      |
+| `pnpm db:deploy`                          | `prisma migrate deploy` (생성 없이 적용만)                                                         |
+| `pnpm db:seed`                            | 참조 데이터 시드 (기존 행은 덮어쓰지 않음)                                                         |
+| `pnpm db:reset`                           | 로컬 DB 삭제·재생성 → 마이그레이션 → 시드 (로컬 임베디드 DB만 허용)                                |
+| `pnpm db:studio`                          | Prisma Studio (데이터 열람)                                                                        |
 
 커밋 시 Husky pre-commit 훅이 `lint-staged`(ESLint --fix + Prettier)를 실행한다.
 
@@ -98,3 +100,70 @@ tests/unit, tests/e2e, tests/setup (Vitest 테스트 DB)
 ## 번역
 
 1차 번역은 초안이며 원어민 검수가 필요하다(`_review` 표시). uz는 라틴 문자.
+
+## 출시 점검 (P2e, PRD §6)
+
+### 전체 검증 순서
+
+```bash
+pnpm db:reset && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm i18n:check   && pnpm qa:static && pnpm build && pnpm test:e2e && pnpm lighthouse
+```
+
+- `db:reset`은 개발 DB를 지운다. 개발 데이터를 남기려면 별도 데이터 디렉터리의 임시 클러스터로 돌린다:
+  `PG_DATA_DIR=<임시 폴더>`, `DATABASE_URL=postgresql://…@127.0.0.1:54329/<임시 DB 이름>`으로 `pnpm db:start` → `pnpm db:reset`.
+  54329는 Vitest 테스트 클러스터 포트이므로 `pnpm test`·`test:coverage`를 돌리는 동안에는 임시 클러스터를 멈춘다(`pnpm db:stop`, 같은 환경 변수). 끝나면 임시 폴더를 지운다.
+- `test:e2e`·`lighthouse`는 프로덕션 빌드를 띄운다(E2E 기본 포트 `E2E_PORT`=3100과 +1~+3, Lighthouse `LH_PORT`=3200). E2E가 쓰는 DB는 `.env`의 `DATABASE_URL`(환경 변수로 덮어쓰기 가능)이다. E2E 데이터는 고유 값으로 만들고 지우지 않는다.
+- Lighthouse와 Next 빌드(Google 글꼴)는 인터넷이 필요하다.
+
+### 환경 변수 (이름만, 값은 `.env`에만)
+
+| 묶음        | 변수                                                                                                                                                                                                                                                                                                                        |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 기능 플래그 | `FEATURE_DEMAND_MAP`, `FEATURE_PUBLIC_JOBS`, `FEATURE_REFERRAL_REWARD`, `FEATURE_EMPLOYER_CANDIDATES`                                                                                                                                                                                                                       |
+| 운영 주체   | `SITE_BRAND_WORDMARK`, `SITE_BRAND_NAME_KO`, `SITE_BRAND_TAGLINE`, `SITE_ADMIN_SCRIVENER_OFFICE_NAME`, `SITE_BUSINESS_REG_NO`, `SITE_ADMIN_SCRIVENER_REG_NO`, `SITE_JOB_PLACEMENT_NAME`, `SITE_JOB_PLACEMENT_REG_NO`, `SITE_REPRESENTATIVE`, `SITE_ADDRESS`, `SITE_PHONE`, `SITE_EMAIL`, `SITE_URL`, `SITE_OPERATOR_MOBILE` |
+| DB          | `DATABASE_URL`, `PG_DATA_DIR`, `PG_TEST_DATA_DIR`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_SAMPLE_SEEKERS`                                                                                                                                                                                                         |
+| 보안        | `ENCRYPTION_KEYS`, `HASH_KEY`, `AUTH_SECRET`, `TRUST_PROXY`, `INGEST_API_KEY`                                                                                                                                                                                                                                               |
+| 이메일      | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                                                                                                                                                                                                                              |
+| 테스트·측정 | `E2E_PORT`, `E2E_WORKERS`, `LH_PORT`, `CHROME_PATH`                                                                                                                                                                                                                                                                         |
+
+### 기능 플래그 4종 (WO §16)
+
+`FEATURE_DEMAND_MAP`, `FEATURE_PUBLIC_JOBS`, `FEATURE_REFERRAL_REWARD`, `FEATURE_EMPLOYER_CANDIDATES` — 모두 **기본 false**(값이 정확히 `true`일 때만 켜짐, `.env.example`도 false). 꺼져 있으면 페이지는 ComingSoon(200, noindex)·링크 숨김, API는 404(SC-07). 운영자 법무 확인 후에만 켠다(PLAN A-5).
+확인 테스트: `tests/unit/config/flags.test.ts`(기본값·`.env.example`·E2E 기본 서버에 플래그 없음), E2E 기본 서버의 ComingSoon 검사(`demand`, `jobs-apply`, `employer-candidates`, `seeker-recommended`, `score` 스펙).
+
+### WO §15 필수 테스트 1~11 매핑
+
+| #   | 항목                                                                     | 테스트 파일 · 테스트 이름                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `blindSeeker` 키 ⊆ `BLIND_SEEKER_FIELDS`(모든 시드 프로필)               | `tests/unit/lib/serializers/blindSeeker.test.ts` · "WO15-01: every seed profile … has keys ⊆ BLIND_SEEKER_FIELDS"                                                                                                                                                                                                                                                                                                                                          |
+| 2   | 기업 API 응답 전체 전화·이메일 0건                                       | `tests/unit/lib/employer/employerApiLeak.test.ts` · "WO15-02 / R-206: no phone or e-mail in any employer response"                                                                                                                                                                                                                                                                                                                                         |
+| 3   | C·B 리드가 `/jobs`·공고 API에 없음                                       | `tests/unit/lib/postings/public.test.ts` · "WO15-03: postings whose lead is C or B are never listed …", "WO15-03: a lead that later moved to 보관 / 재접촉금지 …"; `tests/unit/app/api/jobs/route.test.ts` · "WO15-03 / R-202: flag on → grade-A postings only …"; `tests/unit/lib/postings/interest.test.ts` · "WO15-03: postings that are not public … cannot be requested"; `tests/e2e/jobs-apply.spec.ts` · "R-202 / WO15-03: only grade-A postings …" |
+| 4   | `verifiedAt` 없는 공고 공개 불가                                         | `tests/unit/lib/postings/manage.test.ts` · "WO15-04: publishing without verifiedBy / verifiedAt is a server error …", "WO15-04: the database refuses a PUBLISHED row without verification (CHECK constraint)"; `tests/unit/lib/postings/public.test.ts` · "WO15-04 / WO §8.5 …"; `tests/unit/lib/serializers/publicPosting.test.ts` · "WO15-04: an unverified row cannot be serialized as public"                                                          |
+| 5   | B-1·C-3·만료 비자 등록 불가                                              | `tests/unit/lib/seeker/account.test.ts` · "R-109 WO15-05: quick signup with %s is refused …"; `tests/unit/lib/seeker/saveStep.test.ts` · "R-109 WO15-05: Step 2 with %s is refused …", "R-109 WO15-05: an expired stay is refused at Step 2"; `tests/unit/lib/visa-engine/classifyTrack.test.ts` · "R-109 WO15-05: %s → 등록 불가", "R-109 WO15-05: 만료 … → 등록 불가"                                                                                    |
+| 6   | E-9 → `FUTURE_POOL`, 기업 후보 제외                                      | `tests/unit/lib/visa-engine/classifyTrack.test.ts` · "R-108 WO15-06: %s → FUTURE_POOL"; `tests/unit/lib/candidates/eligible.test.ts` · "WO15-06 BR-07: an E-9 seeker … is never a candidate"; `tests/unit/lib/candidates/browse.test.ts` · "WO15-06 / BR-02 …"; `tests/unit/lib/candidates/interest.test.ts` · "WO15-06 / WO15-08 …"; `tests/e2e/employer-candidates.spec.ts` · "R-205 / R-207 / WO15-06: blind list (E-9 excluded) …"                     |
+| 7   | Recommendation·AuditLog 수정·삭제 불가                                   | `tests/unit/db/ledger-trigger.test.ts` · "R-006 ledger triggers (WO15-07)" 묶음(UPDATE·DELETE·TRUNCATE·Prisma); `tests/unit/lib/recommendations/ledger.test.ts` · "WO15-07 / R-209: UPDATE and DELETE through the app client are refused …"                                                                                                                                                                                                                |
+| 8   | 동의 철회 즉시 기업 노출 차단                                            | `tests/unit/lib/candidates/eligible.test.ts` · "R-113 WO15-08: revoking BLIND_PROFILE removes the seeker … at once"; `tests/unit/lib/candidates/interest.test.ts` · "WO15-06 / WO15-08 …"; `tests/e2e/consent-revoke.spec.ts` · "R-113 WO15-08: revoking BLIND_PROFILE on /seeker/me …"                                                                                                                                                                    |
+| 9   | PUBLISHED 규칙 없음 → "행정사 확인 필요"                                 | `tests/unit/lib/visa-engine/evaluate.test.ts` · "WO15-09 seed state (SAMPLE rules are DRAFT) → YELLOW …"; `tests/unit/lib/employer/diagnosis.test.ts` · "WO15-09 R-124 …"; `tests/e2e/home.spec.ts` · "seed state: result is YELLOW 확인 필요 … (WO15-09)"; `tests/e2e/employer-intake.spec.ts` · "R-124 WO15-09 …"                                                                                                                                        |
+| 10  | 수요 지도 5건 미만 셀 마스킹                                             | `tests/unit/lib/demand/aggregate.test.ts` · "WO15-10 masking (R-117)" 묶음, "WO15-10 aggregates leads from the database with masking"                                                                                                                                                                                                                                                                                                                      |
+| 11  | E2E 간편 등록 → 프로필 완성 → A 승격 → 후보 노출 → 면접 요청 → 추천 원장 | `tests/e2e/integration.spec.ts` · "R-217 / WO15-11: 간편 등록 → 프로필 완성 → 관리자 A 승격(2FA) → 기업 후보 노출 → 면접 요청 → 추천 원장"                                                                                                                                                                                                                                                                                                                 |
+
+N-05 감사 로그 묶음(PII 열람·내보내기(PC-14 함수 단위)·등급 변경·추천·공고 공개): `tests/unit/lib/auditCoverage.test.ts`. N-04 375px 일괄: `tests/e2e/mobile-375.spec.ts`(공개 화면 6개 언어, 플래그 on 목록, 로그인 구직자 화면).
+
+### N-01 직접 연락 수단 점검 (코드 리뷰 체크리스트)
+
+| 항목                                    | 결과                                                                                                                                                                                      |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 채팅(구직자↔기업 메시지, 웹소켓) UI·API | 없음                                                                                                                                                                                      |
+| 기업의 구직자 연락처 열람 UI·API        | 없음. 기업 응답은 `blindSeeker`·`interviewDisclosure`(동의 건 실명만, 연락처 없음, PC-1)만 거침, `qa:static`·WO15-02 검사. 연락처 복호 열람은 관리자 화면 직원 전용(R-122, PII_VIEW 기록) |
+| 이메일 전달(구직자·기업 사이 메일 중계) | 없음. 알림은 운영자 → 구직자 템플릿(상태 확인·체류 만료·면접 동의 요청)과 직원 알림(STAFF 채널)뿐                                                                                         |
+| 외부 링크 공유                          | 없음. **예외(PC-9)**: 구직자 본인 추천 코드 링크의 Web Share·링크 복사·WhatsApp/Telegram/Viber 공유 URL(`referral-share.tsx`) — 상대방 연락처를 주고받는 경로가 아님                      |
+| 운영자 연락처(`tel:`·`mailto:`)         | 푸터·내비·최종 CTA의 운영자 대표 연락처만(BR-01 허용, 휴대전화 비공개 Q-06)                                                                                                               |
+
+### 알려진 한계 (Gate 4 보고 대상)
+
+- 연락처 필터(`pii-guard`) 우회 D-10(앞자리 덧붙인 번호)·D-11(+ 없는 외국 번호)과 날짜 옆 시간·단위·쉼표 없는 금액 범위 오탐은 한계로 둔다(DECISIONS Q-20~Q-23). 공고는 직원 검증 후 공개되므로 "공고 검증 시 숫자 나열 직접 확인"을 운영 점검 항목으로 둔다.
+- 규칙·점수표는 SAMPLE 초안뿐이라 공개 진단은 모두 "행정사 확인 필요"(BR-12). 실제 값 입력·게시는 행정사(PLAN A-6).
+- 시·군·구·인구감소지역은 에이전트 초안(`isSample`·검토 필요, PC-6), 전공 분야 코드(Q-24)·KSIC 중분류(Q-12, null)는 운영자 검토 대기.
+- SMS 실제 채널 없음, 이메일은 `SMTP_*` 설정 전 콘솔 기록만: 콘솔만 보낸 상태 확인은 14일 무응답 비활성화·강등 근거가 아니다(Q-27).
+- 카카오·Zalo 공유는 Phase 3(PC-9), CSV 내보내기(PC-14)·직원 계정 관리 화면(PC-15)은 범위 밖.
+- 약관·동의서·고지 문구는 [전문가 검토 필요] 초안, 번역은 원어민 검수 전(`_review`).

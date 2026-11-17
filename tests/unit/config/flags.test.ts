@@ -45,6 +45,20 @@ describe("R-015 feature flags default to off", () => {
     expect(flags.FEATURE_EMPLOYER_CANDIDATES).toBe(false);
   });
 
+  it("PRD §6 (P2e release check): the default E2E server sets no flag, only the flag-on servers do", async () => {
+    const { readFileSync } = await import("node:fs");
+    const config = readFileSync("playwright.config.ts", "utf8");
+    const envs = [...config.matchAll(/env:\s*\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(envs.length).toBeGreaterThanOrEqual(2);
+    // first webServer = the default production build: every flag stays at its default (false)
+    for (const flag of FEATURE_FLAGS) expect(envs[0]).not.toContain(flag);
+    // the other servers turn on exactly one flag each and FEATURE_REFERRAL_REWARD never
+    for (const env of envs.slice(1)) {
+      expect(FEATURE_FLAGS.filter((f) => env.includes(f))).toHaveLength(1);
+    }
+    expect(config).not.toContain("FEATURE_REFERRAL_REWARD");
+  });
+
   it("R-015: .env.example keeps all four flags at false", async () => {
     const { readFileSync } = await import("node:fs");
     const example = readFileSync(".env.example", "utf8");
