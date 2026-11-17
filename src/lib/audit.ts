@@ -71,13 +71,15 @@ const FORBIDDEN_META_KEY = /(Enc|password|secret|token|otp|totp)$/i;
  * strings, and a cuid such as "cmwj193vm000a6mewt3fb51zr" reads as a messenger id ("fb" + digits)
  * to the contact detector. A value is exempt from the contact check only when BOTH hold:
  * - its key names an identifier: `id`, `…Id`, `…Ids`, `verifiedBy` (a staff user id), and
- * - the value is exactly a cuid (Prisma `cuid()`, 25 chars "c" + [0-9a-z]) or a uuid
- *   (Prisma `uuid()`, e.g. `SeekerProfile.publicId`).
+ * - the value is exactly a cuid or a uuid (Prisma `uuid()`, e.g. `SeekerProfile.publicId`). A cuid
+ *   is "c" + lowercase letters / digits only, 21–32 chars in all: Prisma `cuid()` gives 25, and a row
+ *   created with a hand-made cuid-like id of another length (seen in the dev DB, 22 chars) must not
+ *   make every audited list that includes it fail. No separator ("@", ".", "-", "+", space) fits.
  * Any other string — including a free-form value under an id key — is still checked, so a contact
  * can never reach the audit log under an id-looking key.
  */
 const ID_META_KEY = /^(id|verifiedBy)$|Ids?$/;
-const CUID = /^c[0-9a-z]{24}$/;
+const CUID = /^c[0-9a-z]{20,31}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /** True when `value` is a database identifier (cuid or uuid) and not free text. */

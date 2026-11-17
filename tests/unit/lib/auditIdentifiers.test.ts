@@ -111,6 +111,12 @@ describe("F-1 audit meta identifiers", () => {
       expect(() => assertSafeMeta({ seekerId: contact })).toThrow(AuditInputError);
       expect(() => assertSafeMeta({ companyIds: ["ok", contact] })).toThrow(AuditInputError);
     }
+    // a hand-made cuid-like id of another length (dev DB, 22 chars) is still an id …
+    expect(() => assertSafeMeta({ companyIds: ["cmqacd0b1ecdc2t3fb45zr"] })).not.toThrow();
+    // … but short or separated messenger-like values under an id key are checked
+    for (const value of ["fb12345678", "c-fb1234567890123456789", "cfb1234567 0123456789ab"]) {
+      expect(() => assertSafeMeta({ seekerId: value })).toThrow(AuditInputError);
+    }
     // ordinary meta text with a contact is refused as before
     expect(() => assertSafeMeta({ note: "전화 010-1234-5678" })).toThrow(AuditInputError);
     // secret keys are refused whatever the value

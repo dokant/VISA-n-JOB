@@ -22,9 +22,27 @@ export const LEAK_MESSENGER = "leaky_zalo_id";
 export const LEAK_MAJOR = "Major free text call 010-9876-5432";
 export const LEAK_EMPLOYER = "Leak Employer Co";
 
+/**
+ * Letters the contact detector never reads as digits (no o/l/i/s/b/z/g/q …): a tag made of them has
+ * no digit run, so the R-206 leak harness cannot see a phone number in it (P2c run 3 — the old
+ * `uniq` tag "C2-mwkjvo1l-43900-12" read as "011-43900-12").
+ */
+const SAFE_LETTERS = "cdfhkmnprtvwxy";
+function safeEncode(n: number): string {
+  let out = "";
+  let v = Math.floor(n);
+  do {
+    out = SAFE_LETTERS[v % SAFE_LETTERS.length] + out;
+    v = Math.floor(v / SAFE_LETTERS.length);
+  } while (v > 0);
+  return out;
+}
+let tagSeq = 0;
+
 /** A code-shaped tag (filter value) unique to one test. */
 export function tag(prefix = "T"): string {
-  return uniq(prefix)
+  tagSeq += 1;
+  return `${prefix}-${safeEncode(Date.now())}${safeEncode(process.pid)}-${safeEncode(tagSeq)}`
     .replace(/[^A-Za-z0-9_-]/g, "-")
     .slice(0, 40);
 }

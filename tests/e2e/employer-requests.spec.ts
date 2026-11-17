@@ -97,6 +97,21 @@ test("R-211 / R-212: name hidden before consent, shown after the seeker agrees o
 
   // ── seeker revokes → the name disappears at once ──
   await item.getByTestId("interview-consent-revoke").click();
+  // P2c QA O-3: the dialog close (X) button is at least 44×44, also during the entrance animation
+  const close = seekerPage.getByRole("dialog").getByRole("button", {
+    name: msg("ko", "seeker.me.interviewConsent.close"),
+  });
+  await expect(close).toBeVisible();
+  for (const box of [
+    await close.boundingBox(),
+    await (async () => {
+      await seekerPage.waitForTimeout(600);
+      return close.boundingBox();
+    })(),
+  ]) {
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  }
   await seekerPage.getByTestId("interview-consent-revoke-confirm").click();
   await expect(item).toHaveAttribute("data-state", "PENDING");
   await page.reload();
@@ -170,7 +185,6 @@ test("R-211 / Q-25: the name shows until the interview result is recorded, then 
   );
   await item.getByTestId("interview-consent-agree").click();
   await expect(item).toHaveAttribute("data-state", "AGREED");
-  await seekerContext.close();
 
   await loginEmployer(page, employer.email, "/employer/requests");
   const card = page.locator(
@@ -199,21 +213,13 @@ test("R-211 / Q-25: the name shows until the interview result is recorded, then 
   expect(await (await page.request.get("/api/employer/requests")).text()).not.toContain(name);
   await p2cShot(page, info, "r3_name_ended");
 
-  // P2c QA O-1: the seeker sees "면접 종료" and no agree / decline / revoke buttons
-  const seekerAfter = await browser.newContext({
-    baseURL: `http://localhost:${process.env.E2E_PORT ?? 3100}`,
-    viewport: page.viewportSize() ?? undefined,
-    extraHTTPHeaders: { "x-forwarded-for": uniqueIp() },
-  });
-  const seekerPage2 = await seekerAfter.newPage();
-  await loginUi(seekerPage2, "ko", phone);
-  await waitForHydration(seekerPage2, "interview-consents");
-  const ended = seekerPage2.locator(
-    `[data-testid="interview-consent-item"][data-interview-id="${interviewId}"]`,
-  );
-  await expect(ended).toHaveAttribute("data-state", "ENDED");
-  await expect(ended).toContainText(msg("ko", "seeker.me.interviewConsent.state.ENDED"));
-  await expect(ended.getByRole("button")).toHaveCount(0);
-  await p2cShot(seekerPage2, info, "r3_seeker_ended");
-  await seekerAfter.close();
+  // P2c QA O-1: the seeker sees "면접 종료" and no agree / decline / revoke buttons (same session —
+  // a second OTP login for the same phone would hit the resend cooldown)
+  await seekerPage.reload();
+  await waitForHydration(seekerPage, "interview-consents");
+  await expect(item).toHaveAttribute("data-state", "ENDED");
+  await expect(item).toContainText(msg("ko", "seeker.me.interviewConsent.state.ENDED"));
+  await expect(item.getByRole("button")).toHaveCount(0);
+  await p2cShot(seekerPage, info, "r3_seeker_ended");
+  await seekerContext.close();
 });
