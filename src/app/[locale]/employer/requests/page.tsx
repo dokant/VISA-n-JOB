@@ -94,8 +94,12 @@ export default async function EmployerRequestsPage({ params }: Props) {
                         {t("candidate", { id: shortId(r.publicId) })}
                       </h3>
                       <p className="text-dense text-n700">
-                        {t("recommendedAt", { date: day(r.recommendedAt) })}
-                        {r.postingTitle ? ` · ${t("posting")}: ${r.postingTitle}` : ""}
+                        {r.postingTitle
+                          ? t("recommendedAtWithPosting", {
+                              date: day(r.recommendedAt),
+                              title: r.postingTitle,
+                            })
+                          : t("recommendedAt", { date: day(r.recommendedAt) })}
                       </p>
                     </div>
                     {r.interviews.length === 0 ? (
@@ -146,6 +150,18 @@ export default async function EmployerRequestsPage({ params }: Props) {
                                           {t("interviews.nameState.GIVEN")}
                                         </Badge>
                                       </>
+                                    ) : iv.nameState === "ENDED" ? (
+                                      <span
+                                        className="flex items-center gap-1.5 text-n700"
+                                        data-testid="requests-name-ended"
+                                      >
+                                        <CalendarX
+                                          aria-hidden="true"
+                                          strokeWidth={1.5}
+                                          className="size-4"
+                                        />
+                                        {t("interviews.nameState.ENDED")}
+                                      </span>
                                     ) : (
                                       <span className="flex items-center gap-1.5 text-n700">
                                         <CircleDashed

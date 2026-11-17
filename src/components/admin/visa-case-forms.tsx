@@ -42,8 +42,8 @@ function Fields({
   visaOptions: { code: string; label: string }[];
 }) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <div className="grid gap-1.5">
+    <div className="grid gap-5.5 md:grid-cols-3">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-type`}>사건 종류</Label>
         <NativeSelect id={`${prefix}-type`} name="caseType" defaultValue={values.caseType}>
           {VISA_CASE_TYPES.map((v) => (
@@ -53,7 +53,7 @@ function Fields({
           ))}
         </NativeSelect>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-visa`}>목표 체류자격 (선택)</Label>
         <NativeSelect id={`${prefix}-visa`} name="targetVisa" defaultValue={values.targetVisa}>
           <option value="">정하지 않음</option>
@@ -64,7 +64,7 @@ function Fields({
           ))}
         </NativeSelect>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-status`}>진행 상태</Label>
         <NativeSelect id={`${prefix}-status`} name="status" defaultValue={values.status}>
           {VISA_CASE_STATUSES.map((v) => (
@@ -74,11 +74,11 @@ function Fields({
           ))}
         </NativeSelect>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-company`}>관련 기업 ID (선택)</Label>
         <Input id={`${prefix}-company`} name="companyId" defaultValue={values.companyId} />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-mandate`}>위임 계약일 (선택)</Label>
         <Input
           id={`${prefix}-mandate`}
@@ -87,7 +87,7 @@ function Fields({
           defaultValue={values.mandateSignedAt}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-fee`}>수임료(원, 선택)</Label>
         <Input
           id={`${prefix}-fee`}
@@ -145,8 +145,8 @@ export function VisaCaseCreateForm({
     null,
   );
   return (
-    <form action={action} className="grid gap-4" data-testid="visa-case-create-form">
-      <div className="grid gap-1.5">
+    <form action={action} className="grid gap-5.5" data-testid="visa-case-create-form">
+      <div className="grid gap-1.75">
         <Label htmlFor="visa-case-seeker">구직자 ID</Label>
         <Input id="visa-case-seeker" name="seekerId" required defaultValue={seekerId} />
       </div>
@@ -186,7 +186,7 @@ export function VisaCaseEditForm({
     null,
   );
   return (
-    <form action={action} className="grid gap-4" data-testid="visa-case-edit-form">
+    <form action={action} className="grid gap-5.5" data-testid="visa-case-edit-form">
       <input type="hidden" name="visaCaseId" value={visaCaseId} />
       <Fields prefix={`visa-case-${visaCaseId}`} visaOptions={visaOptions} values={values} />
       <div>

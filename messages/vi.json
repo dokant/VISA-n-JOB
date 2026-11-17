@@ -1366,7 +1366,7 @@
       "description": "Chúng tôi đang chuẩn bị việc làm phù hợp với visa và mong muốn của bạn. Nếu có câu hỏi, hãy đăng ký tư vấn.",
       "lead": "Việc làm phù hợp với visa, khu vực và ngành mong muốn của bạn, và các lần người phụ trách của VISA n JOB giới thiệu bạn.",
       "postingsTitle": "Việc làm phù hợp với bạn",
-      "postingsNote": "Tin tuyển dụng ẩn danh phù hợp với visa và khu vực, ngành mong muốn của bạn. Không hiển thị tên công ty, địa chỉ và thông tin liên lạc.",
+      "postingsNote": "Việc làm đề xuất phù hợp với visa và khu vực, ngành mong muốn của bạn. Không hiển thị tên công ty, địa chỉ và thông tin liên lạc.",
       "postingsEmpty": "Hiện chưa có việc làm phù hợp. Chúng tôi sẽ báo khi có việc mới.",
       "postingsListLabel": "Danh sách việc làm phù hợp với bạn",
       "profileNeeded": "Hoàn tất đăng ký đầy đủ để xem việc làm phù hợp với visa và mong muốn của bạn.",
@@ -1756,7 +1756,7 @@
       "recTitle": "Ứng viên được giới thiệu và phỏng vấn",
       "recEmpty": "Chưa có ứng viên nào được giới thiệu.",
       "recommendedAt": "Ngày giới thiệu {date}",
-      "posting": "Tin tuyển dụng",
+      "recommendedAtWithPosting": "Ngày giới thiệu {date} · Tin tuyển dụng: {title}",
       "interviews": {
         "none": "Người phụ trách của VISA n JOB đang sắp xếp lịch phỏng vấn.",
         "date": "Thời gian",
@@ -1772,7 +1772,8 @@
           "NOT_ASKED": "Khi buổi phỏng vấn được xác nhận, người tìm việc sẽ được hỏi có đồng ý cung cấp tên không.",
           "PENDING": "Đang chờ người tìm việc đồng ý.",
           "GIVEN": "Người tìm việc đã đồng ý cung cấp tên cho buổi phỏng vấn này.",
-          "NOT_GIVEN": "Người tìm việc không đồng ý cung cấp tên."
+          "NOT_GIVEN": "Người tìm việc không đồng ý cung cấp tên.",
+          "ENDED": "Buổi phỏng vấn này đã kết thúc nên tên không còn được hiển thị."
         }
       },
       "toCandidates": "Xem ứng viên ẩn danh"

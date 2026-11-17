@@ -101,8 +101,10 @@ describe("R-209 matching", () => {
     const request = await db.interestRequest.create({
       data: { initiator: "EMPLOYER", seekerId: s.id, companyId: setup.employer.companyId },
     });
+    // Newest first (P2c QA O-4): the request just made is on page 1 whatever the backlog.
     const open = await listOpenInterestRequests();
-    const row = open.find((r) => r.id === request.id);
+    expect(open.total).toBeGreaterThanOrEqual(1);
+    const row = open.rows.find((r) => r.id === request.id);
     expect(row?.eligible).toBe(true);
     expect(row?.targetCompanyId).toBe(setup.employer.companyId);
 
@@ -114,7 +116,37 @@ describe("R-209 matching", () => {
     if (!r.ok) return;
     expect(r.recommendation.companyId).toBe(setup.employer.companyId);
     expect(r.recommendation.postingId).toBeNull();
-    expect((await listOpenInterestRequests()).some((x) => x.id === request.id)).toBe(false);
+    expect((await listOpenInterestRequests()).rows.some((x) => x.id === request.id)).toBe(false);
+  });
+
+  it("R-209 (P2c QA O-4): open requests are newest first, paged, with the total count", async () => {
+    const setup = await matchSetup("M3p");
+    const s = await matchSeeker(setup);
+    const made = [];
+    for (let i = 0; i < 3; i++) {
+      made.push(
+        await db.interestRequest.create({
+          data: { initiator: "EMPLOYER", seekerId: s.id, companyId: setup.employer.companyId },
+        }),
+      );
+    }
+    const first = await listOpenInterestRequests({ page: 1, take: 2 });
+    expect(first.rows).toHaveLength(2);
+    expect(first.total).toBeGreaterThanOrEqual(3);
+    expect(first.pageCount).toBe(Math.ceil(first.total / 2));
+    for (let i = 1; i < first.rows.length; i++) {
+      expect(first.rows[i - 1].createdAt.getTime()).toBeGreaterThanOrEqual(
+        first.rows[i].createdAt.getTime(),
+      );
+    }
+    // the newest request is on page 1 even with an older backlog
+    const all = await listOpenInterestRequests({ take: 1000 });
+    expect(all.rows[0].createdAt.getTime()).toBeGreaterThanOrEqual(made[2].createdAt.getTime());
+    // out-of-range pages clamp to the last page; nonsense pages are page 1
+    const far = await listOpenInterestRequests({ page: 1_000_000, take: 2 });
+    expect(far.page).toBe(far.pageCount);
+    expect((await listOpenInterestRequests({ page: Number.NaN, take: 2 })).page).toBe(1);
+    expect((await listOpenInterestRequests({ page: -3, take: 2 })).page).toBe(1);
   });
 
   it("R-209 / R-211: 면접 일정 → 확정 sends the consent request (template only); place refuses contacts", async () => {

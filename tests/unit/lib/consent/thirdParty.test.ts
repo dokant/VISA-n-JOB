@@ -20,7 +20,12 @@ import { db } from "@/lib/db";
 import { loadEmployerRequests } from "@/lib/employer/interviews";
 import { detectContacts } from "@/lib/pii-guard";
 import { AuthzError } from "@/lib/rbac";
-import { loadInterviewDisclosure } from "@/lib/serializers/interviewDisclosure";
+import { INTERVIEW_RESULTS, recordInterviewResult } from "@/lib/recommendations/interviews";
+import {
+  DISCLOSURE_ENDING_RESULTS,
+  interviewEnded,
+  loadInterviewDisclosure,
+} from "@/lib/serializers/interviewDisclosure";
 
 import { auditRows } from "../admin/adminFixtures";
 import { LEAK_EMAIL, LEAK_MESSENGER, LEAK_NAME, company } from "../candidates/candidateFixtures";
@@ -225,10 +230,91 @@ describe("R-211 THIRD_PARTY_INTERVIEW per-interview consent", () => {
     });
     expect(await apiText(actor)).not.toContain(LEAK_NAME);
 
+    // Q-25: a confirmed then cancelled interview says the name display has ended
+    const cancelled = await loadEmployerRequests(actor);
+    expect(
+      cancelled.recommendations
+        .flatMap((r) => r.interviews)
+        .find((i) => i.interviewId === interview.id)?.nameState,
+    ).toBe("ENDED");
+    // cancelled before 면접 확정: never asked
+    await db.interview.update({
+      where: { id: scheduled.id },
+      data: { status: "CANCELLED", cancelledAt: new Date() },
+    });
+    expect(
+      (await loadEmployerRequests(actor)).recommendations
+        .flatMap((r) => r.interviews)
+        .find((i) => i.interviewId === scheduled.id)?.nameState,
+    ).toBe("NOT_ASKED");
+
     // a company with no recommendations sees empty lists
     const empty = await company({ verified: true, contracted: true });
     expect(JSON.parse(await apiText(empty))).toEqual({ interestRequests: [], recommendations: [] });
     session.actor = null;
     expect((await route.GET()).status).toBe(401);
+  });
+
+  it("R-211 / Q-25: the name is shown until the interview result is recorded, then it ends", async () => {
+    const setup = await matchSetup("C4");
+    const s = await matchSeeker(setup);
+    const { interview } = await recommendedInterview(setup, s.id, "CONFIRMED");
+    const actor = { id: setup.employer.id, companyId: setup.employer.companyId };
+    const disclosure = () =>
+      loadInterviewDisclosure({
+        companyId: actor.companyId,
+        interviewId: interview.id,
+        actorId: actor.id,
+      });
+    const stateOf = async () =>
+      (await loadEmployerRequests(actor)).recommendations
+        .flatMap((r) => r.interviews)
+        .find((i) => i.interviewId === interview.id)?.nameState;
+    await agreeInterviewConsent({
+      userId: s.userId,
+      interviewId: interview.id,
+      locale: "ko",
+      ip: null,
+    });
+
+    // before the result: shown (attended only, or "결과 대기", does not end the 면접 건)
+    expect(await disclosure()).toEqual({ legalName: LEAK_NAME });
+    expect(await apiText(actor)).toContain(LEAK_NAME);
+    expect(await stateOf()).toBe("GIVEN");
+    await recordInterviewResult({ interviewId: interview.id, attended: true, result: "PENDING" });
+    expect(await disclosure()).toEqual({ legalName: LEAK_NAME });
+    expect(await stateOf()).toBe("GIVEN");
+
+    // after a final result: gone from the serializer, the screen data and the API
+    for (const result of ["REJECTED", "HIRED", "NO_SHOW"] as const) {
+      await recordInterviewResult({ interviewId: interview.id, attended: true, result });
+      expect(await disclosure()).toBeNull();
+      const data = await loadEmployerRequests(actor);
+      expect(JSON.stringify(data)).not.toContain(LEAK_NAME);
+      expect(await apiText(actor)).not.toContain(LEAK_NAME);
+      expect(await stateOf()).toBe("ENDED");
+    }
+    // the consent row itself stays (not deleted), only the display ended
+    const consent = await db.consent.findFirstOrThrow({
+      where: { userId: s.userId, interviewId: interview.id, type: "THIRD_PARTY_INTERVIEW" },
+    });
+    expect(consent.revokedAt).toBeNull();
+    // no PII_VIEW written after the end
+    const views = (await auditRows(interview.id, "PII_VIEW")).length;
+    await loadEmployerRequests(actor);
+    expect((await auditRows(interview.id, "PII_VIEW")).length).toBe(views);
+  });
+
+  it("Q-25: interviewEnded — cancelled or a final result ends it, PENDING or nothing does not", () => {
+    expect(interviewEnded({ status: "CONFIRMED", result: null })).toBe(false);
+    expect(interviewEnded({ status: "CONFIRMED", result: "PENDING" })).toBe(false);
+    expect(interviewEnded({ status: "CANCELLED", result: null })).toBe(true);
+    for (const r of DISCLOSURE_ENDING_RESULTS) {
+      expect(interviewEnded({ status: "CONFIRMED", result: r })).toBe(true);
+    }
+    // every recorded result except PENDING ends the interview
+    expect([...DISCLOSURE_ENDING_RESULTS].sort()).toEqual(
+      INTERVIEW_RESULTS.filter((r) => r !== "PENDING").sort(),
+    );
   });
 });

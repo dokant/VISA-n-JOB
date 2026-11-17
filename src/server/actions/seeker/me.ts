@@ -11,16 +11,20 @@ import {
 } from "@/lib/consent/thirdParty";
 import { db } from "@/lib/db";
 import { clientIp } from "@/lib/rateLimit";
+import { AuthzError } from "@/lib/rbac";
 import { grantConsent, revokeConsent } from "@/lib/seeker/consent";
 import { monthToDate } from "@/lib/seeker/options";
-import { requireSeeker } from "@/lib/seeker/session";
+import { type SeekerActor, requireSeeker } from "@/lib/seeker/session";
 import {
   consentChangeSchema,
   interviewConsentAnswerSchema,
   staySettingsSchema,
 } from "@/schemas/seeker/me";
 
-/** /seeker/me actions (R-113). */
+/**
+ * /seeker/me actions (R-113). Without a seeker session they return `{ ok: false, code }`
+ * (UNAUTHENTICATED / FORBIDDEN) instead of an unhandled server error (P2c QA O-5).
+ */
 export type MeActionState = { ok: true } | { ok: false; code: string };
 
 function toLocale(value: unknown): Locale {
@@ -35,7 +39,13 @@ export async function changeConsent(input: {
   action: "revoke" | "grant";
   locale: string;
 }): Promise<MeActionState> {
-  const actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  let actor: SeekerActor;
+  try {
+    actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  } catch (e) {
+    if (e instanceof AuthzError) return { ok: false, code: e.code };
+    throw e;
+  }
   const parsed = consentChangeSchema.safeParse({ type: input.type });
   if (!parsed.success) return { ok: false, code: "VALIDATION" };
   if (input.action === "revoke") {
@@ -62,7 +72,13 @@ export async function answerInterviewConsent(input: {
   action: "agree" | "decline" | "revoke";
   locale: string;
 }): Promise<MeActionState> {
-  const actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  let actor: SeekerActor;
+  try {
+    actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  } catch (e) {
+    if (e instanceof AuthzError) return { ok: false, code: e.code };
+    throw e;
+  }
   const parsed = interviewConsentAnswerSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "VALIDATION" };
   const { interviewId, action } = parsed.data;
@@ -85,7 +101,13 @@ export async function answerInterviewConsent(input: {
 
 /** /seeker/me/stay: stay expiry month + reminder opt-in (WO §6.2, §7.7). */
 export async function saveStaySettings(input: unknown): Promise<MeActionState> {
-  const actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  let actor: SeekerActor;
+  try {
+    actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  } catch (e) {
+    if (e instanceof AuthzError) return { ok: false, code: e.code };
+    throw e;
+  }
   const parsed = staySettingsSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "VALIDATION" };
   await db.seekerProfile.update({

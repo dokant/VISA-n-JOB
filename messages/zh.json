@@ -1366,7 +1366,7 @@
       "description": "我们正在准备符合您签证和意向的推荐工作。如有疑问，请申请咨询。",
       "lead": "显示符合您的签证和期望地区、行业的工作，以及 VISA n JOB 负责人推荐您的记录。",
       "postingsTitle": "适合您的工作",
-      "postingsNote": "您的签证可以申请、并符合期望地区和行业的匿名职位。不公开公司名称、地址和联系方式。",
+      "postingsNote": "您的签证可以申请、并符合期望地区和行业的推荐工作。不公开公司名称、地址和联系方式。",
       "postingsEmpty": "目前没有符合条件的工作。有新工作时会通知您。",
       "postingsListLabel": "适合您的工作列表",
       "profileNeeded": "完成正式登记后，即可查看符合您签证和期望条件的工作。",
@@ -1756,7 +1756,7 @@
       "recTitle": "推荐候选人与面试",
       "recEmpty": "还没有推荐的候选人。",
       "recommendedAt": "推荐日 {date}",
-      "posting": "职位",
+      "recommendedAtWithPosting": "推荐日 {date} · 职位：{title}",
       "interviews": {
         "none": "VISA n JOB 负责人正在协调面试日程。",
         "date": "时间",
@@ -1772,7 +1772,8 @@
           "NOT_ASKED": "面试确定后，会征求求职者是否同意提供姓名。",
           "PENDING": "正在等待求职者同意。",
           "GIVEN": "求职者已同意为本次面试提供姓名。",
-          "NOT_GIVEN": "求职者未同意提供姓名。"
+          "NOT_GIVEN": "求职者未同意提供姓名。",
+          "ENDED": "本次面试已结束，不再显示姓名。"
         }
       },
       "toCandidates": "查看匿名候选人"

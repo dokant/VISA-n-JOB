@@ -25,6 +25,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vites
 
 import type { EmployerActor } from "@/lib/employer/session";
 import { agreeInterviewConsent } from "@/lib/consent/thirdParty";
+import { recordInterviewResult } from "@/lib/recommendations/interviews";
 import {
   EMPLOYER_NAME_DISCLOSURE,
   EMPLOYER_ROUTE_HANDLERS,
@@ -375,6 +376,8 @@ describe("R-206 employer API contact leak harness", () => {
       phones.push((await db.user.findUniqueOrThrow({ where: { id: s.userId } })).phoneEnc ?? "");
     }
     const yes = await recommendedInterview(setup, consented.id, "CONFIRMED");
+    // Q-25: consented, then the result is recorded → the 면접 건 ended, no name
+    const ended = await recommendedInterview(setup, consented.id, "CONFIRMED");
     await recommendedInterview(setup, notConsented.id, "CONFIRMED");
     await recommendedInterview(setup, consented.id, "SCHEDULED");
     await db.interestRequest.create({
@@ -400,6 +403,20 @@ describe("R-206 employer API contact leak harness", () => {
     const after = await requestsRoute.GET();
     expect(after.status).toBe(200);
     expect(await body(requestsEntry, after)).toContain(LEAK_NAME);
+    await agreeInterviewConsent({
+      userId: consented.userId,
+      interviewId: ended.interview.id,
+      locale: "ko",
+      ip: null,
+    });
+    await recordInterviewResult({
+      interviewId: ended.interview.id,
+      attended: true,
+      result: "REJECTED",
+    });
+    // `ended` is NOT in consentedInterviews: a name at that interview fails the check below
+    const afterEnd = await body(requestsEntry, await requestsRoute.GET());
+    expect(afterEnd.split(LEAK_NAME).length - 1).toBe(1);
     // other companies (the list company, an unrelated one) get nothing
     session.actor = listCompany;
     await body(requestsEntry, await requestsRoute.GET());

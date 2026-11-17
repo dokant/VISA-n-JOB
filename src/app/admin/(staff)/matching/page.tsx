@@ -28,17 +28,23 @@ const link =
   "inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-blue-700 hover:underline";
 
 /**
- * /admin/matching — 매칭 (R-209, WO §6.5): 공고별 적합 구직자로 가기, 접수된 면접 신청·요청에 대한 추천 실행,
- * 최근 추천(원장)과 면접 일정. 권한 `recommendation:create`(매칭 담당·관리자). 복호 필드는 읽지 않는다.
+ * /admin/matching — 매칭 (R-209, WO §6.5): 공고별 적합 구직자로 가기, 접수된 면접 신청·요청에 대한 추천 실행
+ * (최신순, ADMIN_LIST_MAX건씩 `?page=` — P2c QA O-4), 최근 추천(원장)과 면접 일정.
+ * 권한 `recommendation:create`(매칭 담당·관리자). 복호 필드는 읽지 않는다.
  */
-export default async function MatchingPage() {
+export default async function MatchingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const actor = await requireStaff(); // rbac: admin:access + 2FA
   if (!can(actor.role, "recommendation:create")) {
     return <ForbiddenNotice text="매칭과 추천 실행은 매칭 담당 직원과 관리자만 합니다." />;
   }
-  const [postings, interests, recent, sidos, industries] = await Promise.all([
+  const { page: rawPage } = await searchParams;
+  const [postings, open, recent, sidos, industries] = await Promise.all([
     listMatchPostings(),
-    listOpenInterestRequests(),
+    listOpenInterestRequests({ page: Number.parseInt(rawPage ?? "1", 10) }),
     findRecommendations({
       where: {},
       take: ADMIN_LIST_MAX,
@@ -60,6 +66,10 @@ export default async function MatchingPage() {
   ]);
   const sidoName = new Map(sidos.map((r) => [r.code, r.nameKo]));
   const industryName = new Map(industries.map((i) => [i.code, i.nameKo]));
+  const interests = open.rows;
+  const first = (open.page - 1) * open.take + 1;
+  const last = first + interests.length - 1;
+  const pageHref = (n: number) => (n <= 1 ? "/admin/matching" : `/admin/matching?page=${n}`);
   const where = (industry: string, sido: string) =>
     `${industryName.get(industry) ?? industry} · ${sidoName.get(sido) ?? sido}`;
 
@@ -123,8 +133,14 @@ export default async function MatchingPage() {
 
       <section className="grid gap-3" aria-labelledby="matching-interests">
         <h2 id="matching-interests" className="text-h3 text-navy">
-          추천 전 면접 신청·요청 ({fmtCount(interests.length, "건")})
+          추천 전 면접 신청·요청 ({fmtCount(open.total, "건")})
         </h2>
+        {open.total > 0 ? (
+          <p className="text-dense text-n700" data-testid="matching-interests-range">
+            최신순 · 전체 {fmtCount(open.total, "건")} 중 {fmtCount(first)}–{fmtCount(last, "건")}{" "}
+            표시
+          </p>
+        ) : null}
         {interests.length === 0 ? (
           <p className="text-dense text-n500">추천을 기다리는 면접 신청·요청이 없습니다.</p>
         ) : (
@@ -170,6 +186,32 @@ export default async function MatchingPage() {
             ))}
           </ul>
         )}
+        {open.pageCount > 1 ? (
+          <nav
+            aria-label="면접 신청·요청 페이지"
+            className="flex flex-wrap items-center gap-4"
+            data-testid="matching-interests-pager"
+          >
+            {open.page > 1 ? (
+              <Link href={pageHref(open.page - 1)} className={link} rel="prev">
+                이전 {fmtCount(open.take, "건")}
+              </Link>
+            ) : null}
+            <span className="text-dense text-n700">
+              페이지 {fmtCount(open.page)} / {fmtCount(open.pageCount)}
+            </span>
+            {open.page < open.pageCount ? (
+              <Link
+                href={pageHref(open.page + 1)}
+                className={link}
+                rel="next"
+                data-testid="matching-interests-next"
+              >
+                다음 {fmtCount(open.take, "건")}
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
       </section>
 
       <section className="grid gap-3" aria-labelledby="matching-recent">

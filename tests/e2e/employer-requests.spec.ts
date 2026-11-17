@@ -7,6 +7,7 @@ import {
   createMatchSeeker,
   createRecommendedInterview,
   interviewConsents,
+  recordResult,
   uniqueName,
   uniqueTag,
 } from "./support/matchingDb";
@@ -139,4 +140,59 @@ test("R-211: another company never sees the name, even after consent", async ({ 
   await expect(page.getByTestId("requests-interview")).toHaveCount(1);
   expect(await page.content()).not.toContain(name);
   expect(await (await page.request.get("/api/employer/requests")).text()).not.toContain(name);
+});
+
+test("R-211 / Q-25: the name shows until the interview result is recorded, then the 면접 건 ended notice", async ({
+  page,
+  browser,
+}, info) => {
+  const visa = uniqueTag();
+  const name = uniqueName();
+  const phone = uniquePhone();
+  const employer = await createMatchEmployer(visa);
+  const seeker = await createMatchSeeker(phone, visa, name);
+  const { interviewId } = await createRecommendedInterview({
+    seekerId: seeker.id,
+    companyId: employer.companyId,
+    postingId: employer.postingId,
+    status: "CONFIRMED",
+  });
+  const seekerContext = await browser.newContext({
+    baseURL: `http://localhost:${process.env.E2E_PORT ?? 3100}`,
+    viewport: page.viewportSize() ?? undefined,
+    extraHTTPHeaders: { "x-forwarded-for": uniqueIp() },
+  });
+  const seekerPage = await seekerContext.newPage();
+  await loginUi(seekerPage, "ko", phone);
+  await waitForHydration(seekerPage, "interview-consents");
+  const item = seekerPage.locator(
+    `[data-testid="interview-consent-item"][data-interview-id="${interviewId}"]`,
+  );
+  await item.getByTestId("interview-consent-agree").click();
+  await expect(item).toHaveAttribute("data-state", "AGREED");
+  await seekerContext.close();
+
+  await loginEmployer(page, employer.email, "/employer/requests");
+  const card = page.locator(
+    `[data-testid="requests-interview"][data-interview-id="${interviewId}"]`,
+  );
+  // before the result (also with "결과 대기"): the name is shown
+  await recordResult(interviewId, "PENDING");
+  await page.reload();
+  await expect(card).toHaveAttribute("data-name-state", "GIVEN");
+  await expect(card.getByTestId("requests-disclosed-name")).toHaveText(name);
+
+  // the result is recorded → the 면접 건 ended: no name in the page, RSC or API, an ended notice
+  await recordResult(interviewId, "REJECTED");
+  await page.reload();
+  await expect(card).toHaveAttribute("data-name-state", "ENDED");
+  await expect(card.getByTestId("requests-name-ended")).toHaveText(
+    msg("ko", "employer.requests.interviews.nameState.ENDED"),
+  );
+  await expect(page.getByTestId("requests-disclosed-name")).toHaveCount(0);
+  expect(await page.content()).not.toContain(name);
+  const rsc = await page.request.get("/ko/employer/requests", { headers: { RSC: "1" } });
+  expect(await rsc.text()).not.toContain(name);
+  expect(await (await page.request.get("/api/employer/requests")).text()).not.toContain(name);
+  await p2cShot(page, info, "r2_name_ended");
 });

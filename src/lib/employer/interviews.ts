@@ -18,6 +18,7 @@ import { INTERVIEW_CONSENT } from "@/lib/seeker/options";
 import { toBlindPublicId } from "@/lib/serializers/blindSeeker";
 import {
   type InterviewDisclosure,
+  interviewEnded,
   loadInterviewDisclosure,
 } from "@/lib/serializers/interviewDisclosure";
 
@@ -30,8 +31,12 @@ export type EmployerInterestRow = {
   requestedAt: string;
 };
 
-/** Whether the name of this interview is given: asked / given / not given / not asked yet. */
-export type NameState = "NOT_ASKED" | "PENDING" | "GIVEN" | "NOT_GIVEN";
+/**
+ * Whether the name of this interview is given: asked / given / not given / not asked yet, or ENDED —
+ * the interview was confirmed and has since been cancelled or got a final result, so the name is no
+ * longer shown (DECISIONS Q-25, interviewDisclosure.ts).
+ */
+export type NameState = "NOT_ASKED" | "PENDING" | "GIVEN" | "NOT_GIVEN" | "ENDED";
 
 export type EmployerInterviewRow = {
   interviewId: string;
@@ -85,6 +90,8 @@ export async function loadEmployerRequests(
               scheduledAt: true,
               place: true,
               status: true,
+              result: true,
+              confirmedAt: true,
               consentDeclinedAt: true,
               consents: {
                 where: { type: INTERVIEW_CONSENT, revokedAt: null },
@@ -104,21 +111,24 @@ export async function loadEmployerRequests(
     for (const iv of r.interviews) {
       const status = interviewStatus(iv.status);
       const consented = iv.consents.some((c) => c.userId === r.seeker.userId);
+      const ended = interviewEnded(iv);
       const disclosure =
-        status === "CONFIRMED" && consented
+        status === "CONFIRMED" && !ended && consented
           ? await loadInterviewDisclosure(
               { companyId: actor.companyId, interviewId: iv.id, actorId: actor.id },
               client,
             )
           : null;
       const nameState: NameState =
-        status !== "CONFIRMED"
-          ? "NOT_ASKED"
-          : disclosure
-            ? "GIVEN"
-            : iv.consentDeclinedAt
-              ? "NOT_GIVEN"
-              : "PENDING";
+        ended && iv.confirmedAt
+          ? "ENDED"
+          : status !== "CONFIRMED"
+            ? "NOT_ASKED"
+            : disclosure
+              ? "GIVEN"
+              : iv.consentDeclinedAt
+                ? "NOT_GIVEN"
+                : "PENDING";
       interviews.push({
         interviewId: iv.id,
         scheduledAt: iv.scheduledAt.toISOString(),

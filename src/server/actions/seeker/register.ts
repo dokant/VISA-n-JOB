@@ -8,10 +8,11 @@ import { type Locale, defaultLocale, locales } from "@/i18n/locales";
 import { createSeekerSignupProof, sendPhoneOtp } from "@/lib/authCredentials";
 import { safeNextPath } from "@/lib/authGuard";
 import { clientIp } from "@/lib/rateLimit";
+import { AuthzError } from "@/lib/rbac";
 import { type EntryParams, quickSignup, startWizardAccount } from "@/lib/seeker/account";
 import { REF_COOKIE, SRC_COOKIE } from "@/lib/seeker/referral";
 import { type StepId, saveWizardStep } from "@/lib/seeker/saveStep";
-import { requireSeeker } from "@/lib/seeker/session";
+import { type SeekerActor, requireSeeker } from "@/lib/seeker/session";
 import { quickSchema } from "@/schemas/seeker/quick";
 import { step0Schema, step0SendSchema } from "@/schemas/seeker/register/step0";
 
@@ -168,7 +169,13 @@ export async function saveRegistrationStep(input: {
   locale: string;
   values: unknown;
 }): Promise<RegisterActionState> {
-  const actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  let actor: SeekerActor;
+  try {
+    actor = await requireSeeker(); // rbac: seeker:selfService (assertCan in requireSeeker)
+  } catch (e) {
+    if (e instanceof AuthzError) return { ok: false, code: e.code };
+    throw e;
+  }
   if (!(STEP_IDS as readonly string[]).includes(input.step)) {
     return { ok: false, code: "VALIDATION" };
   }

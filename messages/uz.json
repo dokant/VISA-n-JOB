@@ -1366,7 +1366,7 @@
       "description": "Vizangiz va istaklaringizga mos ishlarni tayyorlayapmiz. Savollaringiz boʻlsa, maslahatga ariza bering.",
       "lead": "Vizangiz, istagan hudud va sohangizga mos ishlar hamda VISA n JOB xodimi sizni tavsiya etgan holatlar.",
       "postingsTitle": "Sizga mos ishlar",
-      "postingsNote": "Vizangiz bilan mumkin boʻlgan, istagan hudud va sohangizdagi anonim eʼlonlar. Kompaniya nomi, manzili va aloqa maʼlumotlari koʻrsatilmaydi.",
+      "postingsNote": "Vizangiz bilan mumkin boʻlgan, istagan hudud va sohangizdagi tavsiya etilgan ishlar. Kompaniya nomi, manzili va aloqa maʼlumotlari koʻrsatilmaydi.",
       "postingsEmpty": "Hozir shartlaringizga mos ish yoʻq. Yangi ish chiqsa, xabar beramiz.",
       "postingsListLabel": "Sizga mos ishlar roʻyxati",
       "profileNeeded": "Vizangiz va istaklaringizga mos ishlarni koʻrish uchun toʻliq roʻyxatdan oʻting.",
@@ -1756,7 +1756,7 @@
       "recTitle": "Tavsiya etilgan nomzodlar va suhbatlar",
       "recEmpty": "Hali tavsiya etilgan nomzod yoʻq.",
       "recommendedAt": "Tavsiya sanasi {date}",
-      "posting": "Eʼlon",
+      "recommendedAtWithPosting": "Tavsiya sanasi {date} · Eʼlon: {title}",
       "interviews": {
         "none": "VISA n JOB xodimi suhbat jadvalini kelishmoqda.",
         "date": "Vaqt",
@@ -1772,7 +1772,8 @@
           "NOT_ASKED": "Suhbat tasdiqlangach, ish izlovchidan ismini berishga rozilik soʻraladi.",
           "PENDING": "Ish izlovchining roziligi kutilmoqda.",
           "GIVEN": "Ish izlovchi ushbu suhbat uchun ismini berishga rozi boʻldi.",
-          "NOT_GIVEN": "Ish izlovchi ismini berishga rozi boʻlmadi."
+          "NOT_GIVEN": "Ish izlovchi ismini berishga rozi boʻlmadi.",
+          "ENDED": "Suhbat yakunlangani uchun ism endi koʻrsatilmaydi."
         }
       },
       "toCandidates": "Anonim nomzodlarni koʻrish"

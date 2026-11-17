@@ -34,7 +34,8 @@ export const EMPLOYER_NAME_DISCLOSURE = [
   {
     entry: "src/app/api/employer/requests/route.ts",
     path: "recommendations[].interviews[].disclosure.legalName",
-    condition: "THIRD_PARTY_INTERVIEW consent active for this interview + CONFIRMED + same company",
+    condition:
+      "THIRD_PARTY_INTERVIEW consent active for this interview + CONFIRMED + no final result (Q-25) + same company",
   },
 ] as const;
 

@@ -186,6 +186,7 @@ const ERROR_TEXT: Record<string, string> = {
   FILE_EMPTY: "파일을 골라 주세요.",
   FILE_TOO_LARGE: `파일이 너무 큽니다. ${Math.floor(INTRO_CONFIRM_MAX_BYTES / (1024 * 1024))}MB 이하로 올려 주세요.`,
   FILE_TYPE: "PDF, JPG, PNG 파일만 올릴 수 있습니다.",
+  UPLOAD_FAILED: `파일을 올리지 못했습니다. ${Math.floor(INTRO_CONFIRM_MAX_BYTES / (1024 * 1024))}MB 이하의 PDF·JPG·PNG 파일인지 확인하고 다시 올려 주세요.`,
   PLACEMENT_EXISTS: "이 추천에는 이미 계약이 등록되어 있습니다.",
   COMPANY_NOT_FOUND: "기업을 찾을 수 없습니다. 기업 ID를 확인해 주세요.",
 };
@@ -245,6 +246,9 @@ export const VISA_CASE_STATUS_LABEL: Record<string, string> = {
 };
 
 /** R-210 서명 URL 안내 (값은 limits.ts). */
+/** 소개 확인서 업로드 안내 (R-210, limits.ts 값). */
+export const INTRO_CONFIRM_HINT = `PDF·JPG·PNG, ${Math.floor(INTRO_CONFIRM_MAX_BYTES / (1024 * 1024))}MB 이하.`;
+
 export const SIGNED_URL_NOTE = `파일은 ${Math.round(SIGNED_URL_TTL_SEC / 60)}분 동안만 열리는 서명 링크로 엽니다. 열 때마다 감사 로그가 남습니다.`;
 
 export function adminActionError(code: string): string {

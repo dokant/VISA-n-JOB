@@ -8,7 +8,11 @@ import path from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { INTRO_CONFIRM_MAX_BYTES } from "@/config/limits";
+import {
+  INTRO_CONFIRM_MAX_BYTES,
+  SERVER_ACTION_BODY_LIMIT,
+  SERVER_ACTION_FORM_OVERHEAD_BYTES,
+} from "@/config/limits";
 import {
   privateStorageRoot,
   readStoredFile,
@@ -76,6 +80,18 @@ describe("R-210 private storage", () => {
       ok: false,
       code: "FILE_TOO_LARGE",
     });
+  });
+
+  it("R-210: the server action body limit follows the upload cap (P2c QA O-2·O-3)", () => {
+    expect(typeof SERVER_ACTION_BODY_LIMIT).toBe("number");
+    expect(SERVER_ACTION_BODY_LIMIT).toBe(
+      INTRO_CONFIRM_MAX_BYTES + SERVER_ACTION_FORM_OVERHEAD_BYTES,
+    );
+    expect(SERVER_ACTION_BODY_LIMIT).toBeGreaterThan(INTRO_CONFIRM_MAX_BYTES);
+    // next.config.ts takes it from limits.ts, no second literal
+    const config = readFileSync(path.resolve("next.config.ts"), "utf8");
+    expect(config).toContain('from "./src/config/limits"');
+    expect(config).toMatch(/bodySizeLimit:\s*SERVER_ACTION_BODY_LIMIT/);
   });
 
   it("R-210: malformed keys never resolve to a path", async () => {

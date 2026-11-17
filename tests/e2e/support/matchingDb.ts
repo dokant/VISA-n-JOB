@@ -9,6 +9,7 @@ import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { phoneHashOf } from "@/lib/otp";
+import { recordInterviewResult } from "@/lib/recommendations/interviews";
 import { createRecommendation } from "@/lib/recommendations/ledger";
 
 import "./authDb"; // loads .env (DATABASE_URL, keys) for the fixtures below
@@ -178,4 +179,19 @@ export function interviewsOf(recommendationId: string) {
 
 export function visaCasesOf(seekerId: string) {
   return db.visaCase.findMany({ where: { seekerId }, select: { id: true, status: true } });
+}
+
+/** Staff records an interview result (same repository the admin form uses). */
+export async function recordResult(interviewId: string, result: "PENDING" | "REJECTED" | "HIRED") {
+  const r = await recordInterviewResult({ interviewId, attended: true, result });
+  if (!r.ok) throw new Error(`recordInterviewResult: ${r.code}`);
+}
+
+/** A 면접 요청 (EMPLOYER initiator) waiting for a recommendation. */
+export async function createEmployerInterest(seekerId: string, companyId: string) {
+  const r = await db.interestRequest.create({
+    data: { initiator: "EMPLOYER", seekerId, companyId },
+    select: { id: true },
+  });
+  return r.id;
 }

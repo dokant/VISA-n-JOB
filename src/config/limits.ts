@@ -224,13 +224,17 @@ export const SIGNED_URL_TTL_SEC = 300;
 /** R-210: 소개 확인서 upload size cap (bytes). 운영 수치: 운영자가 조정한다. */
 export const INTRO_CONFIRM_MAX_BYTES = 5 * 1024 * 1024;
 
-/**
- * R-210: accepted 소개 확인서 types (the type is read from the file bytes, not from the browser).
- * Next.js server actions refuse bodies over `SERVER_ACTION_BODY_LIMIT` (next.config.ts) — keep it a
- * little above INTRO_CONFIRM_MAX_BYTES for the form fields.
- */
+/** R-210: accepted 소개 확인서 types (the type is read from the file bytes, not from the browser). */
 export const INTRO_CONFIRM_TYPES = ["application/pdf", "image/jpeg", "image/png"] as const;
-export const SERVER_ACTION_BODY_LIMIT = "6mb";
+
+/** Room for the other multipart fields of the upload form (ids, boundaries) — storage bound. */
+export const SERVER_ACTION_FORM_OVERHEAD_BYTES = 1024 * 1024;
+
+/**
+ * Next.js server actions refuse bodies over this many bytes (next.config.ts reads it). Derived from
+ * INTRO_CONFIRM_MAX_BYTES so the two cannot drift (P2c QA O-2·O-3): change the upload cap only.
+ */
+export const SERVER_ACTION_BODY_LIMIT = INTRO_CONFIRM_MAX_BYTES + SERVER_ACTION_FORM_OVERHEAD_BYTES;
 
 /** R-212: /employer/requests lists at most this many 면접 요청 and interviews (newest first). */
 export const EMPLOYER_REQUESTS_LIST_MAX = 50;

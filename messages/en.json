@@ -1366,7 +1366,7 @@
       "description": "We are preparing jobs that fit your visa and preferences. If you have questions, please request a consultation.",
       "lead": "Jobs that fit your visa and preferred regions and industries, and the times a VISA n JOB representative recommended you.",
       "postingsTitle": "Jobs that fit you",
-      "postingsNote": "Blind postings possible with your visa and in your preferred regions and industries. Company name, address and contacts are not shown.",
+      "postingsNote": "Recommended jobs possible with your visa and in your preferred regions and industries. Company name, address and contacts are not shown.",
       "postingsEmpty": "No job fits your conditions right now. We will let you know when a new one comes.",
       "postingsListLabel": "Jobs that fit you",
       "profileNeeded": "Finish the full registration to see jobs that fit your visa and preferences.",
@@ -1756,7 +1756,7 @@
       "recTitle": "Recommended candidates and interviews",
       "recEmpty": "No candidate has been recommended yet.",
       "recommendedAt": "Recommended {date}",
-      "posting": "Posting",
+      "recommendedAtWithPosting": "Recommended {date} · Posting: {title}",
       "interviews": {
         "none": "A VISA n JOB representative is arranging the interview schedule.",
         "date": "Date and time",
@@ -1772,7 +1772,8 @@
           "NOT_ASKED": "Once the interview is confirmed, the candidate is asked whether to give their name.",
           "PENDING": "Waiting for the candidate's consent.",
           "GIVEN": "The candidate agreed to give their name for this interview.",
-          "NOT_GIVEN": "The candidate did not agree to give their name."
+          "NOT_GIVEN": "The candidate did not agree to give their name.",
+          "ENDED": "This interview has ended, so the name is no longer shown."
         }
       },
       "toCandidates": "See blind candidates"

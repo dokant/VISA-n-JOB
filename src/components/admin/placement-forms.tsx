@@ -22,8 +22,8 @@ type Values = {
 
 function Fields({ prefix, values }: { prefix: string; values: Values }) {
   return (
-    <div className="grid gap-4 md:grid-cols-4">
-      <div className="grid gap-1.5">
+    <div className="grid gap-5.5 md:grid-cols-4">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-date`}>계약일</Label>
         <Input
           id={`${prefix}-date`}
@@ -33,7 +33,7 @@ function Fields({ prefix, values }: { prefix: string; values: Values }) {
           defaultValue={values.contractDate}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-wage`}>월 급여(원)</Label>
         <Input
           id={`${prefix}-wage`}
@@ -45,7 +45,7 @@ function Fields({ prefix, values }: { prefix: string; values: Values }) {
           defaultValue={values.monthlyWage}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-fee`}>소개요금(원)</Label>
         <Input
           id={`${prefix}-fee`}
@@ -57,7 +57,7 @@ function Fields({ prefix, values }: { prefix: string; values: Values }) {
           defaultValue={values.feeAmount}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.75">
         <Label htmlFor={`${prefix}-status`}>요금 상태</Label>
         <NativeSelect id={`${prefix}-status`} name="feeStatus" defaultValue={values.feeStatus}>
           {FEE_STATUSES.map((s) => (
@@ -84,8 +84,8 @@ export function PlacementCreateForm({
     null,
   );
   return (
-    <form action={action} className="grid gap-4" data-testid="placement-create-form">
-      <div className="grid gap-1.5">
+    <form action={action} className="grid gap-5.5" data-testid="placement-create-form">
+      <div className="grid gap-1.75">
         <Label htmlFor="placement-rec">추천 건</Label>
         <NativeSelect id="placement-rec" name="recommendationId" required defaultValue="">
           <option value="" disabled>
@@ -124,7 +124,7 @@ export function PlacementEditForm({
     null,
   );
   return (
-    <form action={action} className="grid gap-3" data-testid="placement-edit-form">
+    <form action={action} className="grid gap-5.5" data-testid="placement-edit-form">
       <input type="hidden" name="placementId" value={placementId} />
       <Fields prefix={`placement-${placementId}`} values={values} />
       <div>

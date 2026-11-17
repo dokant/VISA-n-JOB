@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState, useTransition } from "react";
+import { unstable_rethrow } from "next/navigation";
+import { type ChangeEvent, useActionState, useState, useTransition } from "react";
 
-import { adminActionError } from "@/app/admin/_i18n/ko";
+import { INTRO_CONFIRM_HINT, adminActionError } from "@/app/admin/_i18n/ko";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   INTERVIEW_INTERPRETER_MAX,
   INTERVIEW_PLACE_MAX,
+  INTRO_CONFIRM_MAX_BYTES,
   INTRO_CONFIRM_TYPES,
   RECOMMENDATION_NOTE_MAX,
 } from "@/config/limits";
@@ -83,7 +85,7 @@ export function RecommendButton({
           {summary} 추천 원장은 기록 후 고치거나 지울 수 없습니다. 기업 화면에는 블라인드 정보만
           보입니다.
         </DialogDescription>
-        <form action={action} className="grid gap-4" data-testid="recommend-form">
+        <form action={action} className="grid gap-5.5" data-testid="recommend-form">
           {forInterest ? (
             <input type="hidden" name="interestRequestId" value={target.interestRequestId} />
           ) : (
@@ -92,7 +94,7 @@ export function RecommendButton({
               <input type="hidden" name="seekerId" value={target.seekerId} />
             </>
           )}
-          <div className="grid gap-1.5">
+          <div className="grid gap-1.75">
             <Label htmlFor="recommend-note">직원 메모 (선택, 연락처 금지)</Label>
             <Textarea id="recommend-note" name="note" maxLength={RECOMMENDATION_NOTE_MAX} />
           </div>
@@ -124,18 +126,18 @@ export function InterviewCreateForm({ recommendationId }: { recommendationId: st
     null,
   );
   return (
-    <form action={action} className="grid gap-4" data-testid="interview-create-form">
+    <form action={action} className="grid gap-5.5" data-testid="interview-create-form">
       <input type="hidden" name="recommendationId" value={recommendationId} />
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="grid gap-1.5">
+      <div className="grid gap-5.5 md:grid-cols-3">
+        <div className="grid gap-1.75">
           <Label htmlFor="iv-at">일시 (한국 시간)</Label>
           <Input id="iv-at" type="datetime-local" name="scheduledAt" required />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-1.75">
           <Label htmlFor="iv-place">장소 (기업에 보임, 연락처 금지)</Label>
           <Input id="iv-place" name="place" required maxLength={INTERVIEW_PLACE_MAX} />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-1.75">
           <Label htmlFor="iv-interpreter">통역 (직원 전용, 선택)</Label>
           <Input id="iv-interpreter" name="interpreter" maxLength={INTERVIEW_INTERPRETER_MAX} />
         </div>
@@ -150,7 +152,10 @@ export function InterviewCreateForm({ recommendationId }: { recommendationId: st
   );
 }
 
-/** 면접 확정 (→ 구직자 건별 동의 요청) / 면접 취소. */
+/**
+ * 면접 확정 (→ 구직자 건별 동의 요청) / 면접 취소. Cancelling cannot be undone (CANCELLED is final, the
+ * company stops seeing the name), so it asks first in a dialog (STANDARD 3.1 dialog, Q-14 취지).
+ */
 export function InterviewStatusForms({
   interviewId,
   recommendationId,
@@ -168,6 +173,7 @@ export function InterviewStatusForms({
     cancelInterviewAction,
     null,
   );
+  const [cancelOpen, setCancelOpen] = useState(false);
   if (status === "CANCELLED") return null;
   return (
     <div className="grid gap-2">
@@ -181,19 +187,50 @@ export function InterviewStatusForms({
             </Button>
           </form>
         ) : null}
-        <form action={cancel}>
-          <input type="hidden" name="interviewId" value={interviewId} />
-          <input type="hidden" name="recommendationId" value={recommendationId} />
-          <Button
-            type="submit"
-            size="sm"
-            variant="outline"
-            disabled={cancelling}
-            data-testid="interview-cancel"
-          >
-            면접 취소
-          </Button>
-        </form>
+        <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+          <DialogTrigger asChild>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={cancelling}
+              data-testid="interview-cancel"
+            >
+              면접 취소
+            </Button>
+          </DialogTrigger>
+          <DialogContent closeLabel="닫기">
+            <DialogTitle>면접을 취소할까요?</DialogTitle>
+            <DialogDescription>
+              취소한 면접은 되돌릴 수 없습니다. 다시 진행하려면 새 면접 일정을 잡아야 합니다. 기업
+              화면의 실명 표시도 이 면접 건에서는 끝납니다.
+            </DialogDescription>
+            <form
+              action={(fd) => {
+                setCancelOpen(false);
+                cancel(fd);
+              }}
+              className="flex flex-wrap justify-end gap-2"
+              data-testid="interview-cancel-form"
+            >
+              <input type="hidden" name="interviewId" value={interviewId} />
+              <input type="hidden" name="recommendationId" value={recommendationId} />
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  닫기
+                </Button>
+              </DialogClose>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={cancelling}
+                data-testid="interview-cancel-confirm"
+              >
+                면접 취소
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
       <ActionFeedback
         state={confirmState}
@@ -220,11 +257,11 @@ export function InterviewResultForm({
     null,
   );
   return (
-    <form action={action} className="grid gap-2" data-testid="interview-result-form">
+    <form action={action} className="grid gap-5.5" data-testid="interview-result-form">
       <input type="hidden" name="interviewId" value={interviewId} />
       <input type="hidden" name="recommendationId" value={recommendationId} />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+      <div className="grid gap-5.5 sm:grid-cols-2">
+        <div className="grid gap-1.75">
           <Label htmlFor={`att-${interviewId}`}>참석</Label>
           <NativeSelect
             id={`att-${interviewId}`}
@@ -236,7 +273,7 @@ export function InterviewResultForm({
             <option value="NO">불참</option>
           </NativeSelect>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-1.75">
           <Label htmlFor={`res-${interviewId}`}>결과</Label>
           <NativeSelect id={`res-${interviewId}`} name="result" defaultValue={result ?? ""}>
             <option value="">미입력</option>
@@ -257,7 +294,12 @@ export function InterviewResultForm({
   );
 }
 
-/** 소개 확인서 업로드 (R-210): PDF / JPG / PNG, size checked on the server from the bytes. */
+/**
+ * 소개 확인서 업로드 (R-210): PDF / JPG / PNG. The size is checked as soon as a file is chosen and again
+ * before sending (INTRO_CONFIRM_MAX_BYTES), then on the server from the bytes. A request the server
+ * refuses before the action runs (body over SERVER_ACTION_BODY_LIMIT) becomes UPLOAD_FAILED instead
+ * of the error screen (P2c QA O-2); redirects (expired staff session) still go through.
+ */
 export function IntroConfirmUploadForm({
   interviewId,
   recommendationId,
@@ -265,12 +307,27 @@ export function IntroConfirmUploadForm({
   interviewId: string;
   recommendationId: string;
 }) {
-  const [state, action, pending] = useActionState<AdminActionState, FormData>(
-    uploadIntroConfirmAction,
-    null,
-  );
+  const [picked, setPicked] = useState<AdminActionState>(null);
+  const [state, action, pending] = useActionState<AdminActionState, FormData>(async (prev, fd) => {
+    const file = fd.get("file");
+    if (file instanceof File && file.size > INTRO_CONFIRM_MAX_BYTES) {
+      return { ok: false, code: "FILE_TOO_LARGE" };
+    }
+    try {
+      return await uploadIntroConfirmAction(prev, fd);
+    } catch (e) {
+      unstable_rethrow(e);
+      return { ok: false, code: "UPLOAD_FAILED" };
+    }
+  }, null);
+  const onPick = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0];
+    setPicked(
+      file && file.size > INTRO_CONFIRM_MAX_BYTES ? { ok: false, code: "FILE_TOO_LARGE" } : null,
+    );
+  };
   return (
-    <form action={action} className="grid gap-2" data-testid="intro-upload-form">
+    <form action={action} className="grid gap-1.75" data-testid="intro-upload-form">
       <input type="hidden" name="interviewId" value={interviewId} />
       <input type="hidden" name="recommendationId" value={recommendationId} />
       <Label htmlFor={`intro-${interviewId}`}>소개 확인서 (PDF·JPG·PNG)</Label>
@@ -282,12 +339,22 @@ export function IntroConfirmUploadForm({
           required
           accept={INTRO_CONFIRM_TYPES.join(",")}
           className="w-auto"
+          onChange={onPick}
+          aria-describedby={`intro-hint-${interviewId}`}
         />
-        <Button type="submit" size="sm" disabled={pending} data-testid="intro-upload">
+        <Button
+          type="submit"
+          size="sm"
+          disabled={pending || picked !== null}
+          data-testid="intro-upload"
+        >
           올리기
         </Button>
       </div>
-      <ActionFeedback state={state} okText="소개 확인서를 저장했습니다." />
+      <p id={`intro-hint-${interviewId}`} className="text-caption text-n500">
+        {INTRO_CONFIRM_HINT}
+      </p>
+      <ActionFeedback state={picked ?? state} okText="소개 확인서를 저장했습니다." />
     </form>
   );
 }

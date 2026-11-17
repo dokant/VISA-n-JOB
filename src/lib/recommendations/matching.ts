@@ -14,7 +14,7 @@
  */
 import type { Prisma, SeekerGrade } from "@prisma/client";
 
-import { MATCHING_CANDIDATE_MAX } from "@/config/limits";
+import { ADMIN_LIST_MAX, MATCHING_CANDIDATE_MAX } from "@/config/limits";
 import { eligibleCandidateWhere } from "@/lib/candidates/eligible";
 import { db } from "@/lib/db";
 import { hasContacts } from "@/lib/pii-guard";
@@ -228,15 +228,26 @@ export async function recommendForPosting(
   return { ok: true, ...r };
 }
 
-/** Open 면접 신청 (SEEKER, with a posting) and 면접 요청 (EMPLOYER) waiting for a recommendation. */
+/**
+ * Open 면접 신청 (SEEKER, with a posting) and 면접 요청 (EMPLOYER) waiting for a recommendation, newest
+ * first, one page of `take` (ADMIN_LIST_MAX) rows with the total count, so a backlog never hides a new
+ * request (P2c QA O-4). `page` is 1-based and clamped to the last page.
+ */
 export async function listOpenInterestRequests(
-  now: Date = new Date(),
+  opts: { now?: Date; page?: number; take?: number } = {},
   client: Client = db,
-  take = MATCHING_CANDIDATE_MAX,
 ) {
-  const rows = await client.interestRequest.findMany({
-    where: { status: "RECEIVED" },
-    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+  const now = opts.now ?? new Date();
+  const take = opts.take ?? ADMIN_LIST_MAX;
+  const where = { status: "RECEIVED" } as const;
+  const total = await client.interestRequest.count({ where });
+  const pageCount = Math.max(1, Math.ceil(total / take));
+  const wanted = Number.isInteger(opts.page) && (opts.page ?? 1) > 0 ? (opts.page as number) : 1;
+  const page = Math.min(wanted, pageCount);
+  const found = await client.interestRequest.findMany({
+    where,
+    orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+    skip: (page - 1) * take,
     take,
     select: {
       id: true,
@@ -252,16 +263,17 @@ export async function listOpenInterestRequests(
   const eligible = new Set(
     (
       await client.seekerProfile.findMany({
-        where: { AND: [eligibleCandidateWhere(now), { id: { in: rows.map((r) => r.seekerId) } }] },
+        where: { AND: [eligibleCandidateWhere(now), { id: { in: found.map((r) => r.seekerId) } }] },
         select: { id: true },
       })
     ).map((r) => r.id),
   );
-  return rows.map((r) => ({
+  const rows = found.map((r) => ({
     ...r,
     targetCompanyId: r.companyId ?? r.posting?.companyId ?? null,
     eligible: eligible.has(r.seekerId),
   }));
+  return { rows, total, page, pageCount, take };
 }
 
 /**

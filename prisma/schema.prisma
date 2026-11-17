@@ -477,7 +477,7 @@ model Interview {
   attended               Boolean?
   result                 String? // HIRED|REJECTED|PENDING|NO_SHOW
   introConfirmFile       String? // 소개 확인서 서명본 (private storage key, R-210)
-  /// [+] P2c: SCHEDULED|CONFIRMED|CANCELLED (src/lib/interviews/manage.ts)
+  /// [+] P2c: SCHEDULED|CONFIRMED|CANCELLED (src/lib/recommendations/interviews.ts)
   status                 String         @default("SCHEDULED")
   /// [+] P2c R-211: 면접 확정 time; the seeker is asked for THIRD_PARTY_INTERVIEW consent from then on
   confirmedAt            DateTime?
