@@ -159,6 +159,24 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     expect(JSON.stringify(row.rawJson)).not.toMatch(/1234|٢٣٤/);
   });
 
+  it("BR-14 (P2a QA run 3 D-4, O-1): date ranges and amount ranges are kept, only the number is masked", async () => {
+    const dates =
+      "근무 2026.12.01~2027.01.31 / 2026.12.01 ~ 2027.01.31 / 2026-12-01~2027-01-31 / " +
+      "2026. 12. 01 ~ 2027. 01. 31 / 2026/12/01→2027/01/31";
+    const item = leadItem({
+      title: "단기 2026.12.01~2027.01.31 일당 820000~950000원",
+      memo: `${dates} 일당 820000 ~ 950000 문의 010 2026.12.01 끝`,
+    });
+    const res = await post([item]);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as Body).created).toBe(1);
+    const row = await prisma.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(row.title).toBe("단기 2026.12.01~2027.01.31 일당 820000~950000원");
+    expect(JSON.stringify(row.rawJson)).toContain(`${dates} 일당 820000 ~ 950000 문의 *** 끝`);
+  });
+
   it("R-115: a DO_NOT_CONTACT lead keeps its grade when collected again", async () => {
     const item = leadItem();
     await post([item]);

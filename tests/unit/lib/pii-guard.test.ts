@@ -47,6 +47,30 @@ const POSITIVE: Record<string, [string, ContactType][]> = {
     ["84 912 345 678", "PHONE_INTL"],
     ["＋８２ １０ １２３４ ５６７８", "PHONE_INTL"],
   ],
+  // P2a run 4 (QA run 3 D-4, O-1): numbers written to look like dates or amount ranges stay positive
+  "P2a D-4 / O-1 phones disguised as dates or amounts": [
+    ["010.12.01.5678", "PHONE_LOCAL"], // MM.DD is not a date form
+    ["010/12/01/5678", "PHONE_LOCAL"], // a date (12/01) inside other groups
+    ["010/12/1/5678", "PHONE_LOCAL"],
+    ["010 2026.12.01", "PHONE_LOCAL"], // tail written as a date
+    ["010-2026.12.01", "PHONE_LOCAL"],
+    ["010 2026 12 01", "PHONE_LOCAL"],
+    ["01/01 2345 678", "PHONE_LOCAL"],
+    ["2010.1234.5678", "PHONE_LOCAL"], // one digit glued in front of 010
+    ["2010-1234-5678", "PHONE_LOCAL"],
+    ["0082 2026.12.01", "PHONE_INTL"],
+    ["+82 2026.12.01", "PHONE_INTL"],
+    ["월급 010~1234~5678원", "PHONE_LOCAL"],
+    ["₩010-1234-5678", "PHONE_LOCAL"],
+    ["일당 +82 10 1234 5678", "PHONE_INTL"],
+    ["일당 82 10-1234-5678", "PHONE_INTL"],
+    ["0082 10 1234 5678원", "PHONE_INTL"],
+    ["82101-2345678", "PHONE_INTL"], // dash without an amount cue is not a range
+    ["82101~2345678", "PHONE_INTL"], // ~ but the numbers do not end in 0
+    ["2026.12.01→010→1234→5678", "PHONE_LOCAL"],
+    ["2026. 12. 01 ~ 2027. 01. 31 문의 010 1234 5678", "PHONE_LOCAL"],
+    ["일당 820000 ~ 950000, 010-1234-5678", "PHONE_LOCAL"],
+  ],
   email: [
     ["hong@naver.com", "EMAIL"],
     ["hong.gd@gmail.co.kr", "EMAIL"],
@@ -362,6 +386,53 @@ const NEGATIVE: Record<string, string[]> = {
     "Tel 없음, 상담은 비자앤잡",
     "one or two shifts, five days a week",
   ],
+  // P2a run 4: QA run 3 D-4 — date ranges were read as "01" + "2027" + "01" + "31"
+  "P2a D-4 date ranges reported by QA run 3": [
+    "근무 2026.12.01~2027.01.31",
+    "2026.12.01 ~ 2027.01.31 단기",
+    "2026-12-01~2027-01-31 근무",
+    "2026. 12. 01 ~ 2027. 01. 31",
+    "2026/12/01→2027/01/31",
+    "2026.12.01-2027.01.31",
+    "2026.12.01 / 2027.01.31",
+    "2026.01.01~2026.03.31",
+  ],
+  "P2a D-4 dates in other forms": [
+    "2026.01.15~2027.01.31 / 3명",
+    "2026.12~2027.01",
+    "2026.12 ~ 2027.01 계약",
+    "2026-12 → 2027-03",
+    "12/1~1/31 단기",
+    "12/01 ~ 01/31",
+    "1/5→2/28 교육",
+    "2026.01.05 — 2026.02.28",
+    "2026.01.05 – 2026.02.28",
+    "2026 12 01 ~ 2027 01 31",
+    "2026년 12월 1일~2027년 1월 31일",
+    "2026년 12월~2027년 2월",
+    "2026. 1. 5 〜 2026. 2. 28",
+    "2026.12.01부터 2027.01.31까지",
+    "1999.01.01~2099.12.31",
+    "계약 2026/01/02~2026/12/31, 갱신 2027/01/02~2027/12/31",
+    "２０２６．１２．０１～２０２７．０１．３１",
+    "2019-2020-2021 수상",
+    "입사 2026.12.01 · 수습 3개월 · 2027.03.01 정규직",
+    "08:00~17:00 (2026.12.01~2027.01.31)",
+    "면접 10:00 2026.12.01 본사",
+  ],
+  "P2a O-1 amount ranges without commas": [
+    "일당 820000 ~ 950000",
+    "일당 820000~950000원",
+    "일당 820000 ~ 950000원",
+    "월급 2500000-3100000원",
+    "월급 2500000 ~ 3100000",
+    "₩820000~₩950000",
+    "82000 ~ 95000",
+    "시급 10030~12000원",
+    "연봉 36000000 → 42000000",
+    "급여 2800000〜3200000",
+    "일당 82000 – 95000원",
+  ],
   "other text": [
     "Node.js 경험",
     "settings 변경",
@@ -468,6 +539,22 @@ describe("R-012 pii-guard", () => {
     ]) {
       expect(detectContacts(text), text).toEqual([]);
     }
+  });
+
+  it("P2a QA run 3 D-4: date tokens use the same input offsets as the phone they sit next to", () => {
+    const text =
+      "２０２６．１２．０１～２０２７．０１．３１ 문의 ０１０ 1234 5678, 일당 820000~950000원";
+    const found = detectContacts(text);
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({ type: "PHONE_LOCAL", value: "０１０ 1234 5678" });
+    expect(text.slice(found[0].start, found[0].end)).toBe("０１０ 1234 5678");
+    expect(maskContacts(text)).toBe(
+      "２０２６．１２．０１～２０２７．０１．３１ 문의 ***, 일당 820000~950000원",
+    );
+    // a date glued to a number is masked with it
+    expect(maskContacts("앞 010 2026.12.01 뒤 2026.12.01~2027.01.31")).toBe(
+      "앞 *** 뒤 2026.12.01~2027.01.31",
+    );
   });
 
   it("an e-mail is reported once, not also as URL / handle", () => {

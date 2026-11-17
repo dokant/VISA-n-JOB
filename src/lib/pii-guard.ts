@@ -346,24 +346,146 @@ function classifyDigits(raw: string): ContactType | null {
   return null;
 }
 
+// ── Dates and amount ranges inside a digit run (P2a QA run 3 D-4, O-1) ──────
+// D-4: "2026.12.01~2027.01.31" was read as 01 + 2027 + 01 + 31 = "0120270131" (a 10-digit number
+// starting with 0). Real dates are found first and each date becomes ONE atomic unit of the run:
+//   - a phone window may contain a whole date, never a part of one (no window starts at the day
+//     "01" of a date), so date ranges joined by ~ 〜 - → / … are not split into phone digits;
+//   - a window made only of dates is not a phone;
+//   - a window that mixes a date with other digit groups is still checked when those groups hold
+//     3+ digits, so a number with its tail written as a date ("010 2026.12.01", "010/12/01/5678")
+//     is still detected, while a time before a date ("17:00 (2026.12.01" = "00" + date) is not.
+// A date is recognised only when its values are real: year 1900–2099, month 1–12, day 1–31.
+// Forms: YYYY.MM.DD (same separator . - / twice, spaces allowed: "2026. 12. 01"), YYYY MM DD
+// (spaces), YYYY년 MM월 [DD일], YYYY.MM (. - /), MM/DD (slash only: "12/1~1/31"). "MM.DD" is not a
+// date form — "010.12.01.5678" stays one phone number.
+const YEAR = "(?:19|20)\\d{2}";
+const MONTH = "(?:0?[1-9]|1[0-2])";
+const DAY = "(?:0?[1-9]|[12]\\d|3[01])";
+const DATE_TOKEN = new RegExp(
+  "(?<!\\d)(?:" +
+    [
+      `${YEAR}\\s*년\\s*${MONTH}\\s*월(?:\\s*${DAY}\\s*일)?`,
+      `${YEAR}\\s*([./-])\\s*${MONTH}\\s*\\1\\s*${DAY}`,
+      `${YEAR}\\s+${MONTH}\\s+${DAY}`,
+      `${YEAR}\\s*[./-]\\s*${MONTH}`,
+      `${MONTH}\\s*\\/\\s*${DAY}`,
+    ].join("|") +
+    ")(?!\\d)",
+  "gu",
+);
+
+function findDateSpans(text: string): Array<[number, number]> {
+  return [...text.matchAll(DATE_TOKEN)].map((m) => [m.index, m.index + m[0].length]);
+}
+
+// O-1: "일당 820000 ~ 950000" was read as 82 + 0000950000 (an international number). Two complete
+// numbers (5+ digits, no leading 0) joined by a range sign are a range, not one number, when
+//   - the sign is ~ 〜 → ⟶ and both numbers end in 0 (won amounts are rounded), or
+//   - an amount cue is next to them (일당·일급·월급·시급·주급·연봉·급여·임금·수당·₩·KRW before,
+//     원·만원·₩·KRW right after, or ₩ inside the separator) — then also for - – —.
+// Real international numbers keep short groups ("+82 10 1234 5678", "0082 10 …") and are not split.
+const RANGE_STRONG = /[~〜→⟶⇒]/u;
+const RANGE_DASH = /[-‐-―−]/u;
+const COMPLETE_NUMBER = /^[1-9]\d{4,}$/;
+const AMOUNT_CUE_BEFORE =
+  /(?:일당|일급|월급|시급|주급|연봉|급여|임금|수당|보수|₩|KRW)[^\d]{0,6}$/iu;
+const AMOUNT_CUE_AFTER = /^\s*(?:만\s*)?(?:원|₩|KRW)/iu;
+
+type Unit = { start: number; end: number; digits: string; date: boolean };
+
+function isAmountRange(
+  left: Unit,
+  right: Unit,
+  run: string,
+  offset: number,
+  text: string,
+): boolean {
+  if (left.date || right.date) return false;
+  if (!COMPLETE_NUMBER.test(left.digits) || !COMPLETE_NUMBER.test(right.digits)) return false;
+  const sep = run.slice(left.end, right.start);
+  const strong = RANGE_STRONG.test(sep);
+  if (!strong && !RANGE_DASH.test(sep)) return false;
+  const before = text.slice(Math.max(0, offset + left.start - 12), offset + left.start);
+  const after = text.slice(offset + right.end, offset + right.end + 6);
+  const cue = AMOUNT_CUE_BEFORE.test(before) || AMOUNT_CUE_AFTER.test(after) || sep.includes("₩");
+  if (cue) return true;
+  return strong && left.digits.endsWith("0") && right.digits.endsWith("0");
+}
+
+// A mobile number with one extra digit glued in front, written in mobile grouping
+// ("2010.1234.5678" = 2 + 010-1234-5678). Year lists ("2019-2020-2021") are not numbers.
+function isPrefixedMobile(units: Unit[]): boolean {
+  if (units.length !== 3 || units.some((u) => u.date)) return false;
+  const [a, b, c] = units.map((u) => u.digits);
+  const year = /^(?:19|20)\d{2}$/;
+  if (year.test(b) && year.test(c)) return false;
+  return /^\d01[016789]$/.test(a) && /^\d{3,4}$/.test(b) && /^\d{4}$/.test(c);
+}
+
 /**
  * A run may join neighbouring numbers ("06236 / 02-123-4567"). Try the whole run first, then
- * windows of consecutive digit groups, left to right, longest first.
+ * windows of consecutive units (a digit group, or a whole date), left to right, longest first.
+ * Amount ranges split the run into separate parts first.
  */
-function findPhonesInRun(run: string, offset: number, out: ContactMatch[]): void {
-  const groups = [...run.matchAll(/\d+/g)].map((g) => ({
-    start: g.index,
-    end: g.index + g[0].length,
-  }));
+function findPhonesInRun(
+  run: string,
+  offset: number,
+  text: string,
+  dates: Array<[number, number]>,
+  out: ContactMatch[],
+): void {
+  const units: Unit[] = [];
+  let lastDate = -1;
+  for (const g of run.matchAll(/\d+/g)) {
+    const start = g.index;
+    const end = start + g[0].length;
+    const d = dates.findIndex(([s, e]) => offset + start >= s && offset + end <= e);
+    const prev = units[units.length - 1];
+    if (d >= 0 && prev && prev.date && d === lastDate) {
+      prev.end = end;
+      prev.digits += g[0];
+    } else {
+      units.push({ start, end, digits: g[0], date: d >= 0 });
+    }
+    lastDate = d;
+  }
+  let partStart = 0;
+  for (let k = 0; k < units.length; k++) {
+    if (k === units.length - 1 || isAmountRange(units[k], units[k + 1], run, offset, text)) {
+      scanUnits(run, offset, units.slice(partStart, k + 1), partStart === 0, out);
+      partStart = k + 1;
+    }
+  }
+}
+
+function nonDateDigits(units: Unit[]): number {
+  return units.reduce((n, u) => (u.date ? n : n + u.digits.length), 0);
+}
+
+function scanUnits(
+  run: string,
+  offset: number,
+  units: Unit[],
+  first: boolean,
+  out: ContactMatch[],
+): void {
   let i = 0;
-  while (i < groups.length) {
+  while (i < units.length) {
     let next = i + 1;
-    for (let j = groups.length - 1; j >= i; j--) {
-      const from = i === 0 ? 0 : groups[i].start; // keep a leading "+" only for the first group
-      const value = run.slice(from, groups[j].end);
-      const type = classifyDigits(value);
+    for (let j = units.length - 1; j >= i; j--) {
+      const window = units.slice(i, j + 1);
+      if (window.every((u) => u.date)) continue; // dates only — never a phone
+      // keep a leading "+" only for the first unit of the run
+      const from = i === 0 && first ? 0 : units[i].start;
+      // a date next to a short group ("17:00 (2026.12.01" = "00" + date) is not a phone: a number
+      // disguised as a date still needs its own prefix ("010", "0082", "+82") outside the date
+      const plus = from === 0 && run.startsWith("+");
+      if (!plus && window.some((u) => u.date) && nonDateDigits(window) < 3) continue;
+      const value = run.slice(from, units[j].end);
+      const type = classifyDigits(value) ?? (isPrefixedMobile(window) ? "PHONE_LOCAL" : null);
       if (type) {
-        out.push({ type, value, start: offset + from, end: offset + groups[j].end });
+        out.push({ type, value, start: offset + from, end: offset + units[j].end });
         next = j + 1;
         break;
       }
@@ -374,9 +496,10 @@ function findPhonesInRun(run: string, offset: number, out: ContactMatch[]): void
 
 function findPhones(text: string, out: ContactMatch[]): void {
   const lookalike = normalizeLookalikeDigits(text);
+  const dates = findDateSpans(lookalike);
   for (const m of lookalike.matchAll(DIGIT_RUN)) {
     const found: ContactMatch[] = [];
-    findPhonesInRun(m[0], m.index, found);
+    findPhonesInRun(m[0], m.index, lookalike, dates, found);
     // report the original characters ("o1o-…"), not the normalised digits
     for (const f of found) out.push({ ...f, value: text.slice(f.start, f.end) });
   }

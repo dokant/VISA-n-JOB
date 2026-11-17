@@ -167,6 +167,44 @@ describe("R-201 create only from grade-A leads (BR-05)", () => {
     expect(ok.ok).toBe(true);
   });
 
+  it("R-201 / BR-14 (P2a QA run 3 D-4, O-1): date ranges and comma-less amount ranges are not contacts", async () => {
+    const staff = await staffUser("STAFF_PLACEMENT");
+    const lead = await gradedLead("A");
+    const titles = [
+      "근무 2026.12.01~2027.01.31",
+      "2026.12.01 ~ 2027.01.31 단기",
+      "2026-12-01~2027-01-31 근무",
+      "2026. 12. 01 ~ 2027. 01. 31",
+      "2026/12/01→2027/01/31",
+      "일당 820000 ~ 950000",
+      "일당 820000~950000원",
+    ];
+    for (const blindTitle of titles) {
+      const r = await createPostingFromLead({
+        actorId: staff.id,
+        input: postingInput(lead.id, { blindTitle }),
+      });
+      expect(r.ok, blindTitle).toBe(true);
+    }
+    expect(
+      await createPostingFromLead({
+        actorId: staff.id,
+        input: postingInput(lead.id, { role: "단기 2026.12.01~2027.01.31" }),
+      }),
+    ).toMatchObject({ ok: true });
+    expect(await db.jobPosting.count({ where: { leadId: lead.id } })).toBe(titles.length + 1);
+    // a number written as a date is still refused
+    for (const blindTitle of ["생산직 010 2026.12.01", "생산직 010/12/01/5678"]) {
+      expect(
+        await createPostingFromLead({
+          actorId: staff.id,
+          input: postingInput(lead.id, { blindTitle }),
+        }),
+        blindTitle,
+      ).toEqual({ ok: false, code: "TEXT_HAS_CONTACT" });
+    }
+  });
+
   it("R-201: unknown visa / region / industry codes are refused", async () => {
     const staff = await staffUser("STAFF_PLACEMENT");
     const lead = await gradedLead("A");

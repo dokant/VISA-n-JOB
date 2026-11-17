@@ -110,6 +110,39 @@ describe("R-125 submitJobRequestAction", () => {
     ).toEqual({ ok: true });
   });
 
+  it("R-125 BR-14 (P2a QA run 3 D-4, O-1): date ranges and comma-less amount ranges are accepted", async () => {
+    session.actor = await createEmployer();
+    const texts = [
+      "근무 2026.12.01~2027.01.31",
+      "2026.12.01 ~ 2027.01.31 단기",
+      "2026-12-01~2027-01-31 근무",
+      "2026. 12. 01 ~ 2027. 01. 31",
+      "2026/12/01→2027/01/31",
+      "일당 820000 ~ 950000",
+      "일당 820000~950000원",
+    ];
+    for (const detail of texts) {
+      expect(await submitJobRequestAction(await input({ detail })), detail).toEqual({ ok: true });
+    }
+    expect(
+      await submitJobRequestAction(
+        await input({
+          workHours: "08:00~17:00 (2026.12.01~2027.01.31)",
+          detail: texts.join(" / "),
+        }),
+      ),
+    ).toEqual({ ok: true });
+    expect(await prisma.jobLead.count({ where: { companyId: session.actor.companyId } })).toBe(
+      texts.length + 1,
+    );
+    // a number written as a date is still refused
+    expect(await submitJobRequestAction(await input({ detail: "문의 010 2026.12.01" }))).toEqual({
+      ok: false,
+      code: "CONTACT_INFO",
+      fields: ["detail"],
+    });
+  });
+
   it("R-125: a valid request is stored as a B lead", async () => {
     session.actor = await createEmployer();
     expect(await submitJobRequestAction(await input())).toEqual({ ok: true });
