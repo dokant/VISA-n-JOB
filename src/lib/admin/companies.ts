@@ -99,9 +99,9 @@ export async function listAdminCompanies(
         action: "PII_VIEW",
         entity: "Company",
         entityId: "LIST",
-        // Company ids are not listed in meta: cuids can look like phone numbers to the audit meta
-        // contact check. The list is the newest companies at that time (ADMIN_COMPANY_LIST_MAX).
-        meta: { fields: ["nameEnc"], count: rows.length },
+        // The companies whose names were shown (newest ADMIN_COMPANY_LIST_MAX). Ids under an id
+        // key pass the audit meta contact check by format (audit.ts ID_META_KEY, P2c F-1).
+        meta: { fields: ["nameEnc"], count: rows.length, companyIds: rows.map((r) => r.id) },
       },
       client,
     );

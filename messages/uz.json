@@ -788,6 +788,7 @@
       "invalidReference": "Soha va hududni qaytadan tanlang.",
       "invalidBizRegNo": "10 xonali korxona roʻyxat raqamini kiriting.",
       "validation": "Kiritilgan maʼlumotlarni tekshiring.",
+      "unauthenticated": "Iltimos, qayta kiring.",
       "unknown": "Xatolik yuz berdi. Qayta urinib koʻring."
     },
     "register": {
@@ -1332,7 +1333,8 @@
         "state": {
           "PENDING": "Javob kutilmoqda",
           "AGREED": "Rozi",
-          "DECLINED": "Rozi emas"
+          "DECLINED": "Rozi emas",
+          "ENDED": "Suhbat yakunlandi"
         },
         "agree": "Roziman",
         "decline": "Rozi emasman",
@@ -1343,6 +1345,7 @@
         "cancel": "Bekor qilish",
         "close": "Yopish",
         "agreedAt": "{date} rozilik berilgan",
+        "endedNote": "Suhbat yakunlangani uchun bu suhbat boʻyicha ismingiz endi berilmaydi. Javob berish shart emas.",
         "error": "Bajarib boʻlmadi. Qayta urinib koʻring."
       }
     },
@@ -1766,6 +1769,7 @@
         "status": {
           "SCHEDULED": "Kelishilmoqda",
           "CONFIRMED": "Tasdiqlandi",
+          "ENDED": "Suhbat yakunlandi",
           "CANCELLED": "Bekor qilindi"
         },
         "nameState": {

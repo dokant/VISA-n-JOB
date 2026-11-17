@@ -66,13 +66,34 @@ export class AuditInputError extends Error {
 
 const FORBIDDEN_META_KEY = /(Enc|password|secret|token|otp|totp)$/i;
 
-function assertSafeMeta(value: unknown, path: string): void {
+/**
+ * P2c QA run 2 F-1: database ids in meta (`seekerId`, `interviewId`, `publicIds` …) are random
+ * strings, and a cuid such as "cmwj193vm000a6mewt3fb51zr" reads as a messenger id ("fb" + digits)
+ * to the contact detector. A value is exempt from the contact check only when BOTH hold:
+ * - its key names an identifier: `id`, `…Id`, `…Ids`, `verifiedBy` (a staff user id), and
+ * - the value is exactly a cuid (Prisma `cuid()`, 25 chars "c" + [0-9a-z]) or a uuid
+ *   (Prisma `uuid()`, e.g. `SeekerProfile.publicId`).
+ * Any other string — including a free-form value under an id key — is still checked, so a contact
+ * can never reach the audit log under an id-looking key.
+ */
+const ID_META_KEY = /^(id|verifiedBy)$|Ids?$/;
+const CUID = /^c[0-9a-z]{24}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** True when `value` is a database identifier (cuid or uuid) and not free text. */
+export function isIdentifierValue(value: string): boolean {
+  return CUID.test(value) || UUID.test(value);
+}
+
+/** Throws AuditInputError when meta carries contact-like text or a secret field. Exported for tests. */
+export function assertSafeMeta(value: unknown, path = "", idKey = false): void {
   if (typeof value === "string") {
+    if (idKey && isIdentifierValue(value)) return;
     if (hasContacts(value)) throw new AuditInputError(`meta${path} looks like contact information`);
     return;
   }
   if (Array.isArray(value)) {
-    value.forEach((v, i) => assertSafeMeta(v, `${path}[${i}]`));
+    value.forEach((v, i) => assertSafeMeta(v, `${path}[${i}]`, idKey));
     return;
   }
   if (value !== null && typeof value === "object") {
@@ -80,7 +101,7 @@ function assertSafeMeta(value: unknown, path: string): void {
       if (FORBIDDEN_META_KEY.test(key)) {
         throw new AuditInputError(`meta${path}.${key} must not be logged`);
       }
-      assertSafeMeta(v, `${path}.${key}`);
+      assertSafeMeta(v, `${path}.${key}`, ID_META_KEY.test(key));
     }
   }
 }

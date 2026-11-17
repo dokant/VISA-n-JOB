@@ -17,13 +17,15 @@
 import { type Locale } from "@/i18n/locales";
 import { writeAudit } from "@/lib/audit";
 import { db } from "@/lib/db";
+import { interviewEnded } from "@/lib/serializers/interviewDisclosure";
 import { consentIpHash, currentConsentVersion } from "@/lib/seeker/consent";
 import { INTERVIEW_CONSENT } from "@/lib/seeker/options";
 
 type Client = typeof db;
 type Tx = Parameters<Parameters<Client["$transaction"]>[0]>[0];
 
-export type InterviewConsentState = "PENDING" | "AGREED" | "DECLINED";
+/** ENDED (P2c QA O-1, Q-25): a result was recorded or the interview was cancelled — nothing to answer. */
+export type InterviewConsentState = "PENDING" | "AGREED" | "DECLINED" | "ENDED";
 
 export type InterviewConsentRequest = {
   interviewId: string;
@@ -34,16 +36,25 @@ export type InterviewConsentRequest = {
   agreedAt: Date | null;
 };
 
-/** Interviews of this seeker user that ask (or asked) for the consent: CONFIRMED only. */
+/**
+ * Interviews of this seeker user that ask (or asked) for the consent: CONFIRMED, plus confirmed
+ * then cancelled ones. An interview with a final result or cancelled is ENDED (Q-25): the screen
+ * shows "면접 종료" and no answer buttons (P2c QA O-1).
+ */
 export async function listInterviewConsentRequests(
   userId: string,
   client: Client = db,
 ): Promise<InterviewConsentRequest[]> {
   const rows = await client.interview.findMany({
-    where: { status: "CONFIRMED", recommendation: { seeker: { userId } } },
+    where: {
+      OR: [{ status: "CONFIRMED" }, { status: "CANCELLED", confirmedAt: { not: null } }],
+      recommendation: { seeker: { userId } },
+    },
     orderBy: [{ scheduledAt: "asc" }, { id: "asc" }],
     select: {
       id: true,
+      status: true,
+      result: true,
       scheduledAt: true,
       consentDeclinedAt: true,
       recommendation: {
@@ -68,7 +79,13 @@ export async function listInterviewConsentRequests(
       scheduledAt: r.scheduledAt,
       industryCode: place.industryCode,
       sido: place.sido,
-      state: agreed ? "AGREED" : r.consentDeclinedAt ? "DECLINED" : "PENDING",
+      state: interviewEnded(r)
+        ? "ENDED"
+        : agreed
+          ? "AGREED"
+          : r.consentDeclinedAt
+            ? "DECLINED"
+            : "PENDING",
       agreedAt: agreed,
     };
   });

@@ -245,10 +245,10 @@ export const VISA_CASE_STATUS_LABEL: Record<string, string> = {
   CLOSED: "종결",
 };
 
-/** R-210 서명 URL 안내 (값은 limits.ts). */
 /** 소개 확인서 업로드 안내 (R-210, limits.ts 값). */
 export const INTRO_CONFIRM_HINT = `PDF·JPG·PNG, ${Math.floor(INTRO_CONFIRM_MAX_BYTES / (1024 * 1024))}MB 이하.`;
 
+/** R-210 서명 URL 안내 (값은 limits.ts). */
 export const SIGNED_URL_NOTE = `파일은 ${Math.round(SIGNED_URL_TTL_SEC / 60)}분 동안만 열리는 서명 링크로 엽니다. 열 때마다 감사 로그가 남습니다.`;
 
 export function adminActionError(code: string): string {

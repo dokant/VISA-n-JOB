@@ -189,10 +189,31 @@ test("R-211 / Q-25: the name shows until the interview result is recorded, then 
   await expect(card.getByTestId("requests-name-ended")).toHaveText(
     msg("ko", "employer.requests.interviews.nameState.ENDED"),
   );
+  // P2c QA O-2: the status badge says the interview ended
+  await expect(card).toHaveAttribute("data-status", "ENDED");
+  await expect(card).toContainText(msg("ko", "employer.requests.interviews.status.ENDED"));
   await expect(page.getByTestId("requests-disclosed-name")).toHaveCount(0);
   expect(await page.content()).not.toContain(name);
   const rsc = await page.request.get("/ko/employer/requests", { headers: { RSC: "1" } });
   expect(await rsc.text()).not.toContain(name);
   expect(await (await page.request.get("/api/employer/requests")).text()).not.toContain(name);
-  await p2cShot(page, info, "r2_name_ended");
+  await p2cShot(page, info, "r3_name_ended");
+
+  // P2c QA O-1: the seeker sees "면접 종료" and no agree / decline / revoke buttons
+  const seekerAfter = await browser.newContext({
+    baseURL: `http://localhost:${process.env.E2E_PORT ?? 3100}`,
+    viewport: page.viewportSize() ?? undefined,
+    extraHTTPHeaders: { "x-forwarded-for": uniqueIp() },
+  });
+  const seekerPage2 = await seekerAfter.newPage();
+  await loginUi(seekerPage2, "ko", phone);
+  await waitForHydration(seekerPage2, "interview-consents");
+  const ended = seekerPage2.locator(
+    `[data-testid="interview-consent-item"][data-interview-id="${interviewId}"]`,
+  );
+  await expect(ended).toHaveAttribute("data-state", "ENDED");
+  await expect(ended).toContainText(msg("ko", "seeker.me.interviewConsent.state.ENDED"));
+  await expect(ended.getByRole("button")).toHaveCount(0);
+  await p2cShot(seekerPage2, info, "r3_seeker_ended");
+  await seekerAfter.close();
 });

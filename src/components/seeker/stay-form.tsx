@@ -20,7 +20,9 @@ export function StayForm({ values, nowYear }: { values: StaySettingsInput; nowYe
   const fieldError = useFieldError();
   const id = useId();
   const [pending, startTransition] = useTransition();
+  const te = useTranslations("errors.auth");
   const [saved, setSaved] = useState<boolean | null>(null);
+  const [authFailed, setAuthFailed] = useState(false);
   const form = useForm<StaySettingsInput>({
     resolver: zodResolver(staySettingsSchema),
     defaultValues: values,
@@ -29,6 +31,7 @@ export function StayForm({ values, nowYear }: { values: StaySettingsInput; nowYe
   const submit = form.handleSubmit((v) =>
     startTransition(async () => {
       const r = await saveStaySettings(v);
+      setAuthFailed(!r.ok && r.code === "UNAUTHENTICATED");
       setSaved(r.ok);
     }),
   );
@@ -84,7 +87,7 @@ export function StayForm({ values, nowYear }: { values: StaySettingsInput; nowYe
           className={saved ? "text-caption text-n700" : "text-caption text-error-text"}
           data-testid="stay-saved"
         >
-          {saved ? t("saved") : t("error")}
+          {saved ? t("saved") : authFailed ? te("unauthenticated") : t("error")}
         </p>
       ) : null}
       <div>

@@ -112,12 +112,13 @@ describe("R-124 runDiagnosis", () => {
   });
 
   it("saves an anonymous run as a new C lead without company name / title / contact", async () => {
-    const before = await prisma.jobLead.count({ where: { source: "DIAGNOSIS" } });
+    // The lead is identified by its id, not by a global DIAGNOSIS count: other test files create
+    // DIAGNOSIS leads in parallel on the shared test DB (flaky count, seen in P2c run 3).
     const r = await runDiagnosis(
       await values({ foreignWorkers: [{ visaCode: "E-9", count: "3" }] }),
     );
     if (!r.ok) throw new Error("unexpected");
-    expect(await prisma.jobLead.count({ where: { source: "DIAGNOSIS" } })).toBe(before + 1);
+    expect(await prisma.jobLead.count({ where: { id: r.leadId, source: "DIAGNOSIS" } })).toBe(1);
     const lead = await prisma.jobLead.findUniqueOrThrow({ where: { id: r.leadId } });
     const refs = await seededRefs();
     expect(lead).toMatchObject({

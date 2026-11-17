@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 // shadcn/ui dialog restyled to the handoff `.modal` (STANDARD v2 3.1): scrim navy 86% + blur-glass (14px), 0.35s
 // fade; shell rounded-lg (22px), white, shadow-3, enters from translateY(18px) scale(.98) in 0.5s.
 // Close button rotates 90° on hover. Used for confirmations (동의 철회).
+// The close button is 48px (size-12): the shell enters at scale(.98), so a 44px button measures
+// 43px during the entrance; 48px stays above the 44px touch target throughout (P2c QA O-3).
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -37,7 +39,7 @@ function DialogContent({
       >
         {children}
         <DialogPrimitive.Close
-          className="absolute end-3 top-3 inline-flex size-11 cursor-pointer items-center justify-center rounded-full text-n700 transition-transform duration-300 hover:rotate-90 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-blue"
+          className="absolute end-3 top-3 inline-flex size-12 cursor-pointer items-center justify-center rounded-full text-n700 transition-transform duration-300 hover:rotate-90 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-blue"
           aria-label={closeLabel}
         >
           <X aria-hidden="true" strokeWidth={1.5} className="size-5" />

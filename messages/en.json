@@ -788,6 +788,7 @@
       "invalidReference": "Please choose the industry and region again.",
       "invalidBizRegNo": "Enter the 10-digit business registration number.",
       "validation": "Please check what you entered.",
+      "unauthenticated": "Please sign in again.",
       "unknown": "Something went wrong. Please try again."
     },
     "register": {
@@ -1332,7 +1333,8 @@
         "state": {
           "PENDING": "Waiting for your answer",
           "AGREED": "Agreed",
-          "DECLINED": "Not agreed"
+          "DECLINED": "Not agreed",
+          "ENDED": "Interview ended"
         },
         "agree": "Agree",
         "decline": "Do not agree",
@@ -1343,6 +1345,7 @@
         "cancel": "Cancel",
         "close": "Close",
         "agreedAt": "Agreed on {date}",
+        "endedNote": "This interview has ended, so your name is no longer given for it. No answer is needed.",
         "error": "Something went wrong. Please try again."
       }
     },
@@ -1766,6 +1769,7 @@
         "status": {
           "SCHEDULED": "Being arranged",
           "CONFIRMED": "Confirmed",
+          "ENDED": "Interview ended",
           "CANCELLED": "Cancelled"
         },
         "nameState": {

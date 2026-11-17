@@ -28,12 +28,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+/** ENDED: a confirmed interview with a final result recorded (Q-25, P2c QA O-2) — "면접 종료". */
 const STATUS_ICON = {
   SCHEDULED: CalendarClock,
   CONFIRMED: CalendarCheck,
+  ENDED: CalendarX,
   CANCELLED: CalendarX,
 } as const;
-const STATUS_VARIANT = { SCHEDULED: "orange", CONFIRMED: "blue", CANCELLED: "neutral" } as const;
+const STATUS_VARIANT = {
+  SCHEDULED: "orange",
+  CONFIRMED: "blue",
+  ENDED: "neutral",
+  CANCELLED: "neutral",
+} as const;
 const INTEREST_STATUSES = ["RECEIVED", "RECOMMENDED"] as const;
 
 /**
@@ -107,7 +114,11 @@ export default async function EmployerRequestsPage({ params }: Props) {
                     ) : (
                       <ul className="grid gap-3">
                         {r.interviews.map((iv) => {
-                          const Icon = STATUS_ICON[iv.status];
+                          const shown =
+                            iv.status === "CONFIRMED" && iv.nameState === "ENDED"
+                              ? "ENDED"
+                              : iv.status;
+                          const Icon = STATUS_ICON[shown];
                           return (
                             <li
                               key={iv.interviewId}
@@ -115,14 +126,15 @@ export default async function EmployerRequestsPage({ params }: Props) {
                               data-testid="requests-interview"
                               data-interview-id={iv.interviewId}
                               data-name-state={iv.nameState}
+                              data-status={shown}
                             >
                               <dl className="grid gap-2 text-dense">
                                 <div className="flex flex-wrap gap-x-2">
                                   <dt className="text-n500">{t("interviews.state")}</dt>
                                   <dd>
-                                    <Badge variant={STATUS_VARIANT[iv.status]}>
+                                    <Badge variant={STATUS_VARIANT[shown]}>
                                       <Icon aria-hidden="true" strokeWidth={1.5} />
-                                      {t(`interviews.status.${iv.status}`)}
+                                      {t(`interviews.status.${shown}`)}
                                     </Badge>
                                   </dd>
                                 </div>

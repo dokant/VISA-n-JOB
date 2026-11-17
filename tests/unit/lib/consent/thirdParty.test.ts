@@ -230,6 +230,11 @@ describe("R-211 THIRD_PARTY_INTERVIEW per-interview consent", () => {
     });
     expect(await apiText(actor)).not.toContain(LEAK_NAME);
 
+    // P2c QA O-1: the seeker sees a confirmed then cancelled interview as ended
+    expect(
+      (await listInterviewConsentRequests(s.userId)).find((r) => r.interviewId === interview.id)
+        ?.state,
+    ).toBe("ENDED");
     // Q-25: a confirmed then cancelled interview says the name display has ended
     const cancelled = await loadEmployerRequests(actor);
     expect(
@@ -247,6 +252,10 @@ describe("R-211 THIRD_PARTY_INTERVIEW per-interview consent", () => {
         .flatMap((r) => r.interviews)
         .find((i) => i.interviewId === scheduled.id)?.nameState,
     ).toBe("NOT_ASKED");
+    // …and never appears in the seeker's consent list
+    expect(
+      (await listInterviewConsentRequests(s.userId)).some((r) => r.interviewId === scheduled.id),
+    ).toBe(false);
 
     // a company with no recommendations sees empty lists
     const empty = await company({ verified: true, contracted: true });
@@ -284,6 +293,10 @@ describe("R-211 THIRD_PARTY_INTERVIEW per-interview consent", () => {
     await recordInterviewResult({ interviewId: interview.id, attended: true, result: "PENDING" });
     expect(await disclosure()).toEqual({ legalName: LEAK_NAME });
     expect(await stateOf()).toBe("GIVEN");
+    const seekerState = async () =>
+      (await listInterviewConsentRequests(s.userId)).find((r) => r.interviewId === interview.id)
+        ?.state;
+    expect(await seekerState()).toBe("AGREED");
 
     // after a final result: gone from the serializer, the screen data and the API
     for (const result of ["REJECTED", "HIRED", "NO_SHOW"] as const) {
@@ -293,6 +306,8 @@ describe("R-211 THIRD_PARTY_INTERVIEW per-interview consent", () => {
       expect(JSON.stringify(data)).not.toContain(LEAK_NAME);
       expect(await apiText(actor)).not.toContain(LEAK_NAME);
       expect(await stateOf()).toBe("ENDED");
+      // P2c QA O-1: the seeker's list shows the interview as ended (no answer buttons)
+      expect(await seekerState()).toBe("ENDED");
     }
     // the consent row itself stays (not deleted), only the display ended
     const consent = await db.consent.findFirstOrThrow({

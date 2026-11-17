@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck, CircleDashed, CircleX } from "lucide-react";
+import { CalendarX, CircleCheck, CircleDashed, CircleX } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
 
@@ -21,17 +21,29 @@ export type InterviewConsentItem = {
   /** Formatted on the server (next-intl formatter). */
   dateText: string;
   whereText: string;
-  state: "PENDING" | "AGREED" | "DECLINED";
+  state: "PENDING" | "AGREED" | "DECLINED" | "ENDED";
   agreedAtText: string | null;
 };
 
-const STATE_ICON = { PENDING: CircleDashed, AGREED: CircleCheck, DECLINED: CircleX } as const;
-const STATE_VARIANT = { PENDING: "orange", AGREED: "blue", DECLINED: "neutral" } as const;
+const STATE_ICON = {
+  PENDING: CircleDashed,
+  AGREED: CircleCheck,
+  DECLINED: CircleX,
+  ENDED: CalendarX,
+} as const;
+const STATE_VARIANT = {
+  PENDING: "orange",
+  AGREED: "blue",
+  DECLINED: "neutral",
+  ENDED: "neutral",
+} as const;
 
 /**
  * 면접 건별 이름 제공 동의 (R-211, PC-1). One row per confirmed interview: 동의 / 동의하지 않음, and
  * 동의 철회 with a confirmation dialog (STANDARD 3.1 dialog). The company sees only the real name of
  * an agreed interview — never contacts. The consent text is rendered on the server (`document`).
+ * An ended interview (result recorded or cancelled, Q-25) shows "면접 종료" and no buttons.
+ * A failed answer (including a server error) shows the retry message instead of an error page.
  */
 export function InterviewConsents({
   items,
@@ -41,16 +53,23 @@ export function InterviewConsents({
   document: ReactNode;
 }) {
   const t = useTranslations("seeker.me.interviewConsent");
+  const te = useTranslations("errors.auth");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState(false);
+  // "auth": the session ended (UNAUTHENTICATED) → 다시 로그인 안내; "retry": anything else.
+  const [error, setError] = useState<"auth" | "retry" | null>(null);
 
   const answer = (interviewId: string, action: "agree" | "decline" | "revoke") =>
     startTransition(async () => {
-      setError(false);
-      const r = await answerInterviewConsent({ interviewId, action, locale });
-      if (r.ok) window.location.reload();
-      else setError(true);
+      setError(null);
+      try {
+        const r = await answerInterviewConsent({ interviewId, action, locale });
+        if (r.ok) window.location.reload();
+        else setError(r.code === "UNAUTHENTICATED" ? "auth" : "retry");
+      } catch {
+        // P2c QA F-1: a thrown server action must not replace the page with an error screen.
+        setError("retry");
+      }
     });
 
   return (
@@ -64,6 +83,7 @@ export function InterviewConsents({
       <ul className="grid gap-3">
         {items.map((item) => {
           const Icon = STATE_ICON[item.state];
+          const ended = item.state === "ENDED";
           return (
             <li
               key={item.interviewId}
@@ -88,9 +108,10 @@ export function InterviewConsents({
                     </span>
                   ) : null}
                 </div>
+                {ended ? <p className="text-caption text-n500">{t("endedNote")}</p> : null}
               </div>
               <div className="flex flex-wrap gap-2">
-                {item.state !== "AGREED" ? (
+                {!ended && item.state !== "AGREED" ? (
                   <Button
                     variant="seeker"
                     size="sm"
@@ -145,7 +166,7 @@ export function InterviewConsents({
       </ul>
       {error ? (
         <p role="alert" className="text-caption text-error-text">
-          {t("error")}
+          {error === "auth" ? te("unauthenticated") : t("error")}
         </p>
       ) : null}
     </div>

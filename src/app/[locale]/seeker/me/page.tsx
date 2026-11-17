@@ -70,7 +70,7 @@ export default async function SeekerMePage({ params }: Props) {
       <Card className="grid content-start gap-4 lg:col-span-2" data-testid="interview-consent-card">
         <h2 className="text-h3 text-navy">{t("interviewConsent.title")}</h2>
         <p className="text-dense text-n700">{t("interviewConsent.lead")}</p>
-        <ScopedIntlProvider namespaces={["seeker.me"]}>
+        <ScopedIntlProvider namespaces={["seeker.me", "errors.auth"]}>
           <InterviewConsents
             document={docs[INTERVIEW_CONSENT]}
             items={interviewRequests.map((r) => ({
@@ -159,7 +159,7 @@ export default async function SeekerMePage({ params }: Props) {
         <Card className="grid content-start gap-4 lg:col-span-2">
           <h2 className="text-h3 text-navy">{t("consents.title")}</h2>
           <p className="text-dense text-n700">{t("consents.lead")}</p>
-          <ScopedIntlProvider namespaces={["seeker.me"]}>
+          <ScopedIntlProvider namespaces={["seeker.me", "errors.auth"]}>
             <ConsentManager items={consents} />
           </ScopedIntlProvider>
         </Card>

@@ -788,6 +788,7 @@
       "invalidReference": "请重新选择行业和地区。",
       "invalidBizRegNo": "请输入 10 位营业执照号码。",
       "validation": "请检查输入的内容。",
+      "unauthenticated": "请重新登录。",
       "unknown": "出现问题，请重试。"
     },
     "register": {
@@ -1332,7 +1333,8 @@
         "state": {
           "PENDING": "等待回复",
           "AGREED": "已同意",
-          "DECLINED": "未同意"
+          "DECLINED": "未同意",
+          "ENDED": "面试已结束"
         },
         "agree": "同意",
         "decline": "不同意",
@@ -1343,6 +1345,7 @@
         "cancel": "取消",
         "close": "关闭",
         "agreedAt": "{date} 同意",
+        "endedNote": "本次面试已结束，不再向企业提供您的姓名。无需回复。",
         "error": "处理失败，请重试。"
       }
     },
@@ -1766,6 +1769,7 @@
         "status": {
           "SCHEDULED": "日程协调中",
           "CONFIRMED": "面试已确定",
+          "ENDED": "面试已结束",
           "CANCELLED": "已取消"
         },
         "nameState": {

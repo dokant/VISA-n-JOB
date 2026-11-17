@@ -788,6 +788,7 @@
       "invalidReference": "업종과 지역을 다시 선택해 주세요.",
       "invalidBizRegNo": "사업자등록번호 10자리를 입력해 주세요.",
       "validation": "입력한 내용을 확인해 주세요.",
+      "unauthenticated": "다시 로그인해 주세요.",
       "unknown": "문제가 생겼습니다. 다시 시도해 주세요."
     },
     "register": {
@@ -1332,7 +1333,8 @@
         "state": {
           "PENDING": "응답 대기",
           "AGREED": "동의함",
-          "DECLINED": "동의하지 않음"
+          "DECLINED": "동의하지 않음",
+          "ENDED": "면접 종료"
         },
         "agree": "동의",
         "decline": "동의하지 않음",
@@ -1343,6 +1345,7 @@
         "cancel": "취소",
         "close": "닫기",
         "agreedAt": "{date} 동의",
+        "endedNote": "면접이 끝나 이 면접 건의 이름 제공도 끝났습니다. 더 답할 필요가 없습니다.",
         "error": "처리하지 못했습니다. 다시 시도해 주세요."
       }
     },
@@ -1766,6 +1769,7 @@
         "status": {
           "SCHEDULED": "일정 조율 중",
           "CONFIRMED": "면접 확정",
+          "ENDED": "면접 종료",
           "CANCELLED": "취소됨"
         },
         "nameState": {
@@ -1773,7 +1777,7 @@
           "PENDING": "구직자의 동의를 기다리고 있습니다.",
           "GIVEN": "구직자가 이 면접 건에 이름 제공을 동의했습니다.",
           "NOT_GIVEN": "구직자가 이름 제공에 동의하지 않았습니다.",
-          "ENDED": "면접 건이 종료되어 실명을 더 이상 표시하지 않습니다."
+          "ENDED": "이 면접 건이 끝나 이름을 더 이상 보여 드리지 않습니다."
         }
       },
       "toCandidates": "블라인드 후보 보기"

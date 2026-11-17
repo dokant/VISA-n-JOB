@@ -25,16 +25,22 @@ export type ConsentItem = { type: string; active: boolean; agreedAt: string | nu
  */
 export function ConsentManager({ items }: { items: ConsentItem[] }) {
   const t = useTranslations("seeker.me.consents");
+  const te = useTranslations("errors.auth");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState(false);
+  // "auth": the session ended (UNAUTHENTICATED) → 다시 로그인 안내; "retry": anything else.
+  const [error, setError] = useState<"auth" | "retry" | null>(null);
 
   const change = (type: RevocableConsent, action: "revoke" | "grant") =>
     startTransition(async () => {
-      setError(false);
-      const r = await changeConsent({ type, action, locale });
-      if (r.ok) window.location.reload();
-      else setError(true);
+      setError(null);
+      try {
+        const r = await changeConsent({ type, action, locale });
+        if (r.ok) window.location.reload();
+        else setError(r.code === "UNAUTHENTICATED" ? "auth" : "retry");
+      } catch {
+        setError("retry");
+      }
     });
 
   return (
@@ -98,7 +104,7 @@ export function ConsentManager({ items }: { items: ConsentItem[] }) {
       })}
       {error ? (
         <li role="alert" className="text-caption text-error-text">
-          {t("error")}
+          {error === "auth" ? te("unauthenticated") : t("error")}
         </li>
       ) : null}
     </ul>

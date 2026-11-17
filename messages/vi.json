@@ -788,6 +788,7 @@
       "invalidReference": "Vui lòng chọn lại ngành nghề và khu vực.",
       "invalidBizRegNo": "Nhập số đăng ký kinh doanh gồm 10 chữ số.",
       "validation": "Vui lòng kiểm tra thông tin đã nhập.",
+      "unauthenticated": "Vui lòng đăng nhập lại.",
       "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
     },
     "register": {
@@ -1332,7 +1333,8 @@
         "state": {
           "PENDING": "Đang chờ trả lời",
           "AGREED": "Đã đồng ý",
-          "DECLINED": "Không đồng ý"
+          "DECLINED": "Không đồng ý",
+          "ENDED": "Đã kết thúc phỏng vấn"
         },
         "agree": "Đồng ý",
         "decline": "Không đồng ý",
@@ -1343,6 +1345,7 @@
         "cancel": "Hủy",
         "close": "Đóng",
         "agreedAt": "Đồng ý ngày {date}",
+        "endedNote": "Buổi phỏng vấn đã kết thúc nên tên bạn không còn được cung cấp cho buổi này. Bạn không cần trả lời.",
         "error": "Không xử lý được. Vui lòng thử lại."
       }
     },
@@ -1766,6 +1769,7 @@
         "status": {
           "SCHEDULED": "Đang sắp xếp",
           "CONFIRMED": "Đã xác nhận",
+          "ENDED": "Đã kết thúc phỏng vấn",
           "CANCELLED": "Đã hủy"
         },
         "nameState": {

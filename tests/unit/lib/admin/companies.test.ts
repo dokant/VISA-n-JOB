@@ -111,6 +111,10 @@ describe("R-218 company verification and contract", () => {
       where: { action: "PII_VIEW", entity: "Company", actorId: staff.id },
     });
     expect(views).toHaveLength(before + 1);
-    expect(views.at(-1)?.meta).toEqual({ fields: ["nameEnc"], count: rows.length });
+    expect(views.at(-1)?.meta).toEqual({
+      fields: ["nameEnc"],
+      count: rows.length,
+      companyIds: rows.map((r) => r.id),
+    });
   });
 });
