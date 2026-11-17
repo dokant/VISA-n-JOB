@@ -66,15 +66,18 @@ test.describe("P1e admin core", () => {
     const staffId = await signInNewStaff(page, "STAFF_PLACEMENT");
     const leadId = await createCallLead();
 
+    // The board shows only the top ADMIN_LEAD_COLUMN_MAX cards per column by call priority, and the
+    // shared dev DB keeps growing, so the card itself is checked on the detail page and in the DB,
+    // not by its position on the board (P2a run 3).
     await page.goto("/admin/leads");
     await expect(page.getByTestId("lead-board")).toBeVisible();
-    await expect(
-      page.getByTestId("lead-col-C").locator(`[data-lead-id="${leadId}"]`),
-    ).toBeVisible();
     // STANDARD 1.1 (E-2): 칸반 열 제목은 "리드 등급"으로 구분.
     await expect(page.locator("#col-C")).toContainText("리드 등급 C");
+    await expect(page.locator("#col-B")).toContainText("리드 등급 B");
 
     await page.goto(`/admin/leads/${leadId}`);
+    await expect(page.getByTestId("lead-grade")).toHaveAttribute("data-grade", "C");
+    expect((await leadGrade(leadId)).grade).toBe("C");
     await waitForHydration(page, "call-form");
     await page.getByLabel(/통화 결과/).selectOption("INTERESTED");
     await page.getByLabel(/메모/).fill("다음 주 견적 통화");
@@ -92,10 +95,10 @@ test.describe("P1e admin core", () => {
     await expect(page.getByTestId("lead-contact-values")).toContainText("이투이 담당");
     await expect.poll(async () => (await auditFor(leadId, "PII_VIEW")).length).toBe(1);
 
-    await page.goto("/admin/leads");
-    await expect(
-      page.getByTestId("lead-col-B").locator(`[data-lead-id="${leadId}"]`),
-    ).toBeVisible();
+    // after a reload the detail page still shows the B grade
+    await page.reload();
+    await expect(page.getByTestId("lead-grade")).toHaveAttribute("data-grade", "B");
+    expect((await leadGrade(leadId)).grade).toBe("B");
   });
 
   test("R-121 / Q-14: 고용 의사 없음 → 확인 다이얼로그(취소 시 변경 없음) → 재접촉금지 + AuditLog", async ({
