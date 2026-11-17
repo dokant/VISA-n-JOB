@@ -193,8 +193,18 @@ describe("R-201 create only from grade-A leads (BR-05)", () => {
       }),
     ).toMatchObject({ ok: true });
     expect(await db.jobPosting.count({ where: { leadId: lead.id } })).toBe(titles.length + 1);
-    // a number written as a date is still refused
-    for (const blindTitle of ["생산직 010 2026.12.01", "생산직 010/12/01/5678"]) {
+    // a number written as a date is still refused (QA run 4 D-5 phrases included)
+    for (const blindTitle of [
+      "생산직 010 2026.12.01",
+      "생산직 010/12/01/5678",
+      "생산직 02 2026.12.01",
+      "문의 02 2026-12-01",
+      "문의 02 2026 12 01",
+      "생산직 02-1201-2026.12",
+      "문의 010-1234-2026.12",
+      "문의 010-5678-2026.12.01",
+      "문의 010 1234 2026.12",
+    ]) {
       expect(
         await createPostingFromLead({
           actorId: staff.id,

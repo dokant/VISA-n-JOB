@@ -177,6 +177,29 @@ describe("R-114 POST /api/ingest/job-leads", () => {
     expect(JSON.stringify(row.rawJson)).toContain(`${dates} 일당 820000 ~ 950000 문의 *** 끝`);
   });
 
+  it("BR-14 (P2a QA run 4 D-5): phone prefixes next to a date and numbers ending in a year are masked", async () => {
+    const d5 = [
+      "생산직 02 2026.12.01",
+      "문의 02 2026-12-01",
+      "문의 02 2026 12 01",
+      "생산직 02-1201-2026.12",
+      "문의 010-1234-2026.12",
+      "문의 010-5678-2026.12.01",
+      "문의 010 1234 2026.12",
+    ];
+    const item = leadItem({ title: d5[0], memo: d5.join(" / ") });
+    const res = await post([item]);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as Body).created).toBe(1);
+    const row = await prisma.jobLead.findUniqueOrThrow({
+      where: { sourceRef: item.sourceRef as string },
+    });
+    expect(row.title).toBe("생산직 ***");
+    expect(JSON.stringify(row.rawJson)).toContain(
+      "생산직 *** / 문의 *** / 문의 *** / 생산직 ***.12 / 문의 ***.12 / 문의 ***.12.01 / 문의 ***.12",
+    );
+  });
+
   it("R-115: a DO_NOT_CONTACT lead keeps its grade when collected again", async () => {
     const item = leadItem();
     await post([item]);

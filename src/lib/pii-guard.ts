@@ -353,8 +353,11 @@ function classifyDigits(raw: string): ContactType | null {
 //     "01" of a date), so date ranges joined by ~ 〜 - → / … are not split into phone digits;
 //   - a window made only of dates is not a phone;
 //   - a window that mixes a date with other digit groups is still checked when those groups hold
-//     3+ digits, so a number with its tail written as a date ("010 2026.12.01", "010/12/01/5678")
-//     is still detected, while a time before a date ("17:00 (2026.12.01" = "00" + date) is not.
+//     3+ digits or a phone prefix ("02", "82"; run 4 D-5), so a number with its tail written as a
+//     date ("010 2026.12.01", "02 2026.12.01", "010/12/01/5678") is still detected, while a time
+//     before a date ("17:00 (2026.12.01" = "00" + date) is not;
+//   - run 4 D-5: a year right after phone-shaped groups that complete a number with it is not a date
+//     start ("010-1234-2026.12" = 010-1234-2026 + ".12"), see `yearTakenByPhone`.
 // A date is recognised only when its values are real: year 1900–2099, month 1–12, day 1–31.
 // Forms: YYYY.MM.DD (same separator . - / twice, spaces allowed: "2026. 12. 01"), YYYY MM DD
 // (spaces), YYYY년 MM월 [DD일], YYYY.MM (. - /), MM/DD (slash only: "12/1~1/31"). "MM.DD" is not a
@@ -375,8 +378,58 @@ const DATE_TOKEN = new RegExp(
   "gu",
 );
 
+// P2a QA run 4 D-5: a group next to a date that is a phone prefix makes the window a phone candidate
+// even when it is only 1–2 digits ("02 2026.12.01" = 02-2026-1201). Korean area / mobile / service
+// prefixes, representative-number heads (15xx/16xx/18xx), international access codes (00x) and 82.
+const PHONE_PREFIX_GROUP =
+  /^(?:02|0[3-6][1-5]|01[016789]|070|050\d?|080|1[568]\d{2}|00[1-9]\d{0,3}|82)$/;
+const SEP_CHAR = new RegExp(`^${SEP}$`, "u");
+const YEAR_HEAD = /^(?:19|20)\d{2}/;
+
+/**
+ * P2a QA run 4 D-5: the year of a date token belongs to the phone number in front of it when the
+ * digit groups before it are phone-shaped (a phone prefix group, then 3–4 digit groups) and those
+ * groups plus the 4 year digits already make a complete number: "010-1234-2026.12" is
+ * 010-1234-2026 followed by ".12", "02-1201-2026.12" is 02-1201-2026. Groups already inside an
+ * accepted date stop the look-back, so date ranges ("2026.12.01~2027.01.31") are unaffected.
+ */
+function yearTakenByPhone(text: string, start: number, accepted: Array<[number, number]>): boolean {
+  const groups: Array<[number, number]> = []; // nearest group first
+  let pos = start;
+  for (let k = 0; k < 3; k++) {
+    let p = pos;
+    let seps = 0;
+    while (p > 0 && seps < 3 && SEP_CHAR.test(text[p - 1])) {
+      p -= 1;
+      seps += 1;
+    }
+    if (seps === 0) break;
+    let q = p;
+    while (q > 0 && text[q - 1] >= "0" && text[q - 1] <= "9") q -= 1;
+    if (q === p || accepted.some(([s, e]) => q < e && p > s)) break;
+    groups.push([q, p]);
+    pos = q;
+  }
+  const yearEnd = start + 4;
+  for (let k = 1; k <= groups.length; k++) {
+    const [outerStart, outerEnd] = groups[k - 1];
+    if (!PHONE_PREFIX_GROUP.test(text.slice(outerStart, outerEnd))) continue;
+    if (k >= 2) {
+      const [nearStart, nearEnd] = groups[0];
+      if (nearEnd - nearStart < 3 || nearEnd - nearStart > 4) continue;
+    }
+    if (classifyDigits(text.slice(outerStart, yearEnd))) return true;
+  }
+  return false;
+}
+
 function findDateSpans(text: string): Array<[number, number]> {
-  return [...text.matchAll(DATE_TOKEN)].map((m) => [m.index, m.index + m[0].length]);
+  const spans: Array<[number, number]> = [];
+  for (const m of text.matchAll(DATE_TOKEN)) {
+    if (YEAR_HEAD.test(m[0]) && yearTakenByPhone(text, m.index, spans)) continue;
+    spans.push([m.index, m.index + m[0].length]);
+  }
+  return spans;
 }
 
 // O-1: "일당 820000 ~ 950000" was read as 82 + 0000950000 (an international number). Two complete
@@ -479,9 +532,17 @@ function scanUnits(
       // keep a leading "+" only for the first unit of the run
       const from = i === 0 && first ? 0 : units[i].start;
       // a date next to a short group ("17:00 (2026.12.01" = "00" + date) is not a phone: a number
-      // disguised as a date still needs its own prefix ("010", "0082", "+82") outside the date
+      // disguised as a date still needs digits of its own outside the date — 3+ digits ("010",
+      // "0082"), a phone prefix of 1–2 digits ("02", "82"; run 4 D-5), or a leading "+"
       const plus = from === 0 && run.startsWith("+");
-      if (!plus && window.some((u) => u.date) && nonDateDigits(window) < 3) continue;
+      if (
+        !plus &&
+        window.some((u) => u.date) &&
+        nonDateDigits(window) < 3 &&
+        !window.some((u) => !u.date && PHONE_PREFIX_GROUP.test(u.digits))
+      ) {
+        continue;
+      }
       const value = run.slice(from, units[j].end);
       const type = classifyDigits(value) ?? (isPrefixedMobile(window) ? "PHONE_LOCAL" : null);
       if (type) {

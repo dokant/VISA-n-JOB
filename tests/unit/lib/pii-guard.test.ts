@@ -580,3 +580,209 @@ describe("R-012 pii-guard", () => {
     expect(() => assertNoContacts("hong@naver.com")).toThrow(/contact information is not allowed:/);
   });
 });
+
+// ── P2a run 5 (QA run 4 D-5): lists copied from .workflow/qa/phase-P2a-run-4.md ──────────────
+// Items 2 (date periods, 25), 3 (amount ranges, 7), 4 (designated bypasses, 8 + 3), 5 (D-5, 7 +
+// 5 function-level), 6 (earlier bypasses, 29), 7 (ordinary phrases, 31). Item 2 names the four
+// range signs 〜 — – → only by sign; they are written here in the run 3 form "2026.12.01?2027.01.31".
+const QA4_DATE_PERIODS = [
+  "근무 2026.12.01~2027.01.31",
+  "2026.12.01 ~ 2027.01.31 단기",
+  "2026-12-01~2027-01-31 근무",
+  "2026. 12. 01 ~ 2027. 01. 31",
+  "2026/12/01→2027/01/31",
+  "2026.12.01-2027.01.31",
+  "2026.12.01 / 2027.01.31",
+  "2026.01.01~2026.03.31",
+  "2026년 12월 01일~2027년 01월 31일",
+  "2026년12월1일~2027년1월31일 단기",
+  "2026년 12월 1일 ~ 2027년 1월 31일",
+  "12/01~01/31 단기",
+  "12/1~1/31 단기",
+  "근무 12/01 ~ 01/31",
+  "２０２６．１２．０１～２０２７．０１．３１",
+  "２０２６-１２-０１〜２０２７-０１-３１",
+  "2026.12.01〜2027.01.31",
+  "2026.12.01—2027.01.31",
+  "2026.12.01–2027.01.31",
+  "2026.12.01→2027.01.31",
+  "2026-12-01 ~ 2027-01-31",
+  "2026 12 01 ~ 2027 01 31",
+  "2026.12~2027.01 단기",
+  "근무기간 2026.12.01~2027.01.31 (3개월)",
+  "입사 2026.12.01, 종료 2027.01.31",
+];
+const QA4_DATE_FIELDS = [
+  "단기 2026.12.01~2027.01.31",
+  "생산 2026년 12월 1일~2027년 1월 31일",
+  "08:00~17:00 (2026.12.01~2027.01.31)",
+];
+const QA4_AMOUNT_RANGES = [
+  "일당 820000 ~ 950000",
+  "일당 820000~950000원",
+  "일당 820000〜950000원",
+  "월급 2500000~3100000원",
+  "연봉 30000000~36000000",
+  "시급 10030 ~ 12000원",
+  "일당 820000→950000원",
+];
+const QA4_ORDINARY = [
+  "2026-12-01 입사, 2026.12.15 교육",
+  "월 2,500,000원~3,100,000원",
+  "일당 82,000원 ~ 95,000원",
+  "시급 10,030원",
+  "연봉 36,000,000원",
+  "근무 08:30~17:30 (07:00-19:00)",
+  "주간 08시~17시, 야간 20시~05시",
+  "E-9, H-2, F-4, F-5, F-6 가능",
+  "E-7-4 / F-2-R 가능",
+  "2025~2026년 채용",
+  "2024-2026 경력 우대",
+  "인원 3~5명",
+  "10~20명 모집",
+  "• 생산직 • 포장 • 검수",
+  "★ 우대 ★ 기숙사 제공",
+  "출근 → 교육 → 배치",
+  "1단계 → 2단계 → 3단계",
+  "1) 조립 2) 검사 3) 포장",
+  "① 조립 ② 검사 ③ 포장",
+  "우편번호 21633 공단",
+  "ㅡ 기숙사 제공 ㅡ",
+  "나이 20~45세",
+  "중량물 20kg ~ 30kg",
+  "월급 250만원~310만원",
+  "시간 06:00 ~ 14:00 / 14:00 ~ 22:00",
+  "1공장 · 2공장 · 3공장",
+  "인원 10명 → 15명 증원",
+  "Nguyễn Văn An 환영",
+  "인천(Incheon) 남동공단 생산직",
+  "월 2500000 ~ 3100000",
+  "2026.12.01부터 2027.01.31까지",
+];
+const QA4_DESIGNATED_BYPASSES: [string, ContactType][] = [
+  ["010.12.01.5678", "PHONE_LOCAL"],
+  ["010/12/01/5678", "PHONE_LOCAL"],
+  ["010 2026.12.01", "PHONE_LOCAL"],
+  ["2010.1234.5678", "PHONE_LOCAL"],
+  ["+82 2026.12.01", "PHONE_INTL"],
+  ["월급 010~1234~5678원", "PHONE_LOCAL"],
+  ["82101-2345678", "PHONE_INTL"],
+  ["일당 82 10-1234-5678", "PHONE_INTL"],
+  ["2026.12.01 010-1234-5678", "PHONE_LOCAL"],
+  // detected since 09438f0 as "950000 010-1234" (82/84/… country-code reading); kept as is in run 5
+  ["일당 820000~950000 010-1234-5678", "PHONE_INTL"],
+  ["근무 2026.12.01~2027.01.31 문의 01012345678", "PHONE_LOCAL"],
+];
+const QA4_D5 = [
+  "생산직 02 2026.12.01",
+  "문의 02 2026-12-01",
+  "문의 02 2026 12 01",
+  "생산직 02-1201-2026.12",
+  "문의 010-1234-2026.12",
+  "문의 010-5678-2026.12.01",
+  "문의 010 1234 2026.12",
+];
+const QA4_D5_FUNCTION_LEVEL = [
+  "02.2026.12.01",
+  "02 2025.11.30",
+  "02 1999.12.31",
+  "02 2026/12/01",
+  "031 123 2026.12",
+];
+const QA4_EARLIER_BYPASSES: [string, ContactType][] = [
+  ["010-1234-5678", "PHONE_LOCAL"],
+  ...["​", "‍", "­", "⁠", "﻿"].map((c): [string, ContactType] => [
+    `010${c}1234${c}5678`,
+    "PHONE_LOCAL",
+  ]),
+  ...["ㅡ", "•", "→", "★", "—", "ー", "、"].map((s): [string, ContactType] => [
+    `010${s}1234${s}5678`,
+    "PHONE_LOCAL",
+  ]),
+  ["010•→1234★ー5678", "PHONE_LOCAL"],
+  ["010 ㅡ 1234 ㅡ 5678", "PHONE_LOCAL"],
+  ["0️⃣1️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣", "PHONE_LOCAL"],
+  ["٠١٠-١٢٣٤-٥٦٧٨", "PHONE_LOCAL"], // Arabic-Indic
+  ["०१०-१२३४-५६७८", "PHONE_LOCAL"], // Devanagari
+  ["۰۱۰-۱۲۳۴-۵۶۷۸", "PHONE_LOCAL"], // Persian
+  ["๐๑๐-๑๒๓๔-๕๖๗๘", "PHONE_LOCAL"], // Thai
+  ["０１０-１２３４-５６７８", "PHONE_LOCAL"], // full-width
+  ["零一零 一二三四 五六七八", "PHONE_LOCAL"],
+  ["零一零一二三四五六七八", "PHONE_LOCAL"],
+  ["공일공 일이삼사 오육칠팔".normalize("NFD"), "PHONE_LOCAL"],
+  ["ㄱㅗㅇㅇㅣㄹㄱㅗㅇ ㅇㅣㄹㅇㅣㅅㅏㅁㅅㅏ ㅇㅗㅇㅠㄱㅊㅣㄹㅍㅏㄹ", "PHONE_LOCAL"],
+  ["zero one zero one two three four five six seven eight", "PHONE_LOCAL"],
+  ["ZERO ONE ZERO 1234 5678", "PHONE_LOCAL"],
+  ["qa.test@example.com", "EMAIL"],
+  ["카톡 아이디 hongjob 연락", "MESSENGER_ID"],
+];
+
+describe("P2a run 5: QA run 4 lists (D-5 and kept results)", () => {
+  const expectNegative = (texts: string[]) => {
+    for (const text of texts) {
+      expect(detectContacts(text), text).toEqual([]);
+      expect(maskContacts(text), text).toBe(text);
+    }
+  };
+  const expectPositive = (cases: [string, ContactType][]) => {
+    for (const [text, type] of cases) {
+      const found = detectContacts(text);
+      expect(found, text).toHaveLength(1);
+      expect(found[0].type, text).toBe(type);
+      expect(maskContacts(text), text).toContain("***");
+    }
+  };
+
+  it("QA run 4 item 2: date periods stay negative (25 + 3 field values)", () => {
+    expect(QA4_DATE_PERIODS).toHaveLength(25);
+    expectNegative([...QA4_DATE_PERIODS, ...QA4_DATE_FIELDS]);
+  });
+
+  it("QA run 4 item 3: comma-less amount ranges stay negative (7)", () => {
+    expect(QA4_AMOUNT_RANGES).toHaveLength(7);
+    expectNegative(QA4_AMOUNT_RANGES);
+  });
+
+  it("QA run 4 item 7: ordinary phrases stay negative (31)", () => {
+    expect(QA4_ORDINARY).toHaveLength(31);
+    expectNegative(QA4_ORDINARY);
+  });
+
+  it("QA run 4 item 4: designated bypasses are detected (8 + 3)", () => {
+    expect(QA4_DESIGNATED_BYPASSES).toHaveLength(11);
+    expectPositive(QA4_DESIGNATED_BYPASSES);
+  });
+
+  it("QA run 4 item 6: earlier bypasses are detected (29)", () => {
+    expect(QA4_EARLIER_BYPASSES).toHaveLength(29);
+    expectPositive(QA4_EARLIER_BYPASSES);
+  });
+
+  it("QA run 4 D-5: phone prefixes next to a date and years at the end of a number (7 + 5)", () => {
+    expect(QA4_D5).toHaveLength(7);
+    expectPositive(
+      [...QA4_D5, ...QA4_D5_FUNCTION_LEVEL].map((t): [string, ContactType] => [t, "PHONE_LOCAL"]),
+    );
+  });
+
+  it("QA run 4 D-5: the mask covers the number, the trailing date part stays where it is", () => {
+    expect(maskContacts("생산직 02 2026.12.01 끝")).toBe("생산직 *** 끝");
+    expect(maskContacts("문의 010-1234-2026.12")).toBe("문의 ***.12");
+    expect(maskContacts("문의 010-5678-2026.12.01")).toBe("문의 ***.12.01");
+    expect(maskContacts("생산직 02-1201-2026.12")).toBe("생산직 ***.12");
+    // a date range next to a disguised number keeps the range
+    expect(maskContacts("근무 2026.12.01~2027.01.31 문의 010-1234-2026.12")).toBe(
+      "근무 2026.12.01~2027.01.31 문의 ***.12",
+    );
+  });
+
+  it("QA run 4 O-1 limits: results recorded", () => {
+    // amount cue + "~" between two complete numbers: an amount range, not a number
+    expect(detectContacts("일당 84912 ~ 345678")).toEqual([]);
+    // month 13 is not a date; "01" + 2027.01.31 is not read because "01" is not a phone prefix
+    expect(detectContacts("2026.13.01~2027.01.31")).toEqual([]);
+    // "01" is not an allocated Korean prefix (01x needs three digits), so "01" + date stays negative
+    expect(detectContacts("생산직 01 2026.12.01")).toEqual([]);
+    expect(detectContacts("생산직 01 2026.12.01 단기")).toEqual([]);
+  });
+});

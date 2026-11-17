@@ -135,12 +135,26 @@ describe("R-125 submitJobRequestAction", () => {
     expect(await prisma.jobLead.count({ where: { companyId: session.actor.companyId } })).toBe(
       texts.length + 1,
     );
-    // a number written as a date is still refused
-    expect(await submitJobRequestAction(await input({ detail: "문의 010 2026.12.01" }))).toEqual({
-      ok: false,
-      code: "CONTACT_INFO",
-      fields: ["detail"],
-    });
+    // a number written as a date is still refused (QA run 4 D-5 phrases included)
+    for (const detail of [
+      "문의 010 2026.12.01",
+      "생산직 02 2026.12.01",
+      "문의 02 2026-12-01",
+      "문의 02 2026 12 01",
+      "생산직 02-1201-2026.12",
+      "문의 010-1234-2026.12",
+      "문의 010-5678-2026.12.01",
+      "문의 010 1234 2026.12",
+    ]) {
+      expect(await submitJobRequestAction(await input({ detail })), detail).toEqual({
+        ok: false,
+        code: "CONTACT_INFO",
+        fields: ["detail"],
+      });
+    }
+    expect(await prisma.jobLead.count({ where: { companyId: session.actor.companyId } })).toBe(
+      texts.length + 1,
+    );
   });
 
   it("R-125: a valid request is stored as a B lead", async () => {
