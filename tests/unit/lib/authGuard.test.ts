@@ -52,12 +52,19 @@ describe("R-118 admin access", () => {
     });
   });
 
-  it("R-118: staff + 2FA verified → admin pages allowed, 2FA / login pages bounce to /admin", () => {
+  it("R-118: staff + 2FA verified → admin pages allowed, 2FA pages bounce to /admin", () => {
     const verified = staff({ twoFactorVerified: true });
     expect(decideAdminAccess("/admin", verified, NOW)).toEqual({ action: "allow" });
     expect(decideAdminAccess("/admin/leads", verified, NOW)).toEqual({ action: "allow" });
-    for (const path of ["/admin/login", "/admin/2fa/setup", "/admin/2fa/verify"]) {
+    for (const path of ["/admin/2fa/setup", "/admin/2fa/verify"]) {
       expect(decideAdminAccess(path, verified, NOW)).toEqual({ action: "redirect", to: "/admin" });
+    }
+  });
+
+  it("I-1: the login page stays open for any claims (a signed-out token must not loop back to /admin)", () => {
+    for (const claims of [null, staff(), staff({ twoFactorVerified: true })]) {
+      expect(decideAdminAccess("/admin/login", claims, NOW)).toEqual({ action: "allow" });
+      expect(decideAdminAccess("/admin/login/", claims, NOW)).toEqual({ action: "allow" });
     }
   });
 

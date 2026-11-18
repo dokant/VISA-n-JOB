@@ -58,9 +58,11 @@ export function decideAdminAccess(
   const path = pathname.replace(/\/+$/, "") || "/";
   const state = staffState(claims, nowSec);
 
-  if (path === ADMIN_LOGIN_PATH) {
-    return state === "VERIFIED" ? redirect(ADMIN_HOME_PATH) : ALLOW;
-  }
+  // I-1: the login page is always open here. The claims cannot tell a signed-out (revoked) token
+  // from a live one, so bouncing VERIFIED claims to /admin would loop with the page check
+  // (/admin → requireStaff → /admin/login → /admin …). The login page itself sends a live, verified
+  // staff session to /admin after the database check.
+  if (path === ADMIN_LOGIN_PATH) return ALLOW;
   if (state === "NONE") return redirect(ADMIN_LOGIN_PATH);
 
   const pending2faPath =

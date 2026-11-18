@@ -79,3 +79,19 @@ export async function requireStaffApi(permission: Permission): Promise<StaffActo
   assertCan(user.role, permission);
   return { id: user.id, role: user.role, displayName: user.displayName, totpEnrolled: true };
 }
+
+/**
+ * /admin/login (integration QA I-1): true when the request carries a live staff session that
+ * `requireStaff()` would let into /admin — session version current (checked in `auth()`), staff
+ * role, TOTP enrolled, 2FA done. The login page then sends the user to /admin; the middleware no
+ * longer does, because from the claims alone it cannot tell a signed-out token from a live one.
+ */
+export async function hasVerifiedStaffSession(): Promise<boolean> {
+  const session = await auth();
+  if (staffState(session?.user ?? null, Math.floor(Date.now() / 1000)) !== "VERIFIED") return false;
+  const user = await db.user.findUnique({
+    where: { id: session?.user.id ?? "" },
+    select: { role: true, totpEnabledAt: true },
+  });
+  return user != null && isStaff(user.role) && user.totpEnabledAt != null;
+}

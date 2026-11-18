@@ -9,6 +9,10 @@
  * The TOTP step upgrades the session with `unstable_update({ totpProof })`; the JWT callback accepts
  * only a valid server-made proof (see authCredentials.ts), so the client cannot skip 2FA.
  *
+ * Integration QA I-1 (server-side sign-out): the JWT callback stamps `User.sessionVersion` into the
+ * token at sign-in and refuses any later token whose `sv` is not the current one; every sign-out
+ * (`events.signOut`: the admin action and Auth.js /api/auth/signout) raises the version.
+ *
  * Failures throw `AuthCodeError` (a CredentialsSignin subclass); its `code` is the AuthFailureCode
  * the login forms translate (errors.auth.*). The middleware uses the Edge-safe `authConfig` only.
  */
@@ -21,7 +25,9 @@ import {
   authorizeEmployerPassword,
   authorizeSeekerOtp,
   authorizeSeekerSignupProof,
+  applySessionVersion,
   authorizeStaffPassword,
+  revokeSessions,
   verifyTotpProof,
 } from "@/lib/authCredentials";
 import { authConfig } from "@/lib/authConfig";
@@ -85,7 +91,11 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     async jwt(params) {
-      const token = await authConfig.callbacks.jwt(params);
+      const token = await applySessionVersion(
+        await authConfig.callbacks.jwt(params),
+        params.user != null,
+      );
+      if (!token) return null;
       if (params.trigger === "update" && token.sub) {
         const proof = (params.session as { totpProof?: unknown } | undefined)?.totpProof;
         if (verifyTotpProof(proof, token.sub)) {
@@ -94,6 +104,11 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
         }
       }
       return token;
+    },
+  },
+  events: {
+    async signOut(message) {
+      await revokeSessions("token" in message ? message.token : null);
     },
   },
 });

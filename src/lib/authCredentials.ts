@@ -413,3 +413,58 @@ export async function authorizeSeekerSignupProof(
     user: { id: user.id, role: user.role, twoFactorVerified: false, totpEnrolled: false },
   };
 }
+
+// ─── Server-side sign-out for JWT sessions (integration QA I-1) ──────────────
+
+/**
+ * Every session token carries the account's `User.sessionVersion` as claim `sv`. Signing out raises
+ * the number, so the server refuses every token issued before — a copied cookie, or one a request
+ * still in flight at sign-out puts back into the browser. The check runs in the Node.js JWT
+ * callback (`src/auth.ts`), i.e. in every `auth()` of pages, server actions and Route Handlers.
+ * The Edge middleware cannot reach the database and only routes on the claims (it never decides
+ * access on its own and never writes the session cookie).
+ */
+export type SessionClaimsWithVersion = { sub?: string | null; sv?: unknown };
+
+/** Current session version of the account, or null when the account no longer exists. */
+export async function sessionVersionOf(userId: string): Promise<number | null> {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { sessionVersion: true },
+  });
+  return user ? user.sessionVersion : null;
+}
+
+/** True only for a token issued at the account's current version (tokens without `sv` fail). */
+export function isSessionCurrent(tokenVersion: unknown, current: number | null): boolean {
+  return current !== null && typeof tokenVersion === "number" && tokenVersion === current;
+}
+
+/**
+ * JWT callback step: on sign-in stamps the current version into the token; afterwards returns null
+ * (= no session, Auth.js clears the cookie where it can) unless the token is still current.
+ */
+export async function applySessionVersion<T extends SessionClaimsWithVersion>(
+  token: T,
+  signIn: boolean,
+): Promise<(T & { sv: number }) | null> {
+  if (!token.sub) return null;
+  const current = await sessionVersionOf(token.sub);
+  if (current === null) return null;
+  if (signIn) return Object.assign(token, { sv: current });
+  return isSessionCurrent(token.sv, current) ? (token as T & { sv: number }) : null;
+}
+
+/**
+ * Sign-out (Auth.js `events.signOut`, every sign-out path): ends all sessions of the account issued
+ * at the token's version. A token that is already stale changes nothing, so an old copied cookie
+ * cannot be used to sign the owner out of a newer session. Returns whether the version was raised.
+ */
+export async function revokeSessions(token: SessionClaimsWithVersion | null): Promise<boolean> {
+  if (!token?.sub || typeof token.sv !== "number") return false;
+  const { count } = await db.user.updateMany({
+    where: { id: token.sub, sessionVersion: token.sv },
+    data: { sessionVersion: { increment: 1 } },
+  });
+  return count === 1;
+}

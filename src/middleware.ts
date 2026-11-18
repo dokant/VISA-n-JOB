@@ -1,9 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
-import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 
 import { REFERRAL_COOKIE_MAX_AGE_SEC } from "./config/limits";
-import { authConfig } from "./lib/authConfig";
+import { readSessionClaims } from "./lib/authConfig";
 import { decideAdminAccess, isAdminPath } from "./lib/authGuard";
 import {
   REF_COOKIE,
@@ -14,12 +13,15 @@ import {
 import { routing } from "./i18n/routing";
 
 /**
- * Middleware chain (PLAN P1b-4): Auth.js session (Edge-safe config, JWT claims only — no Prisma)
+ * Middleware chain (PLAN P1b-4): session claims (Edge-safe, JWT claims only — no Prisma)
  * → `/admin/*` access decision (staff + 2FA, R-118) → next-intl locale routing for every other page.
- * Admin pages and server actions re-check the staff account in the database (defence in depth).
+ * Admin pages and server actions re-check the staff account in the database (defence in depth),
+ * including whether the session was signed out (`sv`, integration QA I-1).
+ *
+ * I-1: the claims are only read, never refreshed. The middleware sends no session Set-Cookie, so a
+ * response to a request that was still in flight at sign-out cannot restore the session cookie.
  */
 const intl = createMiddleware(routing);
-const { auth } = NextAuth(authConfig);
 
 /** R-130 / WO §13: areas that must never be indexed (header in addition to meta + robots.txt). */
 const NOINDEX =
@@ -44,12 +46,12 @@ function keepEntryParams(request: NextRequest, response: NextResponse): void {
   if (src) response.cookies.set(SRC_COOKIE, src, options);
 }
 
-export default auth((request) => {
+export default async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   let response: NextResponse;
   if (isAdminPath(pathname)) {
     // /admin is Korean only and not localized (WO §12).
-    const decision = decideAdminAccess(pathname, request.auth?.user ?? null);
+    const decision = decideAdminAccess(pathname, await readSessionClaims(request.headers));
     response =
       decision.action === "redirect"
         ? NextResponse.redirect(new URL(decision.to, request.url))
@@ -61,7 +63,7 @@ export default auth((request) => {
   }
   if (NOINDEX.test(pathname)) response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
-});
+}
 
 export const config = {
   // Localized routes + /admin. Excluded: /api (Auth.js and route handlers check sessions

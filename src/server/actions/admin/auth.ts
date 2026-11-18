@@ -53,9 +53,13 @@ export async function verifyStaffTotpCode(
   return { ok: true, redirectTo: ADMIN_HOME_PATH };
 }
 
-/** Admin sign-out. */
+/**
+ * Admin sign-out. Auth.js `events.signOut` (src/auth.ts) raises the account's session version
+ * first (integration QA I-1), so this token and every copy of it are refused from now on; then the
+ * cookie is cleared.
+ */
 export async function signOutStaff(): Promise<void> {
-  // rbac: public — 자기 세션 쿠키만 지운다 (세션이 없어도 무해)
+  // rbac: public — 자기 세션만 끝낸다 (세션이 없거나 이미 끝난 토큰이면 무해)
   await signOut({ redirect: false });
   redirect(ADMIN_LOGIN_PATH);
 }

@@ -6,11 +6,17 @@
  * database) are added in `src/auth.ts`, which only runs in the Node.js runtime.
  *
  * Session = JWT (encrypted cookie). Claims: `sub` (user id), `role`, `twoFactorVerified`,
- * `totpEnrolled`, `authTime`. No e-mail, phone or name is put into the token.
+ * `totpEnrolled`, `authTime`, `sv` (session version, integration QA I-1). No e-mail, phone or name
+ * is put into the token.
+ *
+ * I-1: the middleware does not run an Auth.js instance any more. It only decrypts the cookie
+ * (`readSessionClaims`) and never writes it back, so a request still in flight at sign-out cannot
+ * put the old session cookie back. Whether the token is still valid (`sv` against the database) is
+ * decided in the Node.js JWT callback (`src/auth.ts`) by every page, server action and Route Handler.
  */
 import type { Role } from "@prisma/client";
 import type { NextAuthConfig } from "next-auth";
-import type {} from "next-auth/jwt";
+import { type JWT, getToken } from "next-auth/jwt";
 
 import { SESSION_MAX_AGE_SEC } from "@/config/limits";
 
@@ -39,6 +45,8 @@ declare module "next-auth/jwt" {
     twoFactorVerified?: boolean;
     totpEnrolled?: boolean;
     authTime?: number;
+    /** session version (`User.sessionVersion` at sign-in), checked in `src/auth.ts` (I-1) */
+    sv?: number;
   }
 }
 
@@ -90,3 +98,30 @@ export const authConfig = {
     debug() {},
   },
 } satisfies NextAuthConfig;
+
+/** Cookie names Auth.js uses for the session token (https first; a browser only sends `__Secure-` over https). */
+const SESSION_COOKIES = ["__Secure-authjs.session-token", "authjs.session-token"] as const;
+
+/**
+ * Middleware only (I-1): decrypted session claims from the request cookie, or null. Read-only — no
+ * callback, no refresh, no Set-Cookie. The claims are a routing hint; the database check of the
+ * session version happens in the pages and actions behind it.
+ */
+export async function readSessionClaims(headers: Headers): Promise<JWT | null> {
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+  const cookie = headers.get("cookie");
+  if (!secret || !cookie) return null;
+  // Only the cookie header: an Authorization bearer token is not a session here.
+  const req = { headers: new Headers({ cookie }) };
+  for (const cookieName of SESSION_COOKIES) {
+    const token = await getToken({
+      req,
+      secret,
+      cookieName,
+      salt: cookieName,
+      secureCookie: cookieName.startsWith("__Secure-"),
+    });
+    if (token) return token;
+  }
+  return null;
+}
