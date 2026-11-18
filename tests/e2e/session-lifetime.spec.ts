@@ -50,6 +50,8 @@ async function shiftAuthTime(context: BrowserContext, authTime: number) {
     token: { ...claims, authTime },
     secret: secret(),
     salt: cookie.name,
+    // Same JWT `exp` window as the server (authConfig session.maxAge), not encode's 30-day default.
+    maxAge: SESSION_MAX_AGE_SEC,
   });
   await context.addCookies([{ ...cookie, value }]);
 }
