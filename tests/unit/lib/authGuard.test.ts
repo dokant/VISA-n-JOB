@@ -61,7 +61,7 @@ describe("R-118 admin access", () => {
     }
   });
 
-  it("I-1: the login page stays open for any claims (a signed-out token must not loop back to /admin)", () => {
+  it("R-118 I-1: the login page stays open for any claims (a signed-out token must not loop back to /admin)", () => {
     for (const claims of [null, staff(), staff({ twoFactorVerified: true })]) {
       expect(decideAdminAccess("/admin/login", claims, NOW)).toEqual({ action: "allow" });
       expect(decideAdminAccess("/admin/login/", claims, NOW)).toEqual({ action: "allow" });

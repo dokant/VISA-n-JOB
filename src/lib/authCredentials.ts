@@ -21,7 +21,13 @@ import type { Role } from "@prisma/client";
 import { authenticator } from "otplib";
 
 import { getSiteConfig } from "@/config/site.config";
-import { RATE_LIMITS, SEEKER_SIGNUP_PROOF_TTL_SEC, TOTP_PROOF_TTL_SEC } from "@/config/limits";
+import {
+  RATE_LIMITS,
+  SEEKER_SIGNUP_PROOF_TTL_SEC,
+  SESSION_MAX_AGE_SEC,
+  STAFF_SESSION_MAX_AGE_SEC,
+  TOTP_PROOF_TTL_SEC,
+} from "@/config/limits";
 import type { Locale } from "@/i18n/locales";
 
 import { db } from "./db";
@@ -36,7 +42,7 @@ import {
   type RateLimitResult,
   type RateLimitRule,
 } from "./rateLimit";
-import { isStaff } from "./rbac";
+import { isRole, isStaff } from "./rbac";
 
 /** What the JWT callback copies into the token (no PII: no e-mail, no phone). */
 export type AuthUser = {
@@ -424,7 +430,32 @@ export async function authorizeSeekerSignupProof(
  * The Edge middleware cannot reach the database and only routes on the claims (it never decides
  * access on its own and never writes the session cookie).
  */
-export type SessionClaimsWithVersion = { sub?: string | null; sv?: unknown };
+export type SessionClaimsWithVersion = {
+  sub?: string | null;
+  sv?: unknown;
+  role?: unknown;
+  /** seconds since epoch of the sign-in (set once by the JWT callback, never refreshed) */
+  authTime?: unknown;
+};
+
+/**
+ * Session lifetime of a role (STANDARD 4.11, Q-29): staff `STAFF_SESSION_MAX_AGE_SEC`, everyone
+ * else `SESSION_MAX_AGE_SEC`.
+ */
+export function sessionMaxAgeSecOf(role: unknown): number {
+  return isRole(role) && isStaff(role) ? STAFF_SESSION_MAX_AGE_SEC : SESSION_MAX_AGE_SEC;
+}
+
+/**
+ * Absolute expiry (no sliding): a session ends `authTime + lifetime of its role` after the
+ * sign-in, however often it is used. Auth.js re-signs the cookie (new JWT `exp`) on every
+ * `/api/auth/session` call; `authTime` is copied unchanged, so this check cannot be pushed back.
+ * A token without a numeric `authTime` counts as expired.
+ */
+export function isSessionExpired(claims: SessionClaimsWithVersion, nowSec: number): boolean {
+  if (typeof claims.authTime !== "number" || !Number.isFinite(claims.authTime)) return true;
+  return claims.authTime + sessionMaxAgeSecOf(claims.role) < nowSec;
+}
 
 /** Current session version of the account, or null when the account no longer exists. */
 export async function sessionVersionOf(userId: string): Promise<number | null> {
@@ -442,13 +473,16 @@ export function isSessionCurrent(tokenVersion: unknown, current: number | null):
 
 /**
  * JWT callback step: on sign-in stamps the current version into the token; afterwards returns null
- * (= no session, Auth.js clears the cookie where it can) unless the token is still current.
+ * (= no session, Auth.js clears the cookie where it can) unless the token is still current and
+ * not past its absolute lifetime (`isSessionExpired`, every role — Q-29).
  */
 export async function applySessionVersion<T extends SessionClaimsWithVersion>(
   token: T,
   signIn: boolean,
+  now: Date = new Date(),
 ): Promise<(T & { sv: number }) | null> {
   if (!token.sub) return null;
+  if (!signIn && isSessionExpired(token, Math.floor(now.getTime() / 1000))) return null;
   const current = await sessionVersionOf(token.sub);
   if (current === null) return null;
   if (signIn) return Object.assign(token, { sv: current });

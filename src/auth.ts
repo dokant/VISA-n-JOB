@@ -12,6 +12,9 @@
  * Integration QA I-1 (server-side sign-out): the JWT callback stamps `User.sessionVersion` into the
  * token at sign-in and refuses any later token whose `sv` is not the current one; every sign-out
  * (`events.signOut`: the admin action and Auth.js /api/auth/signout) raises the version.
+ * The same step ends every session at `authTime` + the role's lifetime (staff 8 hours, others
+ * SESSION_MAX_AGE_SEC), so calling /api/auth/session — which re-signs the cookie — never extends it
+ * (STANDARD 4.11, Q-29).
  *
  * Failures throw `AuthCodeError` (a CredentialsSignin subclass); its `code` is the AuthFailureCode
  * the login forms translate (errors.auth.*). The middleware uses the Edge-safe `authConfig` only.

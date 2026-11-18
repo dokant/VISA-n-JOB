@@ -60,8 +60,8 @@ async function signOutViaAuthJs(page: Page) {
   expect(status).toBe(200);
 }
 
-test.describe("I-1 sign-out ends the session on the server", () => {
-  test("I-1 admin: a session cookie saved before sign-out does not open /admin again", async ({
+test.describe("R-118 R-104 R-123 I-1 sign-out ends the session on the server", () => {
+  test("R-118 I-1 admin: a session cookie saved before sign-out does not open /admin again", async ({
     page,
     context,
   }) => {
@@ -85,7 +85,7 @@ test.describe("I-1 sign-out ends the session on the server", () => {
     expect(await serverSessionUser(page)).toBeNull();
   });
 
-  test("I-1 seeker: a session cookie saved before sign-out does not open 마이페이지 again", async ({
+  test("R-104 I-1 seeker: a session cookie saved before sign-out does not open 마이페이지 again", async ({
     page,
     context,
   }) => {
@@ -106,7 +106,7 @@ test.describe("I-1 sign-out ends the session on the server", () => {
     expect(await serverSessionUser(page)).toBeNull();
   });
 
-  test("I-1 employer: a session cookie saved before sign-out does not open the request page again", async ({
+  test("R-123 I-1 employer: a session cookie saved before sign-out does not open the request page again", async ({
     page,
     context,
   }) => {
@@ -130,7 +130,7 @@ test.describe("I-1 sign-out ends the session on the server", () => {
     expect(await serverSessionUser(page)).toBeNull();
   });
 
-  test("I-1 admin: requests in flight at sign-out never bring the session back (10 rounds)", async ({
+  test("R-118 I-1 admin: requests in flight at sign-out never bring the session back (10 rounds)", async ({
     page,
     context,
   }) => {
