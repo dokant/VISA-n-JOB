@@ -175,7 +175,7 @@
   5. `src/lib/pii-guard.ts`: `detectContacts(text)`, `maskContacts(text)`, `assertNoContacts()` — 국내·국제 전화, 이메일, URL, `@아이디`, kakao/zalo/telegram id 패턴(한·영 표기 변형 포함).
   6. 지원 작업(요구사항 번호 없음, R-105·R-203 선행 조건): `src/lib/notifications/{types,console}.ts` — `NotificationProvider` 인터페이스와 콘솔 어댑터 최소 구현. SMTP와 정식 테스트는 P2d(R-214).
   7. 커버리지 임계값 설정: 4개 파일 각각 라인 90% 미만이면 실패.
-- 만들거나 고칠 파일: `src/lib/{crypto,rbac,audit,pii-guard}.ts`, `src/lib/db.ts`, `src/lib/notifications/{types,console,index}.ts`, `tests/unit/lib/{crypto,rbac,audit,pii-guard,enc-extension}.test.ts`, `vitest.config.ts`(threshold), `.env.example`
+- 만들거나 고칠 파일: `src/lib/{crypto,rbac,audit,pii-guard}.ts`, `src/lib/db.ts`, `src/lib/notifications/{types,console,index}.ts`, `tests/unit/lib/{crypto,rbac,audit,pii-guard,db}.test.ts`, `vitest.config.ts`(threshold), `.env.example`
 - 완료 조건(PRD 인용):
   - R-008 "암·복호 왕복, 변조 시 실패, 키 버전 교체 후 구버전 복호 성공 테스트"
   - R-009 "DB raw 조회 시 `*Enc` 컬럼에 평문 없음, 앱 조회 시 복호 테스트"
@@ -197,7 +197,7 @@
   3. `/[locale]/visa-check`, 진단 위젯 컴포넌트, `/[locale]/score/e74`(시드 상태 "준비 중" + 상담 안내). 모든 결과에 "참고용, 행정사 확인 필요".
   4. `/[locale]`(메인): 대상 선택 3버튼, 진단 위젯, 실적 지표(C-7), 수요 지도 미리보기(플래그), 수수료 링크.
   5. `/about`, `/fees`, `/privacy`, `/terms`: 초안 + [전문가 검토 필요].
-  6. `src/lib/demand/aggregate.ts`: 최근 30일 C·B·A 리드 시·도×업종 집계, 급여 중앙값 구간, n<5 "자료 부족". `/[locale]/demand`(플래그 off → 404), 고지 문구 6개 언어, 버튼 2개만(C-8).
+  6. `src/lib/demand/aggregate.ts`: 최근 30일 C·B·A 리드 시·도×업종 집계, 급여 중앙값 구간, n<5 "자료 부족". `/[locale]/demand`(플래그 off → ComingSoon 200 noindex, SC-07), 고지 문구 6개 언어, 버튼 2개만(C-8).
   7. SEO: `app/sitemap.ts`, `app/robots.ts`, `generateMetadata` hreflang alternates, Organization JSON-LD, `/admin`·`/employer/candidates` noindex(메타 + robots).
   8. `/[locale]/guide/[slug]`(MDX 샘플 1편, reviewedBy·updatedAt, FAQPage·BreadcrumbList JSON-LD), `/[locale]/cases` 골격.
   9. `scripts/lighthouse.ts` + `pnpm lighthouse`: `pnpm build && pnpm start`(테스트 DB) 후 `/ko`, `/ko/about`, `/ko/fees`, `/ko/terms` 모바일 프리셋 각 3회 중앙값.
@@ -224,11 +224,11 @@
 - 작업:
   1. Auth.js v5 설정(`src/auth.ts`): JWT 세션, Credentials 프로바이더 3개(`seeker-otp`, `employer-password`, `staff-password`), 세션에 role·`twoFactorVerified` 포함.
   2. OTP: `src/lib/otp.ts` — OtpChallenge 테이블(코드 해시 저장, phoneHash 키), 재전송 60초, 시간당 5회, 오입력 5회 잠금, 개발 모드 콘솔 출력(콘솔 알림 어댑터 재사용). 시계 주입(`now`)으로 테스트.
-  3. `src/lib/rate-limit.ts`(Postgres `RateLimitBucket`, 고정 창) — OTP 발송·로그인에 적용(수집 API 적용과 R-129 최종 테스트는 P1d).
+  3. `src/lib/rateLimit.ts`(Postgres `RateLimitBucket`, 고정 창) — OTP 발송·로그인에 적용(수집 API 적용과 R-129 최종 테스트는 P1d).
   4. 직원: `/admin/login`, `/admin/2fa/setup`(otplib, QR 대신 otpauth 문자열·수동 키 표시 — 추가 패키지 없음), `/admin/2fa/verify`. 미들웨어를 next-intl + Auth 체인으로 합쳐 `/admin/*`는 직원 역할 + `twoFactorVerified` 없으면 거부. `/admin`은 한국어 전용.
   5. 기업: `/[locale]/employer/signup`, `/[locale]/employer/login`, 사업자번호 `bizRegNoEnc` + `bizRegNoHash` 중복 거부, argon2 해시.
   6. 구직자 OTP 로그인 화면(`/[locale]/seeker/login`) — 등록 흐름은 P1c.
-- 만들거나 고칠 파일: `src/auth.ts`, `src/app/api/auth/[...nextauth]/route.ts`, `src/middleware.ts`, `src/lib/{otp,rate-limit,password}.ts`, `src/app/admin/{login,2fa}/**`, `src/app/[locale]/employer/{signup,login}/**`, `src/app/[locale]/seeker/login/**`, `src/schemas/auth.ts`, `messages/*.json`, `tests/unit/{otp,rate-limit,admin-auth,employer-signup}.test.ts`, `tests/e2e/auth.spec.ts`
+- 만들거나 고칠 파일: `src/auth.ts`, `src/app/api/auth/[...nextauth]/route.ts`, `src/middleware.ts`, `src/lib/{otp,rateLimit,password}.ts`, `src/app/admin/{login,2fa}/**`, `src/app/[locale]/employer/{signup,login}/**`, `src/app/[locale]/seeker/login/**`, `src/schemas/auth/auth.ts`, `messages/*.json`, `tests/unit/lib/{otp,rateLimit,authGuard,authCredentials,employerAccount,phone}.test.ts`, `tests/unit/app/api/**`, `tests/e2e/auth.spec.ts`
 - 완료 조건(PRD 인용):
   - R-104 "60초 내 재전송 거부, 시간당 5회 초과 거부, 오입력 5회 잠금 — 테스트"
   - R-118 "2FA 미완료 시 `/admin/*` 접근 거부 테스트"
@@ -279,7 +279,7 @@
   4. `/[locale]/employer/diagnosis`: 업종·시군구·상시근로자·내국인 피보험자·외국인 현황 입력 → evaluate.ts → GREEN/YELLOW/RED + "행정사 확인 필요", 결과를 리드로 저장(source=DIAGNOSIS 계열).
   5. `/[locale]/employer/request`(로그인 기업): 회사정보 암호화(Company `*Enc`), 자유 입력란 pii-guard(거부 + 사유 표시), 제출 시 해당 리드 생성/연결 후 B 전이 + AuditLog + 검증 큐 표시.
   6. R-129 마무리: OTP·로그인(P1b 적용분)·수집 API 각각 한도 초과 429 통합 테스트.
-- 만들거나 고칠 파일: `src/app/api/ingest/job-leads/route.ts`, `src/lib/leads/{ingest,tagging,transitions}.ts`, `src/lib/jobs/{boss,archive-leads}.ts`, `scripts/worker.ts`, `src/app/[locale]/employer/{diagnosis,request}/**`, `src/components/employer/**`, `src/schemas/employer/**`, `messages/*.json`, `package.json`(worker 스크립트), `tests/unit/{ingest,dnc,archive-job,diagnosis,employer-request,rate-limit-429}.test.ts`, `tests/e2e/employer-intake.spec.ts`
+- 만들거나 고칠 파일: `src/app/api/ingest/job-leads/route.ts`, `src/lib/leads/{ingest,tagging,transitions}.ts`, `src/lib/jobs/{boss,archive-leads}.ts`, `scripts/worker.ts`, `src/app/[locale]/employer/{diagnosis,request}/**`, `src/components/employer/**`, `src/schemas/employer/**`, `messages/*.json`, `package.json`(worker 스크립트), `tests/unit/{ingest,dnc,archive-job,diagnosis,employer-request,rateLimit429}.test.ts` (STANDARD 4.10: `tests/unit/` 아래 src 경로 미러, camelCase), `tests/e2e/employer-intake.spec.ts`
 - 완료 조건(PRD 인용):
   - R-114 "테스트: 같은 배치 2회 → 행 수 동일, closesAt 과거 거부, 201건 거부, 키 없음 401"
   - R-115 "테스트" (DO_NOT_CONTACT 리드 재수집 후 grade가 DO_NOT_CONTACT 유지)

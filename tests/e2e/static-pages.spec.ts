@@ -43,7 +43,11 @@ test.describe("R-102 public pages", () => {
     await expect(page.getByTestId("no-seeker-fee")).toHaveText(msg("ko", "common.noSeekerFee"));
     for (const p of ["/ko", "/ko/about", "/ko/fees"]) {
       await page.goto(p);
-      expect(await page.content()).not.toContain("[휴대전화 번호 삭제됨]");
+      const html = await page.content();
+      // The operator mobile lives only in SITE_OPERATOR_MOBILE (Q-06); no number is kept in the repo.
+      expect(html).not.toMatch(/01[016-9]-\d{3,4}-\d{4}/);
+      const mobile = process.env.SITE_OPERATOR_MOBILE;
+      if (mobile) expect(html).not.toContain(mobile);
     }
   });
 
