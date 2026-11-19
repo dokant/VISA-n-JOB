@@ -1,6 +1,9 @@
 #!/bin/sh
 # Container entrypoint (A-8, Dockerfile). Usage: visanjob app|worker|migrate|seed|<command>
 # Checks the required environment before starting; logs are JSON lines without values.
+# Database rules (DECISIONS Q-31): host `db` (the compose PostgreSQL container) needs no sslmode
+# and no CA; any other host should use sslmode=require and the CA file; the local embedded
+# development ports are refused.
 set -eu
 
 BIN=/app/node_modules/.bin
@@ -25,18 +28,59 @@ require() {
   done
 }
 
+# Host name of DATABASE_URL (no value is logged). "db" is the PostgreSQL container of the
+# compose network (profile local-db, DECISIONS Q-31); anything else is an external database.
+database_host() {
+  rest="${DATABASE_URL#*://}"
+  rest="${rest%%[/?]*}"
+  rest="${rest##*@}"
+  case "$rest" in
+    \[*) rest="${rest%%]*}]" ;;
+    *) rest="${rest%%:*}" ;;
+  esac
+  printf '%s' "$rest"
+}
+
+# The CA file of NODE_EXTRA_CA_CERTS is only placed for a managed database. When it is missing,
+# drop the variable so Node does not warn on every start.
+drop_missing_ca() {
+  if [ -n "${NODE_EXTRA_CA_CERTS:-}" ] && [ ! -f "$NODE_EXTRA_CA_CERTS" ]; then
+    unset NODE_EXTRA_CA_CERTS
+    return 1
+  fi
+  return 0
+}
+
 check_database_url() {
   require DATABASE_URL
-  case "${DATABASE_URL:-}" in
-    "") ;;
+  [ -n "${DATABASE_URL:-}" ] || return 0
+  case "$DATABASE_URL" in
     *127.0.0.1:5432[09]* | *localhost:5432[09]*)
       # 54320 / 54329 are the local embedded development and test clusters (README).
       log error config.embedded_database DATABASE_URL
       missing=1
+      return 0
       ;;
-    *sslmode=require* | *sslmode=verify-ca* | *sslmode=verify-full*) ;;
-    *) log warn config.database_without_sslmode DATABASE_URL ;;
   esac
+  if [ "$(database_host)" = "db" ]; then
+    # Internal compose network: the db container has no TLS, so no sslmode and no CA.
+    case "$DATABASE_URL" in
+      *sslmode=require* | *sslmode=verify-ca* | *sslmode=verify-full*)
+        log error config.internal_database_tls DATABASE_URL
+        missing=1
+        ;;
+    esac
+    drop_missing_ca || true
+  else
+    # External (managed) database: TLS is expected and the worker verifies the certificate.
+    case "$DATABASE_URL" in
+      *sslmode=require* | *sslmode=verify-ca* | *sslmode=verify-full*) ;;
+      *) log warn config.database_without_sslmode DATABASE_URL ;;
+    esac
+    if [ -z "${NODE_EXTRA_CA_CERTS:-}" ] || ! drop_missing_ca; then
+      log warn config.database_ca_missing NODE_EXTRA_CA_CERTS
+    fi
+  fi
 }
 
 check_flags() {

@@ -7,6 +7,8 @@
  *   pg-boss only schedules and delivers; the worker passes the delivery time as `now`.
  * - Only the worker process (`pnpm worker`, scripts/worker.ts) starts pg-boss. The web app does not.
  */
+import { existsSync } from "node:fs";
+
 import PgBoss from "pg-boss";
 
 import {
@@ -65,8 +67,36 @@ export const SCHEDULED_JOBS: readonly ScheduledJob[] = [
   },
 ];
 
+/** Host name of the PostgreSQL container on the compose network (deploy/, DECISIONS Q-31). */
+export const INTERNAL_DATABASE_HOST = "db";
+
+function databaseHost(connectionString: string): string | null {
+  try {
+    return new URL(connectionString).hostname;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Connection options of the worker (Q-31), the same rule as deploy/docker-entrypoint.sh:
+ * - internal database (host `db`, no TLS in the container) and no CA file → TLS off;
+ * - any other database → whatever the URL says (sslmode=require verifies the certificate against
+ *   the CA in NODE_EXTRA_CA_CERTS; the entrypoint warns when it is missing).
+ * An sslmode in the URL always wins over `ssl` in node-postgres.
+ */
+export function bossConnectionOptions(
+  connectionString: string,
+  caFile: string | undefined = process.env.NODE_EXTRA_CA_CERTS,
+  fileExists: (file: string) => boolean = existsSync,
+): { connectionString: string; ssl?: false } {
+  const internal = databaseHost(connectionString) === INTERNAL_DATABASE_HOST;
+  const hasCa = caFile !== undefined && caFile !== "" && fileExists(caFile);
+  return internal && !hasCa ? { connectionString, ssl: false } : { connectionString };
+}
+
 export function createBoss(connectionString: string): PgBoss {
-  return new PgBoss({ connectionString, schema: PGBOSS_SCHEMA });
+  return new PgBoss({ ...bossConnectionOptions(connectionString), schema: PGBOSS_SCHEMA });
 }
 
 /** Creates the queues and their cron schedules (idempotent: safe on every worker start). */

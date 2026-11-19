@@ -90,20 +90,22 @@ tests/unit, tests/e2e (support/ 포함), tests/setup (Vitest 테스트 DB)
 - **운영 주체 정보** (`src/config/site.config.ts`): 브랜드 표기(VISA n JOB / 비자앤잡), 코리아비자행정사사무소(사업자등록번호·행정사 등록번호), 비자앤잡 유료직업소개소(직업소개사업 등록번호), 대표자·주소·대표전화. 기본값은 `.workflow/SITE_INFO.md`, `SITE_*` 환경변수가 있으면 우선. 휴대전화는 `SITE_OPERATOR_MOBILE`(내부용, 공개 화면 미표시), 입금계좌는 저장소에 두지 않는다. 실적 지표(`metrics`)는 운영자 입력 전까지 빈 목록(PC-7).
 - **비밀 정보**: `.env`(git 제외)에만 둔다. `.env.example`만 커밋한다.
 
-## 배포 (A-8, DECISIONS Q-30)
+## 배포 (A-8, DECISIONS Q-30·Q-31)
 
-서울 리전 리눅스 서버 1대(Docker: Caddy·앱·워커, 비공개 파일 볼륨) + 서울 리전 관리형 PostgreSQL. 비공개 스테이징(`staging.visanjob.co.kr`, 기본 인증·검색 차단)을 먼저 연다.
-절차·확인 목록·백업·운영 전환: [deploy/DEPLOY.md](deploy/DEPLOY.md).
+스테이징: AWS Lightsail 서울 서버 1대(2GB, Ubuntu 24.04) 안에서 Docker로 Caddy·앱·워커·**PostgreSQL 17 컨테이너**(`db`, compose 프로필 `local-db`, 호스트 포트 없음)·매일 백업을 돌린다. 비공개 스테이징(`staging.visanjob.co.kr`, 기본 인증·검색 차단)을 먼저 연다. 운영 전환 때는 관리형 DB(외부, `sslmode=require` + CA)로 바꾸고 프로필을 끈다.
+AWS 계정 준비부터 서버 생성·설치·실행·확인·백업·복원·업데이트·운영 전환까지: [deploy/DEPLOY.md](deploy/DEPLOY.md).
 
-| 파일                             | 내용                                                                                              |
-| -------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `Dockerfile`                     | 멀티 스테이지(node 24, corepack pnpm). 운영 의존성만, 한 이미지로 `app`·`worker`·`migrate`·`seed` |
-| `deploy/docker-entrypoint.sh`    | 명령별 필수 환경 변수 확인(없으면 시작 실패, 값은 출력 안 함)                                     |
-| `deploy/docker-compose.yml`      | migrate(1회) → app·worker, caddy(80/443). 비공개 파일 볼륨은 app에만                              |
-| `deploy/Caddyfile`               | 스테이징: 기본 인증, `X-Robots-Tag: noindex, nofollow`, `/robots.txt` 전체 차단. 운영 블록 주석   |
-| `deploy/.env.production.example` | 서버 환경 변수 이름·설명(값 없음). 서버에서 `deploy/.env`로 복사                                  |
-| `scripts/gen-secrets.ts`         | 비밀값 무작위 생성 → 파일에만 기록(화면에는 이름만). `node scripts/gen-secrets.ts deploy/.env`    |
-| `src/app/api/health/route.ts`    | `GET /api/health` — DB `SELECT 1` 성공 시 200, 실패 시 503(상세 없음)                             |
+| 파일                             | 내용                                                                                                                             |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `Dockerfile`                     | 멀티 스테이지(node 24, corepack pnpm). 운영 의존성만, 한 이미지로 `app`·`worker`·`migrate`·`seed`                                |
+| `deploy/docker-entrypoint.sh`    | 명령별 필수 환경 변수 확인(없으면 시작 실패, 값은 출력 안 함). 내부 `db`는 sslmode·CA 불필요, 외부 DB는 sslmode·CA 경고          |
+| `deploy/docker-compose.yml`      | db(`local-db` 프로필, 헬스체크 후) → migrate(1회) → app·worker, caddy(80/443), backup. 비공개 파일 볼륨은 app(읽기 전용: backup) |
+| `deploy/backup.sh`               | 매일 `pg_dump -Fc` + 비공개 파일 tar → `/home/ubuntu/visanjob-backups`(0700/0600), 최근 14개 보관                                |
+| `deploy/Caddyfile`               | 스테이징: 기본 인증, `X-Robots-Tag: noindex, nofollow`, `/robots.txt` 전체 차단. 운영 블록 주석                                  |
+| `deploy/.env.production.example` | 서버 환경 변수 이름·설명(값 없음). 서버에서 `deploy/.env`로 복사                                                                 |
+| `scripts/gen-secrets.ts`         | 비밀값·`POSTGRES_PASSWORD` 생성, 비어 있으면 내부 DB용 `DATABASE_URL` 조립 → 파일에만 기록(화면에는 이름만)                      |
+| `src/lib/jobs/boss.ts`           | `bossConnectionOptions`: 워커가 내부 `db`에 CA 없이 붙을 때 TLS 끔(외부 DB는 URL의 sslmode 그대로)                               |
+| `src/app/api/health/route.ts`    | `GET /api/health` — DB `SELECT 1` 성공 시 200, 실패 시 503(상세 없음)                                                            |
 
 `prisma`·`tsx`·`typescript`는 운영 이미지에서 마이그레이션·워커·시드·`next.config.ts`에 필요해 `dependencies`, `embedded-postgres`는 개발·테스트 전용이라 `devDependencies`다.
 
@@ -145,7 +147,7 @@ pnpm db:reset && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm i18n:
 | 저장소      | `PRIVATE_STORAGE_DIR` (비공개 업로드 경로, 기본 `storage/private/`, R-210)                                                                                                                                                                                                                                                  |
 | 보안        | `ENCRYPTION_KEYS`, `HASH_KEY`, `AUTH_SECRET`, `AUTH_URL`, `TRUST_PROXY`, `INGEST_API_KEY`                                                                                                                                                                                                                                   |
 | 이메일      | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                                                                                                                                                                                                                              |
-| 배포        | `STAGING_DOMAIN`, `STAGING_BASIC_AUTH_USER`, `STAGING_BASIC_AUTH_HASH`, `IMAGE_TAG` (`deploy/.env`만, [deploy/DEPLOY.md](deploy/DEPLOY.md))                                                                                                                                                                                 |
+| 배포        | `COMPOSE_PROFILES`, `POSTGRES_PASSWORD`, `BACKUP_DIR`, `BACKUP_KEEP`, `STAGING_DOMAIN`, `STAGING_BASIC_AUTH_USER`, `STAGING_BASIC_AUTH_HASH`, `IMAGE_TAG` (`deploy/.env`만, [deploy/DEPLOY.md](deploy/DEPLOY.md))                                                                                                           |
 | 테스트·측정 | `E2E_PORT`, `E2E_WORKERS`, `E2E_DEMAND_URL`, `E2E_JOBS_PORT`, `E2E_CANDIDATES_PORT`, `LH_PORT`, `CHROME_PATH`                                                                                                                                                                                                               |
 
 ### 기능 플래그 4종 (WO §16)
