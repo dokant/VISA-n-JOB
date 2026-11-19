@@ -29,6 +29,10 @@ npm-debug.log*
 # env files (N-06): secrets stay local, only the example is committed
 .env*
 !.env.example
+# deployment template only (A-8); deploy/.env holds the real values and stays ignored
+!deploy/.env.production.example
+# managed database root CA placed on the server (deploy/DEPLOY.md)
+/deploy/certs/
 
 # local embedded Postgres data (P0b, PG_DATA_DIR default)
 /.pgdata/

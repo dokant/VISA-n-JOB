@@ -90,6 +90,23 @@ tests/unit, tests/e2e (support/ 포함), tests/setup (Vitest 테스트 DB)
 - **운영 주체 정보** (`src/config/site.config.ts`): 브랜드 표기(VISA n JOB / 비자앤잡), 코리아비자행정사사무소(사업자등록번호·행정사 등록번호), 비자앤잡 유료직업소개소(직업소개사업 등록번호), 대표자·주소·대표전화. 기본값은 `.workflow/SITE_INFO.md`, `SITE_*` 환경변수가 있으면 우선. 휴대전화는 `SITE_OPERATOR_MOBILE`(내부용, 공개 화면 미표시), 입금계좌는 저장소에 두지 않는다. 실적 지표(`metrics`)는 운영자 입력 전까지 빈 목록(PC-7).
 - **비밀 정보**: `.env`(git 제외)에만 둔다. `.env.example`만 커밋한다.
 
+## 배포 (A-8, DECISIONS Q-30)
+
+서울 리전 리눅스 서버 1대(Docker: Caddy·앱·워커, 비공개 파일 볼륨) + 서울 리전 관리형 PostgreSQL. 비공개 스테이징(`staging.visanjob.co.kr`, 기본 인증·검색 차단)을 먼저 연다.
+절차·확인 목록·백업·운영 전환: [deploy/DEPLOY.md](deploy/DEPLOY.md).
+
+| 파일                             | 내용                                                                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `Dockerfile`                     | 멀티 스테이지(node 24, corepack pnpm). 운영 의존성만, 한 이미지로 `app`·`worker`·`migrate`·`seed` |
+| `deploy/docker-entrypoint.sh`    | 명령별 필수 환경 변수 확인(없으면 시작 실패, 값은 출력 안 함)                                     |
+| `deploy/docker-compose.yml`      | migrate(1회) → app·worker, caddy(80/443). 비공개 파일 볼륨은 app에만                              |
+| `deploy/Caddyfile`               | 스테이징: 기본 인증, `X-Robots-Tag: noindex, nofollow`, `/robots.txt` 전체 차단. 운영 블록 주석   |
+| `deploy/.env.production.example` | 서버 환경 변수 이름·설명(값 없음). 서버에서 `deploy/.env`로 복사                                  |
+| `scripts/gen-secrets.ts`         | 비밀값 무작위 생성 → 파일에만 기록(화면에는 이름만). `node scripts/gen-secrets.ts deploy/.env`    |
+| `src/app/api/health/route.ts`    | `GET /api/health` — DB `SELECT 1` 성공 시 200, 실패 시 503(상세 없음)                             |
+
+`prisma`·`tsx`·`typescript`는 운영 이미지에서 마이그레이션·워커·시드·`next.config.ts`에 필요해 `dependencies`, `embedded-postgres`는 개발·테스트 전용이라 `devDependencies`다.
+
 ## 글꼴
 
 `src/lib/fonts.ts`(STANDARD 2.3):
@@ -126,8 +143,9 @@ pnpm db:reset && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm i18n:
 | 운영 주체   | `SITE_BRAND_WORDMARK`, `SITE_BRAND_NAME_KO`, `SITE_BRAND_TAGLINE`, `SITE_ADMIN_SCRIVENER_OFFICE_NAME`, `SITE_BUSINESS_REG_NO`, `SITE_ADMIN_SCRIVENER_REG_NO`, `SITE_JOB_PLACEMENT_NAME`, `SITE_JOB_PLACEMENT_REG_NO`, `SITE_REPRESENTATIVE`, `SITE_ADDRESS`, `SITE_PHONE`, `SITE_EMAIL`, `SITE_URL`, `SITE_OPERATOR_MOBILE` |
 | DB          | `DATABASE_URL`, `PG_DATA_DIR`, `PG_TEST_DATA_DIR`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_SAMPLE_SEEKERS`                                                                                                                                                                                                         |
 | 저장소      | `PRIVATE_STORAGE_DIR` (비공개 업로드 경로, 기본 `storage/private/`, R-210)                                                                                                                                                                                                                                                  |
-| 보안        | `ENCRYPTION_KEYS`, `HASH_KEY`, `AUTH_SECRET`, `TRUST_PROXY`, `INGEST_API_KEY`                                                                                                                                                                                                                                               |
+| 보안        | `ENCRYPTION_KEYS`, `HASH_KEY`, `AUTH_SECRET`, `AUTH_URL`, `TRUST_PROXY`, `INGEST_API_KEY`                                                                                                                                                                                                                                   |
 | 이메일      | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                                                                                                                                                                                                                              |
+| 배포        | `STAGING_DOMAIN`, `STAGING_BASIC_AUTH_USER`, `STAGING_BASIC_AUTH_HASH`, `IMAGE_TAG` (`deploy/.env`만, [deploy/DEPLOY.md](deploy/DEPLOY.md))                                                                                                                                                                                 |
 | 테스트·측정 | `E2E_PORT`, `E2E_WORKERS`, `E2E_DEMAND_URL`, `E2E_JOBS_PORT`, `E2E_CANDIDATES_PORT`, `LH_PORT`, `CHROME_PATH`                                                                                                                                                                                                               |
 
 ### 기능 플래그 4종 (WO §16)
@@ -173,7 +191,7 @@ N-05 감사 로그 묶음(PII 열람·내보내기(PC-14 함수 단위)·등급 
 | A-5       | 기능 플래그 4종 켜기(법무 확인 후)                           | 운영자·법무        | `.env`의 `FEATURE_*`, `src/config/flags.ts`                            |
 | A-6       | 규칙·점수표 실제 값 입력과 PUBLISHED 게시                    | 행정사             | 관리자 화면 규칙·점수표 메뉴(`/admin`)                                 |
 | A-7       | 약관·동의서·고지 문구 확정, 실제 규칙 문구, 번역 원어민 검수 | 법무·행정사·운영자 | `messages/*.json`(`_review`), 약관·동의서 문서, 규칙 문구 키           |
-| A-8       | 실서버 배포·도메인·운영 DB(서울 리전)                        | 운영자             | 배포 환경, `SITE_URL`·`TRUST_PROXY`·`DATABASE_URL`                     |
+| A-8       | 실서버 배포·도메인·운영 DB(서울 리전)                        | 운영자             | [deploy/DEPLOY.md](deploy/DEPLOY.md), `deploy/.env`                    |
 
 ### 알려진 한계 (Gate 4 보고 대상)
 
@@ -194,7 +212,7 @@ Gate 4 법무 확인 목록:
 Gate 4 운영·배포 확인 목록(STATE.md·DECISIONS 기록 모음):
 
 - OTP 5회 오류 시 번호 잠금(R-104 규정대로 유지, P1c O-7).
-- `/admin` 리디렉트가 localhost를 가리킬 수 있음 — 배포 전 `TRUST_PROXY`·`SITE_URL` 확인(P1c O-9).
+- `/admin` 리디렉트가 localhost를 가리킬 수 있음(P1c O-9) — 해소: 미들웨어 리디렉트는 `AUTH_URL`→`SITE_URL`→(`TRUST_PROXY=true`일 때) `X-Forwarded-Host`→`Host` 순의 공개 주소를 쓴다(`src/lib/publicOrigin.ts`). 서버에서는 `AUTH_URL`·`SITE_URL`·`TRUST_PROXY=true` 설정 필수.
 - 전공 분야 코드(MAJOR_FIELDS) 운영자 검토(Q-24, P2b).
 - 수집 리드로 공고를 만들 때 생기는 중복 Company 병합(Q-17 ①).
 - 리드 원본(rawJson, 직원 전용)에 숫자형 전화번호·메신저 ID가 남을 수 있음(P1d O-9·O-10).

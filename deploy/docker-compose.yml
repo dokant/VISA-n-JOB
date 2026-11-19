@@ -1,0 +1,130 @@
+# Visa&Job on one server (A-8, DECISIONS Q-30): Caddy (HTTPS) → app; worker; migrations.
+# The database is the managed PostgreSQL in the Seoul region (DATABASE_URL, sslmode=require).
+#
+# Run from this folder (deploy/). Settings come from deploy/.env (copy of .env.production.example;
+# never committed). Compose reads the same file for the ${...} values below.
+#   docker compose build
+#   docker compose up -d
+# Steps, checks and backups: deploy/DEPLOY.md.
+
+name: visanjob
+
+x-app: &app
+  image: visanjob-app:${IMAGE_TAG:-latest}
+  build:
+    context: ..
+    dockerfile: Dockerfile
+    # Baked into statically rendered pages; a change needs `docker compose build` (DEPLOY.md).
+    args:
+      SITE_URL: ${SITE_URL:?SITE_URL is required in deploy/.env}
+      SITE_BRAND_WORDMARK: ${SITE_BRAND_WORDMARK:-}
+      SITE_BRAND_NAME_KO: ${SITE_BRAND_NAME_KO:-}
+      SITE_BRAND_TAGLINE: ${SITE_BRAND_TAGLINE:-}
+      SITE_ADMIN_SCRIVENER_OFFICE_NAME: ${SITE_ADMIN_SCRIVENER_OFFICE_NAME:-}
+      SITE_BUSINESS_REG_NO: ${SITE_BUSINESS_REG_NO:-}
+      SITE_ADMIN_SCRIVENER_REG_NO: ${SITE_ADMIN_SCRIVENER_REG_NO:-}
+      SITE_JOB_PLACEMENT_NAME: ${SITE_JOB_PLACEMENT_NAME:-}
+      SITE_JOB_PLACEMENT_REG_NO: ${SITE_JOB_PLACEMENT_REG_NO:-}
+      SITE_REPRESENTATIVE: ${SITE_REPRESENTATIVE:-}
+      SITE_ADDRESS: ${SITE_ADDRESS:-}
+      SITE_PHONE: ${SITE_PHONE:-}
+      SITE_EMAIL: ${SITE_EMAIL:-}
+      FEATURE_DEMAND_MAP: ${FEATURE_DEMAND_MAP:-false}
+      FEATURE_PUBLIC_JOBS: ${FEATURE_PUBLIC_JOBS:-false}
+      FEATURE_REFERRAL_REWARD: ${FEATURE_REFERRAL_REWARD:-false}
+      FEATURE_EMPLOYER_CANDIDATES: ${FEATURE_EMPLOYER_CANDIDATES:-false}
+  env_file: .env
+  environment:
+    NODE_ENV: production
+    # Root CA of the managed database (pg-boss / node-postgres verifies the server certificate).
+    # The file is placed by a person (DEPLOY.md "DB 인증서"); a missing file only logs a warning.
+    NODE_EXTRA_CA_CERTS: /certs/db-ca.pem
+  volumes:
+    - ./certs:/certs:ro
+  init: true
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+  # Applies prisma/migrations once, then exits. app and worker start only after it succeeded.
+  migrate:
+    <<: *app
+    command: ["migrate"]
+    restart: "no"
+
+  app:
+    <<: *app
+    command: ["app"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      NODE_EXTRA_CA_CERTS: /certs/db-ca.pem
+      PRIVATE_STORAGE_DIR: /data/private
+    volumes:
+      - ./certs:/certs:ro
+      # Private uploads (R-210, 소개 확인서). Only this container mounts it.
+      - private-files:/data/private
+    # Not published on the host: only Caddy reaches it on the internal network.
+    expose:
+      - "3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  worker:
+    <<: *app
+    command: ["worker"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    stop_grace_period: 20s
+
+  # Manual only: `docker compose run --rm seed` (reference data + SEED_ADMIN_* account).
+  seed:
+    <<: *app
+    command: ["seed"]
+    restart: "no"
+    profiles: ["tools"]
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    # Only what the Caddyfile reads — the app secrets are not given to Caddy.
+    environment:
+      STAGING_DOMAIN: ${STAGING_DOMAIN:-staging.visanjob.co.kr}
+      STAGING_BASIC_AUTH_USER: ${STAGING_BASIC_AUTH_USER:?STAGING_BASIC_AUTH_USER is required}
+      STAGING_BASIC_AUTH_HASH: ${STAGING_BASIC_AUTH_HASH:?STAGING_BASIC_AUTH_HASH is required}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  private-files:
+  caddy-data:
+  caddy-config:

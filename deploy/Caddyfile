@@ -1,0 +1,64 @@
+# Caddy in front of the app (A-8, DECISIONS Q-30). Automatic HTTPS (Let's Encrypt) for the site
+# addresses below; ports 80 and 443 must be open and the DNS A record must point at this server.
+#
+# Proxy headers: reverse_proxy replaces X-Forwarded-For with the address of the connecting client
+# (no trusted_proxies are configured, so values sent by clients are not passed on) and sets
+# X-Forwarded-Proto / X-Forwarded-Host. The app runs with TRUST_PROXY=true and reads the first
+# X-Forwarded-For value for its per-IP limits (src/lib/rateLimit.ts clientIp). The app port is
+# never published on the host, so every request goes through here.
+
+(common) {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+(to_app) {
+	reverse_proxy app:3000
+}
+
+# --- Staging (private): basic auth, never indexed -------------------------------------------
+# STAGING_BASIC_AUTH_HASH is a bcrypt hash from `caddy hash-password` (deploy/DEPLOY.md), kept
+# in deploy/.env only. The plain password is never stored on the server.
+{$STAGING_DOMAIN:staging.visanjob.co.kr} {
+	import common
+	# Every response. Set before basic_auth runs; DEPLOY.md checks it on the 401 and on app pages.
+	header X-Robots-Tag "noindex, nofollow"
+
+	# robots.txt stays readable without the password so crawlers see "Disallow: /".
+	@protected not path /robots.txt
+	basic_auth @protected {
+		{$STAGING_BASIC_AUTH_USER} {$STAGING_BASIC_AUTH_HASH}
+	}
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond <<TXT
+			User-agent: *
+			Disallow: /
+			TXT 200
+	}
+
+	handle {
+		import to_app
+	}
+}
+
+# --- Production (later, not active) ---------------------------------------------------------
+# Turn on only after the legal review (Gate 4) and the switch steps in deploy/DEPLOY.md
+# ("운영 전환"): SITE_URL / AUTH_URL = https://visanjob.co.kr, rebuild, then remove the staging
+# block above (or keep it with its own basic auth). No basic auth, no X-Robots-Tag here: the app
+# sends noindex itself for private areas (src/middleware.ts) and serves its own robots.txt.
+#
+# www.visanjob.co.kr {
+# 	redir https://visanjob.co.kr{uri} permanent
+# }
+#
+# visanjob.co.kr {
+# 	import common
+# 	import to_app
+# }

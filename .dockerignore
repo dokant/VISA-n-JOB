@@ -1,0 +1,35 @@
+# Docker build context (Dockerfile, A-8). Secrets, local data and test output never enter the image.
+.git
+.github
+.husky
+.claude
+.workflow
+node_modules
+.next
+out
+build
+coverage
+playwright-report
+test-results
+blob-report
+lighthouse-reports
+.lighthouse
+tests
+playwright.config.ts
+vitest.config.ts
+design_handoff_visanjob_homepage
+docs
+
+# secrets and local data
+.env
+.env.*
+deploy/.env
+deploy/.env.*
+deploy/certs
+.pgdata
+.pgdata-test
+*.pgdata
+storage
+*.pem
+*.tsbuildinfo
+next-env.d.ts

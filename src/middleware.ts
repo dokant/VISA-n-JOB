@@ -4,6 +4,7 @@ import createMiddleware from "next-intl/middleware";
 import { REFERRAL_COOKIE_MAX_AGE_SEC } from "./config/limits";
 import { readSessionClaims } from "./lib/authConfig";
 import { decideAdminAccess, isAdminPath } from "./lib/authGuard";
+import { publicUrl } from "./lib/publicOrigin";
 import {
   REF_COOKIE,
   SRC_COOKIE,
@@ -46,6 +47,23 @@ function keepEntryParams(request: NextRequest, response: NextResponse): void {
   if (src) response.cookies.set(SRC_COOKIE, src, options);
 }
 
+/**
+ * O-9: an absolute redirect Location on the internal origin (the URL Next.js gives the middleware,
+ * e.g. http://localhost:3000) is moved to the public origin. Other Locations are left alone.
+ */
+function toPublicLocation(request: NextRequest, response: NextResponse): void {
+  const location = response.headers.get("location");
+  if (!location) return;
+  try {
+    const target = new URL(location, request.url);
+    if (target.origin !== new URL(request.url).origin) return;
+    const moved = publicUrl(`${target.pathname}${target.search}${target.hash}`, request);
+    if (moved.href !== target.href) response.headers.set("location", moved.href);
+  } catch {
+    // unparsable Location: keep it as it is
+  }
+}
+
 export default async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   let response: NextResponse;
@@ -54,12 +72,15 @@ export default async function middleware(request: NextRequest): Promise<NextResp
     const decision = decideAdminAccess(pathname, await readSessionClaims(request.headers));
     response =
       decision.action === "redirect"
-        ? NextResponse.redirect(new URL(decision.to, request.url))
+        ? // O-9: public origin (AUTH_URL / SITE_URL / trusted proxy headers), not the internal one.
+          NextResponse.redirect(publicUrl(decision.to, request))
         : NextResponse.next();
     response.headers.set("Cache-Control", "no-store");
   } else {
     response = intl(request);
     keepEntryParams(request, response);
+    // O-9: a locale redirect (e.g. / → /ko) must not point at the internal server address either.
+    toPublicLocation(request, response);
   }
   if (NOINDEX.test(pathname)) response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;

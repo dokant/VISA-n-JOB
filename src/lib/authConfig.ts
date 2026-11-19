@@ -52,7 +52,8 @@ declare module "next-auth/jwt" {
 
 export const authConfig = {
   session: { strategy: "jwt", maxAge: SESSION_MAX_AGE_SEC },
-  // Local development and E2E run behind `next start` on 127.0.0.1 (deployment is out of scope).
+  // Local development and E2E run behind `next start` on 127.0.0.1. In deployment (deploy/) the app
+  // sits behind Caddy, which sets X-Forwarded-Host / -Proto; AUTH_URL fixes the public origin.
   trustHost: true,
   providers: [],
   callbacks: {
