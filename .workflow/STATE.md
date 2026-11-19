@@ -132,6 +132,7 @@
 | 2026-11-18 | I-1 기준 검토 12/14(D-1 테스트 태그, D-2 구직자·기업 절대 만료 미검사). STANDARD v2.25(4.11 세션·로그아웃 보안 신설). Q-29. 통합 QA run 2 대기 |
 | 2026-11-18 | 통합 QA run 2: 필수 63/63, 전체 70/70, Fail 0, 판정불가 0, I-1 독립 시험 7종 통과(경합 50라운드 부활 0). 클린 실행 전 명령 통과, e2e 303 ×2 연속, Lighthouse /ko 중앙 87. 출시 기준 5/5. Q-29 D-1·D-2 마무리 수정 후 Gate 4 |
 | 2026-11-18 | Q-29 수정(커밋 204dc47, e644ba5): 모든 역할 절대 세션 수명(authTime+역할별 수명), 테스트 태그 R-118·R-104·R-123. 빌더 검증 test 637 ×3, 임시 DB e2e 311/311, 만료 검사 제거 시 새 E2E 4건 실패 대조. 별도 QA 재확인은 하지 않음. Gate 4 보고(.workflow/GATE4.md) |
+| 2026-11-19 | Q-31 반영(커밋 0ad648e): 스테이징 서버 내 PostgreSQL 17.9(compose 프로필 local-db), 매일 자동 백업(pg_dump + 파일, 14개 보관), gen-secrets가 DB 비밀번호·URL 생성, DEPLOY.md 비전문가용 재작성. test 661. Docker 미설치로 실제 실행 미검증 |
 | 2026-11-19 | 배포 준비(Q-30, 커밋 350f0f4): Dockerfile(app·worker·migrate·seed), deploy/docker-compose.yml·Caddyfile(스테이징 basic_auth·noindex), .env.production.example, scripts/gen-secrets.ts, /api/health, O-9 공개 주소 리디렉트, deploy/DEPLOY.md. test 653, Docker 없음으로 이미지 빌드 미검증. 의존성 분류 변경(prisma·tsx·typescript → dependencies, embedded-postgres → dev). AWS 계정이 시드니 리전만 허용 → 고급 기능 활성화 여부 사용자 결정 대기 |
 | 2026-11-19 | A-8 일부(push) 사람 승인: 대표 휴대전화 번호를 파일·전체 커밋 기록에서 제거(filter-branch, gc, 전 객체 검색 0건), .workflow 최신본 커밋. 커밋 번호 전부 변경(예: e644ba5 → f6b7ddf, 최신 d2fc68d). 기존 저장소 dokant/visanjob-site는 운영 중인 정적 사이트라 push 보류 → 새 저장소 github.com/dokant/VISA-n-JOB main에 push 완료 |
 | 2026-11-18 | Gate 4 사람 승인("출시 승인"). 판정 완료. push·실서버 배포·실제 발송·플래그 켜기·규칙 게시(A-3~A-8)는 각각 별도 승인 시 진행 |
